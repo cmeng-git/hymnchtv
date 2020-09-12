@@ -6,6 +6,10 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.1.1 (09/12/2020)" versioncode="101010">
+        <change>github 发布</change>
+    </release>
+
     <release version="1.1.0 (09/11/2020)" versioncode="101000">
         <change>全程序重写改进,并添加新功能</change>
         <change>使用最新的FragmentPagerAdapter进行平滑滚动</change>

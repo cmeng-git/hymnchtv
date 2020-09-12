@@ -28,7 +28,7 @@
 
 ## 文献资料
 * [Release Notes](https://github.com/cmeng-git/hymnchtv/blob/master/hymnchtv/ReleaseNotes.txt)
-* 因为有版权的诗歌的源材料，请查看[内容](https://github.com/cmeng-git/hymnchtv/blob/master/hymnchtv/documentation/content.md)
+* 因为有版权的诗歌的源材料，请查看[内容](https://github.com/cmeng-git/hymnchtv/blob/master/documentation/content.md)
 
 ## 反馈和贡献
 
