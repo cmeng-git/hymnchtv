@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/bg"
+        android:title="@string/bg">
+        <menu>
+            <item
+                android:id="@+id/sbg1"
+                android:title="@string/sbg1" />
+            <item
+                android:id="@+id/sbg2"
+                android:title="@string/sbg2" />
+            <item
+                android:id="@+id/sbg3"
+                android:title="@string/sbg3" />
+            <item
+                android:id="@+id/sbg4"
+                android:title="@string/sbg4" />
+            <item
+                android:id="@+id/sbg5"
+                android:title="@string/sbg5" />
+            <item
+                android:id="@+id/sbg6"
+                android:title="@string/sbg6" />
+            <item
+                android:id="@+id/sbg7"
+                android:title="@string/sbg7" />
+            <item
+                android:id="@+id/sbg8"
+                android:title="@string/sbg8" />
+            <item
+                android:id="@+id/sbg9"
+                android:title="@string/sbg9" />
+            <item
+                android:id="@+id/sbg10"
+                android:title="@string/sbg10" />
+            <item
+                android:id="@+id/sbg11"
+                android:title="@string/sbg11" />
+            <item
+                android:id="@+id/sbg12"
+                android:title="@string/sbg12" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/stext"
+        android:title="@string/stext">
+        <menu>
+            <item
+                android:id="@+id/small"
+                android:title="@string/small" />
+            <item
+                android:id="@+id/middle"
+                android:title="@string/middle" />
+            <item
+                android:id="@+id/lager"
+                android:title="@string/lager" />
+            <item
+                android:id="@+id/xlager"
+                android:title="@string/xlager" />
+            <item
+                android:id="@+id/inc"
+                android:title="@string/inc" />
+            <item
+                android:id="@+id/dec"
+                android:title="@string/dec" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/stextcolor"
+        android:title="@string/stextcolor">
+        <menu>
+            <item
+                android:id="@+id/red"
+                android:title="@string/red" />
+            <item
+                android:id="@+id/blue"
+                android:title="@string/blue" />
+            <item
+                android:id="@+id/white"
+                android:title="@string/white" />
+            <item
+                android:id="@+id/grey"
+                android:title="@string/grey" />
+            <item
+                android:id="@+id/brown"
+                android:title="@string/brown" />
+            <item
+                android:id="@+id/yellow"
+                android:title="@string/yellow" />
+            <item
+                android:id="@+id/green"
+                android:title="@string/green" />
+            <item
+                android:id="@+id/black"
+                android:title="@string/black" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/update_check"
+        android:title="@string/gui_update_check" />
+
+    <item
+        android:id="@+id/about"
+        android:title="@string/gui_about" />
+</menu>

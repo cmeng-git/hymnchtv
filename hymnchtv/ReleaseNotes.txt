@@ -1,0 +1,51 @@
+Project hymnchtv Release Notes
+=========================================================================
+Author:         cmeng
+Upload Date:	09/12/2020
+Version:		1.1.1 (101010)
+- Add CopyRights and source cleanup
+- Add readme file and necessary info for github release
+
+=========================================================================
+Author:         cmeng
+Upload Date:	09/11/2020
+Version:		1.1.0 (101000)
+Use FragmentPagerAdapter approach and clean up:
+- Activate contextMenu in contentView Fragment
+- On return to home, stop the player
+- Must use ResId for hymn page display using MyGlideApp, otherwise random page appear.
+- Fix screen rotation crashes.
+- Cannot set ContentView#hymnResName to static, otherwise PagerAdapter display incorrect pages.
+- Crop drawable images for max size view
+- Add all missing lyrics text for both db and bb simplified Chinese.
+- Make simplified Chinese lyrics as the first to search for user entry text.
+
+=========================================================================
+Author:         cmeng
+Upload Date:	09/07/2020
+Version:		1.0.1a (10011)
+- Replace FragmentPagerAdapter (ViewPager) with GalleryAdapter (BaseAdapter) class
+- ViewPager has fixed Note5 crashes when slide hymn content while playing is in progress
+  i.e. Fix OutOfMemoryError when using GalleryAdapter
+- Use Glide to display hymn content without zoom function.
+
+=========================================================================
+Author:         cmeng
+Upload Date:	09/04/2020
+Version:		1.0.1 (10010)
+- Change package name Id from com.example.song to org.cog.hymnchtv
+- Rewrite MainActivity and contentHandler classes
+- Add application HymnsApp class for future expansion
+- Use HymnsApp.getFileResId() to get the android resId for resource instead of using hard coded library
+  Purged unused static library classes for b.java, db.java, n.java, mb, mbc, mdb, mdbc classes
+- Add MediaController and AudioBgService to support full media playback with full UI and control
+
+=========================================================================
+Author:         cmeng
+Upload Date:	08/29/2020
+Version:		1.0.0 (10000)
+
+- first release based on hymnchtv decompiled source
+- Clean up original sources and remove redundant sources
+
+

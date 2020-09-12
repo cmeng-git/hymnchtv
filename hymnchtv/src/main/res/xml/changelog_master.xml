@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?><?xml-stylesheet type="text/xsl" href="changelog_style.xsl"?><!--
+     The master change log is kept in res/xml/changelog_master.xml.
+     Locale specific versions are kept in res/xml-<locale qualifier>/changelog.xml.
+
+     Don't edit the changelog_<name>_branch.xml files in the gh-pages branch.
+     They are automatically updated with "ant bump-version".
+-->
+<changelog>
+    <release version="1.1.0 (09/11/2020)" versioncode="101000">
+        <change>全程序重写改进,并添加新功能</change>
+        <change>使用最新的FragmentPagerAdapter进行平滑滚动</change>
+        <change>开发新的媒体播放器用户界面。给用户最大的控制权</change>
+        <change>全部更改及采用为新乐谱</change>
+        <change>以最大允许的屏幕大小显示诗歌词</change>
+        <change>给予完整大本詩歌及補充本詩歌,歌词搜索</change>
+    </release>
+
+    <release
+        version="1.0.0 (08/29/2020)" versioncode="100000">
+        <change>书拉密女小站-诗歌本原始版本</change>
+    </release>
+</changelog>

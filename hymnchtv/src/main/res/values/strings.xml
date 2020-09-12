@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">诗歌本</string>
+    <string name="app_title_main">书拉密女小站-诗歌本</string>
+    <string name="menu_settings">Settings</string>
+
+    <string name="gui_about">关与</string>
+    <string name="gui_cancel">取消</string>
+    <string name="gui_close">关闭</string>
+    <string name="gui_error">Error</string>
+    <string name="gui_ereor_db_ranger_fu">大本诗歌附歌只有1~6首</string>
+    <string name="gui_ereor_db_ranger_over">大本诗歌只有780首和附歌6首</string>
+    <string name="gui_error_file_not_found">（无法取得文件: %1$s）</string>
+    <string name="gui_error_invalid">输入错误: 未按目录或输入(附)号码</string>
+    <string name="gui_error_xb_range">补充本诗歌没有%1$s~%2$s</string>
+    <string name="gui_ereor_xb_ranger_over">补充本诗歌只有1005首</string>
+    <string name="gui_error_search_empty">请输入内容进行搜索</string>
+    <string name="gui_in_development">仍在开发中</string>
+    <string name="gui_ok">确认</string>
+    <string name="gui_to_be_added">待加</string>
+
+    <!-- Update checker -->
+    <string name="gui_app_new_available">有新的软件版本: %1$s</string>
+    <string name="gui_download">下载</string>
+    <string name="gui_download_completed">下载完成</string>
+    <string name="gui_download_failed">无法下载新更新！</string>
+    <string name="gui_downloaded_install">已下载更新并准备安装。</string>
+    <string name="gui_download_in_progress">正在下载更新。</string>
+    <string name="gui_in_progress">进行中</string>
+    <string name="gui_update">升级</string>
+    <string name="gui_update_check">检查更新</string>
+    <string name="gui_update_install">安装更新</string>
+    <string name="gui_update_none">没有新版本</string>
+    <string name="gui_version_current">您当前安装的版本:\n(%1$s-%2$s) 是最新的</string>
+    <string name="gui_version_new_available">可下载%1$s的新发行版本(%2$s-%3$s)</string>
+
+    <string name="gui_file_DOES_NOT_EXIST">The specified file could not be found. It was either deleted or moved</string>
+    <string name="gui_file_OPEN_NO_APPLICATION">HymnsApp couldn\'t find the application associated with this type of file</string>
+    <string name="gui_file_OPEN_NO_PERMISSION">You don\'t have enough permissions to open this file. Please check your read permissions and try again</string>
+    <string name="gui_file_RECEIVE_FAILED">An error occurred while transferring file: %1$s</string>
+    <string name="gui_received">%1$s received</string>
+
+    <string name="hint_app_state">目前只是草稿版,如有任何问题,请发电邮至: cmeng.gm@gmail.com</string>
+    <string name="hint_hymn_content_search">输入歌词搜索,最多显示50项</string>
+    <string name="hint_hymn_number_enter">输入第几首诗歌</string>
+    <string name="hint_hymn_ui">按目录或输入(附)号码\n后按大本,补充,新颂或儿诗</string>
+
+    <string name="hymn_db">大本</string>
+    <string name="hymn_content">内容</string>
+    <string name="hymn_er">儿诗</string>
+    <string name="hymn_fu">附歌</string>
+    <string name="hymn_lyrics">歌词</string>
+    <string name="hymn_new">新颂</string>
+    <string name="hymn_xb">补充</string>
+    <string name="hymn_search">内容搜索</string>
+    <string name="hymn_toc">目录</string>
+
+    <string name="hymn_info_er_media_none">对不起！儿童诗歌目前没有播放文件</string>
+    <string name="hymn_info_nb">新歌颂咏只有156首"</string>
+    <string name="hymn_info_nb_media_none">对不起！新歌颂咏目前没有播放文件</string>
+    <string name="hymn_info_xb">补充本诗歌没有附歌</string>
+
+    <string name="hymn_media_aplay">伴奏</string>
+    <string name="hymn_media_midi">midi</string>
+    <string name="hymn_media_mp3">mp3</string>
+    <string name="hymn_media_teach">教唱</string>
+
+    <string name="hymn_number">第几首</string>
+
+    <string name="hymn_match">共有匹配 %1$d 首詩歌</string>
+    <string name="hymn_match_er">儿童诗歌: 第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_nb">新歌颂咏: 第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_bb">補充本詩歌: 第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_db">大本詩歌: 第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_db_sp">大本詩歌: 附歌第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_none">找不到匹配</string>
+
+    <string name="hymn_title_db">大本诗歌 %1$d: %2$s</string>
+    <string name="hymn_title_dbs">大本诗歌 附%1$d: %2$s</string>
+    <string name="hymn_title_er">儿童诗歌 %1$d: %2$s</string>
+    <string name="hymn_title_nb">新歌颂咏 %1$d: %2$s</string>
+    <string name="hymn_title_xb">补充本 %1$d: %2$s</string>
+
+    <string name="menu_main">主页</string>
+    <string name="menu_media_ui_default_show">默认显示播放条</string>
+    <string name="menu_media_ui_default_hide">默认隐藏播放条</string>
+    <string name="menu_media_ui_toggle">显示/隐藏播放条</string>
+
+    <string name="nn0">0</string>
+    <string name="nn1">1</string>
+    <string name="nn2">2</string>
+    <string name="nn3">3</string>
+    <string name="nn4">4</string>
+    <string name="nn5">5</string>
+    <string name="nn6">6</string>
+    <string name="nn7">7</string>
+    <string name="nn8">8</string>
+    <string name="nn9">9</string>
+    <string name="nn10">附</string>
+    <string name="nn11">Del</string>
+
+    <string name="upgrade">升级</string>
+    <string name="help">帮助</string>
+    <string name="stop">停止</string>
+    <string name="play">播放</string>
+    <string name="home">主页</string>
+
+    <string name="bg">背景</string>
+    <string name="checkup">检查升级</string>
+    <string name="stext">设置主面版文字大小</string>
+    <string name="sptext">设置播放条文字大小</string>
+    <string name="smtext">设置目录文字大小</string>
+    <string name="small">小</string>
+    <string name="lager">大</string>
+    <string name="middle">中 (默认)</string>
+    <string name="xlager">超大</string>
+    <string name="bigger">最大</string>
+    <string name="inc">加大</string>
+    <string name="dec">减小</string>
+
+    / *文字颜色* /
+    <string name="stextcolor">设置主面版字体颜色</string>
+    <string name="red">红色</string>
+    <string name="blue">蓝色</string>
+    <string name="grey">灰色</string>
+    <string name="black">黑色</string>
+    <string name="white">白色</string>
+    <string name="brown">啡色</string>
+    <string name="yellow">黄色</string>
+    <string name="green">绿色</string>
+
+    /* 背景颜色 */
+    <string name="sbg1">预设</string>
+    <string name="sbg2">浅蓝色</string>
+    <string name="sbg3">绿色</string>
+    <string name="sbg4">水珠蓝色</string>
+    <string name="sbg5">浅啡色</string>
+    <string name="sbg6">乳白色</string>
+    <string name="sbg7">花信子</string>
+    <string name="sbg8">砖块</string>
+    <string name="sbg9">一朵菊花</string>
+    <string name="sbg10">绿叶水珠</string>
+    <string name="sbg11">绿色幽幽</string>
+    <string name="sbg12">薰衣草</string>
+
+    /* 赞美诗 db toc */
+    <string name="dbmt1">颂赞三一神</string>
+    <string name="dbmt2">敬拜父</string>
+    <string name="dbmt3">赞美主</string>
+    <string name="dbmt4">圣灵的丰满</string>
+    <string name="dbmt5">得救的证实与快乐</string>
+    <string name="dbmt6">羡慕</string>
+    <string name="dbmt7">奉献</string>
+    <string name="dbmt8">与基督的联合</string>
+    <string name="dbmt9">经历基督</string>
+    <string name="dbmt10">经历神</string>
+    <string name="dbmt11">十字架的夸耀</string>
+    <string name="dbmt12">十字架的道路</string>
+    <string name="dbmt13">复活的生命</string>
+    <string name="dbmt14">鼓励</string>
+    <string name="dbmt15">试炼中的安慰</string>
+    <string name="dbmt16">里面生命的各方面</string>
+    <string name="dbmt17">神医</string>
+    <string name="dbmt18">祷告</string>
+    <string name="dbmt19">读经</string>
+    <string name="dbmt20">教会</string>
+    <string name="dbmt21">聚会</string>
+    <string name="dbmt22">属灵的争战</string>
+    <string name="dbmt23">事奉</string>
+    <string name="dbmt24">传扬福音</string>
+    <string name="dbmt25">福音</string>
+    <string name="dbmt26">受浸</string>
+    <string name="dbmt27">国度</string>
+    <string name="dbmt28">荣耀的盼望</string>
+    <string name="dbmt29">终极的显出</string>
+
+    /* 赞美诗 xb toc */
+    <string name="xbmt1">赞美的话</string>
+    <string name="xbmt2">灵与生命</string>
+    <string name="xbmt3">享受基督</string>
+    <string name="xbmt4">爱慕耶稣</string>
+    <string name="xbmt5">追求与长进</string>
+    <string name="xbmt6">教会的异象</string>
+    <string name="xbmt7">建造与合一</string>
+    <string name="xbmt8">教会的生活</string>
+    <string name="xbmt9">事奉与福音</string>
+    <string name="xbmt10">盼望与豫备</string>
+    <string name="xbmt11">神的经纶</string>
+
+    /* 赞美诗 xb toc */
+    <string name="nbmt1">新路实行</string>
+    <string name="nbmt2">福音喜信</string>
+    <string name="nbmt3">生命与灵</string>
+    <string name="nbmt4">召会生活</string>
+    <string name="nbmt5">新耶路撒冷</string>
+    <string name="nbmt6">新诗</string>
+    <string name="nbmt7">奉献的祷告</string>
+
+    /* ChangeLog parameters */
+    <string name="changelog_full_title">应用程序变更历史</string>
+    <string name="changelog_title">应用程序新加功能</string>
+    <string name="changelog_ok_button">确定</string>
+    <string name="changelog_show_full">更多…</string>
+
+    <!-- Android Notification Channels -->
+    <string name="noti_channel_DEFAULT_GROUP">General Notification</string>
+    <string name="noti_channel_SILENT_GROUP">Silent Notification</string>
+
+    <string name="permission_storage_required">诗歌本需要存儲權限才能操作。</string>
+    <string name="permission_storage_request">儲存許可請求</string>
+    <string name="permission_storage_rational">%1$s 被拒絕。诗歌本可能會出錯，直到您在 [App info | Permissions] 授予權限</string>
+
+    <string name="content_about">关于本诗歌软体:\n首先谢谢网络上的弟兄破碎提供诗歌的源材料.此诗歌本应用程序,原版由书拉密女小站(http://shulami02.net/bbs)个人开发;
+        技术有限暂时这样,希望慢慢改进\n最后请常到书拉密小站分享主内丰富.
+        \n万事互相效力为要叫爱祂的人得益处!正如神白白的恩典,所以请不要用做商业用途.
+        \n\n近日再由新作者,全程序重写改进,并添加新功能.如果有发现出错或建议,请发电邮至cmeng.gm@gmail.com 提出意见.</string>string>
+
+    <string name="content_help">长按屏慕启动播放诗歌使用菜单:\n\u25AA 播放按钮点一下,开始播放媒体档\n\u25AA 再点一下播放按钮,播放就会暂停
+        \n\u25AA 再点一下播放按钮,就会从暂停的地方继续播放\n\u25AA 长按播放按钮后,再次播放从头开始播放
+        \n\n目前要播放下一页或上一页的诗歌,需回主版面;从新选第几首诗歌进去后,才能播放新的一首诗歌.
+       \n如果有什么建议或报错烦请发电子邮件至:\ncmeng.gm@gmail.com\n技术有限希望对弟兄姐妹有用！</string>
+
+</resources>

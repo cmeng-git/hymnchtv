@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="darkgray" type="drawable">@color/grey800</item>
+    <item name="blue" type="drawable">@color/blue700</item>
+    <item name="darkgreen" type="drawable">@color/green500</item>
+    <item name="blanchedalmond" type="drawable">@color/gold</item>
+    <item name="tomato" type="drawable">@color/red500</item>
+    <item name="orange" type="drawable">@color/orangeA700</item>
+    <item name="coffee" type="drawable">@color/goldenrod_dark</item>
+    <item name="white" type="drawable">@color/white</item>
+    <item name="grey" type="drawable">@color/grey</item>
+    <item name="green" type="drawable">@color/green900</item>
+    <item name="black" type="drawable">@color/black</item>
+    <item name="red" type="drawable">@color/red</item>
+    <item name="yellow" type="drawable">@color/yellow</item>
+</resources>

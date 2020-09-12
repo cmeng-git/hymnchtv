@@ -1,0 +1,2 @@
+include ':hymnchtv'
+rootProject.name = "hymnchtv"

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="@android:style/Theme.Light" />
+
+    <style name="Button">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">@color/textColorBlack</item>
+        <item name="android:background">@drawable/btn_bg</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:drawablePadding">0dp</item>
+        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:layout_marginTop">0dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="ButtonTop" parent="@style/Button">
+        <item name="android:layout_height">44dp</item>
+    </style>
+
+    <style name="SmallFont" parent="@android:style/TextAppearance.Small">
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="MediumFont" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="LargeFont" parent="@android:style/TextAppearance.Large">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="TocFont" parent="@android:style/TextAppearance.Large">
+        <item name="android:textColor">@color/textColorWhite</item>
+        <item name="android:textSize">22sp</item>
+    </style>
+
+</resources>

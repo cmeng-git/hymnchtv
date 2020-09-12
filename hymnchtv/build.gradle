@@ -1,0 +1,111 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdkVersion 29
+    defaultConfig {
+        applicationId "org.cog.hymnchtv"
+        versionCode 101010
+        versionName "1.1.1"
+
+        minSdkVersion 21
+        targetSdkVersion 29
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            debuggable true
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    File cfgFile = project.rootProject.file("settings.signing")
+    if (cfgFile != null && cfgFile.exists()) {
+        println "### Found settings.signing to prepare signingConfig for release signing"
+        signingConfigs {
+            release {
+                Properties config = new Properties()
+                config.load(new FileInputStream(cfgFile))
+
+                storeFile file(config.getProperty('keystore'))
+                File propsFile = file(config.getProperty('secure_properties'))
+                if (propsFile.exists()) {
+                    Properties props = new Properties()
+                    props.load(new FileInputStream(propsFile))
+                    storePassword props.getProperty('key.store.password')
+                    keyAlias props.getProperty('key.store.alias')
+                    keyPassword props.getProperty('key.alias.password')
+                }
+            }
+        }
+        buildTypes.release.signingConfig signingConfigs.release
+    }
+
+    lintOptions {
+        abortOnError false
+        lintConfig file("lint.xml")
+        // disable 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource'
+    }
+}
+
+dependencies {
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+    implementation 'org.jetbrains:annotations:15.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+    // implementation 'com.github.MikeOrtiz:TouchImageView:3.0.1'
+    // implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+
+    implementation('com.jakewharton.timber:timber:4.7.1') {
+        transitive = false
+    }
+    implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.13'
+}
+
+
+task updateVersionFile(type: Copy) {
+    description '<!-- Generate versionupdate.properties file -->'
+
+    def versionName = android.defaultConfig.versionName
+    def versionCode = android.defaultConfig.versionCode
+    def date = new Date()
+    // ******************************************
+    println "*** " + description
+    println "# Date: " + date
+    println "# last_version = " + versionName
+    println "# last_version_code = " + versionCode
+
+    outputs.upToDateWhen {
+        false
+    }
+    from('./versionupdate.properties') {
+        // Substitute property tokens in files
+        expand(DATE: date, BUILD_VERSION: versionName, BUILD_VERSION_CODE: versionCode)
+    }
+    into 'build/outputs/apk'
+}
+
+tasks.getByName("build").dependsOn updateVersionFile
+
+// Uncomment below lines if you want to show all deprecated warnings
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-Xlint:unchecked'
+    options.deprecation = true
+}
