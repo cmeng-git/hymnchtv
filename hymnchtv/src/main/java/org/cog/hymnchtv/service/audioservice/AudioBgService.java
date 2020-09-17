@@ -446,7 +446,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
             intent.putExtra(PLAYBACK_DURATION, xPlayer.getDuration());
 
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-            Timber.d("Audio playback state: %s (%s): %s", pState, xPlayer.getDuration(), uri.getPath());
+            // Timber.d("Audio playback state: %s (%s): %s", pState, xPlayer.getDuration(), uri.getPath());
         }
     }
 
@@ -468,7 +468,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
                     continue;
 
                 hasActivePlayer = true;
-                Timber.d("Audio playback state: %s:  %s", playerX.getCurrentPosition(), entry.getKey());
+                // Timber.d("Audio playback state: %s:  %s", playerX.getCurrentPosition(), entry.getKey());
 
                 Intent intent = new Intent(PLAYBACK_STATUS);
                 intent.putExtra(PLAYBACK_URI, entry.getKey());
@@ -613,14 +613,14 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
         File voiceFile = null;
         File mediaDir = FileBackend.getHymnchtvStore(FileBackend.MEDIA_VOICE_SEND, true);
         if (!mediaDir.exists() && !mediaDir.mkdirs()) {
-            Timber.d("Fail to create Media voice directory!");
+            Timber.w("Fail to create Media voice directory!");
             return null;
         }
 
         try {
             voiceFile = File.createTempFile("voice-", ".3gp", mediaDir);
         } catch (IOException e) {
-            Timber.d("Fail to create Media voice file!");
+            Timber.w("Fail to create Media voice file!");
         }
         return voiceFile;
     }

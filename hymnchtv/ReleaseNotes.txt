@@ -1,6 +1,31 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	09/17/2020
+Version:		1.2.0 (102000)
+- All hymn contents i.e. raw, png, txt reference are now using hymn no.
+- All lyrics contents are now stored in asset for max application control.
+- Add utilities to support HymnNo2Idx and HymnIdx2No conversion.
+- Resolve PlayerUI setVisibility not working after the screen rotation.
+- Fix user playback active seek is not synchronous with multi-midi track playback
+- Implement multi-pages lyrics view to use vertical scrolling instead of pager slide.
+- lyrics view in Landscape mode is displayed with screen max width with vertical scrolling and hide playerUi by default.
+- Media player hymn info and midi playback is now synchronized with user selected hymn number
+  playback continue with current until the end of song or stop by user; info is then updated
+- add children song lyrics and new song score nb157.png to nb166.png, and nb169.png.
+- Make corrections to all lyrics text, standardize the format and closing ' before ,.!
+
+=========================================================================
+Author:         cmeng
+Upload Date:	09/14/2020
+Version:		1.1.1a (101011)
+- Release for source reference only before major changes to use lyrics number (no for apk release)
+- Migrate all content files from res to asset directory
+- Implement routines to rename all content files i.e. .png and .md for DB, BB and NB to use hymn number
+- Implement hymn index to actual hymn lyrics number converter
+
+=========================================================================
+Author:         cmeng
 Upload Date:	09/12/2020
 Version:		1.1.1 (101010)
 - Add CopyRights and source cleanup

@@ -6,8 +6,8 @@ android {
     compileSdkVersion 29
     defaultConfig {
         applicationId "org.cog.hymnchtv"
-        versionCode 101010
-        versionName "1.1.1"
+        versionCode 102000 // one extra zero at end
+        versionName "1.2.0"
 
         minSdkVersion 21
         targetSdkVersion 29

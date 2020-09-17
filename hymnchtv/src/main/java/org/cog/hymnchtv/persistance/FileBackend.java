@@ -63,6 +63,14 @@ public class FileBackend
     public static String MEDIA_VOICE_SEND = "Media/Voice_Send";
     public static String TMP = "tmp";
 
+    public static String HYMN_BB_MIDI = "hymn_bb_midi/";
+    public static String HYMN_DB_MIDI = "hymn_db_midi/";
+
+    public static String HYMN_ER_ = "hymn_er_";
+    public static String HYMN_NB_ = "hymn_nb_";
+    public static String HYMN_BB_ = "hymn_bb_";
+    public static String HYMN_DB_ = "hymn_db_";
+
     public static boolean IsExternalStorageWritable()
     {
         // boolean mExternalStorageAvailable = false;

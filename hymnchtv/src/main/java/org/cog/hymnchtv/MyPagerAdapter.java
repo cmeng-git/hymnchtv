@@ -26,10 +26,16 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.cog.hymnchtv.ContentView.HYMN_RESID;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MainActivity.HYMN_NB;
+import static org.cog.hymnchtv.ContentView.LYRICS_INDEX;
+import static org.cog.hymnchtv.ContentView.LYRICS_TYPE;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
+import static org.cog.hymnchtv.MainActivity.HYMN_DB;
+import static org.cog.hymnchtv.MainActivity.HYMN_ER;
+import static org.cog.hymnchtv.MainActivity.HYMN_NB;
+import static org.cog.hymnchtv.MainActivity.TOC_BB;
+import static org.cog.hymnchtv.MainActivity.TOC_DB;
+import static org.cog.hymnchtv.MainActivity.TOC_ER;
+import static org.cog.hymnchtv.MainActivity.TOC_NB;
 
 /**
  * The hymn lyrics implementation for the user page sliding and display update
@@ -38,67 +44,61 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
  */
 public class MyPagerAdapter extends FragmentPagerAdapter
 {
-    // The number of hymns for each category
-    private static final int HYMN_ER_SIZE = 600;
-    private static final int HYMN_XB_SIZE = 567;
-    private static final int HYMN_DB_SIZE = 819;
-    private static final int HYMN_NB_SIZE = 161;
-
     /**
      * A map reference to find the FragmentPagerAdapter's fragmentTag (String) by a given position (Integer)
      */
     private static final Map<Integer, String> mFragmentTags = new HashMap<>();
     private static FragmentManager mFragmentManager;
 
+    private final String mHymnType;
 
-    private final ContentHandler mContentHandler;
-    private final String mSelect;
-
-    public MyPagerAdapter(FragmentManager fm, ContentHandler contentHandler, String sele)
+    public MyPagerAdapter(FragmentManager fm, String hymnType)
     {
         // Must use BEHAVIOR_SET_USER_VISIBLE_HINT to see conference list on first slide to conference view
         // super(fm, BEHAVIOR_SET_USER_VISIBLE_HINT); not valid anymore after change to BaseChatRoomListAdapte
         super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
         mFragmentManager = fm;
-        mContentHandler = contentHandler;
-        mSelect = sele;
+        mHymnType = hymnType;
     }
 
     @Override
     public int getCount()
     {
-        if (mSelect.equals(HYMN_BB)) {
-            return HYMN_XB_SIZE;
+        switch (mHymnType) {
+            case HYMN_ER:
+                return MainActivity.HYMN_ER_INDEX_MAX;
+
+            case HYMN_NB:
+                return MainActivity.HYMN_NB_INDEX_MAX;
+
+            case HYMN_BB:
+                return MainActivity.HYMN_BB_INDEX_MAX;
+
+            case HYMN_DB:
+                return MainActivity.HYMN_DB_INDEX_MAX;
+
+            case TOC_ER:
+                return 1;
+
+            case TOC_NB:
+                return 5;
+
+            case TOC_BB:
+                return 33;
+
+            case TOC_DB:
+                return 17;
+
+            default:
+                return 1;
         }
-        if (mSelect.equals(HYMN_DB)) {
-            return HYMN_DB_SIZE;
-        }
-        return HYMN_NB_SIZE;
     }
 
     public Fragment getItem(int index)
     {
-        // The drawable id name has the following formats: HYMN_ER, HYMN_XB, HYMN_DB, HYMN_NB
-        // i.e. R.drawable.???, R.drawable.n0, R.drawable.b0, R.drawable.d0 etc
-        String resIdName;
-
-        if (HYMN_NB.equals(mSelect)) {
-            resIdName = "n" + index;
-        }
-        else if (HYMN_BB.equals(mSelect)) {
-            resIdName = "b" + index;
-        }
-        else if (HYMN_DB.equals(mSelect)) {
-            resIdName = "d" + index;
-        }
-        else { //if (HYMN_ER.equals(mSelect)) {
-            resIdName = "C" + index;
-        }
-
-        // mContentHandler.updateHymnNo(index);
-
         Bundle bundle = new Bundle();
-        bundle.putString(HYMN_RESID, resIdName);
+        bundle.putString(LYRICS_TYPE, mHymnType);
+        bundle.putInt(LYRICS_INDEX, index);
         ContentView objContentView = new ContentView();
         objContentView.setArguments(bundle);
         return objContentView;
@@ -123,7 +123,6 @@ public class MyPagerAdapter extends FragmentPagerAdapter
         }
         return obj;
     }
-
 
     /**
      * Get the fragment reference for the given position in pager

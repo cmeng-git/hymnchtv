@@ -7,7 +7,7 @@ package org.cog.hymnchtv.utils;
 
 import android.content.Context;
 import android.os.Handler;
-import android.text.InputType;
+import android.text.*;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
@@ -35,7 +35,9 @@ public class ViewUtil
     public static void setTextViewValue(View container, int id, String text)
     {
         TextView tv = container.findViewById(id);
-        tv.setText(text);
+        text = text.replace("\n","<br/>");
+        Spanned msgBody = Html.fromHtml(text, null, null);
+        tv.setText(msgBody);
     }
 
     //	public static void setTextViewHtml(View container, int id, String text)

@@ -19,6 +19,7 @@ package org.cog.hymnchtv.service.androidupdate;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 
 import org.cog.hymnchtv.HymnsApp;
 
@@ -35,14 +36,15 @@ public class VersionServiceImpl
     /**
      * Current version instance.
      */
-    private int CURRENT_VERSION_CODE;
-    private String CURRENT_VERSION_NAME;
+    private final long CURRENT_VERSION_CODE;
+    private final String CURRENT_VERSION_NAME;
 
     /**
      * Creates a new instance of <tt>VersionServiceImpl</tt> and parses the current version from
      * android:versionName attribute of the PackageInfo.
      */
-    public static VersionServiceImpl getInstance() {
+    public static VersionServiceImpl getInstance()
+    {
         if (mInstance == null)
             mInstance = new VersionServiceImpl();
         return mInstance;
@@ -56,9 +58,13 @@ public class VersionServiceImpl
         PackageManager pckgMan = ctx.getPackageManager();
         try {
             PackageInfo pckgInfo = pckgMan.getPackageInfo(ctx.getPackageName(), 0);
-
             String versionName = pckgInfo.versionName;
-            int versionCode = pckgInfo.versionCode;
+
+            long versionCode;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                versionCode = pckgInfo.getLongVersionCode();
+            else
+                versionCode = pckgInfo.versionCode;
 
             CURRENT_VERSION_NAME = versionName;
             CURRENT_VERSION_CODE = versionCode;
@@ -70,9 +76,9 @@ public class VersionServiceImpl
     /**
      * Get the <tt>Version</tt> of the current running hymnchtv app.
      *
-     * @return  the <tt>Version</tt> of the current running hymntv app.
+     * @return the <tt>Version</tt> of the current running hymntv app.
      */
-    public int getCurrentVersionCode()
+    public long getCurrentVersionCode()
     {
         return CURRENT_VERSION_CODE;
     }

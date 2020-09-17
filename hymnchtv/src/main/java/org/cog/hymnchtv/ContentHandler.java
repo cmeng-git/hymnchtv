@@ -22,9 +22,8 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Range;
-import android.view.*;
-import android.widget.ImageView;
+import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.widget.PopupWindow;
 
 import androidx.fragment.app.FragmentActivity;
@@ -33,15 +32,17 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import org.apache.http.util.EncodingUtils;
-import org.cog.hymnchtv.utils.DepthPageTransformer;
-import org.cog.hymnchtv.utils.DialogActivity;
+import org.cog.hymnchtv.utils.*;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
 
+import static org.cog.hymnchtv.ContentView.LYRICS_BBS_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
 import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_PAGE;
 import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
@@ -55,7 +56,6 @@ import static org.cog.hymnchtv.MainActivity.TOC_BB;
 import static org.cog.hymnchtv.MainActivity.TOC_DB;
 import static org.cog.hymnchtv.MainActivity.TOC_ER;
 import static org.cog.hymnchtv.MainActivity.TOC_NB;
-import static org.cog.hymnchtv.MainActivity.rangeLM;
 
 /**
  * The class handles the actual content source address decoding for the user selected hymn
@@ -63,39 +63,36 @@ import static org.cog.hymnchtv.MainActivity.rangeLM;
  * @author Eng Chong Meng
  */
 @SuppressLint("NonConstantResourceId")
-public class ContentHandler extends FragmentActivity
+public class ContentHandler extends FragmentActivity implements ViewPager.OnPageChangeListener
 {
     public static final String PAGE_CONTENT = "content";
     public static final String PAGE_MAIN = "main";
     public static final String PAGE_SEARCH = "search";
 
-    public static final String MIDI_DB = "dm";
-    public static final String MIDI_DBC = "dmc";
+    public static final String MIDI_ER = "em";
+    public static final String MIDI_NB = "md";
 
     public static final String MIDI_BB = "bm";
     public static final String MIDI_BBC = "bmc";
 
-    /*
-     * The max number of midi item supported within each given 100 range of BB
-     * Currently, the midi ResId is in consecutive number and starting @1 i.e. not the hymn number
-     * The computation of the actual playback midi ResId is based on these infos. @see actual code below
-    */
-    private static final int[] midiBbRangeMax = {27, 137, 247, 329, 429, 533, 618, 752, 849, 915, 1005};
+    public static final String MIDI_DB = "dm";
+    public static final String MIDI_DBC = "dmc";
+
+    public static final String PM_PLAY = "play";
+    private static final String PM_NONE = "none";
 
     private ViewPager mPager;
-    private View playerUi;
-    private ImageView btnPlay;
 
     public boolean isShowMenu;
 
-    // Hymn stored resource index for midi playback
-    private int midiIndex = -1;
-
     // Hymn number selected by user
     private int hymnNo;
+    private int hymnIdx = -1;
+
+    // private String hymnFileName = "test";
 
     private String mPage = PAGE_CONTENT;
-    private String mPlayMode = "";
+    private String mPlayMode = PM_NONE;
     private String mSelect;
 
     public PopupWindow pop;
@@ -115,249 +112,114 @@ public class ContentHandler extends FragmentActivity
         setContentView(R.layout.content_main);
         registerForContextMenu(findViewById(R.id.linear));
 
+        // Attach the media controller player UI; Reuse the fragment is found;
+        // do not create/add new, otherwise playerUi setVisibility is no working
+        mMediaController = (MediaController) getSupportFragmentManager().findFragmentById(R.id.mediaPlayer);
+        if (mMediaController == null) {
+            mMediaController = new MediaController();
+            getSupportFragmentManager().beginTransaction().add(R.id.mediaPlayer, mMediaController).commit();
+        }
+
+        // Always start with UiPlayer hidden if in landscape mode
         sPreference = getSharedPreferences(PREF_SETTINGS, 0);
-        isShowMenu = sPreference.getBoolean(PREF_MENU_SHOW, true);
+        isShowMenu = sPreference.getBoolean(PREF_MENU_SHOW, true) && HymnsApp.isPortrait;
 
         Bundle bundle = getIntent().getExtras();
         mSelect = bundle.getString(ATTR_SELECT);
         mPage = bundle.getString(ATTR_PAGE);
 
-        int nui = bundle.getInt(ATTR_NUMBER);
-        hymnNo = nui;
-        midiIndex = -1;
-
-        // ResId offset for toc range 
-        int bbSkip = 19;
-        int dbskip = 16;
+        hymnNo = bundle.getInt(ATTR_NUMBER);
 
         switch (mSelect) {
             // #TODO
             case HYMN_ER:
-                mPlayMode = "";
-                nui += 1;
+                // Check for playable midi file existence
+                int resId = HymnsApp.getFileResId(MIDI_ER + hymnNo, "raw");
+                mPlayMode = (resId == 0) ? PM_NONE : PM_PLAY;
+
+                // Convert the user input hymn number i.e: hymn #1 => #0 i.e.index number
+                hymnIdx = HymnNo2IdxConvert.hymnNo2IdxConvert(mSelect, hymnNo);
                 break;
 
             case HYMN_NB:
-                mPlayMode = "";
-                nui += 4;
+                // Check for playable midi file existence
+                resId = HymnsApp.getFileResId(MIDI_NB + hymnNo, "raw");
+                mPlayMode = (resId == 0) ? PM_NONE : PM_PLAY;
+
+                // Convert the user input hymn number i.e: hymn #1 => #0 i.e.index number
+                hymnIdx = HymnNo2IdxConvert.hymnNo2IdxConvert(mSelect, hymnNo);
                 break;
 
             case HYMN_BB:
-                // Compute the midi playback library / ResId index
-                // see midiBbRangeMax = {27, 137, 247, 329, 429, 533, 618, 752, 849, 915, 1005};
-                mPlayMode = "p";
-                int idxUsed = 0;
-                for (int i = 0; i < 11; i++) {
-                    int idxMax = midiBbRangeMax[i];
-                    int idxRangeStart = 100 * i;
+                // Check for playable midi file existence
+                resId = HymnsApp.getFileResId(MIDI_BB + hymnNo, "raw");
+                mPlayMode = (resId == 0) ? PM_NONE : PM_PLAY;
 
-                    // compute the number of used index for all the previous ranges
-                    if (i > 0) {
-                        idxUsed += (midiBbRangeMax[i - 1] - 100 * (i - 1));
-                    }
+                // try {
+                //     hymnFileName = HYMN_BB_ + "midi/bm" + hymnNo + ".mid";
+                //     InputStream in = getResources().getAssets().open(hymnFileName);
+                //     mPlayMode = PM_PLAY;
+                //     in.close();
+                // } catch (Exception e) {
+                //     mPlayMode = PM_NONE;
+                // }
 
-                    Range<Integer> rangeX = new Range<>(idxRangeStart + 1, idxRangeStart + 100);
-                    if (rangeX.contains(nui)) {
-                        // Compute the midi ResId
-                        if (hymnNo <= idxMax) {
-                            midiIndex = (nui - idxRangeStart) + idxUsed;
-                        }
-                        break;
-                    }
-                }
-                if (midiIndex == -1) {
-                    mPlayMode = "n";
-                }
-
-                // Compute bb ResId index for the user input hymn number i.e: hymn #1 => R.drawable.b20;
-                // current idx pages for specific hymn no:
-                // {9, 32} {148}, {257, 257}, {440, 449, 451 453 468, 469, 2},
-                // {512, 538, 541}, {702, 702}, {875}, {909, 909}, {921, 926}
-                // int[] multiPageHymn = {9, 32};
-                // int[] idxSkip = {0, 61, 110, 150, 201, 225, 270, 350, 386, 405, 471}
-                if (hymnNo > 0 && hymnNo < rangeLM[0]) {
-                    if (hymnNo > 9) {
-                        nui++;
-                    }
-                    if (hymnNo > 32) {
-                        nui++;
-                    }
-                }
-                else if (hymnNo > 100 && hymnNo < rangeLM[1]) {
-                    if (hymnNo > 148) {
-                        nui++;
-                    }
-                    nui -= 61;
-                }
-                else if (hymnNo > 200 && hymnNo < rangeLM[2]) {
-                    if (hymnNo > 257) {
-                        nui += 2;
-                    }
-                    nui -= 110;
-                }
-                else if (hymnNo > 300 && hymnNo < rangeLM[3]) {
-                    nui -= 150;
-                }
-                else if (hymnNo > 400 && hymnNo < rangeLM[4]) {
-                    if (hymnNo > 440) {
-                        nui++;
-                    }
-                    if (hymnNo > 449) {
-                        nui++;
-                    }
-                    if (hymnNo > 451) {
-                        nui++;
-                    }
-                    if (hymnNo > 453) {
-                        nui++;
-                    }
-                    if (hymnNo > 468) {
-                        nui++;
-                    }
-                    if (hymnNo > 469) {
-                        nui++;
-                    }
-                    nui -= 201;
-                }
-                else if (hymnNo > 500 && hymnNo < rangeLM[5]) {
-                    if (hymnNo > 512) {
-                        nui++;
-                    }
-                    if (hymnNo > 538) {
-                        nui++;
-                    }
-                    if (hymnNo > 541) {
-                        nui++;
-                    }
-                    nui -= 225;
-                }
-                else if (hymnNo > 600 && hymnNo < rangeLM[6]) {
-                    nui -= 279;
-                }
-                else if (hymnNo > 700 && hymnNo < rangeLM[7]) {
-                    if (hymnNo > 702) {
-                        nui += 2;
-                    }
-                    nui -= 350;
-                }
-                else if (hymnNo > 800 && hymnNo < rangeLM[8]) {
-                    if (hymnNo > 875) {
-                        nui++;
-                    }
-                    nui -= 386;
-                }
-                else if (hymnNo > 900 && hymnNo < rangeLM[9]) {
-                    if (hymnNo > 909) {
-                        nui += 2;
-                    }
-                    if (hymnNo > 921) {
-                        nui++;
-                    }
-                    if (hymnNo > 926) {
-                        nui++;
-                    }
-                    nui -= 405;
-                }
-                else if (hymnNo > 1000 && hymnNo <= MainActivity.BB_MAX) {
-                    nui -= 471;
-                }
-                nui += bbSkip;
+                // Convert the user input hymn number i.e: hymn #1 => #0 i.e.index number
+                hymnIdx = HymnNo2IdxConvert.hymnNo2IdxConvert(mSelect, hymnNo);
                 break;
 
             case HYMN_DB:
-                mPlayMode = "p";
-                midiIndex = nui;
+                // Check for playable midi file existence
+                resId = HymnsApp.getFileResId(MIDI_DB + hymnNo, "raw");
+                mPlayMode = (resId == 0) ? PM_NONE : PM_PLAY;
 
-                // Compute db ResId index for the user input hymn number
-                if (hymnNo > 128 && hymnNo < 153) {
-                    nui++;
-                }
-                else if (hymnNo > 152 && hymnNo < 189) {
-                    nui += 5;
-                }
-                else if (hymnNo > 188 && hymnNo < 311) {
-                    nui += 6;
-                }
-                else if (hymnNo > 310 && hymnNo < 317) {
-                    nui += 7;
-                }
-                else if (hymnNo > 316 && hymnNo < 389) {
-                    nui += 8;
-                }
-                else if (hymnNo > 388 && hymnNo < 466) {
-                    nui += 10;
-                }
-                else if (hymnNo > 465 && hymnNo < 470) {
-                    nui += 12;
-                }
-                else if (hymnNo > 469 && hymnNo < 718) {
-                    nui += 13;
-                }
-                else if (hymnNo > 717 && hymnNo < 759) {
-                    nui += 14;
-                }
-                else if (hymnNo > 758 && hymnNo < 777) {
-                    nui += 15;
-                }
-                else if (hymnNo > 776 && hymnNo < 787) {
-                    nui += 16;
-                }
-                nui += dbskip;
+                // Convert the user input hymn number i.e: hymn #1 => #0 i.e.index number
+                hymnIdx = HymnNo2IdxConvert.hymnNo2IdxConvert(mSelect, hymnNo);
                 break;
 
             case TOC_ER:
-                mPlayMode = "e";
-                nui = 1;
+                mPlayMode = PM_NONE;
                 break;
 
             case TOC_NB:
-                mPlayMode = "t";
-                nui = 1;
+                mPlayMode = PM_NONE;
                 break;
 
             case TOC_BB:
-                mSelect = HYMN_BB;
-                mPlayMode = "m";
+                mPlayMode = PM_NONE;
                 break;
 
             case TOC_DB:
-                mSelect = HYMN_DB;
-                mPlayMode = "m";
+                mPlayMode = PM_NONE;
                 break;
         }
 
         // The pager adapter, which provides the pages to the view pager widget.
         FragmentManager fragmentManager = getSupportFragmentManager();
-        PagerAdapter mPagerAdapter = new MyPagerAdapter(fragmentManager, this, mSelect);
+        PagerAdapter mPagerAdapter = new MyPagerAdapter(fragmentManager, mSelect);
 
         mPager = findViewById(R.id.viewPager);
         mPager.setAdapter(mPagerAdapter);
         mPager.setPageTransformer(true, new DepthPageTransformer());
-
         // Set the viewPager to the user selected hymn number
-        mPager.setCurrentItem(nui);
+        if (hymnIdx != -1)
+            mPager.setCurrentItem(hymnIdx);
+        else
+            mPager.setCurrentItem(hymnNo);
 
-        // Attach the media controller player UI
-        mMediaController = new MediaController();
-        getSupportFragmentManager().beginTransaction().add(R.id.mediaPlayer, mMediaController).commit();
+        mPager.addOnPageChangeListener(this);
     }
 
     @Override
     protected void onResume()
     {
         super.onResume();
-        // Must only do this in OnResume, otherwise null
-        playerUi = findViewById(R.id.playerUi);
-        btnPlay = findViewById(R.id.playback_play);
-        showPlayerUi(isShowMenu);
+        showPlayerUi(isShowMenu && !mSelect.startsWith("toc_"));
     }
 
     private void showPlayerUi(boolean show)
     {
-        if (playerUi != null) {
-            btnPlay.setAlpha(mPlayMode.equals("p") ? 1.0f : 0.3f);
-            playerUi.setVisibility(show ? View.VISIBLE : View.GONE);
-        }
+        mMediaController.initPlayerUi(show, PM_PLAY.equals(mPlayMode));
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event)
@@ -435,34 +297,79 @@ public class ContentHandler extends FragmentActivity
         }
     }
 
-    public void updateHymnNo(int idx)
+    @Override
+    public void onPageSelected(int pos)
     {
-        hymnNo = idx;
+        if (mSelect.startsWith("toc_")) {
+            return;
+        }
+
+        int tmp = HymnIdx2NoConvert.hymnIdx2NoConvert(mSelect, pos)[0];
+        if (tmp != hymnNo) {
+            hymnNo = tmp;
+            mMediaController.initHymnInfo(getHymnInfo());
+        }
     }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+    {
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state)
+    {
+
+    }
+
+    //    public void updateHymnIdx()
+    //    {
+    //        int position = mPager.getCurrentItem();
+    //
+    //        int tmp = HymnIdx2NoConvert.hymnIdx2NoConvert(mSelect, position)[0];
+    //        Timber.d("Update hymn info for #: %s => %s", position, tmp);
+    //
+    //        if (tmp != hymnNo) {
+    //            Timber.d("Update hymn info change for #: %s", tmp);
+    //            hymnNo = tmp;
+    //            mMediaController.initHymnInfo(getHymnInfo());
+    //        }
+    //    }
 
     public List<Uri> getPlayHymn(MediaType mediaType)
     {
         List<Uri> uriList = new ArrayList<>();
-        if (midiIndex == -1)
+
+        if (!PM_PLAY.equals(mPlayMode)) {
             return uriList;
+        }
+
+        String resName = mSelect + mediaType.getSubDir(mediaType).replace("%s", "dm" + hymnNo);
+        Uri resUridm = Uri.fromFile(new File("//android_asset/", resName));
+
+        String rescName = mSelect + mediaType.getSubDir(mediaType).replace("%s", "dmc" + hymnNo);
+        Uri resUridmc = Uri.fromFile(new File("//android_asset/", rescName));
 
         switch (mSelect) {
             case HYMN_ER:
-                HymnsApp.showToastMessage(R.string.hymn_info_er_media_none);
+                HymnsApp.showToastMessage(R.string.hymn_info_media_none);
                 break;
 
             case HYMN_NB:
-                HymnsApp.showToastMessage(R.string.hymn_info_nb_media_none);
+                HymnsApp.showToastMessage(R.string.hymn_info_media_none);
+                uriList.add(HymnsApp.getRawUri(MIDI_NB + hymnNo));
                 break;
 
             case HYMN_BB:
-                uriList.add(HymnsApp.getRawUri(MIDI_BB + midiIndex));
-                uriList.add(HymnsApp.getRawUri(MIDI_BBC + midiIndex));
+                uriList.add(HymnsApp.getRawUri(MIDI_BB + hymnNo));
+                uriList.add(HymnsApp.getRawUri(MIDI_BBC + hymnNo));
+
                 break;
 
             case HYMN_DB:
-                uriList.add(HymnsApp.getRawUri(MIDI_DB + midiIndex));
-                uriList.add(HymnsApp.getRawUri(MIDI_DBC + midiIndex));
+                uriList.add(HymnsApp.getRawUri(MIDI_DB + hymnNo));
+                uriList.add(HymnsApp.getRawUri(MIDI_DBC + hymnNo));
                 break;
         }
         return uriList;
@@ -483,11 +390,11 @@ public class ContentHandler extends FragmentActivity
                 return res.getString(R.string.hymn_title_nb, hymnNo, hymnTitle);
 
             case HYMN_BB:
-                fName = "sb/" + hymnNo + ".txt";
+                fName = LYRICS_BBS_TEXT + hymnNo + ".txt";
                 break;
 
             case HYMN_DB:
-                fName = "sdb/" + hymnNo + ".txt";
+                fName = LYRICS_DBS_TEXT + hymnNo + ".txt";
                 break;
         }
 

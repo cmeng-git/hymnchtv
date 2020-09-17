@@ -98,7 +98,13 @@
     </item>
     <item
         android:id="@+id/update_check"
+        android:visible="false"
         android:title="@string/gui_update_check" />
+
+    <item
+        android:id="@+id/sn_convert"
+        android:visible="false"
+        android:title="@string/gui_hymn_sn_convert" />
 
     <item
         android:id="@+id/about"

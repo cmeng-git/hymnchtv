@@ -36,4 +36,8 @@
         <item name="android:textSize">22sp</item>
     </style>
 
+    <style name="AboutDialogTextColor" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/grey</item>
+        <item name="android:textColorLink">@color/blue100</item>
+    </style>
 </resources>

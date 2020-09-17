@@ -2,69 +2,86 @@
 <resources>
     <string name="app_name">诗歌本</string>
     <string name="app_title_main">书拉密女小站-诗歌本</string>
-    <string name="menu_settings">Settings</string>
 
-    <string name="gui_about">关与</string>
+    <string name="gui_about">关与及检查更新</string>
+    <string name="gui_app_libraries">诗歌本程序使用以下第三方库： %1$s</string>
     <string name="gui_cancel">取消</string>
     <string name="gui_close">关闭</string>
-    <string name="gui_error">Error</string>
-    <string name="gui_ereor_db_ranger_fu">大本诗歌附歌只有1~6首</string>
-    <string name="gui_ereor_db_ranger_over">大本诗歌只有780首和附歌6首</string>
-    <string name="gui_error_file_not_found">（无法取得文件: %1$s）</string>
-    <string name="gui_error_invalid">输入错误: 未按目录或输入(附)号码</string>
-    <string name="gui_error_xb_range">补充本诗歌没有%1$s~%2$s</string>
-    <string name="gui_ereor_xb_ranger_over">补充本诗歌只有1005首</string>
-    <string name="gui_error_search_empty">请输入内容进行搜索</string>
+    <string name="gui_copyright">Copyright@2020, Eng Chong Meng\n(GNU General Public License v3.0)\nAll rights reserved.</string>
+    <!--    <string name="gui_help_link"><a href="https://cmeng-git.github.io">网上帮助-开发中</a></string>-->
+    <string name="gui_help_link">网上帮助-开发中</string>
+    <string name="gui_hymn_sn_convert">诗歌数字转换</string>
     <string name="gui_in_development">仍在开发中</string>
     <string name="gui_ok">确认</string>
     <string name="gui_to_be_added">待加</string>
+    <string name="gui_version">程式版本: %1$s</string>
+    <string name="show_history_log">历史记录</string>
+
+    <string name="gui_error">Error</string>
+    <string name="gui_error_invalid">输入错误: 未按目录或输入(附)号码</string>
+    <string name="gui_error_search_empty">请输入内容进行搜索</string>
+    <string name="gui_error_file_not_found">（无法取得文件: %1$s）</string>
+
+    <string name="hymn_info_er_max">儿童诗歌只有%1$d首</string>
+    <string name="hymn_info_er_range_over">儿童诗歌没有: %1$s~%2$s</string>
+
+    <string name="hymn_info_bb_max">补充本诗歌只有%1$d首</string>
+    <string name="hymn_info_bb_range_over">补充本诗歌没有: %1$s~%2$s</string>
+
+    <string name="hymn_info_db_max">大本诗歌只有%1$d首,和附歌6首</string>
+    <string name="hymn_info_db_range_fu">大本诗歌附歌只有1~6首</string>
+
+    <string name="hymn_info_nb_max">新歌颂咏只有%1$d首"</string>
+
+    <string name="hymn_info_media_none">对不起！此项目前没有播放文件</string>
+    <string name="hymn_info_sp_none">您选择的项目,没有附歌</string>
 
     <!-- Update checker -->
     <string name="gui_app_new_available">有新的软件版本: %1$s</string>
     <string name="gui_download">下载</string>
     <string name="gui_download_completed">下载完成</string>
     <string name="gui_download_failed">无法下载新更新！</string>
-    <string name="gui_downloaded_install">已下载更新并准备安装。</string>
+    <string name="gui_downloaded_install">已下载更新，并准备进行安装。</string>
     <string name="gui_download_in_progress">正在下载更新。</string>
     <string name="gui_in_progress">进行中</string>
     <string name="gui_update">升级</string>
     <string name="gui_update_check">检查更新</string>
     <string name="gui_update_install">安装更新</string>
     <string name="gui_update_none">没有新版本</string>
-    <string name="gui_version_current">您当前安装的版本:\n(%1$s-%2$s) 是最新的</string>
-    <string name="gui_version_new_available">可下载%1$s的新发行版本(%2$s-%3$s)</string>
+    <string name="gui_update_invalid">下载文件无效或/和版本不正确</string>
+    <string name="gui_version_current">您当前安装的版本：\n(%1$s-%2$s) 是最新的</string>
+    <string name="gui_version_new_available">可下载%1$s的新发行版本\n(%2$s-%3$s)</string>
 
-    <string name="gui_file_DOES_NOT_EXIST">The specified file could not be found. It was either deleted or moved</string>
-    <string name="gui_file_OPEN_NO_APPLICATION">HymnsApp couldn\'t find the application associated with this type of file</string>
-    <string name="gui_file_OPEN_NO_PERMISSION">You don\'t have enough permissions to open this file. Please check your read permissions and try again</string>
-    <string name="gui_file_RECEIVE_FAILED">An error occurred while transferring file: %1$s</string>
-    <string name="gui_received">%1$s received</string>
+    <string name="gui_file_DOES_NOT_EXIST">找不到指定的文件。已删除或移动了该文件</string>
+    <string name="gui_file_DOWNLOAD_FAILED">下载文件时发生错误：%1$s</string>
+    <string name="gui_file_OPEN_NO_APPLICATION">诗歌本找不到与此文件类型关联的应用程序</string>
+    <string name="gui_file_OPEN_NO_PERMISSION">您没有足够的权限打开此文件。请检查您的读取权限，然后重试</string>
+    <string name="gui_received">已收到 %1$s</string>
 
     <string name="hint_app_state">目前只是草稿版,如有任何问题,请发电邮至: cmeng.gm@gmail.com</string>
     <string name="hint_hymn_content_search">输入歌词搜索,最多显示50项</string>
     <string name="hint_hymn_number_enter">输入第几首诗歌</string>
     <string name="hint_hymn_ui">按目录或输入(附)号码\n后按大本,补充,新颂或儿诗</string>
 
+    // hymnchtv main interface gui names
     <string name="hymn_db">大本</string>
     <string name="hymn_content">内容</string>
     <string name="hymn_er">儿诗</string>
     <string name="hymn_fu">附歌</string>
     <string name="hymn_lyrics">歌词</string>
     <string name="hymn_new">新颂</string>
-    <string name="hymn_xb">补充</string>
+    <string name="hymn_score">歌谱</string>
     <string name="hymn_search">内容搜索</string>
     <string name="hymn_toc">目录</string>
+    <string name="hymn_bb">补充</string>
 
-    <string name="hymn_info_er_media_none">对不起！儿童诗歌目前没有播放文件</string>
-    <string name="hymn_info_nb">新歌颂咏只有156首"</string>
-    <string name="hymn_info_nb_media_none">对不起！新歌颂咏目前没有播放文件</string>
-    <string name="hymn_info_xb">补充本诗歌没有附歌</string>
-
+    // hymnchtv media player interface gui names
     <string name="hymn_media_aplay">伴奏</string>
     <string name="hymn_media_midi">midi</string>
     <string name="hymn_media_mp3">mp3</string>
     <string name="hymn_media_teach">教唱</string>
 
+    // hymn search gui strings
     <string name="hymn_number">第几首</string>
 
     <string name="hymn_match">共有匹配 %1$d 首詩歌</string>
@@ -175,17 +192,19 @@
     <string name="dbmt29">终极的显出</string>
 
     /* 赞美诗 xb toc */
-    <string name="xbmt1">赞美的话</string>
-    <string name="xbmt2">灵与生命</string>
-    <string name="xbmt3">享受基督</string>
-    <string name="xbmt4">爱慕耶稣</string>
-    <string name="xbmt5">追求与长进</string>
-    <string name="xbmt6">教会的异象</string>
-    <string name="xbmt7">建造与合一</string>
-    <string name="xbmt8">教会的生活</string>
-    <string name="xbmt9">事奉与福音</string>
-    <string name="xbmt10">盼望与豫备</string>
-    <string name="xbmt11">神的经纶</string>
+    <string name="bbmt1">赞美的话</string>
+    <string name="bbmt2">灵与生命</string>
+    <string name="bbmt3">享受基督</string>
+    <string name="bbmt4">爱慕耶稣</string>
+    <string name="bbmt5">追求与长进</string>
+    <string name="bbmt6">教会的异象</string>
+    <string name="bbmt7">建造与合一</string>
+    <string name="bbmt8">教会的生活</string>
+    <string name="bbmt9">事奉与福音</string>
+    <string name="bbmt10">盼望与豫备</string>
+    <string name="bbmt11">神的经纶</string>
+    <string name="bbmt12">首句笔画搜索</string>
+    <string name="bbmt13">英中诗歌首数对照</string>
 
     /* 赞美诗 xb toc */
     <string name="nbmt1">新路实行</string>
@@ -210,14 +229,19 @@
     <string name="permission_storage_request">儲存許可請求</string>
     <string name="permission_storage_rational">%1$s 被拒絕。诗歌本可能會出錯，直到您在 [App info | Permissions] 授予權限</string>
 
-    <string name="content_about">关于本诗歌软体:\n首先谢谢网络上的弟兄破碎提供诗歌的源材料.此诗歌本应用程序,原版由书拉密女小站(http://shulami02.net/bbs)个人开发;
-        技术有限暂时这样,希望慢慢改进\n最后请常到书拉密小站分享主内丰富.
-        \n万事互相效力为要叫爱祂的人得益处!正如神白白的恩典,所以请不要用做商业用途.
-        \n\n近日再由新作者,全程序重写改进,并添加新功能.如果有发现出错或建议,请发电邮至cmeng.gm@gmail.com 提出意见.</string>string>
+    <string name="content_about">关于本诗歌软体:
+        &lt;br/>首先谢谢网络上的弟兄破碎提供诗歌的源材料。此诗歌本应用程序，原版由书拉密女小站(http://shulami02.net/bbs)个人开发;
+        &lt;br/>&lt;br/>近日由新作者，全程序重写改进，并添加新功能。如果有发现出错或建议，请到
+        &lt;a href="https://github。com/cmeng-git/hymnchtv/issues">此网址 &lt;/a>提出意见。
+        &lt;br/>&lt;br/>万事互相效力为要叫爱祂的人得益处！正如神白白的恩典，所以请不要用做商业用途。</string>
 
-    <string name="content_help">长按屏慕启动播放诗歌使用菜单:\n\u25AA 播放按钮点一下,开始播放媒体档\n\u25AA 再点一下播放按钮,播放就会暂停
-        \n\u25AA 再点一下播放按钮,就会从暂停的地方继续播放\n\u25AA 长按播放按钮后,再次播放从头开始播放
-        \n\n目前要播放下一页或上一页的诗歌,需回主版面;从新选第几首诗歌进去后,才能播放新的一首诗歌.
-       \n如果有什么建议或报错烦请发电子邮件至:\ncmeng.gm@gmail.com\n技术有限希望对弟兄姐妹有用！</string>
+    <string name="content_help">歌词显示屏幕说明:
+        &lt;br/>\u25AA 长按屏慕启动播放诗歌使用菜单。
+        &lt;br/>\u25AA 播放按钮点一下，开始播放媒体档。
+        &lt;br/>\u25AA 再次点播放按钮，播放就会暂停。
+        &lt;br/>\u25AA 再次点播放按钮，从暂停位置继续播放。
+        &lt;br/>\u25AA 长按播放按钮后，可再次从头开始播放。
+        &lt;br/>\u25AA 将手机置于横向模式以显示更大字幕。
+        &lt;br/>技术有限希望对弟兄姐妹有用！</string>
 
 </resources>

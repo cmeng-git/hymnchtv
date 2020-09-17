@@ -35,12 +35,22 @@ import androidx.fragment.app.Fragment;
 
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
-import org.cog.hymnchtv.utils.*;
+import org.cog.hymnchtv.utils.ByteFormat;
+import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 import timber.log.Timber;
+
+import static org.cog.hymnchtv.MainActivity.HYMN_BB;
+import static org.cog.hymnchtv.MainActivity.HYMN_DB;
+import static org.cog.hymnchtv.MainActivity.HYMN_ER;
+import static org.cog.hymnchtv.MainActivity.HYMN_NB;
+import static org.cog.hymnchtv.MainActivity.TOC_BB;
+import static org.cog.hymnchtv.MainActivity.TOC_DB;
+import static org.cog.hymnchtv.MainActivity.TOC_ER;
+import static org.cog.hymnchtv.MainActivity.TOC_NB;
 
 /**
  * The class displays the hymn lyrics content selected by user
@@ -50,8 +60,24 @@ import timber.log.Timber;
 @SuppressLint("NonConstantResourceId")
 public class ContentView extends Fragment implements OnClickListener, OnLongClickListener
 {
-    public final static String HYMN_RESID = "hymnResId";
+    public static String LYRICS_ER_SCORE = "lyrics_er_score/";
+    public static String LYRICS_NB_SCORE = "lyrics_nb_score/";
+    public static String LYRICS_BB_SCORE = "lyrics_bb_score/";
+    public static String LYRICS_DB_SCORE = "lyrics_db_score/";
 
+    public static String LYRICS_BBS_TEXT = "lyrics_bbs_text/";
+    public static String LYRICS_DBS_TEXT = "lyrics_dbs_text/";
+
+    public static String LYRICS_BB_TEXT = "lyrics_bb_text/";
+    public static String LYRICS_DB_TEXT = "lyrics_db_text/";
+
+    public static String LYRICS_TOC = "lyrics_toc/";
+
+    public final static String LYRICS_TYPE = "lyricsType";
+    public final static String LYRICS_INDEX = "lyricsIndex";
+
+    private View lyricsView;
+    private View mConvertView;
     private ImageView mContentView = null;
 
     private final ProgressBar progressBar = null;
@@ -92,35 +118,180 @@ public class ContentView extends Fragment implements OnClickListener, OnLongClic
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
-        View convertView = inflater.inflate(R.layout.content_lyrics, container, false);
-        mContentView = convertView.findViewById(R.id.contentView);
+        mConvertView = inflater.inflate(R.layout.content_lyrics, container, false);
+        lyricsView = mConvertView.findViewById(R.id.lyricsView);
+        mContentView = mConvertView.findViewById(R.id.contentView);
 
-        String hymnResName = getArguments().getString(HYMN_RESID);
-        if (!TextUtils.isEmpty(hymnResName)) {
-            updateHymnContent(hymnResName);
+        String lyricsType = getArguments().getString(LYRICS_TYPE);
+        int lyricsIndex = getArguments().getInt(LYRICS_INDEX);
+
+        if (!TextUtils.isEmpty(lyricsType)) {
+            updateHymnContent(lyricsType, lyricsIndex);
         }
-        return convertView;
+        return mConvertView;
     }
 
     @Override
     public void onResume()
     {
         super.onResume();
-        registerForContextMenu(mContentView);
+        registerForContextMenu(lyricsView);
     }
 
     @Override
     public void onPause()
     {
-        unregisterForContextMenu(mContentView);
+        unregisterForContextMenu(lyricsView);
         super.onPause();
     }
 
-    private void updateHymnContent(String resName)
+    /**
+     * The lyrics png file has the following formats: HYMN_ER, HYMN_NB, HYMN_BB, HYMN_DB
+     * i.e. er, nb, bb, db followed by the hymn number, a, b, c etc for more than one page;
+     * The files are stored in asset respective sub-dir e.g. LYRICS_NB_SCORE
+     *
+     * The content view can support up to 5 pages for user vertical scrolling
+     *
+     * @param lyricsType see below cases
+     * @param index hymn index provided by the page adapter when use scroll
+     */
+    private void updateHymnContent(String lyricsType, int index)
     {
-        // Must use file resId, otherwise random file get display - need to check again???
-        MyGlideApp.loadImage(mContentView, HymnsApp.getFileResId(resName, "drawable"));
+        String resPrefix;
+        String resFName = "";
+
+        int[] hymnInfo = HymnIdx2NoConvert.hymnIdx2NoConvert(lyricsType, index);
+
+        switch (lyricsType) {
+            case HYMN_ER:
+                resPrefix = LYRICS_ER_SCORE + hymnInfo[0];
+                break;
+
+            case HYMN_NB:
+                resPrefix = LYRICS_NB_SCORE + "nb" + hymnInfo[0];
+                break;
+
+            case HYMN_BB:
+                resPrefix = LYRICS_BB_SCORE + "bb" + hymnInfo[0];
+                resFName = LYRICS_BBS_TEXT + hymnInfo[0] + ".txt";
+                break;
+
+            case HYMN_DB:
+                resPrefix = LYRICS_DB_SCORE + "db" + hymnInfo[0];
+                resFName = LYRICS_DBS_TEXT + hymnInfo[0] + ".txt";
+                break;
+
+            case TOC_ER:
+                resPrefix = LYRICS_TOC + "er_toc";
+                break;
+
+            case TOC_NB:
+                resPrefix = LYRICS_TOC + "nb_toc";
+                break;
+
+            case TOC_BB:
+                resPrefix = LYRICS_TOC + "bb_toc";
+                break;
+
+            case TOC_DB:
+                resPrefix = LYRICS_TOC + "db_toc";
+                break;
+
+            default: //if (HYMN_ER.equals(mSelect)) {
+                resPrefix = LYRICS_ER_SCORE + "er" + hymnInfo[0];
+        }
+
+
+        if (resPrefix.startsWith(LYRICS_TOC)) {
+            showLyricsToc(resPrefix, index);
+            return;
+        }
+
+        showLyricsScore(resPrefix, hymnInfo);
+
+        if (!TextUtils.isEmpty(resFName))
+            showLyricsText(resFName);
     }
+
+    private void showLyricsToc(String resPrefix, int index)
+    {
+        if (resPrefix.startsWith(LYRICS_TOC)) {
+            String resName = resPrefix + index + ((index > 19) ? ".jpg" : ".png");
+            Uri resUri = Uri.fromFile(new File("//android_asset/", resName));
+            MyGlideApp.loadImage(mContentView, resUri);
+            return;
+        }
+
+    }
+
+    private void showLyricsScore(String resPrefix, int[] hymnInfo)
+    {
+        int pages = hymnInfo[1]; // The number of pages for the current hymn number
+        ImageView contentView;
+
+        String resName = resPrefix + ".png";
+        Uri resUri = Uri.fromFile(new File("//android_asset/", resName));
+        MyGlideApp.loadImage(mContentView, resUri);
+
+        if (pages > 1) {
+            contentView = mConvertView.findViewById(R.id.contentView_a);
+            resName = resPrefix + "a.png";
+            resUri = Uri.fromFile(new File("//android_asset/", resName));
+            MyGlideApp.loadImage(contentView, resUri);
+        }
+        else {
+            return;
+        }
+
+        if (pages > 2) {
+            contentView = mConvertView.findViewById(R.id.contentView_b);
+            resName = resPrefix + "b.png";
+            resUri = Uri.fromFile(new File("//android_asset/", resName));
+            MyGlideApp.loadImage(contentView, resUri);
+        }
+        else {
+            return;
+        }
+
+        if (pages > 3) {
+            contentView = mConvertView.findViewById(R.id.contentView_c);
+            resName = resPrefix + "c.png";
+            resUri = Uri.fromFile(new File("//android_asset/", resName));
+            MyGlideApp.loadImage(contentView, resUri);
+        }
+        else {
+            return;
+        }
+
+        if (pages > 4) {
+            contentView = mConvertView.findViewById(R.id.contentView_d);
+            resName = resPrefix + "d.png";
+            resUri = Uri.fromFile(new File("//android_asset/", resName));
+            MyGlideApp.loadImage(contentView, resUri);
+        }
+    }
+
+
+    private void showLyricsText(String resFName)
+    {
+        TextView lyricsView = mConvertView.findViewById(R.id.contentView_txt);
+        lyricsView.setTextSize(HymnsApp.isPortrait ? 20 : 35);
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().getAssets().open(resFName)));
+            StringBuilder lyrics = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                lyrics.append(line);
+                lyrics.append('\n');
+            }
+            lyricsView.setText(lyrics);
+        } catch (IOException e) {
+            Timber.w("Error reading file: %s", resFName);
+        }
+    }
+
 
     public ImageView getSelectedView()
     {
@@ -349,7 +520,7 @@ public class ContentView extends Fragment implements OnClickListener, OnLongClic
             int lastJobStatus = checkDownloadStatus(lastDownloadId);
             Timber.d("Download receiver %s: %s", lastDownloadId, lastJobStatus);
 
-            String statusText = HymnsApp.getResString(R.string.gui_file_RECEIVE_FAILED, dnLink);
+            String statusText = HymnsApp.getResString(R.string.gui_file_DOWNLOAD_FAILED, dnLink);
             if (previousDownloads.containsKey(lastDownloadId)) {
                 if (lastJobStatus == DownloadManager.STATUS_SUCCESSFUL) {
                     String dnLink = previousDownloads.get(lastDownloadId);

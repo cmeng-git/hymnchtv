@@ -1,14 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@color/background_light" >
+    android:layout_height="fill_parent">
 
-    <ImageView
-        android:id="@+id/contentView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:adjustViewBounds="true"
-        android:scaleType="fitStart" />
+    <LinearLayout
+        android:id="@+id/lyricsView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background_light"
+        android:orientation="vertical">
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/contentView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:adjustViewBounds="true"
+            android:scaleType="fitStart" />
+
+        <ImageView
+            android:id="@+id/contentView_a"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitStart" />
+
+        <ImageView
+            android:id="@+id/contentView_b"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitStart" />
+
+        <ImageView
+            android:id="@+id/contentView_c"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitStart" />
+
+        <ImageView
+            android:id="@+id/contentView_d"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="fitStart" />
+
+        <TextView
+            android:id="@+id/contentView_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_bg_grey"
+            android:paddingStart="30dp"
+            android:paddingTop="10dp"
+            android:textSize="20sp"/>
+    </LinearLayout>
+</ScrollView>

@@ -6,8 +6,13 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="1.1.1 (09/12/2020)" versioncode="101010">
-        <change>github 发布</change>
+    <release version="1.2.0 (09/17/2020)" versioncode="102000">
+        <change>新添儿童诗歌谱；添加新歌颂咏歌谱第157~166，及169首</change>
+        <change>新添加大本詩歌和补充本诗歌词文本显示</change>
+        <change>用户所选诗歌编号现已媒体播放信息同步和播放，无需返回首页</change>
+        <change>播放以当前状态继续，直到歌曲结束或由用户停止；然后媒体信息才加以更新</change>
+        <change>横向模式的歌词以最大宽度显示，及垂直滚动阅读；默认隐藏媒体播放器用户界面</change>
+        <change>添加历史记录显示</change>
     </release>
 
     <release version="1.1.0 (09/11/2020)" versioncode="101000">

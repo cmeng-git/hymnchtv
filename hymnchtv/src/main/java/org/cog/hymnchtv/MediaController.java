@@ -100,7 +100,6 @@ public class MediaController extends Fragment
     private boolean isSeeking = false;
     private int positionSeek;
     private final boolean isMediaAudio = true;
-    private final String mimeType = "midi";
 
     private MediaType mMediaType;
 
@@ -204,7 +203,7 @@ public class MediaController extends Fragment
             registerMpBroadCastReceiver();
         }
 
-        hymnInfo.setText(mContentHandler.getHymnInfo());
+        initHymnInfo(mContentHandler.getHymnInfo());
 
         // Get the user selected mediaType to playback
         mSharePref = MainActivity.getSharedPref();
@@ -223,6 +222,30 @@ public class MediaController extends Fragment
     {
         savedInstanceState.putInt(STATE_PLAYER, statePlayer);
         super.onSaveInstanceState(savedInstanceState);
+    }
+
+    /**
+     * Initialize the Media Player UI
+     *
+     * @param isShow show player UI if true
+     * @param isPlayEnable Enable play button if has playable content
+     */
+    public void initPlayerUi(boolean isShow, boolean isPlayEnable)
+    {
+        playbackPlay.setAlpha(isPlayEnable ? 1.0f : 0.3f);
+        playerUi.setVisibility(isShow ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * Update the player title info with the given text string
+     *
+     * @param info
+     */
+    public void initHymnInfo(String info)
+    {
+        if (STATE_STOP == statePlayer) {
+            hymnInfo.setText(info);
+        }
     }
 
     /**
@@ -302,6 +325,7 @@ public class MediaController extends Fragment
 
         // Clear the hymns list on stopPlay, allowing playback to fetch new if user changes the hymn
         mediaHymns.clear();
+        initHymnInfo(mContentHandler.getHymnInfo());
     }
 
     @Override
@@ -383,7 +407,7 @@ public class MediaController extends Fragment
 
                 Intent intent = new Intent(mContentHandler, AudioBgService.class);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                intent.setDataAndType(mUri, mimeType);
+                intent.setData(mUri);
                 intent.setAction(AudioBgService.ACTION_PLAYER_INIT);
                 mContentHandler.startService(intent);
             }
@@ -402,7 +426,7 @@ public class MediaController extends Fragment
 
                 Intent intent = new Intent(mContentHandler, AudioBgService.class);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                intent.setDataAndType(mUri, mimeType);
+                intent.setData(mUri);
                 intent.setAction(AudioBgService.ACTION_PLAYER_STOP);
                 mContentHandler.startService(intent);
             }
@@ -433,19 +457,19 @@ public class MediaController extends Fragment
 
             intent.setAction(AudioBgService.ACTION_PLAYER_START);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.setDataAndType(mUri, mimeType);
+            intent.setData(mUri);
             mContentHandler.startService(intent);
             return;
         }
 
         intent = new Intent(Intent.ACTION_VIEW);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.setDataAndType(mUri, mimeType);
+        intent.setData(mUri);
 
         PackageManager manager = mContentHandler.getPackageManager();
         List<ResolveInfo> info = manager.queryIntentActivities(intent, 0);
         if (info.size() == 0) {
-            intent.setDataAndType(mUri, "*/*");
+            intent.setData(mUri);
         }
         try {
             mContentHandler.startActivity(intent);
@@ -467,7 +491,7 @@ public class MediaController extends Fragment
 
             Intent intent = new Intent(mContentHandler, AudioBgService.class);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            intent.setDataAndType(mUri, mimeType);
+            intent.setData(mUri);
             intent.putExtra(AudioBgService.PLAYBACK_POSITION, position);
             intent.setAction(AudioBgService.ACTION_PLAYER_SEEK);
             mContentHandler.startService(intent);
@@ -527,6 +551,9 @@ public class MediaController extends Fragment
                         statePlayer = STATE_STOP;
                         bcRegisters.remove(mUri);
                         LocalBroadcastManager.getInstance(mContentHandler).unregisterReceiver(mReceiver);
+
+                        mediaHymns.clear();
+                        initHymnInfo(mContentHandler.getHymnInfo());
                         // flow through
                     case pause:
                         if (statePlayer != STATE_STOP) {
@@ -576,7 +603,10 @@ public class MediaController extends Fragment
     public void onStopTrackingTouch(SeekBar seekBar)
     {
         if (playbackSeekBar == seekBar) {
-            playerSeek(positionSeek);
+            for (Uri uri : mediaHymns) {
+                mUri = uri;
+                playerSeek(positionSeek);
+            }
             isSeeking = false;
         }
     }
@@ -811,7 +841,7 @@ public class MediaController extends Fragment
             int lastJobStatus = checkDownloadStatus(lastDownloadId);
             Timber.d("Download receiver %s: %s", lastDownloadId, lastJobStatus);
 
-            String statusText = HymnsApp.getResString(R.string.gui_file_RECEIVE_FAILED, dnLink);
+            String statusText = HymnsApp.getResString(R.string.gui_file_DOWNLOAD_FAILED, dnLink);
             if (previousDownloads.containsKey(lastDownloadId)) {
                 if (lastJobStatus == DownloadManager.STATUS_SUCCESSFUL) {
                     String dnLink = previousDownloads.get(lastDownloadId);

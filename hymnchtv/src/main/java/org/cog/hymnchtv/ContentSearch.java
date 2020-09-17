@@ -33,6 +33,10 @@ import java.util.*;
 import timber.log.Timber;
 
 import static org.cog.hymnchtv.ContentHandler.PAGE_SEARCH;
+import static org.cog.hymnchtv.ContentView.LYRICS_BBS_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_BB_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_DB_SCORE;
 import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_PAGE;
 import static org.cog.hymnchtv.MainActivity.ATTR_SEARCH;
@@ -86,7 +90,7 @@ public class ContentSearch extends FragmentActivity
         // Simplified Chinese text entry search in sdb
         while (hymnNo < HYMN_DB_MAX) {
             try {
-                fname = "sdb/" + hymnNo + ".txt";
+                fname = LYRICS_DBS_TEXT + hymnNo + ".txt";
                 InputStream in = getResources().getAssets().open(fname);
                 byte[] buffer = new byte[in.available()];
                 if (in.read(buffer) == 0)
@@ -138,7 +142,7 @@ public class ContentSearch extends FragmentActivity
                 }
 
                 try {
-                    fname = "sb/" + hymnNo + ".txt";
+                    fname = LYRICS_BBS_TEXT + hymnNo + ".txt";
                     InputStream in2 = getResources().getAssets().open(fname);
                     byte[] buffer2 = new byte[in2.available()];
                     if (in2.read(buffer2) == 0)
@@ -176,7 +180,7 @@ public class ContentSearch extends FragmentActivity
             hymnNo = 1;
             while (hymnNo < HYMN_DB_MAX) {
                 try {
-                    fname = "db/" + hymnNo + ".txt";
+                    fname = LYRICS_DB_SCORE + hymnNo + ".txt";
                     InputStream in3 = getResources().getAssets().open(fname);
                     byte[] buffer3 = new byte[in3.available()];
                     if (in3.read(buffer3) == 0)
@@ -227,7 +231,7 @@ public class ContentSearch extends FragmentActivity
                     }
 
                     try {
-                        fname = "b/" + hymnNo + ".txt";
+                        fname = LYRICS_BB_TEXT + hymnNo + ".txt";
                         InputStream in4 = getResources().getAssets().open(fname);
                         byte[] buffer4 = new byte[in4.available()];
                         if (in4.read(buffer4) == 0)

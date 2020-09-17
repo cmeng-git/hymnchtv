@@ -19,8 +19,6 @@ package org.cog.hymnchtv.service.androidupdate;
 import android.Manifest;
 import android.app.DownloadManager;
 import android.content.*;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -57,17 +55,19 @@ public class UpdateServiceImpl
     // path are case-sensitive
     private static final String filePath = "/releases/hymnchtv/versionupdate.properties";
 
-    /**
-     * Current installed version string
-     */
-    private String currentVersion;
-    private int currentVersionCode;
+    private static final String APK_FILE_NAME = "hymnchtv";
 
     /**
-     * Latest version string
+     * Current installed version string / version Code
+     */
+    private String currentVersion;
+    private long currentVersionCode;
+
+    /**
+     * The latest version string / version code
      */
     private String latestVersion;
-    private int latestVersionCode;
+    private long latestVersionCode;
 
     /* DownloadManager Broadcast Receiver Handler */
     private DownloadReceiver downloadReceiver = null;
@@ -116,7 +116,7 @@ public class UpdateServiceImpl
                     File apkFile = new File(FilePathHelper.getPath(HymnsApp.getGlobalContext(), fileUri));
 
                     // Ask the user if he wants to install if available and valid apk is found
-                    if (apkFile.exists() && isVersionCodeValid(apkFile, latestVersionCode)) {
+                    if (isValidApkVersion(apkFile, latestVersionCode)) {
                         askInstallDownloadedApk(fileUri);
                         return;
                     }
@@ -159,7 +159,7 @@ public class UpdateServiceImpl
             AndroidUtils.showAlertDialog(HymnsApp.getGlobalContext(),
                     HymnsApp.getResString(R.string.gui_update_none),
                     HymnsApp.getResString(R.string.gui_version_current,
-                            currentVersion, Integer.toString(currentVersionCode)));
+                            currentVersion, Long.toString(currentVersionCode)));
         }
     }
 
@@ -262,7 +262,7 @@ public class UpdateServiceImpl
                     File apkFile = new File(FilePathHelper.getPath(HymnsApp.getGlobalContext(), fileUri));
 
                     // Ask the user if he wants to install if available and valid apk is found
-                    if (apkFile.exists() && isVersionCodeValid(apkFile, latestVersionCode)) {
+                    if (isValidApkVersion(apkFile, latestVersionCode)) {
                         askInstallDownloadedApk(fileUri);
                         return;
                     }
@@ -332,17 +332,24 @@ public class UpdateServiceImpl
     }
 
     /**
-     * Validate the downloaded apk file for correct versionCode
+     * Validate the downloaded apk file for correct versionCode and its apk name
      *
      * @param apkFile apk File
-     * @param versionCode apk versionCode
+     * @param latestVersion apk versionCode
      * @return true if apkFile has the specified versionCode
      */
-    private boolean isVersionCodeValid(File apkFile, int versionCode)
+    private boolean isValidApkVersion(File apkFile, long latestVersion)
     {
-        PackageManager pm = HymnsApp.getGlobalContext().getPackageManager();
-        PackageInfo info = pm.getPackageArchiveInfo(apkFile.getPath(), 0);
-        return (info != null) && (versionCode == info.versionCode);
+        VersionServiceImpl versionService = VersionServiceImpl.getInstance();
+        boolean isValid = ((latestVersion > versionService.getCurrentVersionCode())
+                && apkFile.exists() && apkFile.getAbsolutePath().contains(APK_FILE_NAME));
+
+        if (!isValid) {
+            // Notify that the download version is not valid
+            AndroidUtils.showAlertDialog(HymnsApp.getGlobalContext(),
+                    R.string.gui_update_none, R.string.gui_update_invalid);
+        }
+        return isValid;
     }
 
     /**
@@ -400,7 +407,7 @@ public class UpdateServiceImpl
 
             if (mProperties != null) {
                 latestVersion = mProperties.getProperty("last_version");
-                latestVersionCode = Integer.parseInt(mProperties.getProperty("last_version_code"));
+                latestVersionCode = Long.parseLong(mProperties.getProperty("last_version_code"));
                 if (BuildConfig.DEBUG) {
                     downloadLink = mProperties.getProperty("download_link-debug");
                 }

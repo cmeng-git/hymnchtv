@@ -17,6 +17,7 @@
 package org.cog.hymnchtv;
 
 import android.content.Context;
+import android.net.Uri;
 import android.widget.ImageView;
 
 import com.bumptech.glide.annotation.GlideModule;
@@ -45,6 +46,17 @@ public class MyGlideApp extends AppGlideModule
                 .error(R.drawable.phrase)
                 .into(imageView);
     }
+
+    public static void loadImage(ImageView imageView, Uri uri)
+    {
+        Context ctx = HymnsApp.getGlobalContext();
+        GlideApp.with(ctx)
+                .load(uri)
+                .override(HymnsApp.screenWidth, HymnsApp.screenHeight)
+                .error(R.drawable.phrase)
+                .into(imageView);
+    }
+
 
     public static void loadImageLs(ImageView imageView, int resId)
     {

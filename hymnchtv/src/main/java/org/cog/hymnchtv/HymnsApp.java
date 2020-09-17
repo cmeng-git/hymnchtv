@@ -18,6 +18,7 @@ package org.cog.hymnchtv;
 
 import android.app.*;
 import android.content.*;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.media.AudioManager;
@@ -62,6 +63,8 @@ public class HymnsApp extends Application implements LifecycleObserver
      */
     private static HymnsApp mInstance;
 
+    public static boolean isPortrait = true;
+
     public static int screenWidth;
     public static int screenHeight;
 
@@ -102,6 +105,22 @@ public class HymnsApp extends Application implements LifecycleObserver
         ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
         screenWidth = size.x;
         screenHeight = size.y;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+
+        int orientation = newConfig.orientation;
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            isPortrait = true;
+            Timber.d("### Screen rotation: Portrait!");
+        }
+        else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            isPortrait = false;
+            Timber.d("### Screen rotation: Landscape!");
+        }
     }
 
     /**
