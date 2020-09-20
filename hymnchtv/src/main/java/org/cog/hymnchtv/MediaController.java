@@ -17,15 +17,13 @@
 package org.cog.hymnchtv;
 
 import android.annotation.SuppressLint;
-import android.app.DownloadManager;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
-import android.os.*;
-import android.text.TextUtils;
+import android.os.Build;
+import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.*;
 import android.view.View.OnClickListener;
@@ -37,10 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import org.cog.hymnchtv.persistance.FileBackend;
-import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.service.audioservice.AudioBgService;
-import org.cog.hymnchtv.utils.ByteFormat;
 
 import java.io.File;
 import java.util.*;
@@ -50,8 +45,18 @@ import timber.log.Timber;
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
 
 /**
- * Class implements the media player UI. It provides the full media playback control e.g. play, pause, stop
- * and select play position etc.
+ * Class implements the media player UI. It provides the full media playback control
+ * e.g. play, pause, stop and select play position etc.
+ * The UI also includes user selectable media options for the playback i.e. Midi, 教唱, 伴奏 and MP3
+ *
+ * The UI hymn info and playback are synchronous with the user selected Hymn number.
+ * The hymn playing continues, even as user slide to select new hymn; but get updated when the hymn ends or
+ * stop by the user.
+ *
+ * 播放按钮点一下，开始播放媒体档。
+ * 再次点播放按钮，播放就会暂停。
+ * 再次点播放按钮，从暂停位置继续播放。
+ * 长按播放按钮后，可再次从头开始播放。
  *
  * @author Eng Chong Meng
  */
@@ -90,13 +95,6 @@ public class MediaController extends Fragment
     private TextView playbackDuration;
     private SeekBar playbackSeekBar;
 
-    private ProgressBar progressBar = null;
-    private final TextView fileLabel = null;
-    private TextView fileStatus = null;
-    private TextView fileXferError = null;
-    private TextView fileXferSpeed = null;
-    private TextView estTimeRemain = null;
-
     private boolean isSeeking = false;
     private int positionSeek;
     private final boolean isMediaAudio = true;
@@ -113,21 +111,6 @@ public class MediaController extends Fragment
     protected File mXferFile;
     protected Uri mUri;
     List<Uri> mediaHymns;
-
-    // File download variables
-    private long fileSize;
-    private String fileName;
-    private String dnLink;
-
-    /* previousDownloads <DownloadJobId, Download Link> */
-    private final Hashtable<Long, String> previousDownloads = new Hashtable<>();
-
-    /* previousDownloads <DownloadJobId, DownloadFileMimeType Link> */
-    // private final Hashtable<Long, String> mimeTypes = new Hashtable<>();
-
-    /* DownloadManager Broadcast Receiver Handler */
-    private DownloadManager downloadManager;
-    private DownloadReceiver downloadReceiver = null;
 
     private ContentHandler mContentHandler;
 
@@ -151,13 +134,6 @@ public class MediaController extends Fragment
         playbackPosition = convertView.findViewById(R.id.playback_position);
         playbackDuration = convertView.findViewById(R.id.playback_duration);
         playbackSeekBar = convertView.findViewById(R.id.playback_seekbar);
-
-        fileStatus = convertView.findViewById(R.id.filexferStatusView);
-        fileXferError = convertView.findViewById(R.id.errorView);
-
-        fileXferSpeed = convertView.findViewById(R.id.file_progressSpeed);
-        estTimeRemain = convertView.findViewById(R.id.file_estTime);
-        progressBar = convertView.findViewById(R.id.file_progressbar);
 
         if (savedInstanceState != null) {
             statePlayer = savedInstanceState.getInt(STATE_PLAYER);
@@ -246,35 +222,6 @@ public class MediaController extends Fragment
         if (STATE_STOP == statePlayer) {
             hymnInfo.setText(info);
         }
-    }
-
-    /**
-     * Returns a string showing information for the given file.
-     *
-     * @param file the file
-     * @return the name and size of the given file
-     */
-    protected String getFileLabel(File file)
-    {
-        if ((file != null) && file.exists()) {
-            String fileName = file.getName();
-            long fileSize = file.length();
-            return getFileLabel(fileName, fileSize);
-        }
-        return (file == null) ? "" : file.getName();
-    }
-
-    /**
-     * Returns the string, showing information for the given file.
-     *
-     * @param fileName the name of the file
-     * @param fileSize the size of the file
-     * @return the name of the given file
-     */
-    protected String getFileLabel(String fileName, long fileSize)
-    {
-        String text = ByteFormat.format(fileSize);
-        return fileName + " (" + text + ")";
     }
 
     /**
@@ -369,8 +316,8 @@ public class MediaController extends Fragment
      */
     private boolean bcReceiverInit(File file)
     {
-        //        String mimeType = checkMimeType(file);
-        //        if ((mimeType != null) && (mimeType.contains("audio") || mimeType.contains("3gp"))) {
+        // String mimeType = checkMimeType(file);
+        // if ((mimeType != null) && (mimeType.contains("audio") || mimeType.contains("3gp"))) {
         if (statePlayer == STATE_STOP) {
             BroadcastReceiver bcReceiver;
             if ((bcReceiver = bcRegisters.get(mUri)) != null) {
@@ -381,8 +328,8 @@ public class MediaController extends Fragment
             bcRegisters.put(mUri, mReceiver);
         }
         return true;
-        //        }
-        //        return false;
+        // }
+        // return false;
     }
 
     private void registerMpBroadCastReceiver()
@@ -401,10 +348,6 @@ public class MediaController extends Fragment
     {
         if (isMediaAudio) {
             if (statePlayer == STATE_STOP) {
-
-                if (!bcReceiverInit(mXferFile))
-                    return false;
-
                 Intent intent = new Intent(mContentHandler, AudioBgService.class);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setData(mUri);
@@ -625,372 +568,4 @@ public class MediaController extends Fragment
         seconds = seconds % 60;
         return String.format(Locale.US, "%02d:%02d", minutes, seconds);
     }
-
-    /**
-     * Determine the mimeType of the given file
-     *
-     * @param file the media file to check
-     * @return mimeType or null if undetermined
-     */
-    private String checkMimeType(File file)
-    {
-        if (!file.exists()) {
-            // HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
-            return null;
-        }
-
-        try {
-            Uri uri = FileBackend.getUriForFile(mContentHandler, file);
-            String mimeType = FileBackend.getMimeType(mContentHandler, uri);
-            if ((mimeType == null) || mimeType.contains("application")) {
-                mimeType = "*/*";
-            }
-            return mimeType;
-
-        } catch (SecurityException e) {
-            Timber.i("No permission to access %s: %s", file.getAbsolutePath(), e.getMessage());
-            HymnsApp.showToastMessage(R.string.gui_file_OPEN_NO_PERMISSION);
-            return null;
-        }
-    }
-
-    /**
-     * Generate the mXferFile full filePath based on the given fileName and mimeType
-     *
-     * @param fileName the incoming xfer fileName
-     * @param mimeType the incoming file mimeType
-     */
-    protected void setTransferFilePath(String fileName, String mimeType)
-    {
-        String downloadPath = FileBackend.MEDIA_DOCUMENT;
-        if (fileName.contains("voice-"))
-            downloadPath = FileBackend.MEDIA_VOICE_RECEIVE;
-        else if (!TextUtils.isEmpty(mimeType) && !mimeType.startsWith("*")) {
-            downloadPath = FileBackend.MEDIA + File.separator + mimeType.split("/")[0];
-        }
-
-        File downloadDir = FileBackend.getHymnchtvStore(downloadPath, true);
-        mXferFile = new File(downloadDir, fileName);
-
-        // If a file with the given name already exists, add an index to the file name.
-        int index = 0;
-        int filenameLength = fileName.lastIndexOf(".");
-        if (filenameLength == -1) {
-            filenameLength = fileName.length();
-        }
-        while (mXferFile.exists()) {
-            String newFileName = fileName.substring(0, filenameLength) + "-"
-                    + ++index + fileName.substring(filenameLength);
-            mXferFile = new File(downloadDir, newFileName);
-        }
-    }
-
-
-    //================ File download Handler ===============
-
-    /**
-     * Creates the local file to save to.
-     *
-     * @return the local created file to save to.
-     */
-    private File createOutFile(File infile)
-    {
-        String fileName = infile.getName();
-        String mimeType = FileBackend.getMimeType(getActivity(), Uri.fromFile(infile));
-        setTransferFilePath(fileName, mimeType);
-
-        // Change the file name to the name we would use on the local file system.
-        if (!mXferFile.getName().equals(fileName)) {
-            String label = getFileLabel(mXferFile.getName(), infile.length());
-            hymnInfo.setText(label);
-        }
-        return mXferFile;
-    }
-
-    /**
-     * Returns the label to show on the progress bar.
-     *
-     * @param bytesString the bytes that have been transferred
-     * @return the label to show on the progress bar
-     */
-    protected String getProgressLabel(long bytesString)
-    {
-        return HymnsApp.getResString(R.string.gui_received, bytesString);
-    }
-
-    // ********************************************************************************************//
-    // Routines supporting File Download
-
-    /**
-     * Method fired when the chat message is clicked. {@inheritDoc}
-     * Trigger from @see ChatFragment#
-     *
-     * @param checkFileSize check acceptable file Size limit before download if true
-     */
-    private void initHttpFileDownload(boolean checkFileSize)
-    {
-        String url;
-        if (previousDownloads.contains(dnLink))
-            return;
-
-        if (downloadReceiver == null) {
-            downloadReceiver = new DownloadReceiver();
-            HymnsApp.getGlobalContext().registerReceiver(downloadReceiver,
-                    new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
-        }
-
-        url = dnLink;
-        // for testing only to display url in chat window
-        // mChatFragment.getChatPanel().addMessage("", new Date(), IMessage.ENCODE_PLAIN, IMessage.ENCODE_PLAIN, aesgcmUrl.getAesgcmUrl());
-
-        Uri uri = Uri.parse(url);
-        if (fileSize == -1) {
-            fileSize = queryFileSize(uri);
-            hymnInfo.setText(getFileLabel(fileName, fileSize));
-        }
-
-        long jobId = download(uri);
-        if (jobId > 0) {
-            previousDownloads.put(jobId, dnLink);
-            Timber.d("Download Manager init HttpFileDownload Size: %s %s", fileSize, previousDownloads.toString());
-        }
-    }
-
-    /**
-     * Schedules media file download.
-     */
-    private long download(Uri uri)
-    {
-        DownloadManager.Request request = new DownloadManager.Request(uri);
-        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-
-        try {
-            File tmpFile = new File(FileBackend.getHymnchtvStore(FileBackend.TMP, true), fileName);
-            request.setDestinationUri(Uri.fromFile(tmpFile));
-            // request.addRequestHeader("User-Agent", getUserAgent());
-
-            return downloadManager.enqueue(request);
-        } catch (SecurityException e) {
-            HymnsApp.showToastMessage(e.getMessage());
-        } catch (Exception e) {
-            HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
-        }
-        return -1;
-    }
-
-    /**
-     * Query the http uploaded file size for auto download.
-     */
-    private long queryFileSize(Uri uri)
-    {
-        Timber.d("Download Manager file size query started");
-        int size = -1;
-        DownloadManager.Request request = new DownloadManager.Request(uri);
-        long id = downloadManager.enqueue(request);
-        DownloadManager.Query query = new DownloadManager.Query();
-        query.setFilterById(id);
-
-        // allow loop for 3 seconds for slow server. Server can return size == 0 ?
-        int wait = 3;
-        while ((wait-- > 0) && (size <= 0)) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Timber.w("Download Manager query file size exception: %s", e.getMessage());
-                return -1;
-            }
-            Cursor cursor = downloadManager.query(query);
-            if (cursor.moveToFirst()) {
-                size = cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-            }
-            cursor.close();
-        }
-        Timber.d("Download Manager file size query end: %s (%s)", size, wait);
-        return size;
-    }
-
-    /**
-     * Queries the <tt>DownloadManager</tt> for the status of download job identified by given <tt>id</tt>.
-     *
-     * @param id download identifier which status will be returned.
-     * @return download status of the job identified by given id. If given job is not found
-     * {@link DownloadManager#STATUS_FAILED} will be returned.
-     */
-    private int checkDownloadStatus(long id)
-    {
-        DownloadManager.Query query = new DownloadManager.Query();
-        query.setFilterById(id);
-
-        try (Cursor cursor = downloadManager.query(query)) {
-            if (!cursor.moveToFirst())
-                return DownloadManager.STATUS_FAILED;
-            else {
-                return cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
-            }
-        }
-    }
-
-    private class DownloadReceiver extends BroadcastReceiver
-    {
-        @Override
-        public void onReceive(Context context, Intent intent)
-        {
-            // Fetching the download id received with the broadcast and
-            // if the received broadcast is for our enqueued download by matching download id
-            long lastDownloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-            int lastJobStatus = checkDownloadStatus(lastDownloadId);
-            Timber.d("Download receiver %s: %s", lastDownloadId, lastJobStatus);
-
-            String statusText = HymnsApp.getResString(R.string.gui_file_DOWNLOAD_FAILED, dnLink);
-            if (previousDownloads.containsKey(lastDownloadId)) {
-                if (lastJobStatus == DownloadManager.STATUS_SUCCESSFUL) {
-                    String dnLink = previousDownloads.get(lastDownloadId);
-
-                    Uri fileUri = downloadManager.getUriForDownloadedFile(lastDownloadId);
-                    File inFile = new File(FilePathHelper.getPath(context, fileUri));
-
-                    // update fileSize for progress bar update, in case it is still not updated by download Manager
-                    fileSize = inFile.length();
-
-                    if (inFile.exists()) {
-                        // Create outFile
-                        File outFile = createOutFile(inFile);
-
-                        // Plain media file sharing; rename will move the infile to outfile dir.
-                        if (inFile.renameTo(outFile)) {
-                            mXferFile = outFile;
-                            // updateView(FileTransferStatusChangeEvent.COMPLETED, null);
-                        }
-
-                        // Timber.d("Downloaded fileSize: %s (%s)", outFile.length(), fileSize);
-                        previousDownloads.remove(lastDownloadId);
-                        downloadManager.remove(lastDownloadId);
-                    }
-                }
-                else if (lastJobStatus == DownloadManager.STATUS_FAILED) {
-                    fileStatus.setText(statusText);
-                }
-            }
-            else if (DownloadManager.STATUS_FAILED == lastJobStatus) {
-                fileStatus.setText(statusText);
-            }
-        }
-    }
-
-    /**
-     * Get the jobId for the given dnLink
-     *
-     * @param dnLink previously download link
-     * @return jobId for the dnLink if available else -1
-     */
-    private long getJobId(String dnLink)
-    {
-        for (Map.Entry<Long, String> entry : previousDownloads.entrySet()) {
-            if (entry.getValue().equals(dnLink)) {
-                return entry.getKey();
-            }
-        }
-        return -1;
-    }
-
-    //=========================================================
-    /*
-     * Monitoring file download progress
-     */
-    private static final int PROGRESS_DELAY = 1000;
-
-    // The maximum download idle time (60 seconds) before it is forced stop
-    private static final int MAX_IDLE_TIME = 60;
-
-    private boolean isProgressCheckerRunning = false;
-    private final Handler handler = new Handler();
-
-    private long previousProgress;
-    private int waitTime;
-
-    /**
-     * Checks download progress.
-     */
-    private void checkProgress()
-    {
-        long lastDownloadId = getJobId(dnLink);
-        int lastJobStatus = checkDownloadStatus(lastDownloadId);
-        Timber.d("Downloading file jobId: %s; status: %s; dnProgress: %s (%s)", lastDownloadId, lastJobStatus,
-                previousProgress, waitTime);
-
-        // Terminate downloading task if failed or idleTime timeout
-        if (lastJobStatus == DownloadManager.STATUS_FAILED || waitTime < 0) {
-            File tmpFile = new File(FileBackend.getHymnchtvStore(FileBackend.TMP, true), fileName);
-            Timber.d("Downloaded fileSize (failed): %s (%s)", tmpFile.length(), fileSize);
-        }
-
-        DownloadManager.Query query = new DownloadManager.Query();
-        query.setFilterByStatus(~(DownloadManager.STATUS_FAILED | DownloadManager.STATUS_SUCCESSFUL));
-        Cursor cursor = downloadManager.query(query);
-        if (!cursor.moveToFirst()) {
-            cursor.close();
-            return;
-        }
-        do {
-            fileSize = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-            long progress = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
-
-            if (progressBar.isShown()) {
-                fileLabel.setText(getFileLabel(fileName, fileSize));
-                progressBar.setMax((int) fileSize);
-            }
-
-            if (progress <= previousProgress)
-                waitTime--;
-            else {
-                waitTime = MAX_IDLE_TIME;
-                previousProgress = progress;
-            }
-
-            //            onUploadProgress(progress, fileSize);
-            //            updateProgress(uploadedBytes, System.currentTimeMillis());
-
-        } while (cursor.moveToNext());
-        cursor.close();
-    }
-
-    /**
-     * Starts watching download progress.
-     *
-     * This method is safe to call multiple times. Starting an already running progress checker is a no-op.
-     */
-    private void startProgressChecker()
-    {
-        if (!isProgressCheckerRunning) {
-            isProgressCheckerRunning = true;
-            waitTime = MAX_IDLE_TIME;
-            previousProgress = -1;
-
-            progressChecker.run();
-        }
-    }
-
-    /**
-     * Stops watching download progress.
-     */
-    private void stopProgressChecker()
-    {
-        isProgressCheckerRunning = false;
-        handler.removeCallbacks(progressChecker);
-    }
-
-    /**
-     * Checks download progress and updates status, then re-schedules itself.
-     */
-    private Runnable progressChecker = new Runnable()
-    {
-        @Override
-        public void run()
-        {
-            if (isProgressCheckerRunning) {
-                checkProgress();
-                handler.postDelayed(this, PROGRESS_DELAY);
-            }
-        }
-    };
 }

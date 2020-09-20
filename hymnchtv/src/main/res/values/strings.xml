@@ -7,10 +7,13 @@
     <string name="gui_app_libraries">诗歌本程序使用以下第三方库： %1$s</string>
     <string name="gui_cancel">取消</string>
     <string name="gui_close">关闭</string>
-    <string name="gui_copyright">Copyright@2020, Eng Chong Meng\n(GNU General Public License v3.0)\nAll rights reserved.</string>
+    <string name="gui_copyright">Copyright@2020, Eng Chong Meng
+        &lt;br/>&lt;a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0&lt;/a>
+        &lt;br/>All rights reserved.</string>
     <!--    <string name="gui_help_link"><a href="https://cmeng-git.github.io">网上帮助-开发中</a></string>-->
+    <string name="gui_exit">退出</string>
     <string name="gui_help_link">网上帮助-开发中</string>
-    <string name="gui_hymn_sn_convert">诗歌数字转换</string>
+    <string name="gui_hymn_sn_convert">诗歌数字转换测试</string>
     <string name="gui_in_development">仍在开发中</string>
     <string name="gui_ok">确认</string>
     <string name="gui_to_be_added">待加</string>
@@ -42,13 +45,15 @@
     <string name="gui_download_completed">下载完成</string>
     <string name="gui_download_failed">无法下载新更新！</string>
     <string name="gui_downloaded_install">已下载更新，并准备进行安装。</string>
+    <string name="gui_downloaded_uninstall">您的版本 v1.2.0 需要先卸载再更新。
+    \n然后从下载目录手动安装:\n%1$s</string>
     <string name="gui_download_in_progress">正在下载更新。</string>
     <string name="gui_in_progress">进行中</string>
     <string name="gui_update">升级</string>
     <string name="gui_update_check">检查更新</string>
     <string name="gui_update_install">安装更新</string>
     <string name="gui_update_none">没有新版本</string>
-    <string name="gui_update_invalid">下载文件无效或/和版本不正确</string>
+    <string name="gui_update_invalid">下载文件无效或版本不正确</string>
     <string name="gui_version_current">您当前安装的版本：\n(%1$s-%2$s) 是最新的</string>
     <string name="gui_version_new_available">可下载%1$s的新发行版本\n(%2$s-%3$s)</string>
 
@@ -59,7 +64,7 @@
     <string name="gui_received">已收到 %1$s</string>
 
     <string name="hint_app_state">目前只是草稿版,如有任何问题,请发电邮至: cmeng.gm@gmail.com</string>
-    <string name="hint_hymn_content_search">输入歌词搜索,最多显示50项</string>
+    <string name="hint_hymn_content_search">输入歌词搜索,最多显示100项</string>
     <string name="hint_hymn_number_enter">输入第几首诗歌</string>
     <string name="hint_hymn_ui">按目录或输入(附)号码\n后按大本,补充,新颂或儿诗</string>
 
