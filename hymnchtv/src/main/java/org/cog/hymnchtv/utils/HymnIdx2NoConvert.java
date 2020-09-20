@@ -29,32 +29,24 @@ import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER_NO_MAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_NB;
 import static org.cog.hymnchtv.MainActivity.HYMN_NB_NO_MAX;
-
 import static org.cog.hymnchtv.MainActivity.rangeBbLimit;
 import static org.cog.hymnchtv.MainActivity.rangeErLimit;
 
 /**
  * This class converts the give hymn index and hymnType to the actual hymn lyrics number.
- * It checks for converted hymn lyrics number is within the supported ranges.
+ * It also checks for converted hymn lyrics number is within the supported ranges.
  *
- * Currently, the HymnTypes supported are 新歌颂咏, 新歌颂咏 and 大本詩歌
+ * Currently, the HymnTypes supported are 儿童诗歌, 新歌颂咏, 补充本 and 大本詩歌
  *
- * The returned result is used to create the reference to the actual content files
+ * The returned result is used by the caller to create the reference and fetch the actual content file
  *
  * @author Eng Chong Meng
  */
 public class HymnIdx2NoConvert
 {
-    /* Maximum number of lyrics in DB and start of its supplement */
-    //    private static final int HYMN_DBS_START = 780;
-    //    private static final int HYMN_DB_MAX = 787;
-    //
-    //    /* Maximum number of lyrics in BB */
-    //    private static final int HYMN_BB_MAX = 1005;
-    //
-    //    /* Maximum number of lyrics in BB */
-    //    private static final int HYMN_NB_MAX = 157;
-
+    /**
+     * Lyric scores with multi-pages for the specified 补充本 hymn number
+     */
     private static final Map<Integer, Integer> hymn_pages_bb = new HashMap<Integer, Integer>()
     {{
         put(9, 2);
@@ -65,6 +57,9 @@ public class HymnIdx2NoConvert
         put(909, 3);
     }};
 
+    /**
+     * Lyric scores with multi-pages for the specified 大本詩歌 hymn number
+     */
     private static final Map<Integer, Integer> hymn_pages_db = new HashMap<Integer, Integer>()
     {{
         put(128, 2);
@@ -81,34 +76,35 @@ public class HymnIdx2NoConvert
     }};
 
     /* 补充本: hymn maximum number in per 100, 200, 300 ranges etc; it is used to compute valid hymn number */
-    // Auto generated valid range for based 補充本 on rangeBbLimit
+    // Auto generated valid range for 補充本 based on rangeBbLimit
     private static final int[] rangeMaxBB = new int[rangeBbLimit.length];
+
     static {
-        for (int i = 0; i< rangeBbLimit.length; i++){
+        for (int i = 0; i < rangeBbLimit.length; i++) {
             rangeMaxBB[i] = rangeBbLimit[i] - 1;
         }
     }
 
     /* 儿童诗歌: hymn maximum number in per 100, 200, 300 ranges etc; it is used to compute valid hymn number */
-    // Auto generated valid range for based 儿童诗歌 on rangeBbLimit
+    // Auto generated valid range for 儿童诗歌 based on rangeErLimit
     private static final int[] rangeMaxER = new int[rangeErLimit.length];
+
     static {
-        for (int i = 0; i< rangeErLimit.length; i++){
+        for (int i = 0; i < rangeErLimit.length; i++) {
             rangeMaxER[i] = rangeErLimit[i] - 1;
         }
     }
 
-    /* Hymn item type for conversion */
-    private final static String[] hymns = {HYMN_ER, HYMN_NB, HYMN_BB, HYMN_DB};
-    // private final static String[] hymns = {HYMN_NB, HYMN_DB};
-
     /**
-     * For testing only
+     * For verification of the conversion (+ limit test)
+     *
+     * @param hymnType Hymn type to be verify
+     * @param indexMax max index for the hymnType
      */
-    public static void testRange()
+    public static void validateIdx2NoConversion(String hymnType, int indexMax)
     {
-        for (int x = 0; x < HYMN_BB_NO_MAX; x++) {
-            hymnIdx2NoConvert(HYMN_NB, x);
+        for (int x = 0; x < (indexMax + 1); x++) {
+            hymnIdx2NoConvert(hymnType, x);
         }
     }
 
@@ -117,21 +113,21 @@ public class HymnIdx2NoConvert
      * It checks for converted hymn lyrics number is within the supported ranges.
      *
      * @param hymnType Hymn type
-     * @param index Index to convert. Index is usually the index from pageAdapter
-     * @return Result of the translated hymn lyrics number if valid, else returen "-1,0"
+     * @param hymnIdx Index to convert. Index is usually the index from pageAdapter
+     * @return Result of the translated hymn lyrics number if valid, else return "{-1,0}"
      */
-    public static int[] hymnIdx2NoConvert(String hymnType, int index)
+    public static int[] hymnIdx2NoConvert(String hymnType, int hymnIdx)
     {
-        /* Result to be returned i.e. {hymnNo, pageCount} */
-        int[] hymnNo_page;
+        /* Result to be returned i.e. {hymnNo, pageCount}; default ot invalid on each call */
+        int[] hymnNo_page = new int[]{-1, 0};
 
-        /* hymnNo always start @ 1 */
-        int hymnNo = index + 1;
+        /* hymnNo always start @ #1 */
+        int hymnNo = hymnIdx + 1;
 
-        /* Cumulative of previous ranges unused index; use as start of next range index */
+        /* Cumulative of previous ranges unused index; use as start of the next 100 range index */
         int idxUnused;
 
-        /* The number of pages for current hymnNo */
+        /* The number of lyrics scores pages for computed hymnNo */
         Integer pageCount;
 
         switch (hymnType) {
@@ -147,30 +143,22 @@ public class HymnIdx2NoConvert
                         idxUnused += (rangeMaxER[i - 1] - 100 * (i - 1));
                     }
 
-                    hymnNo = idxRangeStart + (index - idxUnused) + 1;
+                    hymnNo = idxRangeStart + (hymnIdx - idxUnused) + 1;
                     if (hymnNo <= idxMax) {
                         break;
                     }
                 }
 
-                if (hymnNo > HYMN_ER_NO_MAX) {
-                    Timber.w("Hymn number not available: %s", hymnNo);
-                    return new int[]{-1, 0};
+                if (hymnNo <= HYMN_ER_NO_MAX) {
+                    hymnNo_page = new int[]{hymnNo, 1};
                 }
-
-                hymnNo_page = new int[]{hymnNo, 1};
-                Timber.d("Index to ER Hymn number %s => %s", index, hymnNo_page);
                 break;
 
             // 新歌颂咏
             case HYMN_NB:
-                if (hymnNo > HYMN_NB_NO_MAX) {
-                    Timber.w("Hymn NB number not available: %s", hymnNo);
-                    return new int[]{-1, 0};
+                if (hymnNo <= HYMN_NB_NO_MAX) {
+                    hymnNo_page = new int[]{hymnNo, 1};
                 }
-
-                hymnNo_page = new int[]{hymnNo, 1};
-                // Timber.d("Index to NB Hymn number %s => %s", index, hymnNo_page);
                 break;
 
             // 补充本
@@ -185,38 +173,31 @@ public class HymnIdx2NoConvert
                         idxUnused += (rangeMaxBB[i - 1] - 100 * (i - 1));
                     }
 
-                    hymnNo = idxRangeStart + (index - idxUnused) + 1;
+                    hymnNo = idxRangeStart + (hymnIdx - idxUnused) + 1;
                     if (hymnNo <= idxMax) {
                         break;
                     }
                 }
 
-                if (hymnNo > HYMN_BB_NO_MAX) {
-                    Timber.w("Hymn number not available: %s", hymnNo);
-                    return new int[]{-1, 0};
+                if (hymnNo <= HYMN_BB_NO_MAX) {
+                    pageCount = hymn_pages_bb.get(hymnNo);
+                    hymnNo_page = new int[]{hymnNo, (pageCount == null) ? 1 : pageCount};
                 }
-
-                pageCount = hymn_pages_bb.get(hymnNo);
-                hymnNo_page = new int[]{hymnNo, (pageCount == null) ? 1 : pageCount};
-
-                // Timber.d("Index to BB Hymn number %s => %s", index, hymnNo_page);
                 break;
 
             // 大本詩歌
             case HYMN_DB:
-                if (hymnNo > HYMN_DB_NO_TMAX) {
-                    Timber.w("Hymn DB number not available: %s", hymnNo);
-                    return new int[]{-1, 0};
+                if (hymnNo <= HYMN_DB_NO_TMAX) {
+                    pageCount = hymn_pages_db.get(hymnNo);
+                    hymnNo_page = new int[]{hymnNo, (pageCount == null) ? 1 : pageCount};
                 }
-
-                pageCount = hymn_pages_db.get(hymnNo);
-                hymnNo_page = new int[]{hymnNo, (pageCount == null) ? 1 : pageCount};
-
-                // Timber.d("Index to DB Hymn number %s => %s", index, hymnNo_page);
                 break;
+        }
 
-            default:
-                return new int[]{-1, 0};
+        if (hymnNo_page[0] == -1) {
+            Timber.w("Computed %s number exceeded hymnNo max: %s => %s", hymnType, hymnIdx, hymnNo);
+        } else {
+            Timber.d("Conversion %s for index %s => %s", hymnType, hymnIdx, hymnNo_page[0]);
         }
 
         return hymnNo_page;

@@ -38,7 +38,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_NB;
 
 /**
  * LyricsNoConvert hymns' lyrics file index number to file using actual hymn lyrics  number.
- * The class will work on DB BB and NB for both hymn score and midi files
+ * The class will work on DB BB and NB for both hymn scores and midi files
  * This is only used once to migrate old content in v1.1.1 to new content for easy reference
  * All new release will be based on this naming convention
  *
@@ -46,6 +46,9 @@ import static org.cog.hymnchtv.MainActivity.HYMN_NB;
  */
 public class Hymn2SnConvert
 {
+    private static String HYMN_BB_MIDI = "hymn_bb_midi/";
+    private static String HYMN_DB_MIDI = "hymn_db_midi/";
+
     /* Maximum number of lyrics in DB and start of its supplement */
     private static final int HYMN_DB_MAX = 787; // inclusive of supplements
 
@@ -111,7 +114,7 @@ public class Hymn2SnConvert
 
                 case HYMN_BB:
                     lyricsSubDir = FileBackend.getHymnchtvStore(LYRICS_BB_SCORE, true);
-                    File midiSubDir = FileBackend.getHymnchtvStore(FileBackend.HYMN_BB_MIDI, true);
+                    File midiSubDir = FileBackend.getHymnchtvStore(HYMN_BB_MIDI, true);
                     hymnNo = 1;
                     int nuiNext = bbSkip + 1;
 
@@ -277,7 +280,7 @@ public class Hymn2SnConvert
 
                 case HYMN_DB:
                     lyricsSubDir = FileBackend.getHymnchtvStore(LYRICS_DB_SCORE, true);
-                    midiSubDir = FileBackend.getHymnchtvStore(FileBackend.HYMN_DB_MIDI, true);
+                    midiSubDir = FileBackend.getHymnchtvStore(HYMN_DB_MIDI, true);
                     hymnNo = 1;
                     nuiNext = dbSkip + 1;
 

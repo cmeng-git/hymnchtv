@@ -32,7 +32,7 @@ import androidx.lifecycle.*;
 
 import org.cog.hymnchtv.impl.timberlog.TimberLogImpl;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
-import org.cog.hymnchtv.service.androidupdate.OnlineUpdateService;
+import org.cog.hymnchtv.service.androidupdate.*;
 import org.cog.hymnchtv.utils.DialogActivity;
 
 import java.util.List;
@@ -67,7 +67,6 @@ public class HymnsApp extends Application implements LifecycleObserver
 
     public static int screenWidth;
     public static int screenHeight;
-
 
     /**
      * {@inheritDoc}
@@ -105,6 +104,9 @@ public class HymnsApp extends Application implements LifecycleObserver
         ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
         screenWidth = size.x;
         screenHeight = size.y;
+
+        // Purge all the previously downloaded apk
+        UpdateServiceImpl.getInstance().removeOldDownloads();
     }
 
     @Override
@@ -184,25 +186,6 @@ public class HymnsApp extends Application implements LifecycleObserver
     public static void setLocale(String language)
     {
         // LocaleHelper.setLocale(mInstance, language);
-    }
-
-    /**
-     * Shutdowns the app by stopping all activities {@link #ACTION_EXIT}.
-     */
-    public static void shutdownApplication()
-    {
-        mInstance.doShutdownApplication();
-    }
-
-    /**
-     * Shutdowns all services and sends the EXIT action broadcast.
-     */
-    private void doShutdownApplication()
-    {
-        // Broadcast the exit action
-        Intent exitIntent = new Intent();
-        exitIntent.setAction(ACTION_EXIT);
-        sendBroadcast(exitIntent);
     }
 
     /**
@@ -357,6 +340,4 @@ public class HymnsApp extends Application implements LifecycleObserver
             DialogActivity.showDialog(mInstance, mInstance.getString(R.string.gui_error), msg);
         });
     }
-
-
 }
