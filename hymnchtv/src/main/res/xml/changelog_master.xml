@@ -6,12 +6,6 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="1.2.1 (09/20/2020)" versioncode="102010">
-        <change>添加新歌颂咏歌词文本，并将其包含在搜索项中</change>
-        <change>将最大搜索项增加到100，显示5行匹配结果的完整诗词句</change>
-        <change>错误地使用目录进行文本搜索，导致应用程序中止</change>
-    </release>
-
     <release version="1.2.0 (09/17/2020)" versioncode="102000">
         <change>新添儿童诗歌谱；添加新歌颂咏歌谱第157~166，及169首</change>
         <change>新添加大本詩歌和补充本诗歌词文本显示</change>

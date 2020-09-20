@@ -22,9 +22,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
@@ -68,23 +65,24 @@ public class About extends FragmentActivity implements View.OnClickListener
         // setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, android.R.drawable.ic_dialog_info);
         setTitle(getString(R.string.gui_about));
 
-        View hymnchtvkUrl = findViewById(R.id.hymnchtv_link);
-        hymnchtvkUrl.setOnClickListener(this);
+        View atakUrl = findViewById(R.id.hymnchtv_link);
+        atakUrl.setOnClickListener(this);
 
         TextView hymnchtvHelp = findViewById(R.id.hymnchtv_help);
         hymnchtvHelp.setTextColor(getResources().getColor(R.color.blue50));
         hymnchtvHelp.setOnClickListener(this);
 
-        TextView copyRight = findViewById(R.id.copyRight);
-        copyRight.setMovementMethod(LinkMovementMethod.getInstance());
-        copyRight.setText(Html.fromHtml(getResources().getString(R.string.gui_copyright)));
-
         findViewById(R.id.ok_button).setOnClickListener(this);
-        findViewById(R.id.check_new_version).setOnClickListener(this);
         findViewById(R.id.history_log).setOnClickListener(this);
 
-        // View btn_submitLogs = findViewById(R.id.submit_logs);
-        // btn_submitLogs.setOnClickListener(this);
+        //        View btn_submitLogs = findViewById(R.id.submit_logs);
+        //        btn_submitLogs.setOnClickListener(this);
+
+        if (BuildConfig.DEBUG) {
+            View btn_update = findViewById(R.id.check_new_version);
+            btn_update.setVisibility(View.VISIBLE);
+            btn_update.setOnClickListener(this);
+        }
 
         String aboutInfo = getAboutInfo();
         WebView wv = findViewById(R.id.AboutDialog_Info);
@@ -113,7 +111,7 @@ public class About extends FragmentActivity implements View.OnClickListener
                     @Override
                     public void run()
                     {
-                        UpdateServiceImpl.getInstance().checkForUpdates(true);
+                        new UpdateServiceImpl().checkForUpdates(true);
                     }
                 }.start();
                 break;

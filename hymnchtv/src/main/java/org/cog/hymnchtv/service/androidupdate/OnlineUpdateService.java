@@ -72,7 +72,7 @@ public class OnlineUpdateService extends IntentService
                         checkAppUpdate();
                         break;
                     case ACTION_UPDATE_AVAILABLE:
-                        UpdateServiceImpl.getInstance().checkForUpdates(true);
+                        new UpdateServiceImpl().checkForUpdates(true);
                         break;
                     case ACTION_AUTO_UPDATE_START:
                         setNextAlarm(CHECK_INTERVAL_ON_LAUNCH);
@@ -87,7 +87,7 @@ public class OnlineUpdateService extends IntentService
 
     private void checkAppUpdate()
     {
-        UpdateServiceImpl updateService = UpdateServiceImpl.getInstance();
+        UpdateServiceImpl updateService = new UpdateServiceImpl();
         boolean isLatest = updateService.isLatestVersion();
         if (!isLatest) {
             NotificationCompat.Builder nBuilder;

@@ -19,10 +19,9 @@ package org.cog.hymnchtv.service.androidupdate;
 import android.Manifest;
 import android.app.DownloadManager;
 import android.content.*;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 
 import org.cog.hymnchtv.*;
@@ -45,18 +44,18 @@ import timber.log.Timber;
  */
 public class UpdateServiceImpl
 {
-    public static int UNINSTALL_REQUEST_CODE = 120;
-
     // Default update link
     private static final String[] updateLinks = {"https://atalk.sytes.net", "https://atalk.mooo.com"};
 
     /**
      * Apk mime type constant.
      */
-    public static final String APK_MIME_TYPE = "application/vnd.android.package-archive";
+    private static final String APK_MIME_TYPE = "application/vnd.android.package-archive";
 
     // path are case-sensitive
     private static final String filePath = "/releases/hymnchtv/versionupdate.properties";
+
+    private static final String APK_FILE_NAME = "hymnchtv";
 
     /**
      * Current installed version string / version Code
@@ -77,6 +76,7 @@ public class UpdateServiceImpl
      * The download link
      */
     private String downloadLink;
+    // private String changesLink;
 
     /**
      * <tt>SharedPreferences</tt> used to store download ids.
@@ -89,16 +89,6 @@ public class UpdateServiceImpl
      */
     private static final String ENTRY_NAME = "apk_ids";
 
-    private static UpdateServiceImpl mInstance = null;
-
-    public static UpdateServiceImpl getInstance()
-    {
-        if (mInstance == null) {
-            mInstance = new UpdateServiceImpl();
-        }
-        return mInstance;
-    }
-
     /**
      * Checks for updates.
      *
@@ -107,7 +97,6 @@ public class UpdateServiceImpl
      */
     public void checkForUpdates(boolean notifyAboutNewestVersion)
     {
-        // set to inverse for testing only
         boolean isLatest = isLatestVersion();
         Timber.i("Is latest: %s\nCurrent version: %s\nLatest version: %s\nDownload link: %s",
                 isLatest, currentVersion, latestVersion, downloadLink);
@@ -128,7 +117,7 @@ public class UpdateServiceImpl
 
                     // Ask the user if he wants to install if available and valid apk is found
                     if (isValidApkVersion(apkFile, latestVersionCode)) {
-                        checkUninstallBeforeInstallApk(fileUri);
+                        askInstallDownloadedApk(fileUri);
                         return;
                     }
                 }
@@ -192,7 +181,11 @@ public class UpdateServiceImpl
                     {
                         // Need REQUEST_INSTALL_PACKAGES in manifest; Intent.ACTION_VIEW works for both
                         Intent intent;
-                        intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                            intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                        else
+                            intent = new Intent(Intent.ACTION_VIEW);
+
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         intent.setDataAndType(fileUri, APK_MIME_TYPE);
@@ -206,59 +199,6 @@ public class UpdateServiceImpl
                     {
                     }
                 });
-    }
-
-    /**
-     * Asks the user to install downloaded .apk; e.g. due to version code conflict.
-     *
-     * @param fileUri download file uri of the apk to install.
-     */
-    private void askUninstallApk(Uri fileUri)
-    {
-        String app_pkg_name = "org.cog.hymnchtv";
-        File apkFile = new File(FilePathHelper.getPath(HymnsApp.getGlobalContext(), fileUri));
-
-        DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
-                R.string.gui_download_completed,
-                R.string.gui_downloaded_uninstall,
-                R.string.gui_ok,
-                new DialogActivity.DialogListener()
-                {
-                    @Override
-                    public boolean onConfirmClicked(DialogActivity dialog)
-                    {
-                        // Need REQUEST_INSTALL_PACKAGES in manifest; Intent.ACTION_VIEW works for both
-                        Intent intent;
-
-                        intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE);
-                        intent.setData(Uri.parse("package:" + app_pkg_name));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                        MainActivity.mActivity.startActivityForResult(intent, UNINSTALL_REQUEST_CODE);
-                        return true;
-                    }
-
-                    @Override
-                    public void onDialogCancelled(DialogActivity dialog)
-                    {
-                        askInstallDownloadedApk(fileUri);
-                    }
-                }, apkFile.getAbsolutePath());
-    }
-
-    /**
-     * Ask the user whether to allow uninstall app.
-     *
-     * @param fileUri download file uri of the apk to install.
-     */
-    private void checkUninstallBeforeInstallApk(Uri fileUri)
-    {
-        if (currentVersionCode > latestVersionCode) {
-            askUninstallApk(fileUri);
-        }
-        else {
-            askInstallDownloadedApk(fileUri);
-        }
     }
 
     /**
@@ -323,7 +263,7 @@ public class UpdateServiceImpl
 
                     // Ask the user if he wants to install if available and valid apk is found
                     if (isValidApkVersion(apkFile, latestVersionCode)) {
-                        checkUninstallBeforeInstallApk(fileUri);
+                        askInstallDownloadedApk(fileUri);
                         return;
                     }
                 }
@@ -379,7 +319,7 @@ public class UpdateServiceImpl
     /**
      * Removes old downloads.
      */
-    public void removeOldDownloads()
+    void removeOldDownloads()
     {
         List<Long> apkIds = getOldDownloads();
 
@@ -395,23 +335,19 @@ public class UpdateServiceImpl
      * Validate the downloaded apk file for correct versionCode and its apk name
      *
      * @param apkFile apk File
-     * @param versionCode use the given versionCode to check against the apk versionCode
+     * @param latestVersion apk versionCode
      * @return true if apkFile has the specified versionCode
      */
-    private boolean isValidApkVersion(File apkFile, long versionCode)
+    private boolean isValidApkVersion(File apkFile, long latestVersion)
     {
-        boolean isValid = false;
-        if (apkFile.exists()) {
-            // Get downloaded apk actual versionName and versionCode
-            PackageManager pm = HymnsApp.getGlobalContext().getPackageManager();
-            PackageInfo info = pm.getPackageArchiveInfo(apkFile.getAbsolutePath(), 0);
-            isValid = (info != null) && (versionCode == info.versionCode);
+        VersionServiceImpl versionService = VersionServiceImpl.getInstance();
+        boolean isValid = ((latestVersion > versionService.getCurrentVersionCode())
+                && apkFile.exists() && apkFile.getAbsolutePath().contains(APK_FILE_NAME));
 
+        if (!isValid) {
             // Notify that the download version is not valid
-            if (!isValid) {
-                AndroidUtils.showAlertDialog(HymnsApp.getGlobalContext(),
-                        R.string.gui_update_none, R.string.gui_update_invalid);
-            }
+            AndroidUtils.showAlertDialog(HymnsApp.getGlobalContext(),
+                    R.string.gui_update_none, R.string.gui_update_invalid);
         }
         return isValid;
     }

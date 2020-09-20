@@ -21,7 +21,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -31,20 +30,14 @@ import android.widget.*;
 
 import androidx.fragment.app.FragmentActivity;
 
-import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.persistance.PermissionUtils;
-import org.cog.hymnchtv.utils.DialogActivity;
-import org.cog.hymnchtv.utils.HymnNo2IdxConvert;
+import org.cog.hymnchtv.persistance.migrations.Hymn2SnConvert;
+import org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.cketti.library.changelog.ChangeLog;
-import timber.log.Timber;
-
-import static org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl.APK_MIME_TYPE;
-import static org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl.UNINSTALL_REQUEST_CODE;
 
 /**
  * MainActivity: The hymnchtv app main user interface.
@@ -125,8 +118,6 @@ public class MainActivity extends FragmentActivity
     private int nui;
     private String sNumber = "";
 
-    public static MainActivity mActivity;
-
     /* Maximum HymnNo/HymnIndex: 大本诗歌 and start of its supplement */
     // The values and the similar must be updated if there are any new contents added
     public static final int HYMN_DB_NO_MAX = 780;
@@ -157,12 +148,22 @@ public class MainActivity extends FragmentActivity
     // invalid range for 補充本
     public static final List<Range<Integer>> rangeBbInvalid = new ArrayList<>();
 
-    // Auto generated invalid range for based 補充本 on rangeBbLimit; invalid range for 補充本:
-    // (38, 100),(151, 200),(259, 300),(350, 400),(471, 500),(544, 600),(630, 700),(763, 800),(881, 900),(931, 1000)
+    // Auto generated invalid range for based 補充本 on rangeBbLimit
     static {
         for (int i = 0; i < (rangeBbLimit.length - 1); i++) {
-            rangeBbInvalid.add(Range.create(rangeBbLimit[i], 100 * (i + 1)));
+            rangeBbInvalid.add(Range.create(rangeBbLimit[i], (i + 1) * 100));
         }
+        // invalid range for 補充本
+        // rangeBbInvalid.add(Range.create(38, 100));
+        // rangeBbInvalid.add(Range.create(151, 200));
+        // rangeBbInvalid.add(Range.create(259, 300));
+        // rangeBbInvalid.add(Range.create(350, 400));
+        // rangeBbInvalid.add(Range.create(471, 500));
+        // rangeBbInvalid.add(Range.create(544, 600));
+        // rangeBbInvalid.add(Range.create(630, 700));
+        // rangeBbInvalid.add(Range.create(763, 800));
+        // rangeBbInvalid.add(Range.create(881, 900));
+        // rangeBbInvalid.add(Range.create(931, 1000));
     }
 
     // ======================================================== //
@@ -177,7 +178,7 @@ public class MainActivity extends FragmentActivity
     // Auto generated invalid range for 儿童诗歌 based on rangeErLimit
     static {
         for (int i = 0; i < (rangeErLimit.length - 1); i++) {
-            rangeErInvalid.add(Range.create(rangeErLimit[i], 100 * (i + 1)));
+            rangeErInvalid.add(Range.create(rangeErLimit[i], (i + 1) * 100));
         }
     }
 
@@ -211,8 +212,6 @@ public class MainActivity extends FragmentActivity
                 cl.getLogDialog().show();
             }
         }, 15000));
-
-        mActivity = this;
 
         btn_toc.setOnClickListener(v -> {
             isToc = true;
@@ -654,14 +653,10 @@ public class MainActivity extends FragmentActivity
         return super.onKeyDown(keyCode, event);
     }
 
-    public boolean onCreateOptionsMenu(Menu menu)
+    public boolean onCreateOptionsMenu(Menu menu2)
     {
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-
-        if (BuildConfig.DEBUG) {
-            menu.findItem(R.id.sn_convert).setVisible(true);
-        }
+        super.onCreateOptionsMenu(menu2);
+        getMenuInflater().inflate(R.menu.main_menu, menu2);
         return true;
     }
 
@@ -799,21 +794,27 @@ public class MainActivity extends FragmentActivity
                 setBgColor(11, R.drawable.bg25);
                 return true;
 
+            case R.id.update_check:
+                new Thread()
+                {
+                    @Override
+                    public void run()
+                    {
+                        new UpdateServiceImpl().checkForUpdates(true);
+                    }
+                }.start();
+                return true;
+
             case R.id.sn_convert:
-                // HymnIdx2NoConvert.validateIdx2NoConversion(HYMN_ER, HYMN_ER_INDEX_MAX);
-                HymnNo2IdxConvert.validateNo2IdxConversion(HYMN_DB, HYMN_DB_NO_TMAX);
-                // Hymn2SnConvert.startConvert(); use for old to new file name conversion for 1.1.0 only
+                // HymnIdx2NoConvert.testRange();
+                // HymnNo2IdxConvert.testIdxRange();
+                Hymn2SnConvert.startConvert();
                 return true;
 
             case R.id.about:
                 Intent intent = new Intent(this, About.class);
                 startActivity(intent);
                 // DialogActivity.showDialog(this, R.string.gui_about, R.string.content_about);
-                return true;
-
-            case R.id.exit:
-                finishAndRemoveTask();
-                System.exit(0);
                 return true;
 
             case R.id.menutoggle:
@@ -954,94 +955,4 @@ public class MainActivity extends FragmentActivity
     {
         return mSharedPref;
     }
-
-    // ================= Handling of apk update =================
-//    /**
-//     * Asks the user to install downloaded .apk; e.g. due to version code conflict.
-//     *
-//     * @param fileUri download file uri of the apk to install.
-//     */
-//    public void askUninstallApk(final Uri fileUri)
-//    {
-//        String app_pkg_name = "org.cog.hymnchtv";
-//        File apkFile = new File(FilePathHelper.getPath(HymnsApp.getGlobalContext(), fileUri));
-//
-//        DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
-//                R.string.gui_download_completed,
-//                R.string.gui_downloaded_uninstall,
-//                R.string.gui_ok,
-//                new DialogActivity.DialogListener()
-//                {
-//                    @Override
-//                    public boolean onConfirmClicked(DialogActivity dialog)
-//                    {
-//                        // Need REQUEST_INSTALL_PACKAGES in manifest; Intent.ACTION_VIEW works for both
-//                        Intent intent;
-//                        intent = new Intent(Intent.ACTION_PACKAGE_REPLACED);
-//                        // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                        intent.setDataAndType(fileUri, APK_MIME_TYPE);
-//
-//                        startActivity(intent);
-//                        return true;
-//                    }
-//
-//                    @Override
-//                    public void onDialogCancelled(DialogActivity dialog)
-//                    {
-//                        askInstallDownloadedApk(fileUri);
-//                    }
-//                }, apkFile.getAbsolutePath());
-//    }
-//
-//    /**
-//     * Asks the user whether to install downloaded .apk.
-//     *
-//     * @param fileUri download file uri of the apk to install.
-//     */
-//    private void askInstallDownloadedApk(Uri fileUri)
-//    {
-//        DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
-//                R.string.gui_download_completed,
-//                R.string.gui_downloaded_install,
-//                R.string.gui_update,
-//                new DialogActivity.DialogListener()
-//                {
-//                    @Override
-//                    public boolean onConfirmClicked(DialogActivity dialog)
-//                    {
-//                        // Need REQUEST_INSTALL_PACKAGES in manifest; Intent.ACTION_VIEW works for both
-//                        Intent intent;
-//                        intent = new Intent(Intent.ACTION_MY_PACKAGE_REPLACED);  // crash the apk
-//                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                        intent.setDataAndType(fileUri, APK_MIME_TYPE);
-//
-//                        startActivity(intent);
-//                        return true;
-//                    }
-//
-//                    @Override
-//                    public void onDialogCancelled(DialogActivity dialog)
-//                    {
-//                    }
-//                });
-//    }
-//
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-//    {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == UNINSTALL_REQUEST_CODE) {
-//            if (resultCode == RESULT_OK) {
-//                Timber.d("onActivityResult: user accepted the uninstall");
-//            }
-//            else if (resultCode == RESULT_CANCELED) {
-//                Timber.d("onActivityResult: user canceled the uninstall");
-//            }
-//            else if (resultCode == RESULT_FIRST_USER) {
-//                Timber.d("onActivityResult: failed to uninstall");
-//            }
-//        }
-//    }
 }

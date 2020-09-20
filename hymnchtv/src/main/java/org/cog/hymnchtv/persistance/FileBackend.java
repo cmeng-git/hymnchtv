@@ -63,17 +63,13 @@ public class FileBackend
     public static String MEDIA_VOICE_SEND = "Media/Voice_Send";
     public static String TMP = "tmp";
 
-    // sub-directory for various hymn type
-    public static String HYMN_ER = "hymn_er/";
-    public static String HYMN_NB = "hymn_nb/";
-    public static String HYMN_BB = "hymn_bb/";
-    public static String HYMN_DB = "hymn_db/";
+    public static String HYMN_BB_MIDI = "hymn_bb_midi/";
+    public static String HYMN_DB_MIDI = "hymn_db_midi/";
 
-    // sub-directory for various media type
-    public static String MEDIA_MIDI = "media_midi/";
-    public static String MEDIA_MP3 = "media_mp3/";
-    public static String MEDIA_JIAOCHANG = "media_jiaochang/";
-    public static String MEDIA_OTHER = "media_other/";
+    public static String HYMN_ER_ = "hymn_er_";
+    public static String HYMN_NB_ = "hymn_nb_";
+    public static String HYMN_BB_ = "hymn_bb_";
+    public static String HYMN_DB_ = "hymn_db_";
 
     public static boolean IsExternalStorageWritable()
     {
@@ -250,9 +246,7 @@ public class FileBackend
 
         // https://developer.android.com/reference/android/os/Environment#getExternalStorageDirectory()
         // File hymnchtvDLDir = new File(Environment.getExternalStorageDirectory(), filePath);
-        // File hymnchtvDLDir = HymnsApp.getGlobalContext().getExternalFilesDir(filePath);
-
-        File hymnchtvDLDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + filePath);
+        File hymnchtvDLDir = HymnsApp.getGlobalContext().getExternalFilesDir(filePath);
         if (createNew && !hymnchtvDLDir.exists() && !hymnchtvDLDir.mkdirs()) {
             Timber.e("Could not create hymnchtv folder: %s", hymnchtvDLDir);
         }

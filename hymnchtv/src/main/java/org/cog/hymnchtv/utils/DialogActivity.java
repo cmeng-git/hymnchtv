@@ -83,7 +83,7 @@ public class DialogActivity extends FragmentActivity
     /**
      * Static map holds listeners for currently displayed dialogs.
      */
-    private static final Map<Long, DialogListener> listenersMap = new HashMap<>();
+    private static Map<Long, DialogListener> listenersMap = new HashMap<>();
 
     /**
      * Static list holds existing dialog instances (since onCreate() until onDestroy()). Only
@@ -106,7 +106,7 @@ public class DialogActivity extends FragmentActivity
      */
     private boolean confirmed;
 
-    private static final LocalBroadcastManager localBroadcastManager
+    private static LocalBroadcastManager localBroadcastManager
             = LocalBroadcastManager.getInstance(HymnsApp.getGlobalContext());
 
     /**
@@ -233,10 +233,11 @@ public class DialogActivity extends FragmentActivity
     }
 
     /**
-     * Fired when the confirm button is clicked.
+     * Fired when confirm button is clicked.
      *
      * @param v the confirm button view.
      */
+    @SuppressWarnings("unused")
     public void onOkClicked(View v)
     {
         if (listener != null) {
@@ -253,6 +254,7 @@ public class DialogActivity extends FragmentActivity
      *
      * @param v the cancel button view.
      */
+    @SuppressWarnings("unused")
     public void onCancelClicked(View v)
     {
         finish();
@@ -426,11 +428,10 @@ public class DialogActivity extends FragmentActivity
      * @param listener the confirm action listener.
      */
     public static void showConfirmDialog(Context context, int title, int message,
-            int confirmTxt, DialogListener listener, Object... arg)
+            int confirmTxt, DialogListener listener)
     {
         Resources res = HymnsApp.getAppResources();
-        showConfirmDialog(context, res.getString(title), res.getString(message, arg),
-                res.getString(confirmTxt), listener);
+        showConfirmDialog(context, res.getString(title), res.getString(message), res.getString(confirmTxt), listener);
     }
 
     /**

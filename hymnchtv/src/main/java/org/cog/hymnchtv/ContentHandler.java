@@ -43,7 +43,6 @@ import timber.log.Timber;
 
 import static org.cog.hymnchtv.ContentView.LYRICS_BBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_NB_TEXT;
 import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_PAGE;
 import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
@@ -104,7 +103,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
      * The media controller used to handle the playback of the user selected hymn.
      */
     private MediaController mMediaController;
-    private MediaHandler mMediaHandler;
 
     public void onCreate(Bundle savedInstanceState)
     {
@@ -216,15 +214,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     protected void onResume()
     {
         super.onResume();
-
-        // Attach the File Transfer GUI; Reuse the fragment is found;
-        // do not create/add new, otherwise setVisibility is no working
-        mMediaHandler = (MediaHandler) getSupportFragmentManager().findFragmentById(R.id.filexferGui);
-        if (mMediaHandler == null) {
-            mMediaHandler = new MediaHandler();
-            getSupportFragmentManager().beginTransaction().add(R.id.filexferGui, mMediaHandler).commit();
-        }
-
         showPlayerUi(isShowMenu && !mSelect.startsWith("toc_"));
     }
 
@@ -334,6 +323,20 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
     }
 
+    //    public void updateHymnIdx()
+    //    {
+    //        int position = mPager.getCurrentItem();
+    //
+    //        int tmp = HymnIdx2NoConvert.hymnIdx2NoConvert(mSelect, position)[0];
+    //        Timber.d("Update hymn info for #: %s => %s", position, tmp);
+    //
+    //        if (tmp != hymnNo) {
+    //            Timber.d("Update hymn info change for #: %s", tmp);
+    //            hymnNo = tmp;
+    //            mMediaController.initHymnInfo(getHymnInfo());
+    //        }
+    //    }
+
     public List<Uri> getPlayHymn(MediaType mediaType)
     {
         List<Uri> uriList = new ArrayList<>();
@@ -384,8 +387,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                 return res.getString(R.string.hymn_title_er, hymnNo, hymnTitle);
 
             case HYMN_NB:
-                fName = LYRICS_NB_TEXT + "nb" + hymnNo + ".txt";
-                break;
+                return res.getString(R.string.hymn_title_nb, hymnNo, hymnTitle);
 
             case HYMN_BB:
                 fName = LYRICS_BBS_TEXT + hymnNo + ".txt";
@@ -402,7 +404,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
             in2.read(buffer2);
 
             String mResult = EncodingUtils.getString(buffer2, "utf-8");
-            String[] mList = mResult.split("\n"); // applicable for "\r\n"
+            String[] mList = mResult.split("\r\n");
             hymnTitle = mList[1];
 
             // Check the next two lines for additional info e.g. （诗篇二篇）（英1094）
@@ -422,9 +424,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         }
 
         switch (mSelect) {
-            case HYMN_NB:
-                hymnInfo = res.getString(R.string.hymn_title_nb, hymnNo, hymnTitle);
-                break;
             case HYMN_BB:
                 hymnInfo = res.getString(R.string.hymn_title_xb, hymnNo, hymnTitle);
                 break;
@@ -436,7 +435,10 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                     hymnInfo = res.getString(R.string.hymn_title_db, hymnNo, hymnTitle);
                 }
                 break;
+
         }
         return hymnInfo;
     }
+
 }
+

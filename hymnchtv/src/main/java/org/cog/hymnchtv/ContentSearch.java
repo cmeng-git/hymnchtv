@@ -36,20 +36,13 @@ import static org.cog.hymnchtv.ContentHandler.PAGE_SEARCH;
 import static org.cog.hymnchtv.ContentView.LYRICS_BBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_BB_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_DB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_NB_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_DB_SCORE;
 import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_PAGE;
 import static org.cog.hymnchtv.MainActivity.ATTR_SEARCH;
 import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
-import static org.cog.hymnchtv.MainActivity.HYMN_BB_NO_MAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB_NO_MAX;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB_NO_TMAX;
-import static org.cog.hymnchtv.MainActivity.HYMN_NB;
-import static org.cog.hymnchtv.MainActivity.HYMN_NB_NO_MAX;
-import static org.cog.hymnchtv.MainActivity.rangeBbLimit;
 
 /**
  * ContentSearch: HymnApp search and diplay the the searched results based on uer input text
@@ -60,21 +53,25 @@ import static org.cog.hymnchtv.MainActivity.rangeBbLimit;
  */
 public class ContentSearch extends FragmentActivity
 {
-    /* Allowable maximum matched items for display */
-    private static final int HYMN_COUNT_MAX = 100;
+    private static final int HYMN_DB_MAX = 787;
+    private static final int HYMN_DBS_START = 780;
+    private static final int HYMN_BB_MAX = 1006;
+    private static final int HYMN_COUNT_MAX = 50;
+    private static final int RESULT_LENGTH = 50;
 
-    /* Length of matched text to display */
-    private static final int RESULT_LENGTH = 100;
+    // Simplified Chinese search in sb, range max per 100 (complete hymn list)
+    private static final int[] rangeMaxSB = {38, 151, 259, 350, 471, 544, 630, 763, 881, 931};
 
-    // Traditional Chinese text files in LYRICS_DB_TEXT, range max per 100 (partial hymn list) i.e. partial only
-    private static final int[] rangeMaxBB = {28, 138, 248, 330, 430, 534, 619, 753, 850, 916, 1006};
+    // Traditional Chinese search in b, range max per 100 (partial hymn list)
+    private static final int[] rangeMaxB = {28, 138, 248, 330, 430, 534, 619, 753, 850, 916};
 
-    /* running matched count number */
     private int mCount = 0;
+    private int fCount;
 
-    /* Array of hymnNo and hymnType pairs with the matched text */
-    private final int[] mHymnNo = new int[HYMN_COUNT_MAX];
-    private final Map<Integer, String> mHmynNoType = new LinkedHashMap<>();
+    private String hymnDB = HYMN_DB;
+    private final String mPage = PAGE_SEARCH;
+
+    private final int[] mItems = new int[HYMN_COUNT_MAX];
 
     public void onCreate(Bundle savedInstanceState)
     {
@@ -84,24 +81,19 @@ public class ContentSearch extends FragmentActivity
             return;
 
         List<Map<String, Object>> data = new ArrayList<>();
-
-        InputStream inStream;
-        byte[] buffer;
-
+        int hymnNo = 1;
         int matchIdx;
         int temp;
-
         String fname;
         String result;
 
-        // 大本詩歌: Simplified Chinese entry search in LYRICS_DBS_TEXT
-        int hymnNo = 1;
-        while (hymnNo <= HYMN_DB_NO_TMAX) {
+        // Simplified Chinese text entry search in sdb
+        while (hymnNo < HYMN_DB_MAX) {
             try {
                 fname = LYRICS_DBS_TEXT + hymnNo + ".txt";
-                inStream = getResources().getAssets().open(fname);
-                buffer = new byte[inStream.available()];
-                if (inStream.read(buffer) == 0)
+                InputStream in = getResources().getAssets().open(fname);
+                byte[] buffer = new byte[in.available()];
+                if (in.read(buffer) == 0)
                     continue;
 
                 result = EncodingUtils.getString(buffer, "utf-8");
@@ -109,45 +101,41 @@ public class ContentSearch extends FragmentActivity
 
                 matchIdx = result.indexOf(searchString);
                 if (matchIdx != -1) {
-                    // find the start of the line
-                    matchIdx = result.lastIndexOf("\n", matchIdx) + 1;
-
-                    mHymnNo[mCount] = hymnNo;
-                    mHmynNoType.put(hymnNo, HYMN_DB);
-
+                    mItems[mCount] = hymnNo;
+                    Map<String, Object> item = new HashMap<>();
                     if (result.length() - matchIdx < RESULT_LENGTH) {
                         result = result.substring(matchIdx);
                     }
                     else {
                         result = result.substring(matchIdx, matchIdx + RESULT_LENGTH);
                     }
-                    Map<String, Object> item_dbs = new HashMap<>();
-                    if (hymnNo > HYMN_DB_NO_MAX) {
-                        temp = hymnNo - HYMN_DB_NO_MAX;
-                        item_dbs.put("match", getString(R.string.hymn_match_db_sp, temp, result));
+                    if (hymnNo > HYMN_DBS_START) {
+                        temp = hymnNo - HYMN_DBS_START;
+                        item.put("match", getString(R.string.hymn_match_db_sp, temp, result));
                     }
                     else {
-                        item_dbs.put("match", getString(R.string.hymn_match_db, hymnNo, result));
+                        item.put("match", getString(R.string.hymn_match_db, hymnNo, result));
                     }
-                    data.add(item_dbs);
+                    data.add(item);
 
                     if (mCount > HYMN_COUNT_MAX) {
                         break;
                     }
                     mCount++;
                 }
+                hymnNo++;
             } catch (Exception e) {
                 Timber.w("Content search error: %s", e.getMessage());
             }
-            hymnNo++;
         }
 
-        // 補充本詩歌: Simplified Chinese text entry search in LYRICS_BBS_TEXT
+        // Simplified Chinese text entry search in sb
+        fCount = mCount;
         if (mCount < HYMN_COUNT_MAX) {
             hymnNo = 1;
-            while (hymnNo <= HYMN_BB_NO_MAX) {
-                for (int rx = 0; rx < rangeBbLimit.length; rx++) {
-                    if (hymnNo == rangeBbLimit[rx]) {
+            while (hymnNo < HYMN_BB_MAX) {
+                for (int rx = 0; rx < 10; rx++) {
+                    if (hymnNo == rangeMaxSB[rx]) {
                         hymnNo = 100 * (rx + 1) + 1;
                         break;
                     }
@@ -155,210 +143,132 @@ public class ContentSearch extends FragmentActivity
 
                 try {
                     fname = LYRICS_BBS_TEXT + hymnNo + ".txt";
-                    inStream = getResources().getAssets().open(fname);
-                    buffer = new byte[inStream.available()];
-                    if (inStream.read(buffer) == 0)
+                    InputStream in2 = getResources().getAssets().open(fname);
+                    byte[] buffer2 = new byte[in2.available()];
+                    if (in2.read(buffer2) == 0)
                         continue;
-
-                    result = EncodingUtils.getString(buffer, "utf-8");
+                    result = EncodingUtils.getString(buffer2, "utf-8");
                     result = result.substring(3);
 
                     matchIdx = result.indexOf(searchString);
                     if (matchIdx != -1) {
-                        // find the start of the line
-                        matchIdx = result.lastIndexOf("\n", matchIdx) + 1;
-
-                        mHymnNo[mCount] = hymnNo;
-                        mHmynNoType.put(hymnNo, HYMN_BB);
-
+                        mItems[mCount] = hymnNo;
+                        Map<String, Object> item2 = new HashMap<>();
                         if (result.length() - matchIdx < RESULT_LENGTH) {
                             result = result.substring(matchIdx);
                         }
                         else {
                             result = result.substring(matchIdx, matchIdx + RESULT_LENGTH);
                         }
-                        Map<String, Object> item_bbs = new HashMap<>();
-                        item_bbs.put("match", getString(R.string.hymn_match_bb, hymnNo, result));
-                        data.add(item_bbs);
+                        item2.put("match", getString(R.string.hymn_match_bb, hymnNo, result));
+                        data.add(item2);
 
                         if (mCount > HYMN_COUNT_MAX) {
                             break;
                         }
                         mCount++;
                     }
+                    hymnNo++;
                 } catch (Exception e) {
                     Timber.w("Content search error: %s", e.getMessage());
                 }
-                hymnNo++;
             }
         }
 
-        // 新歌颂咏: Simplified Chinese text entry search in LYRICS_NB_TEXT
-        if (mCount < HYMN_COUNT_MAX) {
+        // Traditional Chinese text entry search in db
+        if (mCount == 0) {
             hymnNo = 1;
-            while (hymnNo <= HYMN_NB_NO_MAX) {
+            while (hymnNo < HYMN_DB_MAX) {
                 try {
-                    fname = LYRICS_NB_TEXT + "nb" + hymnNo + ".txt";
-                    inStream = getResources().getAssets().open(fname);
-                    buffer = new byte[inStream.available()];
-                    if (inStream.read(buffer) == 0)
+                    fname = LYRICS_DB_SCORE + hymnNo + ".txt";
+                    InputStream in3 = getResources().getAssets().open(fname);
+                    byte[] buffer3 = new byte[in3.available()];
+                    if (in3.read(buffer3) == 0)
                         continue;
-
-                    result = EncodingUtils.getString(buffer, "utf-8");
+                    result = EncodingUtils.getString(buffer3, "utf-8");
                     result = result.substring(4);
 
                     matchIdx = result.indexOf(searchString);
                     if (matchIdx != -1) {
-                        // find the start of the line
-                        matchIdx = result.lastIndexOf("\n", matchIdx) + 1;
-
-                        mHymnNo[mCount] = hymnNo;
-                        mHmynNoType.put(hymnNo, HYMN_NB);
-
+                        mItems[mCount] = hymnNo;
+                        Map<String, Object> item3 = new HashMap<>();
                         if (result.length() - matchIdx < RESULT_LENGTH) {
                             result = result.substring(matchIdx);
                         }
                         else {
                             result = result.substring(matchIdx, matchIdx + RESULT_LENGTH);
                         }
-                        Map<String, Object> item_nb = new HashMap<>();
-                        item_nb.put("match", getString(R.string.hymn_match_nb, hymnNo, result));
-                        data.add(item_nb);
+                        if (hymnNo > HYMN_DBS_START) {
+                            temp = hymnNo - HYMN_DBS_START;
+                            item3.put("match", getString(R.string.hymn_match_db_sp, temp, result));
+                        }
+                        else {
+                            item3.put("match", getString(R.string.hymn_match_db, hymnNo, result));
+                        }
+                        data.add(item3);
 
                         if (mCount > HYMN_COUNT_MAX) {
                             break;
                         }
                         mCount++;
                     }
+                    hymnNo++;
                 } catch (Exception e) {
                     Timber.w("Content search error: %s", e.getMessage());
                 }
-                hymnNo++;
             }
-        }
 
-         // === Continue the search with the Traditional Chinese for any miss out items in 大本詩歌 and 補充本詩歌 === //
-        // 大本詩歌: Traditional Chinese text entry search in LYRICS_DB_TEXT
-        if (mCount < HYMN_COUNT_MAX) {
-            hymnNo = 1;
-            while (hymnNo <= HYMN_DB_NO_TMAX) {
-                try {
-                    fname = LYRICS_DB_TEXT + hymnNo + ".txt";
-                    inStream = getResources().getAssets().open(fname);
-                    buffer = new byte[inStream.available()];
-                    if (inStream.read(buffer) == 0)
-                        continue;
+            // Traditional Chinese text entry search in b
+            fCount = mCount;
+            if (mCount < HYMN_COUNT_MAX) {
+                hymnNo = 1;
+                while (hymnNo < HYMN_BB_MAX) {
+                    for (int rx = 0; rx < 10; rx++) {
+                        if (hymnNo == rangeMaxB[rx]) {
+                            hymnNo = 100 * (rx + 1) + 1;
+                            break;
+                        }
+                    }
 
-                    result = EncodingUtils.getString(buffer, "utf-8");
-                    result = result.substring(4);
-
-                    matchIdx = result.indexOf(searchString);
-                    if (matchIdx != -1) {
-                        // Skip if it is already found in simplified Chinese search
-                        if (HYMN_DB.equals(mHmynNoType.get(hymnNo))) {
+                    try {
+                        fname = LYRICS_BB_TEXT + hymnNo + ".txt";
+                        InputStream in4 = getResources().getAssets().open(fname);
+                        byte[] buffer4 = new byte[in4.available()];
+                        if (in4.read(buffer4) == 0)
                             continue;
-                        }
+                        result = EncodingUtils.getString(buffer4, "utf-8");
+                        result = result.substring(3);
 
-                        // find the start of the line
-                        matchIdx = result.lastIndexOf("\n", matchIdx) + 1;
+                        matchIdx = result.indexOf(searchString);
+                        if (matchIdx != -1) {
+                            mItems[mCount] = hymnNo;
+                            Map<String, Object> item4 = new HashMap<>();
+                            if (result.length() - matchIdx < RESULT_LENGTH) {
+                                result = result.substring(matchIdx);
+                            }
+                            else {
+                                result = result.substring(matchIdx, matchIdx + RESULT_LENGTH);
+                            }
+                            item4.put("match", getString(R.string.hymn_match_bb, hymnNo, result));
+                            data.add(item4);
 
-                        mHymnNo[mCount] = hymnNo;
-                        mHmynNoType.put(hymnNo, HYMN_DB);
-
-                        if (result.length() - matchIdx < RESULT_LENGTH) {
-                            result = result.substring(matchIdx);
+                            if (mCount > HYMN_COUNT_MAX) {
+                                break;
+                            }
+                            mCount++;
                         }
-                        else {
-                            result = result.substring(matchIdx, matchIdx + RESULT_LENGTH);
-                        }
-                        Map<String, Object> item_db = new HashMap<>();
-                        if (hymnNo > HYMN_DB_NO_MAX) {
-                            temp = hymnNo - HYMN_DB_NO_MAX;
-                            item_db.put("match", getString(R.string.hymn_match_db_sp, temp, result));
-                        }
-                        else {
-                            item_db.put("match", getString(R.string.hymn_match_db, hymnNo, result));
-                        }
-                        data.add(item_db);
-
-                        if (mCount > HYMN_COUNT_MAX) {
-                            break;
-                        }
-                        mCount++;
+                        hymnNo++;
+                    } catch (Exception e) {
+                        Timber.w("Content search error: %s", e.getMessage());
                     }
-                } catch (Exception e) {
-                    Timber.w("Content search error: %s", e.getMessage());
                 }
-                hymnNo++;
             }
         }
 
-        // 補充本詩歌: Traditional Chinese text entry search in LYRICS_BB_TEXT
-        if (mCount < HYMN_COUNT_MAX) {
-            hymnNo = 1;
-            while (hymnNo <= HYMN_BB_NO_MAX) {
-                for (int rx = 0; rx < rangeMaxBB.length; rx++) {
-                    if (hymnNo == rangeMaxBB[rx]) {
-                        hymnNo = 100 * (rx + 1) + 1;
-                        break;
-                    }
-                }
-
-                try {
-                    fname = LYRICS_BB_TEXT + hymnNo + ".txt";
-                    inStream = getResources().getAssets().open(fname);
-                    buffer = new byte[inStream.available()];
-                    if (inStream.read(buffer) == 0)
-                        continue;
-
-                    result = EncodingUtils.getString(buffer, "utf-8");
-                    result = result.substring(3);
-
-                    matchIdx = result.indexOf(searchString);
-                    if (matchIdx != -1) {
-                        // Skip if it is already found in simplified Chinese search
-                        if (HYMN_BB.equals(mHmynNoType.get(hymnNo))) {
-                            continue;
-                        }
-
-                        // find the start of the line
-                        matchIdx = result.lastIndexOf("\n", matchIdx) + 1;
-
-                        mHymnNo[mCount] = hymnNo;
-                        mHmynNoType.put(hymnNo, HYMN_BB);
-
-                        if (result.length() - matchIdx < RESULT_LENGTH) {
-                            result = result.substring(matchIdx);
-                        }
-                        else {
-                            result = result.substring(matchIdx, matchIdx + RESULT_LENGTH);
-                        }
-                        Map<String, Object> item_bb = new HashMap<>();
-                        item_bb.put("match", getString(R.string.hymn_match_bb, hymnNo, result));
-                        data.add(item_bb);
-
-                        if (mCount > HYMN_COUNT_MAX) {
-                            break;
-                        }
-                        mCount++;
-                    }
-                } catch (Exception e) {
-                    Timber.w("Content search error: %s", e.getMessage());
-                }
-                hymnNo++;
-            }
-        }
-        showResult(data);
-    }
-
-    private void showResult(List<Map<String, Object>> data)
-    {
-        /*
+        /**
          * Display the search result to the user
          */
-        SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.search_result, new String[]{"match"},
-                new int[]{R.id.textRow});
-
+        SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.search_result, new String[]{"match"}, new int[]{R.id.textRow});
         if (mCount != 0) {
             setTitle(getString(R.string.hymn_match, mCount));
         }
@@ -370,15 +280,23 @@ public class ContentSearch extends FragmentActivity
         listView.setAdapter(adapter);
         setContentView(listView);
 
-        listView.setOnItemClickListener((adapterView, view, pos, id) -> {
-            int hymnNo = mHymnNo[pos];
+        listView.setOnItemClickListener((adapterView, view, position, id) -> {
+            if (fCount == 0) {
+                hymnDB = HYMN_BB;
+            }
+            else if (position <= fCount) {
+                hymnDB = HYMN_DB;
+            }
+            else {
+                hymnDB = HYMN_BB;
+            }
 
             Intent intent = new Intent();
             intent.setClass(this, ContentHandler.class);
             Bundle bundle = new Bundle();
-            bundle.putInt(ATTR_NUMBER, hymnNo);
-            bundle.putString(ATTR_SELECT, mHmynNoType.get(hymnNo));
-            bundle.putString(ATTR_PAGE, PAGE_SEARCH);
+            bundle.putInt(ATTR_NUMBER, mItems[position]);
+            bundle.putString(ATTR_SELECT, hymnDB);
+            bundle.putString(ATTR_PAGE, mPage);
             intent.putExtras(bundle);
             startActivityForResult(intent, -1);
         });

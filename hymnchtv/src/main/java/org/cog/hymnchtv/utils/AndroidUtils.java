@@ -67,6 +67,13 @@ public class AndroidUtils
      * @param titleId the title identifier in the resources
      * @param messageId the message identifier in the resources
      */
+    public static void showAlertDialog(Context context, final int titleId, final int messageId)
+    {
+        String title = context.getResources().getString(titleId);
+        String msg = context.getResources().getString(messageId);
+        showAlertDialog(context, title, msg);
+    }
+
     public static void showAlertDialog(Context context, final int titleId, final int messageId, final Object... arg)
     {
         String title = context.getResources().getString(titleId);

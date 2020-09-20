@@ -57,7 +57,6 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/copyRight"
                 style="@style/AboutDialogTextColor"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -71,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:layout_marginTop="10dp"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:gravity="center_horizontal"
                 android:text="@string/gui_help_link" />
 

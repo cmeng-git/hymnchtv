@@ -35,13 +35,16 @@ public class ViewUtil
     public static void setTextViewValue(View container, int id, String text)
     {
         TextView tv = container.findViewById(id);
-
-        // Change to Spanned for proper display of "\n" or "br/> etc;
         text = text.replace("\n","<br/>");
         Spanned msgBody = Html.fromHtml(text, null, null);
-
         tv.setText(msgBody);
     }
+
+    //	public static void setTextViewHtml(View container, int id, String text)
+    //	{
+    //		TextView tv = (TextView) container.findViewById(id);
+    //		tv.setText(android.text.Html.fromHtml(text));
+    //	}
 
     public static void setTextViewValue(View container, String tag, String text)
     {

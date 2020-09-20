@@ -1,20 +1,8 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:	09/20/2020
-Version:		1.2.1 (102010)
-- HymnNo2IdxConvert limit check should use <= e.g. if (hymnNo <= HYMN_BB_NO_MAX) {}
-- Incorrect using of LYRICS_DB_SCORE for text search, should use LYRICS_DB_TEXT => app aborted
-- Increase maximum search items to 100 with length=100 (5-line result); always display the matched result at start of line
-- Add new song lyrics text and include it the search items
-- Change all files make reference to the MainActivity defined static values
-- Purge all old apk files from Download directory
-- Clean up java source and comments
-
-=========================================================================
-Author:         cmeng
 Upload Date:	09/17/2020
-Version:		1.2.0 (102001)
+Version:		1.2.0 (102000)
 - All hymn contents i.e. raw, png, txt reference are now using hymn no.
 - All lyrics contents are now stored in asset for max application control.
 - Add utilities to support HymnNo2Idx and HymnIdx2No conversion.
@@ -24,7 +12,7 @@ Version:		1.2.0 (102001)
 - lyrics view in Landscape mode is displayed with screen max width with vertical scrolling and hide playerUi by default.
 - Media player hymn info and midi playback is now synchronized with user selected hymn number
   playback continue with current until the end of song or stop by user; info is then updated
-- add children song lyrics and new song scores nb157.png to nb166.png, and nb169.png.
+- add children song lyrics and new song score nb157.png to nb166.png, and nb169.png.
 - Make corrections to all lyrics text, standardize the format and closing ' before ,.!
 
 =========================================================================
