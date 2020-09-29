@@ -34,7 +34,7 @@
     <string name="hymn_info_db_max">大本诗歌只有%1$d首,和附歌6首</string>
     <string name="hymn_info_db_range_fu">大本诗歌附歌只有1~6首</string>
 
-    <string name="hymn_info_nb_max">新歌颂咏只有%1$d首"</string>
+    <string name="hymn_info_xb_max">新歌颂咏只有%1$d首"</string>
 
     <string name="hymn_info_media_none">对不起！此项目前没有播放文件</string>
     <string name="hymn_info_sp_none">您选择的项目,没有附歌</string>
@@ -45,6 +45,11 @@
     <string name="gui_download_completed">下载完成</string>
     <string name="gui_download_failed">无法下载新更新！</string>
     <string name="gui_downloaded_install">已下载更新，并准备进行安装。</string>
+
+    <string name="gui_download_remaining_time">剩余时间: %1$s</string>
+    <string name="gui_download_speed">下载速度: %1$s/sec (%2$s)</string>
+    <string name="gui_download_wait">请稍候，文件下载已在进行中。</string>
+
     <string name="gui_downloaded_uninstall">您的版本 v1.2.0 需要先卸载再更新。
     \n然后从下载目录手动安装:\n%1$s</string>
     <string name="gui_download_in_progress">正在下载更新。</string>
@@ -81,27 +86,98 @@
     <string name="hymn_bb">补充</string>
 
     // hymnchtv media player interface gui names
-    <string name="hymn_media_aplay">伴奏</string>
+    <string name="hymn_media_banzou">伴奏</string>
+    <string name="hymn_media_changshi">唱诗</string>
+    <string name="hymn_media_jiaochang">教唱</string>
     <string name="hymn_media_midi">midi</string>
-    <string name="hymn_media_mp3">mp3</string>
-    <string name="hymn_media_teach">教唱</string>
 
     // hymn search gui strings
     <string name="hymn_number">第几首</string>
 
-    <string name="hymn_match">共有匹配 %1$d 首詩歌</string>
+    <string name="hymn_match">共有匹配 %1$d 首诗歌</string>
     <string name="hymn_match_er">儿童诗歌: 第 %1$d 首：\n%2$s</string>
-    <string name="hymn_match_nb">新歌颂咏: 第 %1$d 首：\n%2$s</string>
-    <string name="hymn_match_bb">補充本詩歌: 第 %1$d 首：\n%2$s</string>
-    <string name="hymn_match_db">大本詩歌: 第 %1$d 首：\n%2$s</string>
-    <string name="hymn_match_db_sp">大本詩歌: 附歌第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_xb">新歌颂咏: 第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_bb">補充本诗歌: 第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_db">大本诗歌: 第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_db_sp">大本诗歌: 附歌第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_none">找不到匹配</string>
 
+    <string name="hymn_title_bb">补充本 %1$d: %2$s</string>
     <string name="hymn_title_db">大本诗歌 %1$d: %2$s</string>
     <string name="hymn_title_dbs">大本诗歌 附%1$d: %2$s</string>
     <string name="hymn_title_er">儿童诗歌 %1$d: %2$s</string>
-    <string name="hymn_title_nb">新歌颂咏 %1$d: %2$s</string>
-    <string name="hymn_title_xb">补充本 %1$d: %2$s</string>
+    <string name="hymn_title_xb">新歌颂咏 %1$d: %2$s</string>
+
+    /* 大本诗歌 db toc */
+    <string name="dbmt1">颂赞三一神</string>
+    <string name="dbmt2">敬拜父</string>
+    <string name="dbmt3">赞美主</string>
+    <string name="dbmt4">圣灵的丰满</string>
+    <string name="dbmt5">得救的证实与快乐</string>
+    <string name="dbmt6">羡慕</string>
+    <string name="dbmt7">奉献</string>
+    <string name="dbmt8">与基督的联合</string>
+    <string name="dbmt9">经历基督</string>
+    <string name="dbmt10">经历神</string>
+    <string name="dbmt11">十字架的夸耀</string>
+    <string name="dbmt12">十字架的道路</string>
+    <string name="dbmt13">复活的生命</string>
+    <string name="dbmt14">鼓励</string>
+    <string name="dbmt15">试炼中的安慰</string>
+    <string name="dbmt16">里面生命的各方面</string>
+    <string name="dbmt17">神医</string>
+    <string name="dbmt18">祷告</string>
+    <string name="dbmt19">读经</string>
+    <string name="dbmt20">召会</string>
+    <string name="dbmt21">聚会</string>
+    <string name="dbmt22">属灵的争战</string>
+    <string name="dbmt23">事奉</string>
+    <string name="dbmt24">传扬福音</string>
+    <string name="dbmt25">福音</string>
+    <string name="dbmt26">受浸</string>
+    <string name="dbmt27">国度</string>
+    <string name="dbmt28">荣耀的盼望</string>
+    <string name="dbmt29">终极的显出</string>
+    <string name="dbmt30">附</string>
+
+    /* 补充本 bb toc */
+    <string name="bbmt1">赞美的话</string>
+    <string name="bbmt2">灵与生命</string>
+    <string name="bbmt3">享受基督</string>
+    <string name="bbmt4">爱慕耶稣</string>
+    <string name="bbmt5">追求与长进</string>
+    <string name="bbmt6">教会的异象</string>
+    <string name="bbmt7">建造与合一</string>
+    <string name="bbmt8">教会的生活</string>
+    <string name="bbmt9">事奉与福音</string>
+    <string name="bbmt10">盼望与预备</string>
+    <string name="bbmt11">神的经纶</string>
+    <string name="bbmt12">首句笔画搜索</string>
+    <string name="bbmt13">英中诗歌首数对照</string>
+
+    /* 新歌颂咏 xb toc */
+    <string name="xbmt1">新路实行</string>
+    <string name="xbmt2">福音喜信</string>
+    <string name="xbmt3">生命与灵</string>
+    <string name="xbmt4">召会生活</string>
+    <string name="xbmt5">新耶路撒冷</string>
+    <string name="xbmt6">新诗</string>
+    <string name="xbmt7">奉献的祷告</string>
+
+    /* 儿童诗歌 er toc */
+    <string name="ermt1">神的创造</string>
+    <string name="ermt2">主的爱</string>
+    <string name="ermt3">圣灵的同在</string>
+    <string name="ermt4">主的看顾</string>
+    <string name="ermt5">赞美与喜乐</string>
+    <string name="ermt6">祷告与读经</string>
+    <string name="ermt7">爱主</string>
+    <string name="ermt8">亲近依靠主</string>
+    <string name="ermt9">彰显主</string>
+    <string name="ermt10">召会聚会</string>
+    <string name="ermt11">传扬福音</string>
+    <string name="ermt12">发光并争战</string>
+    <string name="ermt13">经文故事篇</string>
 
     <string name="menu_main">主页</string>
     <string name="menu_media_ui_default_show">默认显示播放条</string>
@@ -165,61 +241,6 @@
     <string name="sbg11">绿色幽幽</string>
     <string name="sbg12">薰衣草</string>
 
-    /* 赞美诗 db toc */
-    <string name="dbmt1">颂赞三一神</string>
-    <string name="dbmt2">敬拜父</string>
-    <string name="dbmt3">赞美主</string>
-    <string name="dbmt4">圣灵的丰满</string>
-    <string name="dbmt5">得救的证实与快乐</string>
-    <string name="dbmt6">羡慕</string>
-    <string name="dbmt7">奉献</string>
-    <string name="dbmt8">与基督的联合</string>
-    <string name="dbmt9">经历基督</string>
-    <string name="dbmt10">经历神</string>
-    <string name="dbmt11">十字架的夸耀</string>
-    <string name="dbmt12">十字架的道路</string>
-    <string name="dbmt13">复活的生命</string>
-    <string name="dbmt14">鼓励</string>
-    <string name="dbmt15">试炼中的安慰</string>
-    <string name="dbmt16">里面生命的各方面</string>
-    <string name="dbmt17">神医</string>
-    <string name="dbmt18">祷告</string>
-    <string name="dbmt19">读经</string>
-    <string name="dbmt20">教会</string>
-    <string name="dbmt21">聚会</string>
-    <string name="dbmt22">属灵的争战</string>
-    <string name="dbmt23">事奉</string>
-    <string name="dbmt24">传扬福音</string>
-    <string name="dbmt25">福音</string>
-    <string name="dbmt26">受浸</string>
-    <string name="dbmt27">国度</string>
-    <string name="dbmt28">荣耀的盼望</string>
-    <string name="dbmt29">终极的显出</string>
-
-    /* 赞美诗 xb toc */
-    <string name="bbmt1">赞美的话</string>
-    <string name="bbmt2">灵与生命</string>
-    <string name="bbmt3">享受基督</string>
-    <string name="bbmt4">爱慕耶稣</string>
-    <string name="bbmt5">追求与长进</string>
-    <string name="bbmt6">教会的异象</string>
-    <string name="bbmt7">建造与合一</string>
-    <string name="bbmt8">教会的生活</string>
-    <string name="bbmt9">事奉与福音</string>
-    <string name="bbmt10">盼望与豫备</string>
-    <string name="bbmt11">神的经纶</string>
-    <string name="bbmt12">首句笔画搜索</string>
-    <string name="bbmt13">英中诗歌首数对照</string>
-
-    /* 赞美诗 xb toc */
-    <string name="nbmt1">新路实行</string>
-    <string name="nbmt2">福音喜信</string>
-    <string name="nbmt3">生命与灵</string>
-    <string name="nbmt4">召会生活</string>
-    <string name="nbmt5">新耶路撒冷</string>
-    <string name="nbmt6">新诗</string>
-    <string name="nbmt7">奉献的祷告</string>
-
     /* ChangeLog parameters */
     <string name="changelog_full_title">应用程序变更历史</string>
     <string name="changelog_title">应用程序新加功能</string>
@@ -238,6 +259,10 @@
         &lt;br/>首先谢谢网络上的弟兄破碎提供诗歌的源材料。此诗歌本应用程序，原版由书拉密女小站(http://shulami02.net/bbs)个人开发;
         &lt;br/>&lt;br/>近日由新作者，全程序重写改进，并添加新功能。如果有发现出错或建议，请到
         &lt;a href="https://github。com/cmeng-git/hymnchtv/issues">此网址 &lt;/a>提出意见。
+        &lt;br/>&lt;br/>新增诗歌资源材料来自网络:
+        &lt;br/>https://heavenlyfood.cn/hymnal/
+        &lt;br/>http://www.lshymn.net
+        &lt;br/>https://www.hymnal.net/
         &lt;br/>&lt;br/>万事互相效力为要叫爱祂的人得益处！正如神白白的恩典，所以请不要用做商业用途。</string>
 
     <string name="content_help">歌词显示屏幕说明:

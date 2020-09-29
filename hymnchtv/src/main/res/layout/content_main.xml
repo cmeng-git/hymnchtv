@@ -19,7 +19,16 @@
         android:id="@+id/mediaPlayer"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_alignParentBottom="true" >
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/filexferGui"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/mediaPlayer"
+        android:orientation="vertical" >
+    </LinearLayout>
+
 </RelativeLayout>

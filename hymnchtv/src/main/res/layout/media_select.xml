@@ -15,20 +15,20 @@
         android:text="@string/hymn_media_midi" />
 
     <RadioButton
-        android:id="@+id/btn_learn"
+        android:id="@+id/btn_banzhou"
         style="@style/ButtonTop"
         android:layout_marginStart="2dp"
-        android:text="@string/hymn_media_teach" />
+        android:text="@string/hymn_media_banzou" />
 
     <RadioButton
-        android:id="@+id/btn_accplay"
+        android:id="@+id/btn_jiaochang"
         style="@style/ButtonTop"
         android:layout_marginStart="2dp"
-        android:text="@string/hymn_media_aplay" />
+        android:text="@string/hymn_media_jiaochang" />
 
     <RadioButton
-        android:id="@+id/btn_mp3"
+        android:id="@+id/btn_changshi"
         style="@style/ButtonTop"
         android:layout_marginStart="2dp"
-        android:text="@string/hymn_media_mp3" />
+        android:text="@string/hymn_media_changshi" />
 </RadioGroup>

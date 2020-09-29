@@ -18,10 +18,10 @@ package org.cog.hymnchtv;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -31,20 +31,14 @@ import android.widget.*;
 
 import androidx.fragment.app.FragmentActivity;
 
-import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.persistance.PermissionUtils;
-import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNo2IdxConvert;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.cketti.library.changelog.ChangeLog;
 import timber.log.Timber;
-
-import static org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl.APK_MIME_TYPE;
-import static org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl.UNINSTALL_REQUEST_CODE;
 
 /**
  * MainActivity: The hymnchtv app main user interface.
@@ -61,12 +55,12 @@ public class MainActivity extends FragmentActivity
     public static final String ATTR_SEARCH = "search";
 
     public static final String HYMN_ER = "hymn_er";
-    public static final String HYMN_NB = "hymn_nb";
+    public static final String HYMN_XB = "hymn_xb";
     public static final String HYMN_BB = "hymn_bb";
     public static final String HYMN_DB = "hymn_db";
 
     public static final String TOC_ER = "toc_er";
-    public static final String TOC_NB = "toc_nb";
+    public static final String TOC_XB = "toc_xb";
     public static final String TOC_BB = "toc_bb";
     public static final String TOC_DB = "toc_db";
 
@@ -77,6 +71,7 @@ public class MainActivity extends FragmentActivity
     public static final String PREF_BACKGROUND = "Background";
 
     public static final String PREF_MEDIA_HYMN = "MediaHymn";
+    public static final String PREF_PLAYBACK_SPEED = "PlayBack_Speed";
 
     private static final int FONT_SIZE_DEFAULT = 35;
 
@@ -96,7 +91,7 @@ public class MainActivity extends FragmentActivity
 
     private Button btn_toc;
     private Button btn_er;
-    private Button btn_nb;
+    private Button btn_xb;
     private Button btn_bb;
     private Button btn_db;
     private Button btn_search;
@@ -110,7 +105,7 @@ public class MainActivity extends FragmentActivity
     private PopupWindow pop;
     private PopupWindow dbpop; // toc db
     private PopupWindow bbpop; // toc bb
-    private PopupWindow nbpop; // toc nb
+    private PopupWindow xbpop; // toc xb
 
     private static SharedPreferences mSharedPref;
     private static SharedPreferences.Editor mEditor;
@@ -141,8 +136,8 @@ public class MainActivity extends FragmentActivity
     public static final int HYMN_BB_INDEX_MAX = 513;
 
     /* Maximum HymnNo/HymnIndex: 新歌颂咏 */
-    public static final int HYMN_NB_NO_MAX = 169;
-    public static final int HYMN_NB_INDEX_MAX = 169;
+    public static final int HYMN_XB_NO_MAX = 169;
+    public static final int HYMN_XB_INDEX_MAX = 169;
 
     /* Maximum HymnNo/HymnIndex: 儿童诗歌 */
     public static final int HYMN_ER_NO_MAX = 1232;
@@ -270,7 +265,7 @@ public class MainActivity extends FragmentActivity
         });
 
         // 新歌颂咏
-        btn_nb.setOnClickListener(v -> {
+        btn_xb.setOnClickListener(v -> {
             if (!isToc) {
                 if (isFu) {
                     HymnsApp.showToastMessage(R.string.hymn_info_sp_none);
@@ -284,8 +279,8 @@ public class MainActivity extends FragmentActivity
                 }
 
                 nui = Integer.parseInt(sNumber);
-                if (nui > HYMN_NB_NO_MAX) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_nb_max, HYMN_NB_NO_MAX);
+                if (nui > HYMN_XB_NO_MAX) {
+                    HymnsApp.showToastMessage(R.string.hymn_info_xb_max, HYMN_XB_NO_MAX);
                     sNumber = "";
                     mEntry.setText(sNumber);
                     isValid = false;
@@ -297,7 +292,7 @@ public class MainActivity extends FragmentActivity
                     isValid = false;
                 }
                 if (isValid) {
-                    showContent(HYMN_NB, nui);
+                    showContent(HYMN_XB, nui);
                 }
                 else {
                     sNumber = "";
@@ -305,31 +300,31 @@ public class MainActivity extends FragmentActivity
                 }
             }
             else {
-                // showContent(TOC_NB, 1);
-                View toc_nb = getLayoutInflater().inflate(R.layout.toc_nb, (ViewGroup) null);
-                nbpop = new PopupWindow(toc_nb, HymnsApp.screenWidth, HymnsApp.screenHeight);
-                nbpop.showAtLocation(toc_nb, 17, 0, 0);
+                // showContent(TOC_XB, 1);
+                View toc_xb = getLayoutInflater().inflate(R.layout.toc_xb, (ViewGroup) null);
+                xbpop = new PopupWindow(toc_xb, HymnsApp.screenWidth, HymnsApp.screenHeight);
+                xbpop.showAtLocation(toc_xb, 17, 0, 0);
 
-                TextView nbmt1 = toc_nb.findViewById(R.id.nbmt1);
-                TextView nbmt2 = toc_nb.findViewById(R.id.nbmt2);
-                TextView nbmt3 = toc_nb.findViewById(R.id.nbmt3);
-                TextView nbmt4 = toc_nb.findViewById(R.id.nbmt4);
-                TextView nbmt5 = toc_nb.findViewById(R.id.nbmt5);
-                TextView nbmt6 = toc_nb.findViewById(R.id.nbmt6);
-                TextView nbmt7 = toc_nb.findViewById(R.id.nbmt7);
-                TextView btn_close_nb = toc_nb.findViewById(R.id.btn_close_nb);
+                TextView xbmt1 = toc_xb.findViewById(R.id.xbmt1);
+                TextView xbmt2 = toc_xb.findViewById(R.id.xbmt2);
+                TextView xbmt3 = toc_xb.findViewById(R.id.xbmt3);
+                TextView xbmt4 = toc_xb.findViewById(R.id.xbmt4);
+                TextView xbmt5 = toc_xb.findViewById(R.id.xbmt5);
+                TextView xbmt6 = toc_xb.findViewById(R.id.xbmt6);
+                TextView xbmt7 = toc_xb.findViewById(R.id.xbmt7);
+                TextView btn_close_xb = toc_xb.findViewById(R.id.btn_close_xb);
 
-                nbmt1.setOnClickListener(view -> showContent(TOC_NB, 1));
-                nbmt2.setOnClickListener(view -> showContent(TOC_NB, 1));
-                nbmt3.setOnClickListener(view -> showContent(TOC_NB, 2));
-                nbmt4.setOnClickListener(view -> showContent(TOC_NB, 3));
-                nbmt5.setOnClickListener(view -> showContent(TOC_NB, 4));
-                nbmt6.setOnClickListener(view -> showContent(TOC_NB, 4));
-                nbmt7.setOnClickListener(view -> showContent(TOC_NB, 4));
+                xbmt1.setOnClickListener(view -> showContent(TOC_XB, 1));
+                xbmt2.setOnClickListener(view -> showContent(TOC_XB, 1));
+                xbmt3.setOnClickListener(view -> showContent(TOC_XB, 2));
+                xbmt4.setOnClickListener(view -> showContent(TOC_XB, 3));
+                xbmt5.setOnClickListener(view -> showContent(TOC_XB, 4));
+                xbmt6.setOnClickListener(view -> showContent(TOC_XB, 4));
+                xbmt7.setOnClickListener(view -> showContent(TOC_XB, 4));
 
-                btn_close_nb.setOnClickListener(view -> {
-                    nbpop.dismiss();
-                    nbpop = null;
+                btn_close_xb.setOnClickListener(view -> {
+                    xbpop.dismiss();
+                    xbpop = null;
                 });
             }
         });
@@ -379,24 +374,24 @@ public class MainActivity extends FragmentActivity
                 }
             }
             else {
-                View toc_xb = getLayoutInflater().inflate(R.layout.toc_bb, (ViewGroup) null);
-                bbpop = new PopupWindow(toc_xb, HymnsApp.screenWidth, HymnsApp.screenHeight);
-                bbpop.showAtLocation(toc_xb, 17, 0, 0);
+                View toc_bb = getLayoutInflater().inflate(R.layout.toc_bb, (ViewGroup) null);
+                bbpop = new PopupWindow(toc_bb, HymnsApp.screenWidth, HymnsApp.screenHeight);
+                bbpop.showAtLocation(toc_bb, 17, 0, 0);
 
-                TextView bbmt1 = toc_xb.findViewById(R.id.bbmt1);
-                TextView bbmt2 = toc_xb.findViewById(R.id.bbmt2);
-                TextView bbmt3 = toc_xb.findViewById(R.id.bbmt3);
-                TextView bbmt4 = toc_xb.findViewById(R.id.bbmt4);
-                TextView bbmt5 = toc_xb.findViewById(R.id.bbmt5);
-                TextView bbmt6 = toc_xb.findViewById(R.id.bbmt6);
-                TextView bbmt7 = toc_xb.findViewById(R.id.bbmt7);
-                TextView bbmt8 = toc_xb.findViewById(R.id.bbmt8);
-                TextView bbmt9 = toc_xb.findViewById(R.id.bbmt9);
-                TextView bbmt10 = toc_xb.findViewById(R.id.bbmt10);
-                TextView bbmt11 = toc_xb.findViewById(R.id.bbmt11);
-                TextView bbmt12 = toc_xb.findViewById(R.id.bbmt12);
-                TextView bbmt13 = toc_xb.findViewById(R.id.bbmt13);
-                TextView btn_close_xb = toc_xb.findViewById(R.id.btn_close_xb);
+                TextView bbmt1 = toc_bb.findViewById(R.id.bbmt1);
+                TextView bbmt2 = toc_bb.findViewById(R.id.bbmt2);
+                TextView bbmt3 = toc_bb.findViewById(R.id.bbmt3);
+                TextView bbmt4 = toc_bb.findViewById(R.id.bbmt4);
+                TextView bbmt5 = toc_bb.findViewById(R.id.bbmt5);
+                TextView bbmt6 = toc_bb.findViewById(R.id.bbmt6);
+                TextView bbmt7 = toc_bb.findViewById(R.id.bbmt7);
+                TextView bbmt8 = toc_bb.findViewById(R.id.bbmt8);
+                TextView bbmt9 = toc_bb.findViewById(R.id.bbmt9);
+                TextView bbmt10 = toc_bb.findViewById(R.id.bbmt10);
+                TextView bbmt11 = toc_bb.findViewById(R.id.bbmt11);
+                TextView bbmt12 = toc_bb.findViewById(R.id.bbmt12);
+                TextView bbmt13 = toc_bb.findViewById(R.id.bbmt13);
+                TextView btn_close_xb = toc_bb.findViewById(R.id.btn_close_bb);
 
                 bbmt1.setOnClickListener(view -> showContent(TOC_BB, 1));
                 bbmt2.setOnClickListener(view -> showContent(TOC_BB, 2));
@@ -623,6 +618,13 @@ public class MainActivity extends FragmentActivity
             intent.putExtras(bundle);
             startActivity(intent);
         });
+
+        // replace special hymns character; unable to enter from a standard keyboard.
+        btn_search.setOnLongClickListener(v -> {
+            String sValue = tv_Search.getText().toString().replaceAll("他", "祂");
+            tv_Search.setText(sValue);
+            return true;
+        });
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event)
@@ -848,8 +850,8 @@ public class MainActivity extends FragmentActivity
         btn_del = findViewById(R.id.n11);
 
         btn_er = findViewById(R.id.bs_er);
-        btn_nb = findViewById(R.id.bs_nb);
-        btn_bb = findViewById(R.id.bs_xb);
+        btn_xb = findViewById(R.id.bs_xb);
+        btn_bb = findViewById(R.id.bs_bb);
         btn_db = findViewById(R.id.bs_db);
 
         btn_search = findViewById(R.id.btn_search);
@@ -870,8 +872,7 @@ public class MainActivity extends FragmentActivity
 
     private void showContent(String mode, int number)
     {
-        Intent intent = new Intent();
-        intent.setClass(this, ContentHandler.class);
+        Intent intent = new Intent(this, ContentHandler.class);
 
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_SELECT, mode);
@@ -906,7 +907,7 @@ public class MainActivity extends FragmentActivity
         btn_fu.setTextSize(fs_delta);
         btn_del.setTextSize(fs_delta);
         btn_er.setTextSize(fs_delta);
-        btn_nb.setTextSize(fs_delta);
+        btn_xb.setTextSize(fs_delta);
         btn_bb.setTextSize(fs_delta);
         btn_db.setTextSize(fs_delta);
 
@@ -937,7 +938,7 @@ public class MainActivity extends FragmentActivity
         btn_del.setTextColor(res.getColor(color));
 
         btn_toc.setTextColor(res.getColor(color));
-        btn_nb.setTextColor(res.getColor(color));
+        btn_xb.setTextColor(res.getColor(color));
         btn_db.setTextColor(res.getColor(color));
         btn_bb.setTextColor(res.getColor(color));
         btn_search.setTextColor(res.getColor(color));

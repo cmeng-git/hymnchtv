@@ -14,20 +14,20 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/nbmt1"
+            android:id="@+id/xbmt1"
             style="@style/TocFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="@string/nbmt1" />
+            android:text="@string/xbmt1" />
 
         <TextView
-            android:id="@+id/nbmt2"
+            android:id="@+id/xbmt2"
             style="@style/TocFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="@string/nbmt2" />
+            android:text="@string/xbmt2" />
     </LinearLayout>
 
     <LinearLayout
@@ -37,20 +37,20 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/nbmt3"
+            android:id="@+id/xbmt3"
             style="@style/TocFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="@string/nbmt3" />
+            android:text="@string/xbmt3" />
 
         <TextView
-            android:id="@+id/nbmt4"
+            android:id="@+id/xbmt4"
             style="@style/TocFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="@string/nbmt4" />
+            android:text="@string/xbmt4" />
     </LinearLayout>
 
     <LinearLayout
@@ -60,20 +60,20 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/nbmt5"
+            android:id="@+id/xbmt5"
             style="@style/TocFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="@string/nbmt5" />
+            android:text="@string/xbmt5" />
 
         <TextView
-            android:id="@+id/nbmt6"
+            android:id="@+id/xbmt6"
             style="@style/TocFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="@string/nbmt6" />
+            android:text="@string/xbmt6" />
     </LinearLayout>
 
     <LinearLayout
@@ -83,12 +83,12 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/nbmt7"
+            android:id="@+id/xbmt7"
             style="@style/TocFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="@string/nbmt7" />
+            android:text="@string/xbmt7" />
 
         <TextView
             android:layout_width="0dp"
@@ -104,7 +104,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btn_close_nb"
+            android:id="@+id/btn_close_xb"
             style="@style/ButtonTop"
             android:layout_width="match_parent"
             android:layout_height="50dp"

@@ -28,8 +28,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="org.cog.hymnchtv.ContentSearch" />
-        <activity android:name="org.cog.hymnchtv.ContentHandler" />
+        <activity
+            android:name="org.cog.hymnchtv.ContentHandler" />
+
+        <activity
+			android:name="org.cog.hymnchtv.ContentSearch" />
 
         <activity
             android:name=".utils.DialogActivity"

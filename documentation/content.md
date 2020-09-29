@@ -19,7 +19,7 @@ Sub-directories: lyrics_db_score, lyrics_db_text, lyrics_dbs_text
 Sub-directories: lyrics_bb_score, lyrics_bb_text, lyrics_bbs_text
 
 * 新歌颂咏 lyrics contents:<br/>
-Sub-directories: lyrics_nb_score, lyrics_nb_text
+Sub-directories: lyrics_xb_score, lyrics_xb_text
 
 * 儿童诗歌 lyrics contents:<br/>
 Sub-directories: lyrics_er_score, lyrics_er_text

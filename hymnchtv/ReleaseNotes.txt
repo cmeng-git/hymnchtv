@@ -1,6 +1,22 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	09/29/2020
+Version:		1.3.0 (103000)
+- Add er lyrics text and include them in the content view and search items
+- Implement file transfer and media content download from the web and stored in local directories for later use
+- Implement media playback speed control from 0.7x ~ 1.3x for all the media types
+- Fix mCount index out of bound in contentSearch; clean up source using common routine
+- MediaController: Need to SaveInstanceState for playerState, playerInfo and playerUris
+  i.e. ensure proper restoring of the player state under these conditions: hymn playing, change hymn number, screen rotate and return
+- Must have only one instance of MediaHandler for properly display of file transfer gui display.
+- Add support for replaceAll("他", "祂"), as "祂" cannot be entered from android standard keyboard.
+- Rename nb to xb for the references and contents file name
+- Continue searching for Tradition Chinese causes hymntv to hang due to GC; so block further searching in Traditional Chinese
+  * Background concurrent copying GC freed 31304(10MB) AllocSpace objects, 0(0B) LOS objects, 49% free, 16MB/33MB, paused 43us total 316.862ms
+
+=========================================================================
+Author:         cmeng
 Upload Date:	09/20/2020
 Version:		1.2.1 (102010)
 - HymnNo2IdxConvert limit check should use <= e.g. if (hymnNo <= HYMN_BB_NO_MAX) {}

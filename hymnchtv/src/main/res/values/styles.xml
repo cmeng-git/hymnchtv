@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="AppTheme" parent="@android:style/Theme.Light" />
 
     <style name="Button">
@@ -40,4 +41,31 @@
         <item name="android:textColor">@color/grey</item>
         <item name="android:textColorLink">@color/blue100</item>
     </style>
+
+    <style name="spinnerStyle">
+        <item name="android:spinnerMode">dropdown</item>
+        <item name="android:textColor">@color/textColorBlack</item>
+        <item name="android:textCursorDrawable">@null</item>
+        <item name="android:background">@drawable/btn_bg</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">2dp</item>
+
+        <!-- For the resting Spinner style -->
+        <item name="android:spinnerItemStyle">@style/spinnerItemStyle</item>
+
+        <!-- For each individual Spinner list item once clicked on -->
+        <item name="android:spinnerDropDownItemStyle">@style/spinnerDropDownItemStyle</item>
+    </style>
+
+    <style name="spinnerItemStyle">
+        <item name="android:textSize">12sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="spinnerDropDownItemStyle">
+        <item name="android:paddingStart">12sp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
 </resources>

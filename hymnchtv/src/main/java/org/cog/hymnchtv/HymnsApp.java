@@ -32,7 +32,8 @@ import androidx.lifecycle.*;
 
 import org.cog.hymnchtv.impl.timberlog.TimberLogImpl;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
-import org.cog.hymnchtv.service.androidupdate.*;
+import org.cog.hymnchtv.service.androidupdate.OnlineUpdateService;
+import org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl;
 import org.cog.hymnchtv.utils.DialogActivity;
 
 import java.util.List;
@@ -62,6 +63,11 @@ public class HymnsApp extends Application implements LifecycleObserver
      * Static instance holder.
      */
     private static HymnsApp mInstance;
+
+    /**
+     * Must have only one instance of the MediaHandler for properly UI display
+     */
+    public static MediaHandler mMediaHandler;
 
     public static boolean isPortrait = true;
 
@@ -99,6 +105,8 @@ public class HymnsApp extends Application implements LifecycleObserver
         super.onCreate();
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
 
+        mMediaHandler = new MediaHandler();
+
         // Get android device screen display size
         Point size = new Point();
         ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
@@ -117,11 +125,9 @@ public class HymnsApp extends Application implements LifecycleObserver
         int orientation = newConfig.orientation;
         if (orientation == Configuration.ORIENTATION_PORTRAIT) {
             isPortrait = true;
-            Timber.d("### Screen rotation: Portrait!");
         }
         else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
             isPortrait = false;
-            Timber.d("### Screen rotation: Landscape!");
         }
     }
 
@@ -288,15 +294,15 @@ public class HymnsApp extends Application implements LifecycleObserver
     public static Uri getRawUri(String filename)
     {
         int resId = HymnsApp.getFileResId(filename, "raw");
-        return Uri.parse(
-                ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + mInstance.getPackageName() + "/raw/" + resId);
+        return (resId != 0) ? Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
+                + mInstance.getPackageName() + "/raw/" + resId) : null;
     }
 
     public static Uri getDrawableUri(String filename)
     {
         int resId = HymnsApp.getFileResId(filename, "drawable");
-        return Uri.parse(
-                ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + mInstance.getPackageName() + "/drawable/" + resId);
+        return (resId != 0) ? Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
+                + mInstance.getPackageName() + "/drawable/" + resId) : null;
     }
 
     /**
@@ -309,7 +315,8 @@ public class HymnsApp extends Application implements LifecycleObserver
     {
         String packageName = mInstance.getPackageName();
         int resId = mInstance.getResources().getIdentifier(aString, "string", packageName);
-        return mInstance.getString(resId);
+
+        return (resId != 0) ? mInstance.getString(resId) : "";
     }
 
     /**

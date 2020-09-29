@@ -111,9 +111,8 @@ public class UpdateServiceImpl
         boolean isLatest = isLatestVersion();
         Timber.i("Is latest: %s\nCurrent version: %s\nLatest version: %s\nDownload link: %s",
                 isLatest, currentVersion, latestVersion, downloadLink);
-        // Timber.i("Changes link: %s", changesLink);
 
-        // cmeng: reverse the logic for !isLast for testing
+        // Reverse the logic i.e. !isLast for testing
         if (!isLatest && (downloadLink != null)) {
             // Check old or scheduled downloads
             List<Long> previousDownloads = getOldDownloads();
@@ -408,10 +407,10 @@ public class UpdateServiceImpl
             isValid = (info != null) && (versionCode == info.versionCode);
 
             // Notify that the download version is not valid
-            if (!isValid) {
-                AndroidUtils.showAlertDialog(HymnsApp.getGlobalContext(),
-                        R.string.gui_update_none, R.string.gui_update_invalid);
-            }
+//            if (!isValid) {
+//                AndroidUtils.showAlertDialog(HymnsApp.getGlobalContext(),
+//                        R.string.gui_update_none, R.string.gui_update_invalid);
+//            }
         }
         return isValid;
     }

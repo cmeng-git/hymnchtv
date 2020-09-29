@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.media.*;
 import android.net.Uri;
 import android.os.*;
+import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -52,6 +53,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
 
     // Playback without any UI update
     public static final String ACTION_PLAYBACK_PLAY = "playback_play";
+    public static final String ACTION_PLAYBACK_SPEED = "playback_speed";
 
     // Media player broadcast status parameters
     public static final String PLAYBACK_STATE = "playback_state";
@@ -96,6 +98,8 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
 
     // Handler for Sound Level Meter and Record Timer
     private Handler mHandlerRecord;
+
+    private static float playbackSpeed = 1.0f;
 
     // The Google ASR input requirements state that audio input sensitivity should be set such
     // that 90 dB SPL_LEVEL at 1000 Hz yields RMS of 2500 for 16-bit samples,
@@ -144,6 +148,13 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
             case ACTION_PLAYBACK_PLAY:
                 fileUri = intent.getData();
                 playerPlay(fileUri);
+                break;
+
+            case ACTION_PLAYBACK_SPEED:
+                String speed = intent.getType();
+                if (!TextUtils.isEmpty(speed)) {
+                    playbackSpeed = Float.parseFloat(speed);
+                }
                 break;
 
             case ACTION_RECORDING:
@@ -224,7 +235,12 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
 
         try {
             mPlayer.setOnCompletionListener(this);
-            mPlayer.setDataSource(this, uri);
+            if (uri.toString().startsWith("http")) {
+                mPlayer.setDataSource(uri.toString());
+            }
+            else {
+                mPlayer.setDataSource(this, uri);
+            }
             mPlayer.prepare();
         } catch (IOException e) {
             Timber.e("Media player creation error for: %s", uri.getPath());
@@ -332,6 +348,10 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
         }
 
         try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                PlaybackParams playPara = mPlayer.getPlaybackParams().setSpeed(playbackSpeed);
+                mPlayer.setPlaybackParams(playPara);
+            }
             mPlayer.start();
             playbackState(PlaybackState.play, uri);
         } catch (Exception e) {

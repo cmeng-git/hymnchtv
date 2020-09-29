@@ -29,8 +29,8 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB_NO_TMAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER_NO_MAX;
-import static org.cog.hymnchtv.MainActivity.HYMN_NB;
-import static org.cog.hymnchtv.MainActivity.HYMN_NB_NO_MAX;
+import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.MainActivity.HYMN_XB_NO_MAX;
 import static org.cog.hymnchtv.MainActivity.rangeBbLimit;
 import static org.cog.hymnchtv.MainActivity.rangeErLimit;
 
@@ -104,8 +104,8 @@ public class HymnNo2IdxConvert
                 break;
 
             // 新歌颂咏
-            case HYMN_NB:
-                if (hymnNo <= HYMN_NB_NO_MAX) {
+            case HYMN_XB:
+                if (hymnNo <= HYMN_XB_NO_MAX) {
                     hymnIdx = hymnNo - 1;
                 }
                 break;

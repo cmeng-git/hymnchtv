@@ -6,18 +6,27 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.3.0 (09/29/2020)" versioncode="103000">
+        <change>添加儿童诗歌歌词文本，用于歌词显示，并将其包含在搜索项中</change>
+        <change>新加媒体播放类别：伴奏，教唱，唱诗</change>
+        <change>可调媒体播放速度：0.7x〜1.3x</change>
+        <change>网络媒体下载仅一次；内部存储，供以后播放</change>
+        <change>可自我下载并复制媒体文件到预定义的目录（Download/hymnchtv）以用于播放</change>
+        <change>长按[内容搜索]按钮即可将输入文字词组转换‘他’&#x27A1;‘祂’</change>
+    </release>
+
     <release version="1.2.1 (09/20/2020)" versioncode="102010">
         <change>添加新歌颂咏歌词文本，并将其包含在搜索项中</change>
-        <change>将最大搜索项增加到100，显示5行匹配结果的完整诗词句</change>
+        <change>将最大搜索增加到100项，显示匹配结果的5行完整诗词句</change>
         <change>错误地使用目录进行文本搜索，导致应用程序中止</change>
     </release>
 
     <release version="1.2.0 (09/17/2020)" versioncode="102000">
-        <change>新添儿童诗歌谱；添加新歌颂咏歌谱第157~166，及169首</change>
-        <change>新添加大本詩歌和补充本诗歌词文本显示</change>
-        <change>用户所选诗歌编号现已媒体播放信息同步和播放，无需返回首页</change>
-        <change>播放以当前状态继续，直到歌曲结束或由用户停止；然后媒体信息才加以更新</change>
-        <change>横向模式的歌词以最大宽度显示，及垂直滚动阅读；默认隐藏媒体播放器用户界面</change>
+        <change>新添儿童诗歌谱, 新歌颂咏歌谱第157~166，及169首</change>
+        <change>同时显示用户选择的诗编号的乐谱和歌词</change>
+        <change>媒体信息和播放同步用户新选诗歌编号，无需返回主页</change>
+        <change>媒体播放以当前状态继续，直到歌曲结束；然后再同步用户新选诗歌编号</change>
+        <change>横向模式显示的乐谱和歌词歌词，显示加大150%，易于阅读</change>
         <change>添加历史记录显示</change>
     </release>
 

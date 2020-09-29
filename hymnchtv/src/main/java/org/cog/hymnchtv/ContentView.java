@@ -37,11 +37,11 @@ import timber.log.Timber;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
-import static org.cog.hymnchtv.MainActivity.HYMN_NB;
+import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.TOC_BB;
 import static org.cog.hymnchtv.MainActivity.TOC_DB;
 import static org.cog.hymnchtv.MainActivity.TOC_ER;
-import static org.cog.hymnchtv.MainActivity.TOC_NB;
+import static org.cog.hymnchtv.MainActivity.TOC_XB;
 
 /**
  * The class displays the hymn lyrics content selected by user;
@@ -53,12 +53,12 @@ import static org.cog.hymnchtv.MainActivity.TOC_NB;
 public class ContentView extends Fragment
 {
     public static String LYRICS_ER_SCORE = "lyrics_er_score/";
-    public static String LYRICS_NB_SCORE = "lyrics_nb_score/";
+    public static String LYRICS_XB_SCORE = "lyrics_xb_score/";
     public static String LYRICS_BB_SCORE = "lyrics_bb_score/";
     public static String LYRICS_DB_SCORE = "lyrics_db_score/";
 
-    public static String LYRICS_NB_TEXT = "lyrics_nb_text/";
-
+    public static String LYRICS_ER_TEXT = "lyrics_er_text/";
+    public static String LYRICS_XB_TEXT = "lyrics_xb_text/";
     public static String LYRICS_BBS_TEXT = "lyrics_bbs_text/";
     public static String LYRICS_DBS_TEXT = "lyrics_dbs_text/";
 
@@ -110,9 +110,9 @@ public class ContentView extends Fragment
     }
 
     /**
-     * The lyrics png file has the following formats: HYMN_ER, HYMN_NB, HYMN_BB, HYMN_DB
-     * i.e. er, nb, bb, db followed by the hymn number, a, b, c etc for more than one page;
-     * The files are stored in asset respective sub-dir e.g. LYRICS_NB_SCORE
+     * The lyrics png file has the following formats: HYMN_ER, HYMN_XB, HYMN_BB, HYMN_DB
+     * i.e. er, xb, bb, db followed by the hymn number, a, b, c etc for more than one page;
+     * The files are stored in asset respective sub-dir e.g. LYRICS_XB_SCORE
      *
      * The content view can support up to 5 pages for user vertical scrolling
      *
@@ -129,11 +129,12 @@ public class ContentView extends Fragment
         switch (lyricsType) {
             case HYMN_ER:
                 resPrefix = LYRICS_ER_SCORE + hymnInfo[0];
+                resFName = LYRICS_ER_TEXT + "er" + hymnInfo[0] + ".txt";
                 break;
 
-            case HYMN_NB:
-                resPrefix = LYRICS_NB_SCORE + "nb" + hymnInfo[0];
-                resFName = LYRICS_NB_TEXT + "nb" + hymnInfo[0] + ".txt";
+            case HYMN_XB:
+                resPrefix = LYRICS_XB_SCORE + "xb" + hymnInfo[0];
+                resFName = LYRICS_XB_TEXT + "xb" + hymnInfo[0] + ".txt";
                 break;
 
             case HYMN_BB:
@@ -150,8 +151,8 @@ public class ContentView extends Fragment
                 resPrefix = LYRICS_TOC + "er_toc";
                 break;
 
-            case TOC_NB:
-                resPrefix = LYRICS_TOC + "nb_toc";
+            case TOC_XB:
+                resPrefix = LYRICS_TOC + "xb_toc";
                 break;
 
             case TOC_BB:

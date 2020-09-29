@@ -159,7 +159,7 @@
                 android:textStyle="bold" />
 
             <Button
-                android:id="@+id/bs_nb"
+                android:id="@+id/bs_xb"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -205,7 +205,7 @@
                 android:textStyle="bold" />
 
             <Button
-                android:id="@+id/bs_xb"
+                android:id="@+id/bs_bb"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"

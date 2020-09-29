@@ -37,8 +37,8 @@ public class ViewUtil
         TextView tv = container.findViewById(id);
 
         // Change to Spanned for proper display of "\n" or "br/> etc;
-        text = text.replace("\n","<br/>");
-        Spanned msgBody = Html.fromHtml(text, null, null);
+        text = text.replace("\n", "<br/>");
+        Spanned msgBody = Html.fromHtml(text);
 
         tv.setText(msgBody);
     }

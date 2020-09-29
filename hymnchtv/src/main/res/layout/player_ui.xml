@@ -13,7 +13,6 @@
         android:layout_width="match_parent"
         android:layout_height="90dp"
         android:background="@drawable/border_grey"
-        android:orientation="horizontal"
         android:padding="5dp">
 
         <TextView
@@ -25,7 +24,7 @@
             android:clickable="true"
             android:focusable="true"
             android:maxLines="1"
-            android:text="@string/hymn_title_nb"
+            android:text="@string/hymn_title_bb"
             android:textColor="@color/textColorBlack" />
 
         <SeekBar
@@ -75,14 +74,15 @@
             android:background="@drawable/ic_player_play"
             android:src="@drawable/ic_play_stop" />
 
-        <LinearLayout
-            android:id="@+id/filexferGui"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/hymn_info"
-            android:orientation="vertical" >
+        <Spinner
+            android:id="@+id/playback_speed"
+            style="@style/spinnerStyle"
+            android:layout_width="55dp"
+            android:layout_below="@id/playback_seekbar"
+            android:layout_centerHorizontal="true"
+            android:entries="@array/mp_speed_name"
+            android:entryValues="@array/mp_speed_value" />
 
-        </LinearLayout>
     </RelativeLayout>
 
     <include

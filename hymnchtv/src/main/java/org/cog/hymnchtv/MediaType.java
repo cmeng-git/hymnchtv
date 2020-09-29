@@ -28,9 +28,9 @@ import java.util.Map;
 public enum MediaType
 {
     HYMN_MIDI(0),
-    HYMN_ACCPLAY(1),
-    HYMN_LEARN(2),
-    HYMN_MP3(3);
+    HYMN_BANZOU(1),
+    HYMN_JIAOCHANG(2),
+    HYMN_CHANGSHI(3);
 
     private final int value;
     private static final Map<Integer, MediaType> map = new HashMap<>();
@@ -59,12 +59,3 @@ public enum MediaType
         return mediaDir[mType.getValue()];
     }
 }
-
-/*
-learn: https://heavenlyfood.cn/hymns/music/bu/B123.mp3
-
-mp3: https://heavenlyfood.cn/hymnal/%E8%AF%97%E6%AD%8C/%E8%A1%A5%E5%85%85%E6%9C%AC/01%E7%81%B5%E4%B8%8E%E7%94%9F%E5%91%BD/B145%E5%BD%93%E5%B0%86%E4%B8%BB%E6%9D%83%E5%AE%8C%E5%85%A8%E5%BD%92%E4%B8%BB.mp3
-
-mp3: https://heavenlyfood.cn/hymnal/%E8%AF%97%E6%AD%8C/%E8%A1%A5%E5%85%85%E6%9C%AC/01%E7%81%B5%E4%B8%8E%E7%94%9F%E5%91%BD/B123%E8%80%B6%E7%A8%A3%E6%B4%BB%E5%9C%A8%E6%88%91%E9%87%8C%E9%9D%A2.mp3
-mp3: https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命#B123耶稣活在我里面.mp3 => need above to download
-*/

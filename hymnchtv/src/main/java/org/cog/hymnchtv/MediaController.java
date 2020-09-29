@@ -26,8 +26,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.*;
-import android.view.View.OnClickListener;
-import android.view.View.OnLongClickListener;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
@@ -37,12 +35,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.cog.hymnchtv.service.audioservice.AudioBgService;
 
-import java.io.File;
 import java.util.*;
 
 import timber.log.Timber;
 
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
+import static org.cog.hymnchtv.MainActivity.PREF_PLAYBACK_SPEED;
 
 /**
  * Class implements the media player UI. It provides the full media playback control
@@ -61,8 +59,8 @@ import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
  * @author Eng Chong Meng
  */
 @SuppressLint("NonConstantResourceId")
-public class MediaController extends Fragment
-        implements OnClickListener, OnLongClickListener, SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener
+public class MediaController extends Fragment implements AdapterView.OnItemSelectedListener,
+        SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener
 {
     /**
      * The state of a player where playback is stopped
@@ -81,19 +79,26 @@ public class MediaController extends Fragment
      */
     private static final int STATE_PLAY = 3;
 
-    private static String STATE_PLAYER = "statePlayer";
+    private static final String PLAYER_STATE = "playerState";
+    private static final String PLAYER_INFO = "playerInfo";
+    private static final String PLAYER_URIS = "playerUris";
 
-    private int statePlayer;
+    private int playerState;
+    private String playerInfo;
+    ArrayList<String> playerUris = new ArrayList<>();
     private AnimationDrawable mPlayerAnimate;
 
     private static final Map<Uri, BroadcastReceiver> bcRegisters = new HashMap<>();
 
+    public ImageView playbackPlay;
+
     private View playerUi;
-    private ImageView playbackPlay;
     private TextView hymnInfo = null;
     private TextView playbackPosition;
     private TextView playbackDuration;
     private SeekBar playbackSeekBar;
+    private Spinner playbackSpeed;
+
 
     private boolean isSeeking = false;
     private int positionSeek;
@@ -101,16 +106,12 @@ public class MediaController extends Fragment
 
     private MediaType mMediaType;
 
-    private SharedPreferences mSharePref;
-
     private MpBroadcastReceiver mReceiver = null;
 
-    /**
-     * The xfer file full path for saving the received file.
-     */
-    protected File mXferFile;
+    private static final String[] mpSpeedValues = HymnsApp.getAppResources().getStringArray(R.array.mp_speed_value);
+
     protected Uri mUri;
-    List<Uri> mediaHymns;
+    List<Uri> mediaHymns = new ArrayList<>();
 
     private ContentHandler mContentHandler;
 
@@ -123,7 +124,6 @@ public class MediaController extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         View convertView = inflater.inflate(R.layout.player_ui, container, false);
-
         playerUi = convertView.findViewById(R.id.playerUi);
 
         hymnInfo = convertView.findViewById(R.id.hymn_info);
@@ -135,11 +135,21 @@ public class MediaController extends Fragment
         playbackDuration = convertView.findViewById(R.id.playback_duration);
         playbackSeekBar = convertView.findViewById(R.id.playback_seekbar);
 
+        playbackSpeed = convertView.findViewById(R.id.playback_speed);
+        playbackSpeed.setOnItemSelectedListener(this);
+
         if (savedInstanceState != null) {
-            statePlayer = savedInstanceState.getInt(STATE_PLAYER);
+            playerState = savedInstanceState.getInt(PLAYER_STATE);
+            playerInfo = savedInstanceState.getString(PLAYER_INFO);
+            hymnInfo.setText(playerInfo);
+
+            playerUris = savedInstanceState.getStringArrayList(PLAYER_URIS);
+            for (String uriString : playerUris) {
+                mediaHymns.add(Uri.parse(uriString));
+            }
         }
         else {
-            statePlayer = STATE_STOP;
+            playerState = STATE_STOP;
         }
 
         // Note-5: seek progressBar is not visible and thumb partially clipped with xml default settings.
@@ -151,12 +161,16 @@ public class MediaController extends Fragment
             playbackSeekBar.requestLayout();
             playbackSeekBar.getLayoutParams().height = dp_padding;
         }
-
         // set to viewHolder default state
         playbackSeekBar.setOnSeekBarChangeListener(this);
 
-        playbackPlay.setOnClickListener(this);
-        playbackPlay.setOnLongClickListener(this);
+        // playbackPlay.setOnClickListener(this);
+        playbackPlay.setOnClickListener(view -> startPlay());
+
+        playbackPlay.setOnLongClickListener(view -> {
+            stopPlay();
+            return true;
+        });
 
         mPlayerAnimate = (AnimationDrawable) playbackPlay.getBackground();
 
@@ -182,21 +196,47 @@ public class MediaController extends Fragment
         initHymnInfo(mContentHandler.getHymnInfo());
 
         // Get the user selected mediaType to playback
-        mSharePref = MainActivity.getSharedPref();
-        int mediaType = mSharePref.getInt(PREF_MEDIA_HYMN, MediaType.HYMN_MIDI.getValue());
+        SharedPreferences sPref = MainActivity.getSharedPref();
+        int mediaType = sPref.getInt(PREF_MEDIA_HYMN, MediaType.HYMN_MIDI.getValue());
         mMediaType = MediaType.valueOf(mediaType);
+        checkRadioButton(mMediaType);
 
-        mediaHymns = mContentHandler.getPlayHymn(this.mMediaType);
+        if (mediaHymns.isEmpty()) {
+            mediaHymns = mContentHandler.getPlayHymn(mMediaType, false);
+        }
+
+        String speed = sPref.getString(PREF_PLAYBACK_SPEED, "1.0");
+        for (int i = 0; i < mpSpeedValues.length; i++) {
+            if (mpSpeedValues[i].equals(speed)) {
+                playbackSpeed.setSelection(i);
+                break;
+            }
+        }
+        setPlaybackSpeed(speed);
+
+        // Need this to resume last play state when user changes hymnNo while playing
         for (Uri uri : mediaHymns) {
             mUri = uri;
-            playerInit();
         }
     }
 
+    /**
+     * Need to save all the player state to restore when user return after screen rotation
+     * i.e. playerState, playerInfo and playUris
+     *
+     * @param savedInstanceState for player states
+     */
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState)
     {
-        savedInstanceState.putInt(STATE_PLAYER, statePlayer);
+        savedInstanceState.putInt(PLAYER_STATE, playerState);
+        savedInstanceState.putString(PLAYER_INFO, hymnInfo.getText().toString());
+
+        // Need this to resume last play state when user changes hymnNo while playing
+        for (Uri uri : mediaHymns) {
+            playerUris.add(uri.toString());
+        }
+        savedInstanceState.putStringArrayList(PLAYER_URIS, playerUris);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -215,48 +255,31 @@ public class MediaController extends Fragment
     /**
      * Update the player title info with the given text string
      *
-     * @param info
+     * @param info player info
      */
     public void initHymnInfo(String info)
     {
-        if (STATE_STOP == statePlayer) {
+        if (STATE_STOP == playerState) {
             hymnInfo.setText(info);
         }
     }
 
     /**
-     * Handle button click action events.
+     * This is activated by user; or automatic from mediaController when the downloaded uri is completed
      */
-    @Override
-    public void onClick(View v)
-    {
-        switch (v.getId()) {
-            case R.id.playback_play:
-                startPlay();
-                break;
-        }
-    }
-
-    /**
-     * Handles buttons long press action events
-     * mainly use to stop and release player
-     */
-    @Override
-    public boolean onLongClick(View v)
-    {
-        if (v.getId() == R.id.playback_play) {
-            stopPlay();
-            return true;
-        }
-        return false;
-    }
-
     public void startPlay()
     {
-        // re-fetch play list if it is empty
-        if (mediaHymns.isEmpty()) {
-            mediaHymns = mContentHandler.getPlayHymn(this.mMediaType);
+        // Set true to test the getPlayHymn algorithms
+        boolean test = false;
+        if (test) {
+            mContentHandler.da_link_test(mMediaType, false);
+            return;
         }
+        // proceed to fetch the playback uri list if it is empty
+        if (mediaHymns.isEmpty()) {
+            mediaHymns = mContentHandler.getPlayHymn(mMediaType, true);
+        }
+
         for (Uri uri : mediaHymns) {
             mUri = uri;
             playStart();
@@ -278,47 +301,57 @@ public class MediaController extends Fragment
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId)
     {
-        SharedPreferences.Editor editor = mSharePref.edit();
-
         RadioButton rb = group.findViewById(checkedId);
         if (null != rb) {
-            // Toast.makeText(mActivity, rb.getText(), Toast.LENGTH_SHORT).show();
-
             switch (checkedId) {
                 case R.id.btn_midi:
                     mMediaType = MediaType.HYMN_MIDI;
                     break;
-                case R.id.btn_learn:
-                    mMediaType = MediaType.HYMN_LEARN;
-                    HymnsApp.showToastMessage(R.string.gui_in_development);
+                case R.id.btn_jiaochang:
+                    mMediaType = MediaType.HYMN_JIAOCHANG;
                     break;
-                case R.id.btn_accplay:
-                    mMediaType = MediaType.HYMN_ACCPLAY;
-                    HymnsApp.showToastMessage(R.string.gui_in_development);
+                case R.id.btn_banzhou:
+                    mMediaType = MediaType.HYMN_BANZOU;
                     break;
-                case R.id.btn_mp3:
-                    mMediaType = MediaType.HYMN_MP3;
-                    HymnsApp.showToastMessage(R.string.gui_in_development);
+                case R.id.btn_changshi:
+                    mMediaType = MediaType.HYMN_CHANGSHI;
                     break;
             }
 
+            SharedPreferences.Editor editor = MainActivity.getSharedPref().edit();
             editor.putInt(PREF_MEDIA_HYMN, mMediaType.getValue());
             editor.apply();
+        }
+    }
+
+    private void checkRadioButton(MediaType mediaType)
+    {
+        switch (mediaType) {
+            case HYMN_MIDI:
+                ((RadioButton) playerUi.findViewById(R.id.btn_midi)).setChecked(true);
+                break;
+
+            case HYMN_JIAOCHANG:
+                ((RadioButton) playerUi.findViewById(R.id.btn_jiaochang)).setChecked(true);
+                break;
+
+            case HYMN_BANZOU:
+                ((RadioButton) playerUi.findViewById(R.id.btn_banzhou)).setChecked(true);
+                break;
+
+            case HYMN_CHANGSHI:
+                ((RadioButton) playerUi.findViewById(R.id.btn_changshi)).setChecked(true);
+                break;
         }
     }
 
     /**
      * Initialize the broadcast receiver for the media player (uri).
      * Keep the active bc receiver instance in bcRegisters list to ensure only one bc is registered
-     *
-     * @param file the media file
-     * @return true if init is successful
      */
-    private boolean bcReceiverInit(File file)
+    private void bcReceiverInit()
     {
-        // String mimeType = checkMimeType(file);
-        // if ((mimeType != null) && (mimeType.contains("audio") || mimeType.contains("3gp"))) {
-        if (statePlayer == STATE_STOP) {
+        if (playerState == STATE_STOP) {
             BroadcastReceiver bcReceiver;
             if ((bcReceiver = bcRegisters.get(mUri)) != null) {
                 LocalBroadcastManager.getInstance(mContentHandler).unregisterReceiver(bcReceiver);
@@ -327,9 +360,6 @@ public class MediaController extends Fragment
             registerMpBroadCastReceiver();
             bcRegisters.put(mUri, mReceiver);
         }
-        return true;
-        // }
-        // return false;
     }
 
     private void registerMpBroadCastReceiver()
@@ -347,7 +377,7 @@ public class MediaController extends Fragment
     private boolean playerInit()
     {
         if (isMediaAudio) {
-            if (statePlayer == STATE_STOP) {
+            if (playerState == STATE_STOP) {
                 Intent intent = new Intent(mContentHandler, AudioBgService.class);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setData(mUri);
@@ -365,7 +395,7 @@ public class MediaController extends Fragment
     private void playerStop()
     {
         if (isMediaAudio) {
-            if ((statePlayer == STATE_PAUSE) || (statePlayer == STATE_PLAY)) {
+            if ((playerState == STATE_PAUSE) || (playerState == STATE_PLAY)) {
 
                 Intent intent = new Intent(mContentHandler, AudioBgService.class);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -387,20 +417,18 @@ public class MediaController extends Fragment
     {
         Intent intent = new Intent(mContentHandler, AudioBgService.class);
         if (isMediaAudio) {
-            if (statePlayer == STATE_PLAY) {
+            if (playerState == STATE_PLAY) {
                 intent.setData(mUri);
                 intent.setAction(AudioBgService.ACTION_PLAYER_PAUSE);
                 mContentHandler.startService(intent);
                 return;
             }
-            else if (statePlayer == STATE_STOP) {
-                if (!bcReceiverInit(mXferFile))
-                    return;
-            }
+            bcReceiverInit();
 
             intent.setAction(AudioBgService.ACTION_PLAYER_START);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.setData(mUri);
+            // intent.setTypeAndNormalize("1.0");
             mContentHandler.startService(intent);
             return;
         }
@@ -429,8 +457,7 @@ public class MediaController extends Fragment
     private void playerSeek(int position)
     {
         if (isMediaAudio) {
-            if (!bcReceiverInit(mXferFile))
-                return;
+            bcReceiverInit();
 
             Intent intent = new Intent(mContentHandler, AudioBgService.class);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -439,6 +466,31 @@ public class MediaController extends Fragment
             intent.setAction(AudioBgService.ACTION_PLAYER_SEEK);
             mContentHandler.startService(intent);
         }
+    }
+
+    private void setPlaybackSpeed(String speed)
+    {
+        Intent intent = new Intent(mContentHandler, AudioBgService.class);
+        intent.setType(speed);
+        intent.setAction(AudioBgService.ACTION_PLAYBACK_SPEED);
+        mContentHandler.startService(intent);
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+    {
+        String speed = mpSpeedValues[position];
+        setPlaybackSpeed(speed);
+
+        SharedPreferences.Editor editor = MainActivity.getSharedPref().edit();
+        editor.putString(PREF_PLAYBACK_SPEED, speed);
+        editor.apply();
+        Timber.d("Set mediaPlayer playback speed to: %sx", speed);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent)
+    {
     }
 
     /**
@@ -456,7 +508,7 @@ public class MediaController extends Fragment
             int position = intent.getIntExtra(AudioBgService.PLAYBACK_POSITION, 0);
             int audioDuration = intent.getIntExtra(AudioBgService.PLAYBACK_DURATION, 0);
 
-            if ((statePlayer == STATE_PLAY) && AudioBgService.PLAYBACK_STATUS.equals(intent.getAction())) {
+            if ((playerState == STATE_PLAY) && AudioBgService.PLAYBACK_STATUS.equals(intent.getAction())) {
                 if (!isSeeking)
                     playbackPosition.setText(formatTime(position));
                 playbackDuration.setText(formatTime(audioDuration - position));
@@ -471,7 +523,7 @@ public class MediaController extends Fragment
                 Timber.d("Audio playback state: %s (%s/%s): %s", playbackState, position, audioDuration, mUri.getPath());
                 switch (playbackState) {
                     case init:
-                        statePlayer = STATE_IDLE;
+                        playerState = STATE_IDLE;
                         playbackDuration.setText(formatTime(audioDuration));
                         playbackPosition.setText(formatTime(0));
                         playbackSeekBar.setMax(audioDuration);
@@ -482,7 +534,7 @@ public class MediaController extends Fragment
                         break;
 
                     case play:
-                        statePlayer = STATE_PLAY;
+                        playerState = STATE_PLAY;
                         playbackSeekBar.setMax(audioDuration);
                         playerUi.clearAnimation();
 
@@ -491,7 +543,7 @@ public class MediaController extends Fragment
                         break;
 
                     case stop:
-                        statePlayer = STATE_STOP;
+                        playerState = STATE_STOP;
                         bcRegisters.remove(mUri);
                         LocalBroadcastManager.getInstance(mContentHandler).unregisterReceiver(mReceiver);
 
@@ -499,8 +551,8 @@ public class MediaController extends Fragment
                         initHymnInfo(mContentHandler.getHymnInfo());
                         // flow through
                     case pause:
-                        if (statePlayer != STATE_STOP) {
-                            statePlayer = STATE_PAUSE;
+                        if (playerState != STATE_STOP) {
+                            playerState = STATE_PAUSE;
                         }
                         playbackPosition.setText(formatTime(position));
                         playbackDuration.setText(formatTime(audioDuration - position));
@@ -508,7 +560,7 @@ public class MediaController extends Fragment
                         playbackSeekBar.setProgress(position);
 
                         mPlayerAnimate.stop();
-                        playbackPlay.setImageResource((statePlayer == STATE_PAUSE)
+                        playbackPlay.setImageResource((playerState == STATE_PAUSE)
                                 ? R.drawable.ic_play_pause : R.drawable.ic_play_stop);
                         break;
                 }

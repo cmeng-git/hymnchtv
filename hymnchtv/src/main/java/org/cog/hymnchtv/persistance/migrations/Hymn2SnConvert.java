@@ -30,15 +30,15 @@ import timber.log.Timber;
 
 import static org.cog.hymnchtv.ContentView.LYRICS_BB_SCORE;
 import static org.cog.hymnchtv.ContentView.LYRICS_DB_SCORE;
-import static org.cog.hymnchtv.ContentView.LYRICS_NB_SCORE;
+import static org.cog.hymnchtv.ContentView.LYRICS_XB_SCORE;
 import static org.cog.hymnchtv.MainActivity.rangeBbLimit;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MainActivity.HYMN_NB;
+import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 
 /**
  * LyricsNoConvert hymns' lyrics file index number to file using actual hymn lyrics  number.
- * The class will work on DB BB and NB for both hymn scores and midi files
+ * The class will work on DB BB and XB for both hymn scores and midi files
  * This is only used once to migrate old content in v1.1.1 to new content for easy reference
  * All new release will be based on this naming convention
  *
@@ -57,7 +57,7 @@ public class Hymn2SnConvert
 
 
     /* Maximum number of lyrics in BB */
-    private static final int HYMN_NB_MAX = 157;  // old content max
+    private static final int HYMN_XB_MAX = 157;  // old content max
 
     /* maximum hymn number used in per 100, 200, 300 etc ranges, use to compute valid hymn number */
     private static final int[] rangeMaxSB = {38, 151, 259, 350, 471, 544, 630, 763, 881, 931};
@@ -70,7 +70,7 @@ public class Hymn2SnConvert
     private static final int[] midiBbRangeMax = {27, 137, 247, 329, 429, 533, 618, 752, 849, 915, 1005};
 
     /* Hymn item type for conversion */
-    private final static String[] hymns = {HYMN_NB, HYMN_BB, HYMN_DB};
+    private final static String[] hymns = {HYMN_XB, HYMN_BB, HYMN_DB};
     // private final static String[] hymns = {HYMN_DB};
 
     public static void startConvert()
@@ -88,11 +88,11 @@ public class Hymn2SnConvert
 
         for (String hymnType : hymns) {
             switch (hymnType) {
-                case HYMN_NB:
-                    File lyricsSubDir = FileBackend.getHymnchtvStore(LYRICS_NB_SCORE, true);
+                case HYMN_XB:
+                    File lyricsSubDir = FileBackend.getHymnchtvStore(LYRICS_XB_SCORE, true);
                     hymnNo = 1;
 
-                    while (hymnNo < HYMN_NB_MAX) {
+                    while (hymnNo < HYMN_XB_MAX) {
                         midiIdx = hymnNo;
                         nui = hymnNo;
                         nui += 4;
@@ -101,10 +101,10 @@ public class Hymn2SnConvert
                         Uri uriSource = HymnsApp.getDrawableUri(resFileName);
 
                         // Copy resFileName to the computed destFile
-                        String destHymnFN = "nb" + hymnNo + ".png";  // default
+                        String destHymnFN = "xb" + hymnNo + ".png";  // default
                         File destFile = new File(lyricsSubDir, destHymnFN);
                         FilePathHelper.copy(ctx, uriSource, destFile);
-                        Timber.w("Translated hymn NB # %s => %s", nui, destHymnFN);
+                        Timber.w("Translated hymn XB # %s => %s", nui, destHymnFN);
 
                         // next hymn no to translate
                         hymnNo++;

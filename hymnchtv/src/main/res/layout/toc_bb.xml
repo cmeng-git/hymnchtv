@@ -175,7 +175,7 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btn_close_xb"
+            android:id="@+id/btn_close_bb"
             style="@style/ButtonTop"
             android:layout_width="match_parent"
             android:layout_height="50dp"
