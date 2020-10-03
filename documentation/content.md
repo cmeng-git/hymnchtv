@@ -6,14 +6,15 @@ most of the materials are not available online. Only a sample of the items is av
 The information described herein is valid for hymnchtv v1.2.0 and all future releases.<br/>
 You may refer to the files in this directory to understand the format/filename used in each hymn category.<br/>
 Except for the *.mid files, all the apk resources are now moved to assets sub-directories.<br/>
-All the files are now tagged with hymn number instead of running index.
+All the files are now tagged with hymn number instead of android resource running index.
 
 * Images for desktop background:<br/>
 b.java
 
 * 大本诗歌 lyrics contents:<br/>
-Note: The traditional chinese hymn lyrics text contains only partial hymn titles.<br/><br/>
-Sub-directories: lyrics_db_score, lyrics_db_text, lyrics_dbs_text
+Note: The traditional chinese hymn lyrics text contains only partial hymn titles.
+<br/>They are not used currently for context searching nor display
+<br/>Sub-directories: lyrics_db_score, lyrics_db_text, lyrics_dbs_text
 
 * 补充本 lyrics contents:<br/>
 Sub-directories: lyrics_bb_score, lyrics_bb_text, lyrics_bbs_text
@@ -24,7 +25,7 @@ Sub-directories: lyrics_xb_score, lyrics_xb_text
 * 儿童诗歌 lyrics contents:<br/>
 Sub-directories: lyrics_er_score, lyrics_er_text
 
-* 大本诗歌 midi files to be played simultaneously:<br/>
+* 大本诗歌 midi files (main and accompany) to be played simultaneously:<br/>
 raw: mdb.java & mdbc.java
 
 * 补充本 midi files to be played simultaneously:<br/>
@@ -57,5 +58,4 @@ Note: The traditional chinese hymn lyrics contains only partial hymn titles.<br/
 ./sdb = 大本诗歌 simplified Chinese<br/>
 ./sb = 补充本 simplified Chinese<br/>
 
-
-Note: If you need to build android apk, please consult the original materials' authors for advice.
+Note: If you need to build android hymnchtv.apk, please consult the original contents' authors for advice.
