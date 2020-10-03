@@ -397,6 +397,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
     private static final int[] category_xb = new int[]{1, 40, 74, 110, 131, 143, 164, 170};
 
+    private static final int[] category_er = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300};;
+
     /**
      * For testing of the getPlayHymn algorithms for the specified media Type
      * and proceed to download if proceedDownload is true;
@@ -455,11 +457,18 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
             case HYMN_ER:
                 switch (mediaType) {
                     case HYMN_MIDI:
-                        dir = mSelect + MEDIA_CHANGSHI;
+                        dir = mSelect + MEDIA_MIDI;
                         tmpName = "C" + hymnNo + ".mid";
                         if (isExist(dir, tmpName, uriList)) {
                             return uriList;
                         }
+
+                    // https://heavenlyfood.cn/hymns/music/er/C1.mp3
+                    case HYMN_BANZOU:
+                        dir = mSelect + MEDIA_BANZOU;
+                        fileName = "C" + hymnNo + ".mp3";
+                        dnLink = "https://heavenlyfood.cn/hymns/music/er/" + fileName;
+                        break;
 
                     case HYMN_JIAOCHANG:
                         dir = mSelect + MEDIA_JIAOCHANG;
@@ -468,18 +477,23 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                             return uriList;
                         }
 
+                    // https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/06爱主/C603我爱我的主耶稣.mp3
                     case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
-                        tmpName = "C" + fileName + ".mp3";
-                        if (isExist(dir, tmpName, uriList)) {
+                        fileName = "C" + fileName;
+                        if (isExist(dir, fileName, uriList)) {
                             return uriList;
                         }
 
-                        // https://heavenlyfood.cn/hymns/music/er/C1.mp3
-                    case HYMN_BANZOU:
-                        dir = HYMN_BB + MEDIA_BANZOU;
-                        fileName = "C" + hymnNo + ".mp3";
-                        dnLink = "https://heavenlyfood.cn/hymns/music/er/" + fileName;
+                        String subLink = "";
+                        for (int x = 0; x < category_er.length; x++) {
+                            if (hymnNo < category_er[x]) {
+                                String category = HymnsApp.getResStringByName("ermt" + x);
+                                subLink = String.format(Locale.CHINA, "%02d%s/", (x - 1), category);
+                                break;
+                            }
+                        }
+                        dnLink = "https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/" + subLink + fileName;
                         break;
                 }
                 break;
@@ -487,21 +501,21 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
             case HYMN_XB:
                 switch (mediaType) {
                     case HYMN_MIDI:
-                        dir = mSelect + MEDIA_CHANGSHI;
+                        dir = mSelect + MEDIA_MIDI;
                         tmpName = "X" + hymnNo + ".mid";
                         if (isExist(dir, tmpName, uriList)) {
                             return uriList;
                         }
 
                     case HYMN_BANZOU:
-                        dir = HYMN_BB + MEDIA_BANZOU;
+                        dir = mSelect + MEDIA_BANZOU;
                         tmpName = "X" + hymnNo + ".mp3";
                         if (isExist(dir, tmpName, uriList)) {
                             return uriList;
                         }
 
                     case HYMN_JIAOCHANG:
-                        dir = HYMN_BB + MEDIA_BANZOU;
+                        dir = mSelect + MEDIA_JIAOCHANG;
                         tmpName = hymnNo + ".mp3";
                         if (isExist(dir, tmpName, uriList)) {
                             return uriList;

@@ -1,6 +1,15 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	10/02/2020
+Version:		1.3.1 (103010)
+- Add media playback for 儿童诗歌 changShi
+- Fix incorrect save directories specified for both 儿童诗歌 and 新歌颂咏
+- MainActivity: remove unused pop handler and add xbpop handler for xb_Toc
+- Fix hymnchtv exits app when closing the xb toc.
+
+=========================================================================
+Author:         cmeng
 Upload Date:	09/29/2020
 Version:		1.3.0 (103000)
 - Add er lyrics text and include them in the content view and search items

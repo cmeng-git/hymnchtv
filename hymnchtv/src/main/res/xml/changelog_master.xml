@@ -6,6 +6,11 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.3.1 (10/02/2020)" versioncode="103010">
+        <change>添加儿童诗歌媒体唱诗播放</change>
+        <change>修复为儿童诗歌和新歌颂咏指定的错误内存位置</change>
+    </release>
+
     <release version="1.3.0 (09/29/2020)" versioncode="103000">
         <change>添加儿童诗歌歌词文本，用于歌词显示，并将其包含在搜索项中</change>
         <change>新加媒体播放类别：伴奏，教唱，唱诗</change>

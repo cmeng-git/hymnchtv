@@ -18,7 +18,6 @@ package org.cog.hymnchtv;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.SearchManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -38,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.cketti.library.changelog.ChangeLog;
-import timber.log.Timber;
 
 /**
  * MainActivity: The hymnchtv app main user interface.
@@ -102,7 +100,6 @@ public class MainActivity extends FragmentActivity
 
     private LinearLayout background;
 
-    private PopupWindow pop;
     private PopupWindow dbpop; // toc db
     private PopupWindow bbpop; // toc bb
     private PopupWindow xbpop; // toc xb
@@ -187,6 +184,7 @@ public class MainActivity extends FragmentActivity
         setContentView(R.layout.main);
         registerForContextMenu(findViewById(R.id.viewMain));
 
+        mActivity = this;
         mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
         mEditor = mSharedPref.edit();
 
@@ -198,7 +196,7 @@ public class MainActivity extends FragmentActivity
         PermissionUtils.requestPermission(this, 1001,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE, false);
 
-        // allow 15 seconds for first launch login to complete before showing history log
+        // allow 15 seconds wait for first launch before showing history log
         // new ChangeLog(this).getLogDialog().show();
         runOnUiThread(() -> new Handler().postDelayed(() -> {
             ChangeLog cl = new ChangeLog(this);
@@ -207,8 +205,7 @@ public class MainActivity extends FragmentActivity
             }
         }, 15000));
 
-        mActivity = this;
-
+        // 目录
         btn_toc.setOnClickListener(v -> {
             isToc = true;
             sNumber = "";
@@ -217,318 +214,25 @@ public class MainActivity extends FragmentActivity
 
         // 儿童诗歌
         btn_er.setOnClickListener(v -> {
-            if (!isToc) {
-                if (isFu) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_sp_none);
-                    return;
-                }
-
-                isValid = true;
-                sNumber = mEntry.getText().toString();
-                if (TextUtils.isEmpty(sNumber)) {
-                    sNumber = "0";
-                }
-
-                nui = Integer.parseInt(sNumber);
-                if (nui > HYMN_ER_NO_MAX) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_er_max, HYMN_ER_NO_MAX);
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                    isValid = false;
-                }
-                else if (nui < 1) {
-                    HymnsApp.showToastMessage(R.string.gui_error_invalid);
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                    isValid = false;
-                }
-                else {
-                    for (Range<Integer> rangeX : rangeErInvalid) {
-                        if (rangeX.contains(nui)) {
-                            HymnsApp.showToastMessage(R.string.hymn_info_er_range_over, rangeX.getLower(), rangeX.getUpper());
-                            isValid = false;
-                            break;
-                        }
-                    }
-                }
-                if (isValid) {
-                    showContent(HYMN_ER, nui);
-                }
-                else {
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                }
-            }
-            else {
-                HymnsApp.showToastMessage(R.string.gui_in_development);
-            }
+            onErClicked();
         });
 
         // 新歌颂咏
         btn_xb.setOnClickListener(v -> {
-            if (!isToc) {
-                if (isFu) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_sp_none);
-                    return;
-                }
-
-                isValid = true;
-                sNumber = mEntry.getText().toString();
-                if (TextUtils.isEmpty(sNumber)) {
-                    sNumber = "0";
-                }
-
-                nui = Integer.parseInt(sNumber);
-                if (nui > HYMN_XB_NO_MAX) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_xb_max, HYMN_XB_NO_MAX);
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                    isValid = false;
-                }
-                else if (nui < 1) {
-                    HymnsApp.showToastMessage(R.string.gui_error_invalid);
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                    isValid = false;
-                }
-                if (isValid) {
-                    showContent(HYMN_XB, nui);
-                }
-                else {
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                }
-            }
-            else {
-                // showContent(TOC_XB, 1);
-                View toc_xb = getLayoutInflater().inflate(R.layout.toc_xb, (ViewGroup) null);
-                xbpop = new PopupWindow(toc_xb, HymnsApp.screenWidth, HymnsApp.screenHeight);
-                xbpop.showAtLocation(toc_xb, 17, 0, 0);
-
-                TextView xbmt1 = toc_xb.findViewById(R.id.xbmt1);
-                TextView xbmt2 = toc_xb.findViewById(R.id.xbmt2);
-                TextView xbmt3 = toc_xb.findViewById(R.id.xbmt3);
-                TextView xbmt4 = toc_xb.findViewById(R.id.xbmt4);
-                TextView xbmt5 = toc_xb.findViewById(R.id.xbmt5);
-                TextView xbmt6 = toc_xb.findViewById(R.id.xbmt6);
-                TextView xbmt7 = toc_xb.findViewById(R.id.xbmt7);
-                TextView btn_close_xb = toc_xb.findViewById(R.id.btn_close_xb);
-
-                xbmt1.setOnClickListener(view -> showContent(TOC_XB, 1));
-                xbmt2.setOnClickListener(view -> showContent(TOC_XB, 1));
-                xbmt3.setOnClickListener(view -> showContent(TOC_XB, 2));
-                xbmt4.setOnClickListener(view -> showContent(TOC_XB, 3));
-                xbmt5.setOnClickListener(view -> showContent(TOC_XB, 4));
-                xbmt6.setOnClickListener(view -> showContent(TOC_XB, 4));
-                xbmt7.setOnClickListener(view -> showContent(TOC_XB, 4));
-
-                btn_close_xb.setOnClickListener(view -> {
-                    xbpop.dismiss();
-                    xbpop = null;
-                });
-            }
+            onXbClicked();
         });
 
         // 补充本
         btn_bb.setOnClickListener(v -> {
-            if (!isToc) {
-                if (isFu) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_sp_none);
-                    return;
-                }
-
-                isValid = true;
-                sNumber = mEntry.getText().toString();
-                if (TextUtils.isEmpty(sNumber)) {
-                    sNumber = "0";
-                }
-
-                nui = Integer.parseInt(sNumber);
-                if (nui > HYMN_BB_NO_MAX) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_bb_max, HYMN_BB_NO_MAX);
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                    isValid = false;
-                }
-                else if (nui < 1) {
-                    HymnsApp.showToastMessage(R.string.gui_error_invalid);
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                    isValid = false;
-                }
-                else {
-                    for (Range<Integer> rangeX : rangeBbInvalid) {
-                        if (rangeX.contains(nui)) {
-                            HymnsApp.showToastMessage(R.string.hymn_info_bb_range_over, rangeX.getLower(), rangeX.getUpper());
-                            isValid = false;
-                            break;
-                        }
-                    }
-                }
-                if (isValid) {
-                    showContent(HYMN_BB, nui);
-                }
-                else {
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                }
-            }
-            else {
-                View toc_bb = getLayoutInflater().inflate(R.layout.toc_bb, (ViewGroup) null);
-                bbpop = new PopupWindow(toc_bb, HymnsApp.screenWidth, HymnsApp.screenHeight);
-                bbpop.showAtLocation(toc_bb, 17, 0, 0);
-
-                TextView bbmt1 = toc_bb.findViewById(R.id.bbmt1);
-                TextView bbmt2 = toc_bb.findViewById(R.id.bbmt2);
-                TextView bbmt3 = toc_bb.findViewById(R.id.bbmt3);
-                TextView bbmt4 = toc_bb.findViewById(R.id.bbmt4);
-                TextView bbmt5 = toc_bb.findViewById(R.id.bbmt5);
-                TextView bbmt6 = toc_bb.findViewById(R.id.bbmt6);
-                TextView bbmt7 = toc_bb.findViewById(R.id.bbmt7);
-                TextView bbmt8 = toc_bb.findViewById(R.id.bbmt8);
-                TextView bbmt9 = toc_bb.findViewById(R.id.bbmt9);
-                TextView bbmt10 = toc_bb.findViewById(R.id.bbmt10);
-                TextView bbmt11 = toc_bb.findViewById(R.id.bbmt11);
-                TextView bbmt12 = toc_bb.findViewById(R.id.bbmt12);
-                TextView bbmt13 = toc_bb.findViewById(R.id.bbmt13);
-                TextView btn_close_xb = toc_bb.findViewById(R.id.btn_close_bb);
-
-                bbmt1.setOnClickListener(view -> showContent(TOC_BB, 1));
-                bbmt2.setOnClickListener(view -> showContent(TOC_BB, 2));
-                bbmt3.setOnClickListener(view -> showContent(TOC_BB, 4));
-                bbmt4.setOnClickListener(view -> showContent(TOC_BB, 6));
-                bbmt5.setOnClickListener(view -> showContent(TOC_BB, 8));
-                bbmt6.setOnClickListener(view -> showContent(TOC_BB, 10));
-                bbmt7.setOnClickListener(view -> showContent(TOC_BB, 12));
-                bbmt8.setOnClickListener(view -> showContent(TOC_BB, 13));
-                bbmt9.setOnClickListener(view -> showContent(TOC_BB, 15));
-                bbmt10.setOnClickListener(view -> showContent(TOC_BB, 18));
-                bbmt11.setOnClickListener(view -> showContent(TOC_BB, 19));
-                bbmt12.setOnClickListener(view -> showContent(TOC_BB, 20));
-                bbmt13.setOnClickListener(view -> showContent(TOC_BB, 27));
-
-                btn_close_xb.setOnClickListener(view -> {
-                    bbpop.dismiss();
-                    bbpop = null;
-                });
-            }
+            onBbClicked();
         });
 
         // 大本诗歌
         btn_db.setOnClickListener(v -> {
-            if (!isToc) {
-                isValid = true;
-                sNumber = mEntry.getText().toString();
-                if (sNumber.equals("")) {
-                    sNumber = "0";
-                }
-
-                nui = Integer.parseInt(sNumber);
-                if (isFu) {
-                    if (nui < 1 || nui > HYMN_DBS_NO_MAX) {
-                        HymnsApp.showToastMessage(R.string.hymn_info_db_range_fu);
-                        sNumber = "";
-                        mHint.setText(R.string.hymn_fu);
-                        isValid = false;
-                    }
-                }
-                else if (nui > HYMN_DB_NO_MAX) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_db_max, HYMN_DB_NO_MAX);
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                    isValid = false;
-                }
-                else if (nui < 1) {
-                    HymnsApp.showToastMessage(R.string.gui_error_invalid);
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                    isValid = false;
-                }
-
-                if (isValid) {
-                    if (isFu) {
-                        nui += HYMN_DB_NO_MAX;
-                    }
-                    showContent(HYMN_DB, nui);
-                }
-                else {
-                    sNumber = "";
-                    mEntry.setText(sNumber);
-                }
-            }
-            else {
-                View toc_db = getLayoutInflater().inflate(R.layout.toc_db, (ViewGroup) null);
-                dbpop = new PopupWindow(toc_db, HymnsApp.screenWidth, HymnsApp.screenHeight);
-                dbpop.showAtLocation(toc_db, 17, 0, 0);
-
-                TextView dbmt1 = toc_db.findViewById(R.id.dbmt1);
-                TextView dbmt2 = toc_db.findViewById(R.id.dbmt2);
-                TextView dbmt3 = toc_db.findViewById(R.id.dbmt3);
-                TextView dbmt4 = toc_db.findViewById(R.id.dbmt4);
-                TextView dbmt5 = toc_db.findViewById(R.id.dbmt5);
-                TextView dbmt6 = toc_db.findViewById(R.id.dbmt6);
-                TextView dbmt7 = toc_db.findViewById(R.id.dbmt7);
-                TextView dbmt8 = toc_db.findViewById(R.id.dbmt8);
-                TextView dbmt9 = toc_db.findViewById(R.id.dbmt9);
-                TextView dbmt10 = toc_db.findViewById(R.id.dbmt10);
-                TextView dbmt11 = toc_db.findViewById(R.id.dbmt11);
-                TextView dbmt12 = toc_db.findViewById(R.id.dbmt12);
-                TextView dbmt13 = toc_db.findViewById(R.id.dbmt13);
-                TextView dbmt14 = toc_db.findViewById(R.id.dbmt14);
-                TextView dbmt15 = toc_db.findViewById(R.id.dbmt15);
-                TextView dbmt16 = toc_db.findViewById(R.id.dbmt16);
-                TextView dbmt17 = toc_db.findViewById(R.id.dbmt17);
-                TextView dbmt18 = toc_db.findViewById(R.id.dbmt18);
-                TextView dbmt19 = toc_db.findViewById(R.id.dbmt19);
-                TextView dbmt20 = toc_db.findViewById(R.id.dbmt20);
-                TextView dbmt21 = toc_db.findViewById(R.id.dbmt21);
-                TextView dbmt22 = toc_db.findViewById(R.id.dbmt22);
-                TextView dbmt23 = toc_db.findViewById(R.id.dbmt23);
-                TextView dbmt24 = toc_db.findViewById(R.id.dbmt24);
-                TextView dbmt25 = toc_db.findViewById(R.id.dbmt25);
-                TextView dbmt26 = toc_db.findViewById(R.id.dbmt26);
-                TextView dbmt27 = toc_db.findViewById(R.id.dbmt27);
-                TextView dbmt28 = toc_db.findViewById(R.id.dbmt28);
-                TextView dbmt29 = toc_db.findViewById(R.id.dbmt29);
-                TextView btn_close_db = toc_db.findViewById(R.id.btn_close_db);
-
-                dbmt1.setOnClickListener(view -> showContent(TOC_DB, 1));
-                dbmt2.setOnClickListener(view -> showContent(TOC_DB, 1));
-                dbmt3.setOnClickListener(view -> showContent(TOC_DB, 2));
-                dbmt4.setOnClickListener(view -> showContent(TOC_DB, 3));
-                dbmt5.setOnClickListener(view -> showContent(TOC_DB, 3));
-                dbmt6.setOnClickListener(view -> showContent(TOC_DB, 4));
-                dbmt7.setOnClickListener(view -> showContent(TOC_DB, 5));
-                dbmt8.setOnClickListener(view -> showContent(TOC_DB, 5));
-                dbmt9.setOnClickListener(view -> showContent(TOC_DB, 6));
-                dbmt10.setOnClickListener(view -> showContent(TOC_DB, 7));
-                dbmt11.setOnClickListener(view -> showContent(TOC_DB, 7));
-                dbmt12.setOnClickListener(view -> showContent(TOC_DB, 7));
-                dbmt13.setOnClickListener(view -> showContent(TOC_DB, 8));
-                dbmt14.setOnClickListener(view -> showContent(TOC_DB, 8));
-                dbmt15.setOnClickListener(view -> showContent(TOC_DB, 9));
-                dbmt16.setOnClickListener(view -> showContent(TOC_DB, 10));
-                dbmt17.setOnClickListener(view -> showContent(TOC_DB, 11));
-                dbmt18.setOnClickListener(view -> showContent(TOC_DB, 11));
-                dbmt19.setOnClickListener(view -> showContent(TOC_DB, 11));
-                dbmt20.setOnClickListener(view -> showContent(TOC_DB, 12));
-                dbmt21.setOnClickListener(view -> showContent(TOC_DB, 12));
-                dbmt22.setOnClickListener(view -> showContent(TOC_DB, 13));
-                dbmt23.setOnClickListener(view -> showContent(TOC_DB, 13));
-                dbmt24.setOnClickListener(view -> showContent(TOC_DB, 14));
-                dbmt25.setOnClickListener(view -> showContent(TOC_DB, 14));
-                dbmt26.setOnClickListener(view -> showContent(TOC_DB, 15));
-                dbmt27.setOnClickListener(view -> showContent(TOC_DB, 15));
-                dbmt28.setOnClickListener(view -> showContent(TOC_DB, 15));
-                dbmt29.setOnClickListener(view -> showContent(TOC_DB, 16));
-
-                btn_close_db.setOnClickListener(view -> {
-                    dbpop.dismiss();
-                    dbpop = null;
-                });
-            }
+            onDbClicked();
         });
 
+        // Numeric number entry handlers for 0~9
         btn_n0.setOnClickListener(v -> {
             sNumber = sNumber + "0";
             isToc = false;
@@ -627,18 +331,368 @@ public class MainActivity extends FragmentActivity
         });
     }
 
-    public boolean onKeyDown(int keyCode, KeyEvent event)
+    /**
+     * Handle for 儿童诗歌 button clicked
+     */
+    private void onErClicked()
     {
-        if (keyCode == 82) {
-            if (pop != null) {
-                pop.dismiss();
-                pop = null;
+        if (!isToc) {
+            if (isFu) {
+                HymnsApp.showToastMessage(R.string.hymn_info_sp_none);
+                return;
+            }
+
+            isValid = true;
+            sNumber = mEntry.getText().toString();
+            if (TextUtils.isEmpty(sNumber)) {
+                sNumber = "0";
+            }
+
+            nui = Integer.parseInt(sNumber);
+            if (nui > HYMN_ER_NO_MAX) {
+                HymnsApp.showToastMessage(R.string.hymn_info_er_max, HYMN_ER_NO_MAX);
+                sNumber = "";
+                mEntry.setText(sNumber);
+                isValid = false;
+            }
+            else if (nui < 1) {
+                HymnsApp.showToastMessage(R.string.gui_error_invalid);
+                sNumber = "";
+                mEntry.setText(sNumber);
+                isValid = false;
+            }
+            else {
+                for (Range<Integer> rangeX : rangeErInvalid) {
+                    if (rangeX.contains(nui)) {
+                        HymnsApp.showToastMessage(R.string.hymn_info_er_range_over, rangeX.getLower(), rangeX.getUpper());
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+
+            if (isValid) {
+                showContent(HYMN_ER, nui);
+            }
+            else {
+                sNumber = "";
+                mEntry.setText(sNumber);
             }
         }
-        else if (keyCode == 4) {
-            if (pop != null) {
-                pop.dismiss();
-                pop = null;
+        else {
+            HymnsApp.showToastMessage(R.string.gui_in_development);
+        }
+    }
+
+    /**
+     * Handle for 新歌颂咏 button clicked
+     */
+    private void onXbClicked()
+    {
+        if (!isToc) {
+            if (isFu) {
+                HymnsApp.showToastMessage(R.string.hymn_info_sp_none);
+                return;
+            }
+
+            isValid = true;
+            sNumber = mEntry.getText().toString();
+            if (TextUtils.isEmpty(sNumber)) {
+                sNumber = "0";
+            }
+
+            nui = Integer.parseInt(sNumber);
+            if (nui > HYMN_XB_NO_MAX) {
+                HymnsApp.showToastMessage(R.string.hymn_info_xb_max, HYMN_XB_NO_MAX);
+                sNumber = "";
+                mEntry.setText(sNumber);
+                isValid = false;
+            }
+            else if (nui < 1) {
+                HymnsApp.showToastMessage(R.string.gui_error_invalid);
+                sNumber = "";
+                mEntry.setText(sNumber);
+                isValid = false;
+            }
+
+            if (isValid) {
+                showContent(HYMN_XB, nui);
+            }
+            else {
+                sNumber = "";
+                mEntry.setText(sNumber);
+            }
+        }
+        else {
+            // showContent(TOC_XB, 1);
+            View toc_xb = getLayoutInflater().inflate(R.layout.toc_xb, (ViewGroup) null);
+            xbpop = new PopupWindow(toc_xb, HymnsApp.screenWidth, HymnsApp.screenHeight);
+            xbpop.showAtLocation(toc_xb, 17, 0, 0);
+
+            TextView xbmt1 = toc_xb.findViewById(R.id.xbmt1);
+            TextView xbmt2 = toc_xb.findViewById(R.id.xbmt2);
+            TextView xbmt3 = toc_xb.findViewById(R.id.xbmt3);
+            TextView xbmt4 = toc_xb.findViewById(R.id.xbmt4);
+            TextView xbmt5 = toc_xb.findViewById(R.id.xbmt5);
+            TextView xbmt6 = toc_xb.findViewById(R.id.xbmt6);
+            TextView xbmt7 = toc_xb.findViewById(R.id.xbmt7);
+            TextView btn_close_xb = toc_xb.findViewById(R.id.btn_close_xb);
+
+            xbmt1.setOnClickListener(view -> showContent(TOC_XB, 1));
+            xbmt2.setOnClickListener(view -> showContent(TOC_XB, 1));
+            xbmt3.setOnClickListener(view -> showContent(TOC_XB, 2));
+            xbmt4.setOnClickListener(view -> showContent(TOC_XB, 3));
+            xbmt5.setOnClickListener(view -> showContent(TOC_XB, 4));
+            xbmt6.setOnClickListener(view -> showContent(TOC_XB, 4));
+            xbmt7.setOnClickListener(view -> showContent(TOC_XB, 4));
+
+            btn_close_xb.setOnClickListener(view -> {
+                xbpop.dismiss();
+                xbpop = null;
+            });
+        }
+    }
+
+    /**
+     * Handle for 补充本 button clicked
+     */
+    private void onBbClicked()
+    {
+        if (!isToc) {
+            if (isFu) {
+                HymnsApp.showToastMessage(R.string.hymn_info_sp_none);
+                return;
+            }
+
+            isValid = true;
+            sNumber = mEntry.getText().toString();
+            if (TextUtils.isEmpty(sNumber)) {
+                sNumber = "0";
+            }
+
+            nui = Integer.parseInt(sNumber);
+            if (nui > HYMN_BB_NO_MAX) {
+                HymnsApp.showToastMessage(R.string.hymn_info_bb_max, HYMN_BB_NO_MAX);
+                sNumber = "";
+                mEntry.setText(sNumber);
+                isValid = false;
+            }
+            else if (nui < 1) {
+                HymnsApp.showToastMessage(R.string.gui_error_invalid);
+                sNumber = "";
+                mEntry.setText(sNumber);
+                isValid = false;
+            }
+            else {
+                for (Range<Integer> rangeX : rangeBbInvalid) {
+                    if (rangeX.contains(nui)) {
+                        HymnsApp.showToastMessage(R.string.hymn_info_bb_range_over, rangeX.getLower(), rangeX.getUpper());
+                        isValid = false;
+                        break;
+                    }
+                }
+            }
+
+            if (isValid) {
+                showContent(HYMN_BB, nui);
+            }
+            else {
+                sNumber = "";
+                mEntry.setText(sNumber);
+            }
+        }
+        else {
+            View toc_bb = getLayoutInflater().inflate(R.layout.toc_bb, (ViewGroup) null);
+            bbpop = new PopupWindow(toc_bb, HymnsApp.screenWidth, HymnsApp.screenHeight);
+            bbpop.showAtLocation(toc_bb, 17, 0, 0);
+
+            TextView bbmt1 = toc_bb.findViewById(R.id.bbmt1);
+            TextView bbmt2 = toc_bb.findViewById(R.id.bbmt2);
+            TextView bbmt3 = toc_bb.findViewById(R.id.bbmt3);
+            TextView bbmt4 = toc_bb.findViewById(R.id.bbmt4);
+            TextView bbmt5 = toc_bb.findViewById(R.id.bbmt5);
+            TextView bbmt6 = toc_bb.findViewById(R.id.bbmt6);
+            TextView bbmt7 = toc_bb.findViewById(R.id.bbmt7);
+            TextView bbmt8 = toc_bb.findViewById(R.id.bbmt8);
+            TextView bbmt9 = toc_bb.findViewById(R.id.bbmt9);
+            TextView bbmt10 = toc_bb.findViewById(R.id.bbmt10);
+            TextView bbmt11 = toc_bb.findViewById(R.id.bbmt11);
+            TextView bbmt12 = toc_bb.findViewById(R.id.bbmt12);
+            TextView bbmt13 = toc_bb.findViewById(R.id.bbmt13);
+            TextView btn_close_xb = toc_bb.findViewById(R.id.btn_close_bb);
+
+            bbmt1.setOnClickListener(view -> showContent(TOC_BB, 1));
+            bbmt2.setOnClickListener(view -> showContent(TOC_BB, 2));
+            bbmt3.setOnClickListener(view -> showContent(TOC_BB, 4));
+            bbmt4.setOnClickListener(view -> showContent(TOC_BB, 6));
+            bbmt5.setOnClickListener(view -> showContent(TOC_BB, 8));
+            bbmt6.setOnClickListener(view -> showContent(TOC_BB, 10));
+            bbmt7.setOnClickListener(view -> showContent(TOC_BB, 12));
+            bbmt8.setOnClickListener(view -> showContent(TOC_BB, 13));
+            bbmt9.setOnClickListener(view -> showContent(TOC_BB, 15));
+            bbmt10.setOnClickListener(view -> showContent(TOC_BB, 18));
+            bbmt11.setOnClickListener(view -> showContent(TOC_BB, 19));
+            bbmt12.setOnClickListener(view -> showContent(TOC_BB, 20));
+            bbmt13.setOnClickListener(view -> showContent(TOC_BB, 27));
+
+            btn_close_xb.setOnClickListener(view -> {
+                bbpop.dismiss();
+                bbpop = null;
+            });
+        }
+    }
+
+    /**
+     * Handle for 大本诗歌 button clicked
+     */
+    private void onDbClicked()
+    {
+        if (!isToc) {
+            isValid = true;
+            sNumber = mEntry.getText().toString();
+            if (sNumber.equals("")) {
+                sNumber = "0";
+            }
+
+            nui = Integer.parseInt(sNumber);
+            if (isFu) {
+                if (nui < 1 || nui > HYMN_DBS_NO_MAX) {
+                    HymnsApp.showToastMessage(R.string.hymn_info_db_range_fu);
+                    sNumber = "";
+                    mHint.setText(R.string.hymn_fu);
+                    isValid = false;
+                }
+            }
+            else if (nui > HYMN_DB_NO_MAX) {
+                HymnsApp.showToastMessage(R.string.hymn_info_db_max, HYMN_DB_NO_MAX);
+                sNumber = "";
+                mEntry.setText(sNumber);
+                isValid = false;
+            }
+            else if (nui < 1) {
+                HymnsApp.showToastMessage(R.string.gui_error_invalid);
+                sNumber = "";
+                mEntry.setText(sNumber);
+                isValid = false;
+            }
+
+            if (isValid) {
+                if (isFu) {
+                    nui += HYMN_DB_NO_MAX;
+                }
+                showContent(HYMN_DB, nui);
+            }
+            else {
+                sNumber = "";
+                mEntry.setText(sNumber);
+            }
+        }
+        else {
+            View toc_db = getLayoutInflater().inflate(R.layout.toc_db, (ViewGroup) null);
+            dbpop = new PopupWindow(toc_db, HymnsApp.screenWidth, HymnsApp.screenHeight);
+            dbpop.showAtLocation(toc_db, 17, 0, 0);
+
+            TextView dbmt1 = toc_db.findViewById(R.id.dbmt1);
+            TextView dbmt2 = toc_db.findViewById(R.id.dbmt2);
+            TextView dbmt3 = toc_db.findViewById(R.id.dbmt3);
+            TextView dbmt4 = toc_db.findViewById(R.id.dbmt4);
+            TextView dbmt5 = toc_db.findViewById(R.id.dbmt5);
+            TextView dbmt6 = toc_db.findViewById(R.id.dbmt6);
+            TextView dbmt7 = toc_db.findViewById(R.id.dbmt7);
+            TextView dbmt8 = toc_db.findViewById(R.id.dbmt8);
+            TextView dbmt9 = toc_db.findViewById(R.id.dbmt9);
+            TextView dbmt10 = toc_db.findViewById(R.id.dbmt10);
+            TextView dbmt11 = toc_db.findViewById(R.id.dbmt11);
+            TextView dbmt12 = toc_db.findViewById(R.id.dbmt12);
+            TextView dbmt13 = toc_db.findViewById(R.id.dbmt13);
+            TextView dbmt14 = toc_db.findViewById(R.id.dbmt14);
+            TextView dbmt15 = toc_db.findViewById(R.id.dbmt15);
+            TextView dbmt16 = toc_db.findViewById(R.id.dbmt16);
+            TextView dbmt17 = toc_db.findViewById(R.id.dbmt17);
+            TextView dbmt18 = toc_db.findViewById(R.id.dbmt18);
+            TextView dbmt19 = toc_db.findViewById(R.id.dbmt19);
+            TextView dbmt20 = toc_db.findViewById(R.id.dbmt20);
+            TextView dbmt21 = toc_db.findViewById(R.id.dbmt21);
+            TextView dbmt22 = toc_db.findViewById(R.id.dbmt22);
+            TextView dbmt23 = toc_db.findViewById(R.id.dbmt23);
+            TextView dbmt24 = toc_db.findViewById(R.id.dbmt24);
+            TextView dbmt25 = toc_db.findViewById(R.id.dbmt25);
+            TextView dbmt26 = toc_db.findViewById(R.id.dbmt26);
+            TextView dbmt27 = toc_db.findViewById(R.id.dbmt27);
+            TextView dbmt28 = toc_db.findViewById(R.id.dbmt28);
+            TextView dbmt29 = toc_db.findViewById(R.id.dbmt29);
+            TextView btn_close_db = toc_db.findViewById(R.id.btn_close_db);
+
+            dbmt1.setOnClickListener(view -> showContent(TOC_DB, 1));
+            dbmt2.setOnClickListener(view -> showContent(TOC_DB, 1));
+            dbmt3.setOnClickListener(view -> showContent(TOC_DB, 2));
+            dbmt4.setOnClickListener(view -> showContent(TOC_DB, 3));
+            dbmt5.setOnClickListener(view -> showContent(TOC_DB, 3));
+            dbmt6.setOnClickListener(view -> showContent(TOC_DB, 4));
+            dbmt7.setOnClickListener(view -> showContent(TOC_DB, 5));
+            dbmt8.setOnClickListener(view -> showContent(TOC_DB, 5));
+            dbmt9.setOnClickListener(view -> showContent(TOC_DB, 6));
+            dbmt10.setOnClickListener(view -> showContent(TOC_DB, 7));
+            dbmt11.setOnClickListener(view -> showContent(TOC_DB, 7));
+            dbmt12.setOnClickListener(view -> showContent(TOC_DB, 7));
+            dbmt13.setOnClickListener(view -> showContent(TOC_DB, 8));
+            dbmt14.setOnClickListener(view -> showContent(TOC_DB, 8));
+            dbmt15.setOnClickListener(view -> showContent(TOC_DB, 9));
+            dbmt16.setOnClickListener(view -> showContent(TOC_DB, 10));
+            dbmt17.setOnClickListener(view -> showContent(TOC_DB, 11));
+            dbmt18.setOnClickListener(view -> showContent(TOC_DB, 11));
+            dbmt19.setOnClickListener(view -> showContent(TOC_DB, 11));
+            dbmt20.setOnClickListener(view -> showContent(TOC_DB, 12));
+            dbmt21.setOnClickListener(view -> showContent(TOC_DB, 12));
+            dbmt22.setOnClickListener(view -> showContent(TOC_DB, 13));
+            dbmt23.setOnClickListener(view -> showContent(TOC_DB, 13));
+            dbmt24.setOnClickListener(view -> showContent(TOC_DB, 14));
+            dbmt25.setOnClickListener(view -> showContent(TOC_DB, 14));
+            dbmt26.setOnClickListener(view -> showContent(TOC_DB, 15));
+            dbmt27.setOnClickListener(view -> showContent(TOC_DB, 15));
+            dbmt28.setOnClickListener(view -> showContent(TOC_DB, 15));
+            dbmt29.setOnClickListener(view -> showContent(TOC_DB, 16));
+
+            btn_close_db.setOnClickListener(view -> {
+                dbpop.dismiss();
+                dbpop = null;
+            });
+        }
+    }
+
+    /**
+     * Show the content of user selected mode
+     *
+     * @param mode Toc or hymn lyrics
+     * @param number the hymber number to display
+     */
+    private void showContent(String mode, int number)
+    {
+        Intent intent = new Intent(this, ContentHandler.class);
+
+        Bundle bundle = new Bundle();
+        bundle.putString(ATTR_SELECT, mode);
+        bundle.putInt(ATTR_NUMBER, number);
+        bundle.putString(ATTR_PAGE, ContentHandler.PAGE_MAIN);
+
+        intent.putExtras(bundle);
+        startActivity(intent);
+        finish();
+    }
+
+    /**
+     * KeyEvent handler for KeyEvent.KEYCODE_BACK
+     *
+     * @param keyCode android keyCode
+     * @param event KeyEvent
+     * @return handler state
+     */
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (xbpop != null) {
+                xbpop.dismiss();
+                xbpop = null;
             }
             else if (bbpop != null) {
                 bbpop.dismiss();
@@ -651,11 +705,17 @@ public class MainActivity extends FragmentActivity
             else {
                 finish();
             }
-            return false;
+            return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
+    /**
+     * Initial the option item menu
+     *
+     * @param menu the menu container
+     * @return true always
+     */
     public boolean onCreateOptionsMenu(Menu menu)
     {
         super.onCreateOptionsMenu(menu);
@@ -667,16 +727,28 @@ public class MainActivity extends FragmentActivity
         return true;
     }
 
-    public void onCreateContextMenu(ContextMenu menu2, View v, ContextMenu.ContextMenuInfo menuInfo)
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)
     {
-        getMenuInflater().inflate(R.menu.main_menu, menu2);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
     }
 
+    /**
+     * Handler for the Context item clicked; use the same handlers as Option Item clicked
+     *
+     * @param item Option Item Item
+     * @return the handle state
+     */
     public boolean onContextItemSelected(MenuItem item)
     {
         return onOptionsItemSelected(item);
     }
 
+    /**
+     * Handler for the option item clicked
+     *
+     * @param item menu Item
+     * @return the handle state
+     */
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch (item.getItemId()) {
@@ -810,7 +882,6 @@ public class MainActivity extends FragmentActivity
             case R.id.about:
                 Intent intent = new Intent(this, About.class);
                 startActivity(intent);
-                // DialogActivity.showDialog(this, R.string.gui_about, R.string.content_about);
                 return true;
 
             case R.id.exit:
@@ -828,6 +899,9 @@ public class MainActivity extends FragmentActivity
         }
     }
 
+    /**
+     * Bind all the button to its resource Id
+     */
     private void initButton()
     {
         background = findViewById(R.id.viewMain);
@@ -858,6 +932,9 @@ public class MainActivity extends FragmentActivity
         btn_toc = findViewById(R.id.bs_toc);
     }
 
+    /**
+     * Retrieve all the user preference settings and initialize the UI
+     */
     private void initUserSettings()
     {
         mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
@@ -870,20 +947,12 @@ public class MainActivity extends FragmentActivity
         setFontColor(fontColor, false);
     }
 
-    private void showContent(String mode, int number)
-    {
-        Intent intent = new Intent(this, ContentHandler.class);
-
-        Bundle bundle = new Bundle();
-        bundle.putString(ATTR_SELECT, mode);
-        bundle.putInt(ATTR_NUMBER, number);
-        bundle.putString(ATTR_PAGE, ContentHandler.PAGE_MAIN);
-
-        intent.putExtras(bundle);
-        startActivity(intent);
-        finish();
-    }
-
+    /**
+     * Set the font size of the buttons' labels
+     *
+     * @param size button lable font size
+     * @param update true to update the preference settings
+     */
     private void setFontSize(int size, boolean update)
     {
         if (update) {
@@ -915,6 +984,12 @@ public class MainActivity extends FragmentActivity
         btn_toc.setTextSize(fs_delta);
     }
 
+    /**
+     * Set the color of the buttons' labels
+     *
+     * @param color text color
+     * @param update true to update the preference settings
+     */
     private void setFontColor(int color, boolean update)
     {
         Resources res = getResources();
@@ -944,6 +1019,12 @@ public class MainActivity extends FragmentActivity
         btn_search.setTextColor(res.getColor(color));
     }
 
+    /**
+     * Set the main UI background wall paper
+
+     * @param bgMode the selected background wall paper
+     * @param resid the android drawable resouce Id for the selected wall paper
+     */
     private void setBgColor(int bgMode, int resid)
     {
         mEditor.putInt(PREF_BACKGROUND, bgMode);
@@ -955,94 +1036,4 @@ public class MainActivity extends FragmentActivity
     {
         return mSharedPref;
     }
-
-    // ================= Handling of apk update =================
-//    /**
-//     * Asks the user to install downloaded .apk; e.g. due to version code conflict.
-//     *
-//     * @param fileUri download file uri of the apk to install.
-//     */
-//    public void askUninstallApk(final Uri fileUri)
-//    {
-//        String app_pkg_name = "org.cog.hymnchtv";
-//        File apkFile = new File(FilePathHelper.getPath(HymnsApp.getGlobalContext(), fileUri));
-//
-//        DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
-//                R.string.gui_download_completed,
-//                R.string.gui_downloaded_uninstall,
-//                R.string.gui_ok,
-//                new DialogActivity.DialogListener()
-//                {
-//                    @Override
-//                    public boolean onConfirmClicked(DialogActivity dialog)
-//                    {
-//                        // Need REQUEST_INSTALL_PACKAGES in manifest; Intent.ACTION_VIEW works for both
-//                        Intent intent;
-//                        intent = new Intent(Intent.ACTION_PACKAGE_REPLACED);
-//                        // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                        intent.setDataAndType(fileUri, APK_MIME_TYPE);
-//
-//                        startActivity(intent);
-//                        return true;
-//                    }
-//
-//                    @Override
-//                    public void onDialogCancelled(DialogActivity dialog)
-//                    {
-//                        askInstallDownloadedApk(fileUri);
-//                    }
-//                }, apkFile.getAbsolutePath());
-//    }
-//
-//    /**
-//     * Asks the user whether to install downloaded .apk.
-//     *
-//     * @param fileUri download file uri of the apk to install.
-//     */
-//    private void askInstallDownloadedApk(Uri fileUri)
-//    {
-//        DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
-//                R.string.gui_download_completed,
-//                R.string.gui_downloaded_install,
-//                R.string.gui_update,
-//                new DialogActivity.DialogListener()
-//                {
-//                    @Override
-//                    public boolean onConfirmClicked(DialogActivity dialog)
-//                    {
-//                        // Need REQUEST_INSTALL_PACKAGES in manifest; Intent.ACTION_VIEW works for both
-//                        Intent intent;
-//                        intent = new Intent(Intent.ACTION_MY_PACKAGE_REPLACED);  // crash the apk
-//                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//                        intent.setDataAndType(fileUri, APK_MIME_TYPE);
-//
-//                        startActivity(intent);
-//                        return true;
-//                    }
-//
-//                    @Override
-//                    public void onDialogCancelled(DialogActivity dialog)
-//                    {
-//                    }
-//                });
-//    }
-//
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-//    {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == UNINSTALL_REQUEST_CODE) {
-//            if (resultCode == RESULT_OK) {
-//                Timber.d("onActivityResult: user accepted the uninstall");
-//            }
-//            else if (resultCode == RESULT_CANCELED) {
-//                Timber.d("onActivityResult: user canceled the uninstall");
-//            }
-//            else if (resultCode == RESULT_FIRST_USER) {
-//                Timber.d("onActivityResult: failed to uninstall");
-//            }
-//        }
-//    }
 }
