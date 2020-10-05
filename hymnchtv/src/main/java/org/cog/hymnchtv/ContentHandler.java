@@ -89,8 +89,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     public static final String MIDI_DB = "dm";
     public static final String MIDI_DBC = "dmc";
 
-    private static final String FILE_XFER_FRAGMENT = "file_xfer_fragment";
-
     public boolean isShowMenu;
 
     // Hymn number selected by user
@@ -308,7 +306,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
     // DB MP3 links non-standard naming conventions
     private static final Map<Integer, String> DB_Links = new HashMap<>();
-
     static {
         DB_Links.put(8, "D8父阿你是万灵之");
         DB_Links.put(13, "D13父阿在你并无动的影儿");
@@ -387,6 +384,19 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         DB_Links.put(782, "DF2阿利路阿利路亚");
     }
 
+    // DB MP3 links non-standard naming conventions
+    private static final Map<Integer, String> BB_Links = new HashMap<>();
+    static {
+        BB_Links.put(1, "B1当我们开口赞美");
+    }
+
+    // DB MP3 links non-standard naming conventions
+    private static final Map<Integer, String> ER_Links = new HashMap<>();
+    static {
+        // ER_Links.put(108, "3主的爱/01.唱啊唱啊我们来唱歌(108)");
+        ER_Links.put(601, "E601耶稣我们爱你");
+    }
+
     /**
      * Array contains the max hymnNo max (i.e. start number of next category) for each category
      */
@@ -397,7 +407,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
     private static final int[] category_xb = new int[]{1, 40, 74, 110, 131, 143, 164, 170};
 
-    private static final int[] category_er = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300};;
+    private static final int[] category_er = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300};
 
     /**
      * For testing of the getPlayHymn algorithms for the specified media Type
@@ -435,23 +445,19 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
         String dnLink = "";
         String dir = "";
-        String fileName;
-        String hymnTitle;
         String tmpName;
 
         /*
-         * Generate the hymn fileName (remove all punctuation marks) and the lyricsPhrase
+         * Generate the hymn fileName (remove all punctuation marks), and the lyricsPhrase
          * Currently use in  MP3 media fileName is: ? + hymnNo + hymnTitle + ".mp3"
-         *
-         * But also required when drop down from other mediaType
          */
         String pattern = "[，、‘’！：；。？]";
-        hymnTitle = getHymnInfo().split(":\\s|？|（")[1].replaceAll(pattern, "");
+        String hymnTitle = getHymnInfo().split(":\\s|？|（")[1].replaceAll(pattern, "");
         int idx = hymnTitle.lastIndexOf("－");
         if (idx != -1) {
             hymnTitle = hymnTitle.substring(idx + 1);
         }
-        fileName = hymnNo + hymnTitle + ".mp3";
+        String fileName = hymnNo + hymnTitle + ".mp3";
 
         switch (mSelect) {
             case HYMN_ER:
@@ -477,6 +483,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                             return uriList;
                         }
 
+                    // https://heavenlyfood.cn/hymnal/CD专辑/儿童诗歌集/3主的爱/02.大山可以挪开(318).mp3 - currently no supported
                     // https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/06爱主/C603我爱我的主耶稣.mp3
                     case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
@@ -493,7 +500,16 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                                 break;
                             }
                         }
-                        dnLink = "https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/" + subLink + fileName;
+
+                        // Generate the resName for link creation
+                        String resName = ER_Links.get(hymnNo);
+                        if (resName == null) {
+                            resName = fileName;
+                        } else {
+                            resName = resName + ".mp3";
+                        }
+
+                        dnLink = "https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/" + subLink + resName;
                         break;
                 }
                 break;
@@ -521,7 +537,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                             return uriList;
                         }
 
-                        // https://heavenlyfood.cn/hymnal/诗歌/新歌颂咏/4召会生活110/X112神生命的种子.mp3
+                    // https://heavenlyfood.cn/hymnal/诗歌/新歌颂咏/4召会生活110/X112神生命的种子.mp3
                     case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
                         fileName = "X" + fileName;
@@ -563,14 +579,13 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                             return uriList;
                         }
 
-                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B37赞美荣耀王.mp3
-                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命/B123耶稣活在我里面.mp3
-                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命/B141神在基督耶稣里成那灵.mp3
-                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/05教会的异象/B501基督殿城与地.mp3
-                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/05教会的异象/B521来这美妙住处.mp3
-
-                        // https://heavenlyfood.cn/hymnal/%E8%AF%97%E6%AD%8C/%E8%A1%A5%E5%85%85%E6%9C%AC/01%E7%81%B5%E4%B8%8E%E7%94%9F%E5%91%BD/B141%E7%A5%9E%E5%9C%A8%E5%9F%BA%E7%9D%A3%E8%80%B6%E7%A9%8C%E9%87%8C%E6%88%90%E9%82%A3%E7%81%B5.mp3
-                        // https://heavenlyfood.cn/hymnal/%E8%AF%97%E6%AD%8C/%E8%A1%A5%E5%85%85%E6%9C%AC/01%E7%81%B5%E4%B8%8E%E7%94%9F%E5%91%BD/B141%E7%A5%9E%E5%9C%A8%E5%9F%BA%E7%9D%A3%E8%80%B6%E7%A8%A3%E9%87%8C%E6%88%90%E9%82%A3%E7%81%B5.mp3
+                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B1当我们开口赞美.mp3
+                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B5披上喜乐.mp3
+                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B37赞美荣耀王.mp3
+                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命/B123耶稣活在我里面.mp3
+                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命/B141神在基督耶稣里成那灵.mp3
+                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/05教会的异象/B501基督殿城与地.mp3
+                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/05教会的异象/B521来这美妙住处.mp3
                     case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
                         fileName = "B" + fileName;
@@ -583,7 +598,16 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                                 break;
                             }
                         }
-                        dnLink = "https://heavenlyfood.cn/hymnal/诗歌/补充本/" + subLink + fileName;
+
+                        // Generate the resName for link creation
+                        String resName = BB_Links.get(hymnNo);
+                        if (resName == null) {
+                            resName = fileName;
+                        }
+                        else {
+                            resName = resName + ".mp3";
+                        }
+                        dnLink = "https://heavenlyfood.cn/hymnal/诗歌/补充本/" + subLink + resName;
                         break;
                 }
                 break;
@@ -598,8 +622,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                             break;
                         }
 
-                        // https://heavenlyfood.cn/hymns/music/da/D45.mp3
-                        // https://heavenlyfood.cn/hymns/music/da/D781.mp3
+                    // https://heavenlyfood.cn/hymns/music/da/D45.mp3
+                    // https://heavenlyfood.cn/hymns/music/da/D781.mp3
                     case HYMN_BANZOU:
                         dir = mSelect + MEDIA_BANZOU;
                         fileName = "D" + hymnNo + ".mp3";
@@ -663,6 +687,14 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         return uriList;
     }
 
+    /**
+     * Fetch and init the local media file URI path for play back if any else return false;
+     *
+     * @param dir the media local dir
+     * @param fileName the media filename
+     * @param uriList the media URI list
+     * @return true if local medai file is found else false
+     */
     private boolean isExist(String dir, String fileName, List<Uri> uriList)
     {
         File mediaFile = new File(FileBackend.getHymnchtvStore(dir, false), fileName);
@@ -672,7 +704,43 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         }
         return false;
     }
+//
+//    /**
+//     * Return the local media file save directory name based on the given MediaType
+//     * No good when dropdown to the next MediaType
+//     *
+//     * @param mediaType MediaType
+//     * @return the local directory name
+//     */
+//    private String getDir(MediaType mediaType)
+//    {
+//        String dir = "";
+//        switch (mediaType) {
+//            case HYMN_MIDI:
+//                dir = mSelect + MEDIA_MIDI;
+//                break;
+//
+//            case HYMN_BANZOU:
+//                dir = mSelect + MEDIA_BANZOU;
+//                break;
+//
+//            case HYMN_JIAOCHANG:
+//                dir = mSelect + MEDIA_JIAOCHANG;
+//                break;
+//
+//            case HYMN_CHANGSHI:
+//                dir = mSelect + MEDIA_CHANGSHI;
+//                break;
+//        }
+//        return dir;
+//    }
 
+    /**
+     * Get the hymn information for media controller.
+     * It alyas try to generate the possible lyricsPhrase for media download link
+     *
+     * @return the hymn info for display
+     */
     public String getHymnInfo()
     {
         String fName = "";

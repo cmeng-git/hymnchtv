@@ -27,7 +27,7 @@
         android:gravity="center"
         android:hint="@string/hint_hymn_number_enter"
         android:maxLength="4"
-        android:textColor="@drawable/black"
+        android:textColor="@color/black"
         android:textSize="35sp"
         android:textStyle="bold" />
 

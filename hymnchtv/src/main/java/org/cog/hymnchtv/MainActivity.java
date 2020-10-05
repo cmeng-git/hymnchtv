@@ -20,7 +20,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -111,7 +111,6 @@ public class MainActivity extends FragmentActivity
     private boolean isToc = false;
     private boolean isValid = true;
 
-    private int fontColor = 0;
     private int fontSize = FONT_SIZE_DEFAULT;
 
     private int nui;
@@ -213,24 +212,16 @@ public class MainActivity extends FragmentActivity
         });
 
         // 儿童诗歌
-        btn_er.setOnClickListener(v -> {
-            onErClicked();
-        });
+        btn_er.setOnClickListener(v -> onErClicked());
 
         // 新歌颂咏
-        btn_xb.setOnClickListener(v -> {
-            onXbClicked();
-        });
+        btn_xb.setOnClickListener(v -> onXbClicked());
 
         // 补充本
-        btn_bb.setOnClickListener(v -> {
-            onBbClicked();
-        });
+        btn_bb.setOnClickListener(v -> onBbClicked());
 
         // 大本诗歌
-        btn_db.setOnClickListener(v -> {
-            onDbClicked();
-        });
+        btn_db.setOnClickListener(v -> onDbClicked());
 
         // Numeric number entry handlers for 0~9
         btn_n0.setOnClickListener(v -> {
@@ -425,7 +416,7 @@ public class MainActivity extends FragmentActivity
         }
         else {
             // showContent(TOC_XB, 1);
-            View toc_xb = getLayoutInflater().inflate(R.layout.toc_xb, (ViewGroup) null);
+            View toc_xb = getLayoutInflater().inflate(R.layout.toc_xb, null);
             xbpop = new PopupWindow(toc_xb, HymnsApp.screenWidth, HymnsApp.screenHeight);
             xbpop.showAtLocation(toc_xb, 17, 0, 0);
 
@@ -502,7 +493,7 @@ public class MainActivity extends FragmentActivity
             }
         }
         else {
-            View toc_bb = getLayoutInflater().inflate(R.layout.toc_bb, (ViewGroup) null);
+            View toc_bb = getLayoutInflater().inflate(R.layout.toc_bb, null);
             bbpop = new PopupWindow(toc_bb, HymnsApp.screenWidth, HymnsApp.screenHeight);
             bbpop.showAtLocation(toc_bb, 17, 0, 0);
 
@@ -588,7 +579,7 @@ public class MainActivity extends FragmentActivity
             }
         }
         else {
-            View toc_db = getLayoutInflater().inflate(R.layout.toc_db, (ViewGroup) null);
+            View toc_db = getLayoutInflater().inflate(R.layout.toc_db, null);
             dbpop = new PopupWindow(toc_db, HymnsApp.screenWidth, HymnsApp.screenHeight);
             dbpop.showAtLocation(toc_db, 17, 0, 0);
 
@@ -721,9 +712,9 @@ public class MainActivity extends FragmentActivity
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.main_menu, menu);
 
-        if (BuildConfig.DEBUG) {
-            menu.findItem(R.id.sn_convert).setVisible(true);
-        }
+//        if (BuildConfig.DEBUG) {
+//            menu.findItem(R.id.sn_convert).setVisible(true);
+//        }
         return true;
     }
 
@@ -785,43 +776,35 @@ public class MainActivity extends FragmentActivity
 
             // Set font color
             case R.id.red:
-                fontColor = R.drawable.red;
-                setFontColor(fontColor, true);
+                setFontColor(Color.RED, true);
                 return true;
 
             case R.id.blue:
-                fontColor = R.drawable.blue;
-                setFontColor(fontColor, true);
+                setFontColor(Color.BLUE, true);
                 return true;
 
             case R.id.white:
-                fontColor = R.drawable.white;
-                setFontColor(fontColor, true);
+                setFontColor(Color.WHITE, true);
                 return true;
 
             case R.id.grey:
-                fontColor = R.drawable.grey;
-                setFontColor(fontColor, true);
+                setFontColor(Color.GRAY, true);
                 return true;
 
-            case R.id.brown:
-                fontColor = R.drawable.coffee;
-                setFontColor(fontColor, true);
+            case R.id.cyan:
+                setFontColor(Color.CYAN, true);
                 return true;
 
             case R.id.yellow:
-                fontColor = R.drawable.yellow;
-                setFontColor(fontColor, true);
+                setFontColor(Color.YELLOW, true);
                 return true;
 
             case R.id.green:
-                fontColor = R.drawable.green;
-                setFontColor(fontColor, true);
+                setFontColor(Color.GREEN, true);
                 return true;
 
             case R.id.black:
-                fontColor = R.drawable.black;
-                setFontColor(fontColor, true);
+                setFontColor(Color.BLACK, true);
                 return true;
 
             // Set background color
@@ -940,7 +923,7 @@ public class MainActivity extends FragmentActivity
         mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
         int setbgs = mSharedPref.getInt(PREF_BACKGROUND, 0);
         fontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT);
-        fontColor = mSharedPref.getInt(PREF_TEXT_COLOR, R.drawable.black);
+        int fontColor = mSharedPref.getInt(PREF_TEXT_COLOR, Color.BLACK);
         background.setBackgroundResource(bgRes[setbgs]);
 
         setFontSize(fontSize, false);
@@ -992,36 +975,36 @@ public class MainActivity extends FragmentActivity
      */
     private void setFontColor(int color, boolean update)
     {
-        Resources res = getResources();
         if (update) {
             mEditor.putInt(PREF_TEXT_COLOR, color);
             mEditor.commit();
         }
 
-        btn_n0.setTextColor(res.getColor(color));
-        btn_n1.setTextColor(res.getColor(color));
-        btn_n2.setTextColor(res.getColor(color));
-        btn_n3.setTextColor(res.getColor(color));
-        btn_n4.setTextColor(res.getColor(color));
-        btn_n5.setTextColor(res.getColor(color));
-        btn_n6.setTextColor(res.getColor(color));
-        btn_n7.setTextColor(res.getColor(color));
-        btn_n8.setTextColor(res.getColor(color));
-        btn_n9.setTextColor(res.getColor(color));
+        btn_n0.setTextColor(color);
+        btn_n1.setTextColor(color);
+        btn_n2.setTextColor(color);
+        btn_n3.setTextColor(color);
+        btn_n4.setTextColor(color);
+        btn_n5.setTextColor(color);
+        btn_n6.setTextColor(color);
+        btn_n7.setTextColor(color);
+        btn_n8.setTextColor(color);
+        btn_n9.setTextColor(color);
 
-        btn_fu.setTextColor(res.getColor(color));
-        btn_del.setTextColor(res.getColor(color));
+        btn_fu.setTextColor(color);
+        btn_del.setTextColor(color);
 
-        btn_toc.setTextColor(res.getColor(color));
-        btn_xb.setTextColor(res.getColor(color));
-        btn_db.setTextColor(res.getColor(color));
-        btn_bb.setTextColor(res.getColor(color));
-        btn_search.setTextColor(res.getColor(color));
+        btn_er.setTextColor(color);
+        btn_xb.setTextColor(color);
+        btn_bb.setTextColor(color);
+        btn_db.setTextColor(color);
+        btn_toc.setTextColor(color);
+        btn_search.setTextColor(color);
     }
 
     /**
      * Set the main UI background wall paper
-
+     *
      * @param bgMode the selected background wall paper
      * @param resid the android drawable resouce Id for the selected wall paper
      */

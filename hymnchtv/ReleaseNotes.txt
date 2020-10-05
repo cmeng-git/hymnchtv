@@ -1,6 +1,18 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	10/05/2020
+Version:		1.3.2 (103020)
+- Remove deprecated .setTextColor(getResources().getColor()) and remove drawable.xml
+- Make some change to the color choice for user selection
+- Fix btn_er missed out in setFont color
+- Correct 儿童诗歌 TOC and Title incorrect words used i.e. 亲近依靠主 => 亲近倚靠主; some 主阿 => 主啊
+  to create correct link for media download
+- Top fragment must set android:clickable="true" and android:focusable="true" to prevent touch
+  action falls through to underlying fragment e.g. file_xfer_ui.xml
+
+=========================================================================
+Author:         cmeng
 Upload Date:	10/02/2020
 Version:		1.3.1 (103010)
 - Add media playback for 儿童诗歌 changShi

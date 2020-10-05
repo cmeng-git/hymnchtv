@@ -83,8 +83,8 @@
                 android:id="@+id/grey"
                 android:title="@string/grey" />
             <item
-                android:id="@+id/brown"
-                android:title="@string/brown" />
+                android:id="@+id/cyan"
+                android:title="@string/cyan" />
             <item
                 android:id="@+id/yellow"
                 android:title="@string/yellow" />

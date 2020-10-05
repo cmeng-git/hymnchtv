@@ -52,7 +52,7 @@ public class ViewUtil
     public static void setTextViewColor(View container, int id, int color)
     {
         TextView tv = container.findViewById(id);
-        tv.setTextColor(HymnsApp.getAppResources().getColor(color));
+        tv.setTextColor(color);
     }
 
     public static void setTextViewAlpha(View container, int id, float alpha)

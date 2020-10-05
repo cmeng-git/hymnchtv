@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
@@ -72,7 +73,7 @@ public class About extends FragmentActivity implements View.OnClickListener
         hymnchtvkUrl.setOnClickListener(this);
 
         TextView hymnchtvHelp = findViewById(R.id.hymnchtv_help);
-        hymnchtvHelp.setTextColor(getResources().getColor(R.color.blue50));
+        hymnchtvHelp.setTextColor(Color.CYAN);
         hymnchtvHelp.setOnClickListener(this);
 
         TextView copyRight = findViewById(R.id.copyRight);
