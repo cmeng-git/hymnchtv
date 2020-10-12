@@ -17,7 +17,6 @@
 package org.cog.hymnchtv;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -46,8 +45,11 @@ import static org.cog.hymnchtv.ContentView.LYRICS_BBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
+import static org.cog.hymnchtv.HymnToc.hymnCategoryBb;
+import static org.cog.hymnchtv.HymnToc.hymnCategoryDb;
+import static org.cog.hymnchtv.HymnToc.hymnCategoryEr;
+import static org.cog.hymnchtv.HymnToc.hymnCategoryXb;
 import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
-import static org.cog.hymnchtv.MainActivity.ATTR_PAGE;
 import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
@@ -57,10 +59,8 @@ import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.PREF_MENU_SHOW;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
-import static org.cog.hymnchtv.MainActivity.TOC_BB;
-import static org.cog.hymnchtv.MainActivity.TOC_DB;
-import static org.cog.hymnchtv.MainActivity.TOC_ER;
-import static org.cog.hymnchtv.MainActivity.TOC_XB;
+
+// import static org.cog.hymnchtv.HymnToc.TOC_BB;
 
 /**
  * The class handles the actual content source address decoding for the user selected hymn
@@ -79,9 +79,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     public static final String PAGE_CONTENT = "content";
     public static final String PAGE_MAIN = "main";
     public static final String PAGE_SEARCH = "search";
-
-    public static final String MIDI_ER = "em";
-    public static final String MIDI_XB = "xm";
+    public static final String PAGE_TOC = "toc";
 
     public static final String MIDI_BB = "bm";
     public static final String MIDI_BBC = "bmc";
@@ -97,7 +95,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
     private boolean mPlayMode = true;
 
-    private String mPage = PAGE_CONTENT;
     private String mSelect;
 
     public PopupWindow pop;
@@ -142,7 +139,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
         Bundle bundle = getIntent().getExtras();
         mSelect = bundle.getString(ATTR_SELECT);
-        mPage = bundle.getString(ATTR_PAGE);
         hymnNo = bundle.getInt(ATTR_NUMBER);
 
         switch (mSelect) {
@@ -152,13 +148,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
             case HYMN_BB:
             case HYMN_DB:
                 hymnIdx = HymnNo2IdxConvert.hymnNo2IdxConvert(mSelect, hymnNo);
-                break;
-
-            case TOC_ER:
-            case TOC_XB:
-            case TOC_BB:
-            case TOC_DB:
-                mPlayMode = false;
                 break;
         }
 
@@ -254,16 +243,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     private void backToHome()
     {
         mMediaController.stopPlay();
-
-        if (PAGE_MAIN.equals(mPage)) {
-            Intent intent = new Intent();
-            intent.setClass(this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }
-        else if (PAGE_SEARCH.equals(mPage)) {
-            finish();
-        }
+        finish();
     }
 
     @Override
@@ -306,6 +286,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
     // DB MP3 links non-standard naming conventions
     private static final Map<Integer, String> DB_Links = new HashMap<>();
+
     static {
         DB_Links.put(8, "D8父阿你是万灵之");
         DB_Links.put(13, "D13父阿在你并无动的影儿");
@@ -386,12 +367,14 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
     // DB MP3 links non-standard naming conventions
     private static final Map<Integer, String> BB_Links = new HashMap<>();
+
     static {
         BB_Links.put(1, "B1当我们开口赞美");
     }
 
     // DB MP3 links non-standard naming conventions
     private static final Map<Integer, String> ER_Links = new HashMap<>();
+
     static {
         // ER_Links.put(108, "3主的爱/01.唱啊唱啊我们来唱歌(108)");
         ER_Links.put(601, "E601耶稣我们爱你");
@@ -400,14 +383,14 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     /**
      * Array contains the max hymnNo max (i.e. start number of next category) for each category
      */
-    private static final int[] category_db = new int[]{1, 6, 53, 194, 229, 269, 330, 356, 367, 441, 454, 458, 472,
-            474, 490, 529, 548, 551, 579, 592, 624, 632, 650, 662, 670, 740, 745, 752, 768, 781, 787, 800};
+    public static final int[] category_db = new int[]{1, 6, 53, 194, 229, 269, 330, 356, 367, 441, 454, 458, 472,
+            474, 490, 529, 548, 551, 579, 592, 624, 632, 650, 662, 670, 740, 745, 752, 768, 781, 787};
 
-    private static final int[] category_bb = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100};
+    public static final int[] category_bb = new int[]{1, 101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101};
 
-    private static final int[] category_xb = new int[]{1, 40, 74, 110, 131, 143, 164, 170};
+    public static final int[] category_xb = new int[]{1, 40, 74, 110, 131, 143, 170};
 
-    private static final int[] category_er = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300};
+    public static final int[] category_er = new int[]{1, 101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101, 1201, 1301};
 
     /**
      * For testing of the getPlayHymn algorithms for the specified media Type
@@ -453,6 +436,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
          */
         String pattern = "[，、‘’！：；。？]";
         String hymnTitle = getHymnInfo().split(":\\s|？|（")[1].replaceAll(pattern, "");
+        // Strip off the hymn category prefix
         int idx = hymnTitle.lastIndexOf("－");
         if (idx != -1) {
             hymnTitle = hymnTitle.substring(idx + 1);
@@ -469,7 +453,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                             return uriList;
                         }
 
-                    // https://heavenlyfood.cn/hymns/music/er/C1.mp3
+                        // https://heavenlyfood.cn/hymns/music/er/C1.mp3
                     case HYMN_BANZOU:
                         dir = mSelect + MEDIA_BANZOU;
                         fileName = "C" + hymnNo + ".mp3";
@@ -483,8 +467,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                             return uriList;
                         }
 
-                    // https://heavenlyfood.cn/hymnal/CD专辑/儿童诗歌集/3主的爱/02.大山可以挪开(318).mp3 - currently no supported
-                    // https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/06爱主/C603我爱我的主耶稣.mp3
+                        // https://heavenlyfood.cn/hymnal/CD专辑/儿童诗歌集/3主的爱/02.大山可以挪开(318).mp3 - currently no supported
+                        // https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/06爱主/C603我爱我的主耶稣.mp3
                     case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
                         fileName = "C" + fileName;
@@ -495,8 +479,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                         String subLink = "";
                         for (int x = 0; x < category_er.length; x++) {
                             if (hymnNo < category_er[x]) {
-                                String category = HymnsApp.getResStringByName("ermt" + x);
-                                subLink = String.format(Locale.CHINA, "%02d%s/", (x - 1), category);
+                                subLink = String.format(Locale.CHINA, "%02d%s/", (x - 1), hymnCategoryEr[x - 1]);
                                 break;
                             }
                         }
@@ -505,7 +488,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                         String resName = ER_Links.get(hymnNo);
                         if (resName == null) {
                             resName = fileName;
-                        } else {
+                        }
+                        else {
                             resName = resName + ".mp3";
                         }
 
@@ -537,16 +521,17 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                             return uriList;
                         }
 
-                    // https://heavenlyfood.cn/hymnal/诗歌/新歌颂咏/4召会生活110/X112神生命的种子.mp3
+                        // https://heavenlyfood.cn/hymnal/诗歌/新歌颂咏/4召会生活110/X112神生命的种子.mp3
                     case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
                         fileName = "X" + fileName;
 
                         String subLink = "";
                         for (int x = 0; x < category_xb.length; x++) {
+                            // dnlink for xB does not use the last hymn category for fetching
                             if (hymnNo < category_xb[x]) {
-                                String category = HymnsApp.getResStringByName("xbmt" + x);
-                                subLink = String.format(Locale.CHINA, "%d%s%03d/", x, category, category_xb[x - 1]);
+                                subLink = String.format(Locale.CHINA, "%d%s%03d/", x, hymnCategoryXb[x - 1],
+                                        category_xb[x - 1]);
                                 break;
                             }
                         }
@@ -579,13 +564,13 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                             return uriList;
                         }
 
-                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B1当我们开口赞美.mp3
-                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B5披上喜乐.mp3
-                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B37赞美荣耀王.mp3
-                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命/B123耶稣活在我里面.mp3
-                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命/B141神在基督耶稣里成那灵.mp3
-                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/05教会的异象/B501基督殿城与地.mp3
-                    // https://heavenlyfood.cn/hymnal/诗歌/补充本/05教会的异象/B521来这美妙住处.mp3
+                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B1当我们开口赞美.mp3
+                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B5披上喜乐.mp3
+                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B37赞美荣耀王.mp3
+                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命/B123耶稣活在我里面.mp3
+                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命/B141神在基督耶稣里成那灵.mp3
+                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/05教会的异象/B501基督殿城与地.mp3
+                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/05教会的异象/B521来这美妙住处.mp3
                     case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
                         fileName = "B" + fileName;
@@ -593,8 +578,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                         String subLink = "";
                         for (int x = 0; x < category_bb.length; x++) {
                             if (hymnNo < category_bb[x]) {
-                                String category = HymnsApp.getResStringByName("bbmt" + x);
-                                subLink = String.format(Locale.CHINA, "%02d%s/", (x - 1), category);
+                                subLink = String.format(Locale.CHINA, "%02d%s/", (x - 1), hymnCategoryBb[x - 1]);
                                 break;
                             }
                         }
@@ -622,8 +606,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                             break;
                         }
 
-                    // https://heavenlyfood.cn/hymns/music/da/D45.mp3
-                    // https://heavenlyfood.cn/hymns/music/da/D781.mp3
+                        // https://heavenlyfood.cn/hymns/music/da/D45.mp3
+                        // https://heavenlyfood.cn/hymns/music/da/D781.mp3
                     case HYMN_BANZOU:
                         dir = mSelect + MEDIA_BANZOU;
                         fileName = "D" + hymnNo + ".mp3";
@@ -647,12 +631,12 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                         String subLink = "";
                         for (int x = 0; x < category_db.length; x++) {
                             if (hymnNo < category_db[x]) {
-                                String category = HymnsApp.getResStringByName("dbmt" + x);
                                 if (hymnNo > HYMN_DB_NO_MAX) {
-                                    subLink = String.format(Locale.CHINA, "%02d%s/", x, category);
+                                    subLink = String.format(Locale.CHINA, "%02d%s/", x, hymnCategoryDb[x - 1]);
                                 }
                                 else {
-                                    subLink = String.format(Locale.CHINA, "%02d%s%03d/", x, category, category_db[x - 1]);
+                                    subLink = String.format(Locale.CHINA, "%02d%s%03d/", x, hymnCategoryDb[x - 1],
+                                            category_db[x - 1]);
                                 }
                                 break;
                             }
@@ -704,36 +688,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         }
         return false;
     }
-//
-//    /**
-//     * Return the local media file save directory name based on the given MediaType
-//     * No good when dropdown to the next MediaType
-//     *
-//     * @param mediaType MediaType
-//     * @return the local directory name
-//     */
-//    private String getDir(MediaType mediaType)
-//    {
-//        String dir = "";
-//        switch (mediaType) {
-//            case HYMN_MIDI:
-//                dir = mSelect + MEDIA_MIDI;
-//                break;
-//
-//            case HYMN_BANZOU:
-//                dir = mSelect + MEDIA_BANZOU;
-//                break;
-//
-//            case HYMN_JIAOCHANG:
-//                dir = mSelect + MEDIA_JIAOCHANG;
-//                break;
-//
-//            case HYMN_CHANGSHI:
-//                dir = mSelect + MEDIA_CHANGSHI;
-//                break;
-//        }
-//        return dir;
-//    }
 
     /**
      * Get the hymn information for media controller.
@@ -769,12 +723,13 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         try {
             InputStream in2 = getResources().getAssets().open(fName);
             byte[] buffer2 = new byte[in2.available()];
-            in2.read(buffer2);
+            if (in2.read(buffer2) == -1)
+                return hymnInfo;
 
             String mResult = EncodingUtils.getString(buffer2, "utf-8");
-            String[] mList = mResult.split("\r\n|\n"); // applicable for "\r\n", remove the \r later on if any
+            String[] mList = mResult.split("\r\n|\n");
 
-            // fetch the song title
+            // fetch the hymn title with the category untouched
             hymnTitle = mList[1];
 
             // Check the third line for additional info e.g.（诗篇二篇）（英1094）
@@ -804,20 +759,20 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
         switch (mSelect) {
             case HYMN_ER:
-                hymnInfo = res.getString(R.string.hymn_title_er, hymnNo, hymnTitle);
+                hymnInfo = res.getString(R.string.hymn_title_mc_er, hymnNo, hymnTitle);
                 break;
             case HYMN_XB:
-                hymnInfo = res.getString(R.string.hymn_title_xb, hymnNo, hymnTitle);
+                hymnInfo = res.getString(R.string.hymn_title_mc_xb, hymnNo, hymnTitle);
                 break;
             case HYMN_BB:
-                hymnInfo = res.getString(R.string.hymn_title_bb, hymnNo, hymnTitle);
+                hymnInfo = res.getString(R.string.hymn_title_mc_bb, hymnNo, hymnTitle);
                 break;
             case HYMN_DB:
                 if (hymnNo > 780) {
-                    hymnInfo = res.getString(R.string.hymn_title_dbs, hymnNo - 780, hymnTitle);
+                    hymnInfo = res.getString(R.string.hymn_title_mc_dbs, hymnNo - 780, hymnTitle);
                 }
                 else {
-                    hymnInfo = res.getString(R.string.hymn_title_db, hymnNo, hymnTitle);
+                    hymnInfo = res.getString(R.string.hymn_title_mc_db, hymnNo, hymnTitle);
                 }
                 break;
         }

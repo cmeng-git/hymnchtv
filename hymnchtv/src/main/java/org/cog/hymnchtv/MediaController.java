@@ -34,13 +34,13 @@ import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.cog.hymnchtv.service.audioservice.AudioBgService;
+import org.cog.hymnchtv.utils.ViewUtil;
 
 import java.util.*;
 
 import timber.log.Timber;
 
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
-import static org.cog.hymnchtv.MainActivity.PREF_PLAYBACK_SPEED;
 
 /**
  * Class implements the media player UI. It provides the full media playback control
@@ -79,6 +79,10 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
      */
     private static final int STATE_PLAY = 3;
 
+    public static final String PREF_PLAYBACK_LOOP = "PlayBack_Loop";
+    public static final String PREF_PLAYBACK_LOOPCOUNT = "PlayBack_LoopCount";
+    public static final String PREF_PLAYBACK_SPEED = "PlayBack_Speed";
+
     private static final String PLAYER_STATE = "playerState";
     private static final String PLAYER_INFO = "playerInfo";
     private static final String PLAYER_URIS = "playerUris";
@@ -98,7 +102,8 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
     private TextView playbackDuration;
     private SeekBar playbackSeekBar;
     private Spinner playbackSpeed;
-
+    private CheckBox cbPlaybackLoop;
+    private EditText edLoopCount;
 
     private boolean isSeeking = false;
     private int positionSeek;
@@ -135,6 +140,22 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
         playbackDuration = convertView.findViewById(R.id.playback_duration);
         playbackSeekBar = convertView.findViewById(R.id.playback_seekbar);
 
+        cbPlaybackLoop = convertView.findViewById(R.id.playback_loop);
+        cbPlaybackLoop.setOnClickListener(v -> onLoopClick());
+
+        edLoopCount = convertView.findViewById(R.id.loopCount);
+        edLoopCount.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                onLoopValueChange();
+
+                if ((MediaType.HYMN_MIDI == mMediaType) && !"1".equals(ViewUtil.toString(edLoopCount))) {
+                    HymnsApp.showToastMessage(R.string.info_midi_playback_noloop);
+                }
+                return true;
+            }
+            return false;
+        });
+
         playbackSpeed = convertView.findViewById(R.id.playback_speed);
         playbackSpeed.setOnItemSelectedListener(this);
 
@@ -166,7 +187,6 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
 
         // playbackPlay.setOnClickListener(this);
         playbackPlay.setOnClickListener(view -> startPlay());
-
         playbackPlay.setOnLongClickListener(view -> {
             stopPlay();
             return true;
@@ -188,23 +208,22 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
         if (mContentHandler == null)
             return;
 
+        // init and prepare the mediaPlayer state receiver
         if (mReceiver == null) {
             mReceiver = new MpBroadcastReceiver();
             registerMpBroadCastReceiver();
         }
 
+        // Update the media controller hymn display info
         initHymnInfo(mContentHandler.getHymnInfo());
 
-        // Get the user selected mediaType to playback
+        // Get the user selected mediaType for playback
         SharedPreferences sPref = MainActivity.getSharedPref();
         int mediaType = sPref.getInt(PREF_MEDIA_HYMN, MediaType.HYMN_MIDI.getValue());
         mMediaType = MediaType.valueOf(mediaType);
         checkRadioButton(mMediaType);
 
-        if (mediaHymns.isEmpty()) {
-            mediaHymns = mContentHandler.getPlayHymn(mMediaType, false);
-        }
-
+        // Init user selected playback speed
         String speed = sPref.getString(PREF_PLAYBACK_SPEED, "1.0");
         for (int i = 0; i < mpSpeedValues.length; i++) {
             if (mpSpeedValues[i].equals(speed)) {
@@ -213,6 +232,20 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
             }
         }
         setPlaybackSpeed(speed);
+
+        // Init user selected playback loop parameters (order important)
+        Boolean isLoop = sPref.getBoolean(PREF_PLAYBACK_LOOP, false);
+        cbPlaybackLoop.setChecked(isLoop);
+        edLoopCount.setVisibility(isLoop ? View.VISIBLE : View.GONE);
+
+        String loopValue = sPref.getString(PREF_PLAYBACK_LOOPCOUNT, "1");
+        edLoopCount.setText(loopValue);
+        setPlaybackLoopCount(loopValue);
+
+        // Just update the mediaHymns if any, do not proceed to download
+        if (mediaHymns.isEmpty()) {
+            mediaHymns = mContentHandler.getPlayHymn(mMediaType, false);
+        }
 
         // Need this to resume last play state when user changes hymnNo while playing
         for (Uri uri : mediaHymns) {
@@ -284,6 +317,7 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
             mUri = uri;
             playStart();
         }
+        edLoopCount.clearFocus();
     }
 
     public void stopPlay()
@@ -493,8 +527,45 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
     {
     }
 
+    private void onLoopClick()
+    {
+        boolean isLoop = cbPlaybackLoop.isChecked();
+        edLoopCount.setVisibility(isLoop ? View.VISIBLE : View.GONE);
+
+        String loopValue = ViewUtil.toString(edLoopCount);
+        setPlaybackLoopCount(loopValue);
+
+        SharedPreferences.Editor editor = MainActivity.getSharedPref().edit();
+        editor.putBoolean(PREF_PLAYBACK_LOOP, isLoop);
+        editor.apply();
+    }
+
+    private void onLoopValueChange()
+    {
+        String loopValue = ViewUtil.toString(edLoopCount);
+        loopValue = (loopValue == null) ? "1" : loopValue;
+
+        edLoopCount.setText(loopValue);
+        setPlaybackLoopCount(loopValue);
+
+        SharedPreferences.Editor editor = MainActivity.getSharedPref().edit();
+        editor.putString(PREF_PLAYBACK_LOOPCOUNT, loopValue);
+        editor.apply();
+    }
+
+    private void setPlaybackLoopCount(String loopValue)
+    {
+        if (!cbPlaybackLoop.isChecked() || (loopValue == null))
+            loopValue = "1";
+
+        Intent intent = new Intent(mContentHandler, AudioBgService.class);
+        intent.setType(loopValue);
+        intent.setAction(AudioBgService.ACTION_PLAYBACK_LOOP);
+        mContentHandler.startService(intent);
+    }
+
     /**
-     * Media player BroadcastReceiver to animate and update player view holder info
+     * The Media player BroadcastReceiver to animate and update player view holder info
      */
     private class MpBroadcastReceiver extends BroadcastReceiver
     {
@@ -550,6 +621,7 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
                         mediaHymns.clear();
                         initHymnInfo(mContentHandler.getHymnInfo());
                         // flow through
+
                     case pause:
                         if (playerState != STATE_STOP) {
                             playerState = STATE_PAUSE;

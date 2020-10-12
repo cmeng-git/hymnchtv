@@ -40,32 +40,28 @@
         android:hint="@string/hint_hymn_content_search" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_weight="0.87"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/btn_search"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
             android:shadowColor="@color/black"
             android:text="@string/hymn_search"
             android:textSize="25sp"
             android:textStyle="bold" />
 
-        <Button
-            android:id="@+id/bs_toc"
+        <Spinner
+            android:id="@+id/spinner_toc"
+            style="@style/SpinnerView"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="20dp"
-            android:shadowColor="@color/black"
-            android:text="@string/hymn_toc"
-            android:textSize="25sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="20dp" />
 
     </LinearLayout>
 

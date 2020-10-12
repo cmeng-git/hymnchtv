@@ -41,7 +41,6 @@ import static org.cog.hymnchtv.ContentView.LYRICS_DB_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
 import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
-import static org.cog.hymnchtv.MainActivity.ATTR_PAGE;
 import static org.cog.hymnchtv.MainActivity.ATTR_SEARCH;
 import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
@@ -57,7 +56,7 @@ import static org.cog.hymnchtv.MainActivity.rangeBbLimit;
 import static org.cog.hymnchtv.MainActivity.rangeErLimit;
 
 /**
- * ContentSearch: search and display the mached results based on uer input text string.
+ * ContentSearch: search and display the matched results based on uer input text string.
  * Only the simplified Chinese lyrics has full contents for the hymns.
  * Currently, block Traditional Chinese search as CG cause HymnApp comes to a halt.
  *
@@ -321,7 +320,6 @@ public class ContentSearch extends FragmentActivity
             Bundle bundle = new Bundle();
             bundle.putInt(ATTR_NUMBER, hymnNo);
             bundle.putString(ATTR_SELECT, mHmynNoType.get(hymnNo));
-            bundle.putString(ATTR_PAGE, PAGE_SEARCH);
             intent.putExtras(bundle);
             startActivityForResult(intent, -1);
         });

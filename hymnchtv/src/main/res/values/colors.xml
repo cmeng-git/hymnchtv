@@ -15,30 +15,15 @@
 
     <color name="theme_background">#2e5368</color>
 
-    <color name="call_background">#ff2e5368</color>
-    <color name="chat_background">#fff5f5f5</color>
-    <color name="chat_background_muc">#ffe2e2e2</color>
-    <color name="chat_background_normal">#ffc2dbe2</color>
-    <color name="chat_background_omemo">#fffcf8e9</color>
-    <color name="chat_background_omemo_ua">#fffcf8e9</color>
-    <color name="chat_background_otr">#ffb5c2ca</color>
-    <color name="chat_background_otr_ua">#ffb5c2ca</color>
-
-    <color name="chat_background_omemo_stealth">#e73c18</color>
-    <color name="chat_background_otr_stealth">#9218e7</color>
-
     <color name="msg_input_bar_bg">#2e5368</color>
     <color name="msg_input_correction_bg">#849aa6</color>
     <color name="msg_correction_border">#ffeb3b</color>
 
-    <color name="padlock_red">#ff0000</color>
-    <color name="padlock_green">#008800</color>
-    <color name="padlock_orange">#aa6600</color>
     <color name="status_bar_icon_bg">#1d3741</color>
     <color name="status_bar_button">#086882</color>
     <color name="status_bar_hangup">#d80005</color>
-    <color name="contact_list_divider">#c5c5c5</color>
-    <color name="contact_list_group">#1d475d</color>
+    <color name="list_divider">#c5c5c5</color>
+    <color name="list_group">#1d475d</color>
 
     <color name="permission_granted">#2df2a4</color>
     <color name="permission_denied">#f22d24</color>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/background_light"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:descendantFocusability="blocksDescendants">
+
+    <LinearLayout
+        android:id="@+id/toc_item_view"
+        android:background="@drawable/list_selector_state"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:gravity="center_vertical"
+        android:paddingStart="20dp"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/hymnTitle"
+            style="@style/LargeFont"
+            android:textColor="@color/textColorBlack"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="联于他死与复活"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/list_h_separator_dark" />
+</RelativeLayout>

@@ -32,10 +32,6 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
-import static org.cog.hymnchtv.MainActivity.TOC_BB;
-import static org.cog.hymnchtv.MainActivity.TOC_DB;
-import static org.cog.hymnchtv.MainActivity.TOC_ER;
-import static org.cog.hymnchtv.MainActivity.TOC_XB;
 
 /**
  * The hymn lyrics implementation for the user page sliding and display update
@@ -76,18 +72,6 @@ public class MyPagerAdapter extends FragmentPagerAdapter
 
             case HYMN_DB:
                 return MainActivity.HYMN_DB_INDEX_MAX;
-
-            case TOC_ER:
-                return 1;
-
-            case TOC_XB:
-                return 5;
-
-            case TOC_BB:
-                return 33;
-
-            case TOC_DB:
-                return 17;
 
             default:
                 return 1;

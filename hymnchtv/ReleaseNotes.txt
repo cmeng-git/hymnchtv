@@ -1,6 +1,18 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	10/12/2020
+Version:		1.3.3 (103030)
+- Add new hymns' toc categories for user direct hymnNo select
+- Generate all required cross-reference text files for TOC categories creation
+- Remove support and deleted all old toc layouts and toc png contents (images only)
+- Change 新歌颂咏 category 新诗 => 新诗歌, and remove last category 奉献的祷告 for correct dnlink creation
+- Add media playback looping option
+- Redefined usage for ATTR_PAGE; i.e. use as hymn toc
+- Change UI to handle fu entry
+
+=========================================================================
+Author:         cmeng
 Upload Date:	10/05/2020
 Version:		1.3.2 (103020)
 - Remove deprecated .setTextColor(getResources().getColor()) and remove drawable.xml

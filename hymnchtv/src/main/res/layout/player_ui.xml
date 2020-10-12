@@ -13,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="90dp"
         android:background="@drawable/border_grey"
-        android:padding="5dp">
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp">
 
         <TextView
             android:id="@+id/hymn_info"
@@ -24,7 +25,7 @@
             android:clickable="true"
             android:focusable="true"
             android:maxLines="1"
-            android:text="@string/hymn_title_bb"
+            android:text="@string/hymn_title_mc_bb"
             android:textColor="@color/textColorBlack" />
 
         <SeekBar
@@ -74,14 +75,51 @@
             android:background="@drawable/ic_player_play"
             android:src="@drawable/ic_play_stop" />
 
-        <Spinner
-            android:id="@+id/playback_speed"
-            style="@style/spinnerStyle"
-            android:layout_width="55dp"
+        <LinearLayout
+            android:id="@+id/mp_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_below="@id/playback_seekbar"
+            android:layout_alignStart="@+id/playback_seekbar"
+            android:layout_alignEnd="@+id/playback_seekbar"
             android:layout_centerHorizontal="true"
-            android:entries="@array/mp_speed_name"
-            android:entryValues="@array/mp_speed_value" />
+            android:orientation="horizontal"
+            android:paddingStart="60dp"
+            android:paddingEnd="60dp">
+
+            <CheckBox
+                android:id="@+id/playback_loop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:button="@drawable/checkbox_loop"
+                android:gravity="center_vertical"
+                android:scaleX="0.7"
+                android:scaleY="0.7" />
+
+            <EditText
+                android:id="@+id/loopCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="-15dp"
+                android:inputType="number"
+                android:maxLines="1"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:visibility="invisible" />
+
+            <Spinner
+                android:id="@+id/playback_speed"
+                style="@style/SpinnerStyle"
+                android:layout_width="55dp"
+                android:gravity="center_vertical"
+                android:entries="@array/mp_speed_name"
+                android:entryValues="@array/mp_speed_value" />
+
+        </LinearLayout>
 
     </RelativeLayout>
 

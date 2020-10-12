@@ -38,10 +38,6 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
-import static org.cog.hymnchtv.MainActivity.TOC_BB;
-import static org.cog.hymnchtv.MainActivity.TOC_DB;
-import static org.cog.hymnchtv.MainActivity.TOC_ER;
-import static org.cog.hymnchtv.MainActivity.TOC_XB;
 
 /**
  * The class displays the hymn lyrics content selected by user;
@@ -114,19 +110,19 @@ public class ContentView extends Fragment
      * i.e. er, xb, bb, db followed by the hymn number, a, b, c etc for more than one page;
      * The files are stored in asset respective sub-dir e.g. LYRICS_XB_SCORE
      *
-     * The content view can support up to 5 pages for user vertical scrolling
+     * The content view can support up to 5 pages for user vertical scrolls
      *
-     * @param lyricsType see below cases
-     * @param index hymn index provided by the page adapter when use scroll
+     * @param hymnType see below cases
+     * @param hymnIndex hymn index provided by the page adapter when user scroll
      */
-    private void updateHymnContent(String lyricsType, int index)
+    private void updateHymnContent(String hymnType, int hymnIndex)
     {
         String resPrefix;
         String resFName = "";
 
-        int[] hymnInfo = HymnIdx2NoConvert.hymnIdx2NoConvert(lyricsType, index);
+        int[] hymnInfo = HymnIdx2NoConvert.hymnIdx2NoConvert(hymnType, hymnIndex);
 
-        switch (lyricsType) {
+        switch (hymnType) {
             case HYMN_ER:
                 resPrefix = LYRICS_ER_SCORE + hymnInfo[0];
                 resFName = LYRICS_ER_TEXT + "er" + hymnInfo[0] + ".txt";
@@ -147,30 +143,9 @@ public class ContentView extends Fragment
                 resFName = LYRICS_DBS_TEXT + hymnInfo[0] + ".txt";
                 break;
 
-            case TOC_ER:
-                resPrefix = LYRICS_TOC + "er_toc";
-                break;
-
-            case TOC_XB:
-                resPrefix = LYRICS_TOC + "xb_toc";
-                break;
-
-            case TOC_BB:
-                resPrefix = LYRICS_TOC + "bb_toc";
-                break;
-
-            case TOC_DB:
-                resPrefix = LYRICS_TOC + "db_toc";
-                break;
-
-            default: //if (HYMN_ER.equals(mSelect)) {
-                resPrefix = LYRICS_ER_SCORE + "er" + hymnInfo[0];
-        }
-
-        // Show Hymn TOC content and return
-        if (resPrefix.startsWith(LYRICS_TOC)) {
-            showLyricsToc(resPrefix, index);
-            return;
+            default:
+                Timber.e("Unsupported content type: %s", hymnType);
+                return;
         }
 
         // Show Hymn Lyric Scores for the selected hymnNo
@@ -182,22 +157,8 @@ public class ContentView extends Fragment
     }
 
     /**
-     * Display the selected Hymn TOC page
-     *
-     * @param resPrefix TOC fileName prefix
-     * @param index the TOC index page
-     */
-    private void showLyricsToc(String resPrefix, int index)
-    {
-        if (resPrefix.startsWith(LYRICS_TOC)) {
-            String resName = resPrefix + index + ((index > 19) ? ".jpg" : ".png");
-            Uri resUri = Uri.fromFile(new File("//android_asset/", resName));
-            MyGlideApp.loadImage(mContentView, resUri);
-        }
-    }
-
-    /**
-     * Display the selected Hymn Lyric Scores
+     * Display the selected Hymn Lyric Scores. Scores with multi-pages have suffixed with a, b, c and d.
+     * i.e. support a total of 5 pages maximum.
      *
      * @param resPrefix The selected Hymn Lyric scores fileName prefix
      * @param hymnInfo Contain info the hymnNo and number of pages of the selected hymn Lyric Scores
@@ -250,7 +211,7 @@ public class ContentView extends Fragment
     }
 
     /**
-     * Display the selecte hymn lyrics text
+     * Display the selected hymn lyrics text
      *
      * @param resFName Lyrics text resource fileName
      */

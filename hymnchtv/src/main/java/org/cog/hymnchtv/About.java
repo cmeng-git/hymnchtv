@@ -108,6 +108,7 @@ public class About extends FragmentActivity implements View.OnClickListener
             case R.id.ok_button:
                 finish();
                 break;
+
             case R.id.check_new_version:
                 new Thread()
                 {
@@ -118,6 +119,7 @@ public class About extends FragmentActivity implements View.OnClickListener
                     }
                 }.start();
                 break;
+
             case R.id.history_log:
                 ChangeLog cl = new ChangeLog(this, DEFAULT_CSS);
                 cl.getFullLogDialog().show();
@@ -126,6 +128,7 @@ public class About extends FragmentActivity implements View.OnClickListener
             case R.id.hymnchtv_link:
                 // hymnUrlAccess(this, getString(R.string.gui_help_link));
                 break;
+
             default:
                 finish();
                 break;

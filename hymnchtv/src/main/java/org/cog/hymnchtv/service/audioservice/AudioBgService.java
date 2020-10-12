@@ -53,6 +53,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
 
     // Playback without any UI update
     public static final String ACTION_PLAYBACK_PLAY = "playback_play";
+    public static final String ACTION_PLAYBACK_LOOP = "playback_loop";
     public static final String ACTION_PLAYBACK_SPEED = "playback_speed";
 
     // Media player broadcast status parameters
@@ -93,6 +94,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     private MediaRecorder mRecorder = null;
 
     private Map<Uri, MediaPlayer> uriPlayers = new ConcurrentHashMap<>();
+    private Map<Uri, Integer> playbackCounts = new ConcurrentHashMap<>();
 
     private long startTime = 0L;
 
@@ -100,6 +102,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     private Handler mHandlerRecord;
 
     private static float playbackSpeed = 1.0f;
+    private static int mLoopCount = 1;
 
     // The Google ASR input requirements state that audio input sensitivity should be set such
     // that 90 dB SPL_LEVEL at 1000 Hz yields RMS of 2500 for 16-bit samples,
@@ -148,6 +151,16 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
             case ACTION_PLAYBACK_PLAY:
                 fileUri = intent.getData();
                 playerPlay(fileUri);
+                break;
+
+            case ACTION_PLAYBACK_LOOP:
+                mLoopCount = 1;
+                try {
+                    String loopValue = intent.getType();
+                    mLoopCount = Integer.parseInt(loopValue);
+                } catch (NumberFormatException e) {
+                    Timber.w("loopCount must be integer in string!");
+                }
                 break;
 
             case ACTION_PLAYBACK_SPEED:
@@ -254,7 +267,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
      * Return the status of current active player if present; keep the state as it
      * else get the media file info and release player to conserve resource
      *
-     * @param uri Media file uri
+     * @param uri the media file uri
      */
     public void playerInit(Uri uri)
     {
@@ -295,7 +308,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     /**
      * Reinit an existing player and return its status
      *
-     * @param uri Media file uri
+     * @param uri the media file uri
      */
     private void playerReInit(Uri uri)
     {
@@ -332,13 +345,14 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
      * Start playing back on existing player or create new if none
      * Broadcast the player satus at regular interval
      *
-     * @param uri Media file uri
+     * @param uri the media file uri
      */
     public void playerStart(Uri uri)
     {
         if (uri == null)
             return;
 
+        Timber.w("start player for: %s", fileUri.getLastPathSegment());
         mPlayer = uriPlayers.get(uri);
         if (mPlayer == null) {
             playerCreate(uri);
@@ -352,6 +366,8 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
                 PlaybackParams playPara = mPlayer.getPlaybackParams().setSpeed(playbackSpeed);
                 mPlayer.setPlaybackParams(playPara);
             }
+            // mPlayer.setLooping(mLoopCount > 1);
+            playbackCounts.put(uri, mLoopCount);
             mPlayer.start();
             playbackState(PlaybackState.play, uri);
         } catch (Exception e) {
@@ -366,7 +382,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
      * Start playing back on existing player or create new if none
      * Broadcast the player satus at regular interval
      *
-     * @param uri Media file uri
+     * @param uri the media file uri
      */
     public void playerSeek(Uri uri, int seekPosition)
     {
@@ -390,7 +406,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     /**
      * Release the player resource and remove it from uriPlayers
      *
-     * @param uri Media file uri
+     * @param uri the media file uri
      */
     private void playerRelease(Uri uri)
     {
@@ -425,7 +441,15 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
             stopSelf();
         }
         else {
-            playerRelease(fileUri);
+            Integer count = playbackCounts.get(fileUri);
+            if (count == null || --count <= 0) {
+                playbackCounts.remove(fileUri);
+                playerRelease(fileUri);
+            }
+            else {
+                mp.start();
+                playbackCounts.put(fileUri, --count);
+            }
         }
     }
 

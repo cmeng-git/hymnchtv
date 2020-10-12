@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textItemDropDown"
+    style="@style/SpinnerItem.DropDownItem"
+    android:ellipsize="marquee"
+    android:singleLine="true" />

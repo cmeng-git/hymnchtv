@@ -35,6 +35,9 @@
 			android:name="org.cog.hymnchtv.ContentSearch" />
 
         <activity
+            android:name="org.cog.hymnchtv.HymnToc" />
+
+        <activity
             android:name=".utils.DialogActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@android:style/Theme.Holo.Dialog.MinWidth" />
