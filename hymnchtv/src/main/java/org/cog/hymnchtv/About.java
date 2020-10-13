@@ -22,6 +22,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -78,7 +79,12 @@ public class About extends FragmentActivity implements View.OnClickListener
 
         TextView copyRight = findViewById(R.id.copyRight);
         copyRight.setMovementMethod(LinkMovementMethod.getInstance());
-        copyRight.setText(Html.fromHtml(getResources().getString(R.string.gui_copyright)));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            copyRight.setText(Html.fromHtml(getString(R.string.gui_copyright) , Html.FROM_HTML_MODE_LEGACY));
+        } else {
+            copyRight.setText(Html.fromHtml(getString(R.string.gui_copyright)));
+        }
+
 
         findViewById(R.id.ok_button).setOnClickListener(this);
         findViewById(R.id.check_new_version).setOnClickListener(this);

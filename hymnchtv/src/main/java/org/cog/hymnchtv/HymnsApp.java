@@ -28,6 +28,7 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.*;
 
 import org.cog.hymnchtv.impl.timberlog.TimberLogImpl;
@@ -109,7 +110,11 @@ public class HymnsApp extends Application implements LifecycleObserver
 
         // Get android device screen display size
         Point size = new Point();
-        ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            mInstance.getDisplay().getSize(size);
+        } else {
+            ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
+        }
         screenWidth = size.x;
         screenHeight = size.y;
 

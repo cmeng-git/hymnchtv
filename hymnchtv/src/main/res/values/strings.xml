@@ -39,8 +39,6 @@
     <string name="hymn_info_media_none">对不起！此项目前没有播放文件</string>
     <string name="hymn_info_sp_none">您选择的项目,没有附歌</string>
 
-    <string name="info_midi_playback_noloop">不建议\'midi\'媒体播放重复，有同步问题</string>
-
     <!-- Update checker -->
     <string name="gui_app_new_available">有新的软件版本: %1$s</string>
     <string name="gui_download">下载</string>

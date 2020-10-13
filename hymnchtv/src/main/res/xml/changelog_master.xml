@@ -6,6 +6,11 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.3.4 (10/13/2020)" versioncode="103040">
+        <change>实施多个midi媒体重复播放同步解决方案</change>
+        <change>修复媒体播放速度'1.1x'倍错误导致应用程序中止</change>
+    </release>
+
     <release version="1.3.3 (10/12/2020)" versioncode="103030">
         <change>添加目录分类: "诗歌类别"，"笔画索引"，和"拼音索引"</change>
         <change>单击目录选择项目，直接进入诗歌歌词界面</change>

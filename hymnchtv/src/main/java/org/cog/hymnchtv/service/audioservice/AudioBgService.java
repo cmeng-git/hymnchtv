@@ -30,8 +30,7 @@ import org.cog.hymnchtv.persistance.FileBackend;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import timber.log.Timber;
@@ -94,7 +93,9 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     private MediaRecorder mRecorder = null;
 
     private Map<Uri, MediaPlayer> uriPlayers = new ConcurrentHashMap<>();
-    private Map<Uri, Integer> playbackCounts = new ConcurrentHashMap<>();
+
+    // Map contains the running loop count for the reference media player
+    private Map<MediaPlayer, Integer> playbackCounts = new ConcurrentHashMap<>();
 
     private long startTime = 0L;
 
@@ -367,7 +368,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
                 mPlayer.setPlaybackParams(playPara);
             }
             // mPlayer.setLooping(mLoopCount > 1);
-            playbackCounts.put(uri, mLoopCount);
+            playbackCounts.put(mPlayer, mLoopCount);
             mPlayer.start();
             playbackState(PlaybackState.play, uri);
         } catch (Exception e) {
@@ -428,7 +429,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     // Listener for playback completion
 
     /**
-     * callback from media player when playback of a media source has completed.
+     * callback from the specific media player when playback of a media source has completed.
      *
      * @param mp Media Player instance
      */
@@ -441,14 +442,48 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
             stopSelf();
         }
         else {
-            Integer count = playbackCounts.get(fileUri);
-            if (count == null || --count <= 0) {
-                playbackCounts.remove(fileUri);
-                playerRelease(fileUri);
+            checkLoopSyncAction(mp);
+        }
+    }
+
+    /**
+     * Routine to check loop action, and ensure multiple uri playback are synchronized (within for loop delay < 10ms)
+     * Note: the midi main and accompany may have a slightly different length
+     *
+     * @param mp the mediaplayer that has completed current loop playback
+     */
+    private void checkLoopSyncAction(MediaPlayer mp)
+    {
+        Integer count = playbackCounts.get(mp) - 1;
+        playbackCounts.put(mp, count);
+        Set<MediaPlayer> mps = playbackCounts.keySet();
+
+        boolean mpRestart = true;
+        Integer loopCount = -1;
+        for (Integer cnt : playbackCounts.values()) {
+            if ((loopCount != -1) && !loopCount.equals(cnt)) {
+                mpRestart = false;
             }
-            else {
-                mp.start();
-                playbackCounts.put(fileUri, --count);
+            if (loopCount < cnt) {
+                loopCount = cnt;
+            }
+        }
+
+        // Timber.d("Media Player restart status: %s, %s (%s)", mpRestart, loopCount, mp);
+        if (loopCount <= 0) {
+            for (MediaPlayer mpx : mps) {
+                // Timber.d("Media Player release: %s (%s)", mpx, getUriByPlayer(mpx));
+                playbackCounts.remove(mpx);
+                playerRelease(getUriByPlayer(mpx));
+            }
+        }
+        else if (mpRestart) {
+            try {
+                for (MediaPlayer mpx : mps) {
+                    mpx.start();
+                }
+            } catch (IllegalStateException e) {
+                Timber.w("MediaPlayer start with illegal state: %s", e.getMessage());
             }
         }
     }

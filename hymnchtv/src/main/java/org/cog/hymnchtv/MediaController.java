@@ -22,8 +22,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
+import android.os.*;
 import android.text.method.ScrollingMovementMethod;
 import android.view.*;
 import android.widget.*;
@@ -41,6 +40,7 @@ import java.util.*;
 import timber.log.Timber;
 
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
+import static org.cog.hymnchtv.service.audioservice.AudioBgService.PlaybackState;
 
 /**
  * Class implements the media player UI. It provides the full media playback control
@@ -147,10 +147,6 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
         edLoopCount.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 onLoopValueChange();
-
-                if ((MediaType.HYMN_MIDI == mMediaType) && !"1".equals(ViewUtil.toString(edLoopCount))) {
-                    HymnsApp.showToastMessage(R.string.info_midi_playback_noloop);
-                }
                 return true;
             }
             return false;
@@ -327,9 +323,12 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
             playerStop();
         }
 
-        // Clear the hymns list on stopPlay, allowing playback to fetch new if user changes the hymn
-        mediaHymns.clear();
-        initHymnInfo(mContentHandler.getHymnInfo());
+        /*
+         * Clear the hymns list on stopPlay, allowing playback to fetch new if user changes the hymn
+         * Let MpBroadcastReceiver perform the required task, else has problem in Stop state update
+         */
+        // mediaHymns.clear();
+        // initHymnInfo(mContentHandler.getHymnInfo());
     }
 
     @Override
@@ -572,8 +571,10 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            // proceed only if it is the playback of the current mUri
-            if (mUri == null || !mUri.equals(intent.getParcelableExtra(AudioBgService.PLAYBACK_URI)))
+            // proceed only if it is the playback of the current Uri
+            Uri uri = intent.getParcelableExtra(AudioBgService.PLAYBACK_URI);
+            // Timber.d("Audio playback state: %s: %s", intent.getAction(), uri.getPath());
+            if (uri == null || !mediaHymns.contains(uri))
                 return;
 
             int position = intent.getIntExtra(AudioBgService.PLAYBACK_POSITION, 0);
@@ -588,10 +589,9 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
 
             }
             else if (AudioBgService.PLAYBACK_STATE.equals(intent.getAction())) {
-                AudioBgService.PlaybackState playbackState
-                        = (AudioBgService.PlaybackState) intent.getSerializableExtra(AudioBgService.PLAYBACK_STATE);
+                PlaybackState playbackState = (PlaybackState) intent.getSerializableExtra(AudioBgService.PLAYBACK_STATE);
+                Timber.d("Audio playback state: %s (%s/%s): %s", playbackState, position, audioDuration, uri.getPath());
 
-                Timber.d("Audio playback state: %s (%s/%s): %s", playbackState, position, audioDuration, mUri.getPath());
                 switch (playbackState) {
                     case init:
                         playerState = STATE_IDLE;
@@ -615,10 +615,21 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
 
                     case stop:
                         playerState = STATE_STOP;
-                        bcRegisters.remove(mUri);
-                        LocalBroadcastManager.getInstance(mContentHandler).unregisterReceiver(mReceiver);
+                        /*
+                         * actually bcRegisters contains the same receivers i.e. MediaController.this
+                         * So can just handle once by first incoming midi uri instance
+                         */
+                        // bcRegisters.remove(uri);
+                        // mediaHymns.remove(uri);
+                        // if (mediaHymns.isEmpty())
+                        //    LocalBroadcastManager.getInstance(mContentHandler).unregisterReceiver(mReceiver);
 
+                        bcRegisters.clear();
+
+                        // Clear the hymns list on stopPlay, allowing playback to fetch new if user changes the hymn
                         mediaHymns.clear();
+
+                        LocalBroadcastManager.getInstance(mContentHandler).unregisterReceiver(mReceiver);
                         initHymnInfo(mContentHandler.getHymnInfo());
                         // flow through
 
