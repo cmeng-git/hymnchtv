@@ -17,7 +17,6 @@
 package org.cog.hymnchtv;
 
 import android.annotation.SuppressLint;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.*;
@@ -28,7 +27,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import org.cog.hymnchtv.glide.MyGlideApp;
 import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
+
+import com.google.android.vending.expansion.zipfile.APKExpansionSupport;
+import com.google.android.vending.expansion.zipfile.ZipResourceFile;
 
 import java.io.*;
 
@@ -70,6 +73,8 @@ public class ContentView extends Fragment
     private View mConvertView;
     private ImageView mContentView = null;
 
+    private ZipResourceFile zipResFile;
+
     // Need this to prevent crash on rotation if there are other constructors implementation
     // public ContentView()
     // {
@@ -96,6 +101,12 @@ public class ContentView extends Fragment
     {
         super.onResume();
         registerForContextMenu(lyricsView);
+
+        try {
+            zipResFile = APKExpansionSupport.getAPKExpansionZipFile(getContext(), 104000, -1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -120,27 +131,27 @@ public class ContentView extends Fragment
         String resPrefix;
         String resFName = "";
 
-        int[] hymnInfo = HymnIdx2NoConvert.hymnIdx2NoConvert(hymnType, hymnIndex);
+        int[] hymnScoreInfo = HymnIdx2NoConvert.hymnIdx2NoConvert(hymnType, hymnIndex);
 
         switch (hymnType) {
             case HYMN_ER:
-                resPrefix = LYRICS_ER_SCORE + hymnInfo[0];
-                resFName = LYRICS_ER_TEXT + "er" + hymnInfo[0] + ".txt";
+                resPrefix = LYRICS_ER_SCORE + hymnScoreInfo[0];
+                resFName = LYRICS_ER_TEXT + "er" + hymnScoreInfo[0] + ".txt";
                 break;
 
             case HYMN_XB:
-                resPrefix = LYRICS_XB_SCORE + "xb" + hymnInfo[0];
-                resFName = LYRICS_XB_TEXT + "xb" + hymnInfo[0] + ".txt";
+                resPrefix = LYRICS_XB_SCORE + "xb" + hymnScoreInfo[0];
+                resFName = LYRICS_XB_TEXT + "xb" + hymnScoreInfo[0] + ".txt";
                 break;
 
             case HYMN_BB:
-                resPrefix = LYRICS_BB_SCORE + "bb" + hymnInfo[0];
-                resFName = LYRICS_BBS_TEXT + hymnInfo[0] + ".txt";
+                resPrefix = LYRICS_BB_SCORE + "bb" + hymnScoreInfo[0];
+                resFName = LYRICS_BBS_TEXT + hymnScoreInfo[0] + ".txt";
                 break;
 
             case HYMN_DB:
-                resPrefix = LYRICS_DB_SCORE + "db" + hymnInfo[0];
-                resFName = LYRICS_DBS_TEXT + hymnInfo[0] + ".txt";
+                resPrefix = LYRICS_DB_SCORE + "db" + hymnScoreInfo[0];
+                resFName = LYRICS_DBS_TEXT + hymnScoreInfo[0] + ".txt";
                 break;
 
             default:
@@ -149,7 +160,7 @@ public class ContentView extends Fragment
         }
 
         // Show Hymn Lyric Scores for the selected hymnNo
-        showLyricsScore(resPrefix, hymnInfo);
+        showLyricsScore(resPrefix, hymnScoreInfo);
 
         // Show Hymn Lyric Text for the selected hymnNo
         if (!TextUtils.isEmpty(resFName))
@@ -161,22 +172,24 @@ public class ContentView extends Fragment
      * i.e. support a total of 5 pages maximum.
      *
      * @param resPrefix The selected Hymn Lyric scores fileName prefix
-     * @param hymnInfo Contain info the hymnNo and number of pages of the selected hymn Lyric Scores
+     * @param hymnScoreInfo Contain info for the hymnNo and number of pages of the selected Lyric Scores
      */
-    private void showLyricsScore(String resPrefix, int[] hymnInfo)
+    private void showLyricsScore(String resPrefix, int[] hymnScoreInfo)
     {
-        int pages = hymnInfo[1]; // The number of pages for the current hymn number
+        int pages = hymnScoreInfo[1]; // The number of pages for the current hymn number
         ImageView contentView;
 
         String resName = resPrefix + ".png";
-        Uri resUri = Uri.fromFile(new File("//android_asset/", resName));
-        MyGlideApp.loadImage(mContentView, resUri);
+        // Uri resUri = Uri.fromFile(new File("//android_asset/", resName));
+        // MyGlideApp.loadImage(mContentView, resUri);
+
+        MyGlideApp.loadImage(mContentView, resName);
 
         if (pages > 1) {
             contentView = mConvertView.findViewById(R.id.contentView_a);
             resName = resPrefix + "a.png";
-            resUri = Uri.fromFile(new File("//android_asset/", resName));
-            MyGlideApp.loadImage(contentView, resUri);
+            // resUri = Uri.fromFile(new File("//android_asset/", resName));
+            MyGlideApp.loadImage(contentView, resName);
         }
         else {
             return;
@@ -185,8 +198,8 @@ public class ContentView extends Fragment
         if (pages > 2) {
             contentView = mConvertView.findViewById(R.id.contentView_b);
             resName = resPrefix + "b.png";
-            resUri = Uri.fromFile(new File("//android_asset/", resName));
-            MyGlideApp.loadImage(contentView, resUri);
+            // resUri = Uri.fromFile(new File("//android_asset/", resName));
+            MyGlideApp.loadImage(contentView, resName);
         }
         else {
             return;
@@ -195,8 +208,8 @@ public class ContentView extends Fragment
         if (pages > 3) {
             contentView = mConvertView.findViewById(R.id.contentView_c);
             resName = resPrefix + "c.png";
-            resUri = Uri.fromFile(new File("//android_asset/", resName));
-            MyGlideApp.loadImage(contentView, resUri);
+            // resUri = Uri.fromFile(new File("//android_asset/", resName));
+            MyGlideApp.loadImage(contentView, resName);
         }
         else {
             return;
@@ -205,8 +218,8 @@ public class ContentView extends Fragment
         if (pages > 4) {
             contentView = mConvertView.findViewById(R.id.contentView_d);
             resName = resPrefix + "d.png";
-            resUri = Uri.fromFile(new File("//android_asset/", resName));
-            MyGlideApp.loadImage(contentView, resUri);
+            // resUri = Uri.fromFile(new File("//android_asset/", resName));
+            MyGlideApp.loadImage(contentView, resName);
         }
     }
 

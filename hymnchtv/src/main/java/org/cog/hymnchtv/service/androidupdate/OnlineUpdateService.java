@@ -94,7 +94,7 @@ public class OnlineUpdateService extends IntentService
             nBuilder = new NotificationCompat.Builder(this, NotificationHelper.DEFAULT_GROUP);
 
             String msgString = getString(R.string.gui_app_new_available, updateService.getLatestVersion());
-            nBuilder.setSmallIcon(R.drawable.ic_hymn);
+            nBuilder.setSmallIcon(R.drawable.hymnchtv);
             nBuilder.setWhen(System.currentTimeMillis());
             nBuilder.setAutoCancel(true);
             nBuilder.setTicker(msgString);

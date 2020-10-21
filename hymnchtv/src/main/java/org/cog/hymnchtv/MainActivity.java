@@ -29,6 +29,7 @@ import android.widget.*;
 
 import androidx.fragment.app.FragmentActivity;
 
+import org.cog.hymnchtv.xapk.xAPKDownloaderActivity;
 import org.cog.hymnchtv.persistance.PermissionUtils;
 import org.cog.hymnchtv.utils.HymnNo2IdxConvert;
 
@@ -256,6 +257,17 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             tv_Search.setText(sValue);
             return true;
         });
+
+        // Checking for the presence of the OBB xAPK file
+        xAPKFilesCheckedAndDownloadIfRequired();
+    }
+
+    private void xAPKFilesCheckedAndDownloadIfRequired() {
+        if (!xAPKDownloaderActivity.xAPKFilesDelivered(this)) {
+            Intent intent = new Intent();
+            intent.setClass(this, xAPKDownloaderActivity.class);
+            startActivity(intent);
+        }
     }
 
     // 目录 Spinner selector handler
@@ -700,6 +712,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 // HymnIdx2NoConvert.validateIdx2NoConversion(HYMN_ER, HYMN_ER_INDEX_MAX);
                 HymnNo2IdxConvert.validateNo2IdxConversion(HYMN_DB, HYMN_DB_NO_TMAX);
                 // Hymn2SnConvert.startConvert(); use for old to new file name conversion for 1.1.0 only
+                return true;
+
+            case R.id.online_help:
+                About.hymnUrlAccess(this, About.HYMNCHTV_HTTP_LINK);
                 return true;
 
             case R.id.about:

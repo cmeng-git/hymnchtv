@@ -1,6 +1,21 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	10/21/2020
+Version:		1.3.5 (103050)
+- Migrate to use android OBB objects to reduce the size of the main apk file
+- Add support OBBFile object and InputStream to Glide image loader
+- Import play-apk-expansion and play-licensing for OBB support
+- Add xAPK download support libraries i.e.
+  * https://github.com/google/play-apk-expansion
+  * https://github.com/google/play-licensing
+- For xAPK build, create a zip main.104000.org.cog.hymnchtv.obb with contents from assests/lyrics_xx_scores,
+  with file path name, then remove lyrics_xx_scores before build. The obb file is copied to Android/obb/org.cog.hymnchtv/
+- xAPK version not relase to user as android has moved to use Play Asset Delivery
+  https://developer.android.com/guide/app-bundle/asset-delivery
+
+=========================================================================
+Author:         cmeng
 Upload Date:	10/13/2020
 Version:		1.3.4 (103040)
 - Implement multiple midi media repeat playback synchronization solution to within 'for' loop (< 5ms)

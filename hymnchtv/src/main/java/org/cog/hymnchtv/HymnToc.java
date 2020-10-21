@@ -305,7 +305,7 @@ public class HymnToc extends FragmentActivity
 
             // 新歌颂咏 in LYRICS_XB_TEXT
             case HYMN_XB:
-                setTitle(getString(R.string.hymn_title_bb) + "：" + tocPage);
+                setTitle(getString(R.string.hymn_title_xb) + "：" + tocPage);
 
                 switch (tocPage) {
                     case TOC_STROKE:

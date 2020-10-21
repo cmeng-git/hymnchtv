@@ -6,7 +6,7 @@
 - 为安卓设计的赞美诗歌词页面浏览器,查看和播放器
 - 使用最新的FragmentPagerAdapter进行平滑滚动更顺畅
 - 直接输入诗歌编号以显示歌词；或从目录分类进入:
-  <br/>"诗歌类别"，"笔画索引"，和"拼音索引"</change>
+  <br/>"诗歌类别"，"笔画索引"，和"拼音索引"
 - 以最大允许的屏幕大小，同时显示诗歌乐谱和歌词文本
 - 手机横向模式时，乐谱和歌词文本，显示自动加大150%，易于阅读
 - 开发新的媒体播放器用户界面。给用户最大的控制权
@@ -39,8 +39,11 @@
 * [Android Support Library](https://developer.android.com/topic/libraries/support-library/index.html)
 * [annotations-java5](https://mvnrepository.com/artifact/org.jetbrains/annotations)
 * [ckChangeLog](https://github.com/cketti/ckChangeLog)
+* [commons-lang](https://commons.apache.org/proper/commons-lang/)
 * [glide](https://github.com/bumptech/glide)
-* [httpmime](http://hc.apache.org/httpcomponents-core-ga/)
+* [httpcore](http://hc.apache.org/httpcomponents-core-ga/)
+* [play-apk-expansion](https://github.com/google/play-apk-expansion)
+* [play-licensing](https://github.com/google/play-licensing)
 * [Timber](https://github.com/JakeWharton/timber)
 
 ## 文献资料

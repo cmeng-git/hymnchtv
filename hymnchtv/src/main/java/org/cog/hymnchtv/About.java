@@ -26,7 +26,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.TextView;
@@ -44,12 +43,17 @@ import de.cketti.library.changelog.ChangeLog;
  */
 public class About extends FragmentActivity implements View.OnClickListener
 {
+    public static String HYMNCHTV_HTTP_LINK = "https://cmeng-git.github.io/hymnchtv/";
+
     private static String[][] USED_LIBRARIES = new String[][]{
             new String[]{"Android Support Library", "https://developer.android.com/topic/libraries/support-library/index.html"},
             new String[]{"annotations-java5", "https://mvnrepository.com/artifact/org.jetbrains/annotations"},
             new String[]{"ckChangeLog", "https://github.com/cketti/ckChangeLog"},
             new String[]{"commons-lang", "https://commons.apache.org/proper/commons-lang/"},
             new String[]{"glide", "https://github.com/bumptech/glide"},
+            new String[]{"httpcore", "https://hc.apache.org/httpcomponents-core-ga"},
+            new String[]{"play-apk-expansion", "https://github.com/google/play-apk-expansion"},
+            new String[]{"play-licensing", "https://github.com/google/play-licensing"},
             new String[]{"Timber", "https://github.com/JakeWharton/timber"},
     };
 
@@ -80,8 +84,9 @@ public class About extends FragmentActivity implements View.OnClickListener
         TextView copyRight = findViewById(R.id.copyRight);
         copyRight.setMovementMethod(LinkMovementMethod.getInstance());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            copyRight.setText(Html.fromHtml(getString(R.string.gui_copyright) , Html.FROM_HTML_MODE_LEGACY));
-        } else {
+            copyRight.setText(Html.fromHtml(getString(R.string.gui_copyright), Html.FROM_HTML_MODE_LEGACY));
+        }
+        else {
             copyRight.setText(Html.fromHtml(getString(R.string.gui_copyright)));
         }
 
@@ -132,7 +137,7 @@ public class About extends FragmentActivity implements View.OnClickListener
                 break;
             case R.id.hymnchtv_help:
             case R.id.hymnchtv_link:
-                // hymnUrlAccess(this, getString(R.string.gui_help_link));
+                hymnUrlAccess(this, HYMNCHTV_HTTP_LINK);
                 break;
 
             default:
@@ -144,7 +149,7 @@ public class About extends FragmentActivity implements View.OnClickListener
     public static void hymnUrlAccess(Context context, String url)
     {
         if (url == null)
-            url = context.getString(R.string.gui_help_link);
+            url = HYMNCHTV_HTTP_LINK;
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
         context.startActivity(intent);

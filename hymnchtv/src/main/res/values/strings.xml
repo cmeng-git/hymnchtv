@@ -3,16 +3,16 @@
     <string name="app_name">诗歌本</string>
     <string name="app_title_main">书拉密女小站-诗歌本</string>
 
-    <string name="gui_about">关与及检查更新</string>
+    <string name="gui_about">关于</string>
     <string name="gui_app_libraries">诗歌本程序使用以下第三方库： %1$s</string>
     <string name="gui_cancel">取消</string>
     <string name="gui_close">关闭</string>
     <string name="gui_copyright">Copyright@2020, Eng Chong Meng
         &lt;br/>&lt;a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0&lt;/a>
         &lt;br/>All rights reserved.</string>
-    <!--    <string name="gui_help_link"><a href="https://cmeng-git.github.io">网上帮助-开发中</a></string>-->
+    <!--<string name="gui_hymnchtv_link"><a href="https://cmeng-git.github.io/hymnchtv/">网上帮助</a></string>&ndash;&gt;-->
     <string name="gui_exit">退出</string>
-    <string name="gui_help_link">网上帮助-开发中</string>
+    <string name="gui_help_online">网上帮助</string>
     <string name="gui_hymn_sn_convert">诗歌数字转换测试</string>
     <string name="gui_in_development">仍在开发中</string>
     <string name="gui_ok">确认</string>
@@ -143,7 +143,7 @@
     <string name="play">播放</string>
     <string name="home">主页</string>
 
-    <string name="bg">背景</string>
+    <string name="wall_paper">墙纸</string>
     <string name="checkup">检查升级</string>
     <string name="stext">设置主面版文字大小</string>
     <string name="sptext">设置播放条文字大小</string>
@@ -213,5 +213,26 @@
         &lt;br/>\u25AA 长按播放按钮后，可再次从头开始播放。
         &lt;br/>\u25AA 将手机置于横向模式以显示更大字幕。
         &lt;br/>技术有限希望对弟兄姐妹有用！</string>
+
+<!--    <string name="app_name">APKX Downloader</string>-->
+    <string name="text_paused_cellular">Would you like to enable downloading over cellular connections? Depending on your data plan, this may cost you money.</string>
+    <string name="text_paused_cellular_2">If you choose not to enable downloading over cellular connections, the download will automatically resume when wi-fi is available.</string>
+    <string name="text_button_resume_cellular">Resume download</string>
+    <string name="text_button_wifi_settings">Wi-Fi settings</string>
+    <string name="text_verifying_download">Verifying Download</string>
+    <string name="text_validation_complete">XAPK File Validation Complete. Select OK to return to app.</string>
+    <string name="text_validation_failed">XAPK File Validation Failed.</string>
+    <string name="text_button_pause">Pause Download</string>
+    <string name="text_button_resume">Resume Download</string>
+    <string name="text_button_cancel">Cancel</string>
+    <string name="text_button_cancel_verify">Cancel Verification</string>
+
+    <string name="read_permission_denied">READ_EXTERNAL_STORAGE permission request was denied.</string>
+    <string name="read_permission_justification">READ_EXTERNAL_STORAGE permission is required to read expansion files.</string>
+    <string name="read_permission_requesting">"Permission is not available. Requesting READ_EXTERNAL_STORAGE permission."</string>
+
+    <string name="write_permission_denied">WRITE_EXTERNAL_STORAGE permission request was denied.</string>
+    <string name="write_permission_justification">WRITE_EXTERNAL_STORAGE permission is required to download expansion files.</string>
+    <string name="write_permission_requesting">"Permission is not available. Requesting WRITE_EXTERNAL_STORAGE permission."</string>
 
 </resources>

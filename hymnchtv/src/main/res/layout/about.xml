@@ -29,7 +29,7 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:gravity="center_vertical"
-                    android:src="@drawable/ic_hymn" />
+                    android:src="@drawable/hymnchtv" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -72,8 +72,9 @@
                 android:layout_marginBottom="16dp"
                 android:layout_marginTop="10dp"
                 android:textSize="16sp"
+                android:textColor="@color/color_accent"
                 android:gravity="center_horizontal"
-                android:text="@string/gui_help_link" />
+                android:text="@string/gui_help_online" />
 
             <WebView
                 android:id="@+id/AboutDialog_Info"
@@ -88,23 +89,23 @@
     <LinearLayout
         android:id="@+id/button_Container"
         style="?android:attr/buttonBarStyle"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="20dp"
         android:layout_alignParentBottom="true"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:paddingTop="20dp">
 
         <Button
             android:id="@+id/history_log"
             style="@style/Button"
             android:text="@string/show_history_log" />
 
-
         <Button
             android:id="@+id/check_new_version"
             style="@style/Button"
             android:layout_marginStart="2dp"
-            android:text="@string/gui_update_check" />
+            android:text="@string/gui_update_check"
+            android:visibility="visible" />
 
         <Button
             android:id="@+id/ok_button"

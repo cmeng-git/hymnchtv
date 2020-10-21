@@ -192,7 +192,6 @@ public class PermissionUtils
         if (!isGranted) {
             HymnsApp.showToastMessage(R.string.permission_storage_required);
         }
-
         return isGranted;
     }
 }

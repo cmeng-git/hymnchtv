@@ -14,14 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.cog.hymnchtv;
+package org.cog.hymnchtv.glide;
 
 import android.content.Context;
 import android.net.Uri;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Registry;
 import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.module.AppGlideModule;
+
+import org.cog.hymnchtv.*;
+
+import java.io.InputStream;
 
 /**
  * Class load the hymn lyrics into the given image view
@@ -31,6 +37,18 @@ import com.bumptech.glide.module.AppGlideModule;
 @GlideModule
 public class MyGlideApp extends AppGlideModule
 {
+//    @Override
+//    public void applyOptions(Context context, GlideBuilder builder)
+//    {
+//        builder.setMemoryCache(new LruResourceCache(10 * 1024 * 1024));
+//    }
+
+    @Override
+    public void registerComponents(Context context, Glide glide, Registry registry)
+    {
+        registry.append(OBBFile.class, InputStream.class, new OBBStreamLoader.Factory());
+    }
+
     /**
      * Display ResId as image view; Must use ResId instead of Uri, else display incorrect png
      *
@@ -57,13 +75,11 @@ public class MyGlideApp extends AppGlideModule
                 .into(imageView);
     }
 
-
-    public static void loadImageLs(ImageView imageView, int resId)
+    public static void loadImage(ImageView imageView, String path)
     {
         Context ctx = HymnsApp.getGlobalContext();
-
         GlideApp.with(ctx)
-                .load(resId)
+                .load(new OBBFile(ctx, path))
                 .override(HymnsApp.screenWidth, HymnsApp.screenHeight)
                 .error(R.drawable.phrase)
                 .into(imageView);

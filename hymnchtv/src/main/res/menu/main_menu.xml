@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/bg"
-        android:title="@string/bg">
+        android:title="@string/wall_paper">
         <menu>
             <item
                 android:id="@+id/sbg1"
@@ -101,6 +101,10 @@
         android:id="@+id/sn_convert"
         android:visible="false"
         android:title="@string/gui_hymn_sn_convert" />
+
+    <item
+        android:id="@+id/online_help"
+        android:title="@string/gui_help_online" />
 
     <item
         android:id="@+id/about"

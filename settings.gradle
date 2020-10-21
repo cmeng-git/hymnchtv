@@ -1,2 +1,4 @@
 include ':hymnchtv'
+include ':play-licensing'
+include ':play-apk-expansion'
 rootProject.name = "hymnchtv"

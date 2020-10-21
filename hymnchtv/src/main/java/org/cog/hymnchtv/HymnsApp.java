@@ -55,7 +55,7 @@ public class HymnsApp extends Application implements LifecycleObserver
     public static final String ACTION_EXIT = "org.cog.hymnchtv.exit";
 
     /**
-     * Indicate if hymnchtv is in foreground (true) or background (false)
+     * Indicate if hymnchtv is in the foreground (true) or background (false)
      */
     public static boolean isForeground = false;
 
@@ -100,12 +100,11 @@ public class HymnsApp extends Application implements LifecycleObserver
 
         // Do this after WebView(this).destroy(); Set up contextWrapper to use hymnchtv user selected Language
         mInstance = this;
-        //        String language = ConfigurationUtils.getProperty(getString(androidx.lifecycle.R.string.pref_key_locale), "");
-        //        LocaleHelper.setLocale(mInstance, language);
+        // String language = ConfigurationUtils.getProperty(getString(androidx.lifecycle.R.string.pref_key_locale), "");
+        // LocaleHelper.setLocale(mInstance, language);
 
         super.onCreate();
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
-
         mMediaHandler = new MediaHandler();
 
         // Get android device screen display size
@@ -118,7 +117,7 @@ public class HymnsApp extends Application implements LifecycleObserver
         screenWidth = size.x;
         screenHeight = size.y;
 
-        // Purge all the previously downloaded apk
+        // Purge all the previously old downloaded apk
         UpdateServiceImpl.getInstance().removeOldDownloads();
     }
 
