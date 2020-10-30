@@ -20,12 +20,13 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.Registry;
+import com.bumptech.glide.*;
 import com.bumptech.glide.annotation.GlideModule;
+import com.bumptech.glide.load.engine.cache.LruResourceCache;
 import com.bumptech.glide.module.AppGlideModule;
 
-import org.cog.hymnchtv.*;
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.R;
 
 import java.io.InputStream;
 
@@ -46,18 +47,18 @@ public class MyGlideApp extends AppGlideModule
     @Override
     public void registerComponents(Context context, Glide glide, Registry registry)
     {
-        registry.append(OBBFile.class, InputStream.class, new OBBStreamLoader.Factory());
+        registry.append(AssetFile.class, InputStream.class, new AssetStreamLoader.Factory());
     }
 
     /**
      * Display ResId as image view; Must use ResId instead of Uri, else display incorrect png
      *
+     * @param ctx the caller context, glide is ctx lifecycle aware to do the clean up
      * @param imageView image preview holder
      * @param resId the image file resId
      */
-    public static void loadImage(ImageView imageView, int resId)
+    public static void loadImage(Context ctx, ImageView imageView, int resId)
     {
-        Context ctx = HymnsApp.getGlobalContext();
         GlideApp.with(ctx)
                 .load(resId)
                 .override(HymnsApp.screenWidth, HymnsApp.screenHeight)
@@ -65,9 +66,8 @@ public class MyGlideApp extends AppGlideModule
                 .into(imageView);
     }
 
-    public static void loadImage(ImageView imageView, Uri uri)
+    public static void loadImage(Context ctx, ImageView imageView, Uri uri)
     {
-        Context ctx = HymnsApp.getGlobalContext();
         GlideApp.with(ctx)
                 .load(uri)
                 .override(HymnsApp.screenWidth, HymnsApp.screenHeight)
@@ -75,11 +75,10 @@ public class MyGlideApp extends AppGlideModule
                 .into(imageView);
     }
 
-    public static void loadImage(ImageView imageView, String path)
+    public static void loadImage(Context ctx, ImageView imageView, String path)
     {
-        Context ctx = HymnsApp.getGlobalContext();
         GlideApp.with(ctx)
-                .load(new OBBFile(ctx, path))
+                .load(new AssetFile(ctx, path))
                 .override(HymnsApp.screenWidth, HymnsApp.screenHeight)
                 .error(R.drawable.phrase)
                 .into(imageView);

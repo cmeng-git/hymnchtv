@@ -93,8 +93,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     private int hymnNo;
     private int hymnIdx = -1;
 
-    private boolean mPlayMode = true;
-
     private String mSelect;
 
     public PopupWindow pop;
@@ -156,6 +154,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         PagerAdapter mPagerAdapter = new MyPagerAdapter(fragmentManager, mSelect);
 
         ViewPager mPager = findViewById(R.id.viewPager);
+        // default seems to have only created 2 previous items, so omit this statement, otherwise 9 items get created
+        mPager.setOffscreenPageLimit(1);
         mPager.setAdapter(mPagerAdapter);
         mPager.setPageTransformer(true, new DepthPageTransformer());
         // Set the viewPager to the user selected hymn number
@@ -176,7 +176,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
     private void showPlayerUi(boolean show)
     {
-        mMediaController.initPlayerUi(show, mPlayMode);
+        mMediaController.initPlayerUi(show);
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event)
@@ -422,10 +422,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     public List<Uri> getPlayHymn(MediaType mediaType, boolean proceedDownLoad)
     {
         List<Uri> uriList = new ArrayList<>();
-        if (!mPlayMode) {
-            return uriList;
-        }
-
         String dnLink = "";
         String dir = "";
         String tmpName;

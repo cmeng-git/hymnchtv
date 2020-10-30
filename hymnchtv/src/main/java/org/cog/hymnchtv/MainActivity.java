@@ -29,7 +29,6 @@ import android.widget.*;
 
 import androidx.fragment.app.FragmentActivity;
 
-import org.cog.hymnchtv.xapk.xAPKDownloaderActivity;
 import org.cog.hymnchtv.persistance.PermissionUtils;
 import org.cog.hymnchtv.utils.HymnNo2IdxConvert;
 
@@ -257,17 +256,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             tv_Search.setText(sValue);
             return true;
         });
-
-        // Checking for the presence of the OBB xAPK file
-        xAPKFilesCheckedAndDownloadIfRequired();
-    }
-
-    private void xAPKFilesCheckedAndDownloadIfRequired() {
-        if (!xAPKDownloaderActivity.xAPKFilesDelivered(this)) {
-            Intent intent = new Intent();
-            intent.setClass(this, xAPKDownloaderActivity.class);
-            startActivity(intent);
-        }
     }
 
     // 目录 Spinner selector handler

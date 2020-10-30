@@ -6,6 +6,12 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.4.0 (10/25/2020)" versioncode="104000">
+        <change>首次谷歌版本发布</change>
+        <change>添加在线帮助选项：可选youtube互联网视频网站书拉密女诗歌本演示视频播放</change>
+        <change>实施谷歌 Play Asset Delivery</change>
+    </release>
+
     <release version="1.3.4 (10/13/2020)" versioncode="103040">
         <change>实施多个midi媒体重复播放同步解决方案</change>
         <change>修复媒体播放速度'1.1x'倍错误导致应用程序中止</change>

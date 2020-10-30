@@ -273,11 +273,9 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
      * Initialize the Media Player UI
      *
      * @param isShow show player UI if true
-     * @param isPlayEnable Enable play button if has playable content
      */
-    public void initPlayerUi(boolean isShow, boolean isPlayEnable)
+    public void initPlayerUi(boolean isShow)
     {
-        playbackPlay.setAlpha(isPlayEnable ? 1.0f : 0.3f);
         playerUi.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 

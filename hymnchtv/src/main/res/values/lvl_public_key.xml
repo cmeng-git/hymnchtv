@@ -1,6 +1,0 @@
-<resources>
-    <string
-        name="lvl_public_key"
-        templateMergeStrategy="preserve"
-        translatable="false">REPLACE THIS WITH YOUR PUBLIC KEY</string>
-</resources>

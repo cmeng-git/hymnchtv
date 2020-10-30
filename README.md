@@ -1,26 +1,49 @@
 ## 书拉密女小站-诗歌本 (新安卓版)
 - 书拉密女小站-诗歌本: 主的恢复赞美诗歌词页面浏览器,查看和播放器
 
+<p align="center">
+    <a href="https://cmeng-git.github.io/hymnchtv">
+        <img src="./art/hymnchtv.png" alt="aTalk">
+    </a>
+    &nbsp;
+    <a href="https://play.google.com/store/apps/details?id=org.cog.hymnchtv&hl=zh-CN">
+        <img src="./art/google_play.png" alt="Google PlayStore">
+    </a>
+    &nbsp;
+    &nbsp;
+    <a href="https://www.youtube.com/watch?v=D8FKFfcUxPw">
+        <img src="./art/youtube.png" alt="YouTube">
+    </a>
+</p>
+
 ## 特征和工能
 书拉密女小站-诗歌本:
-- 为安卓设计的赞美诗歌词页面浏览器,查看和播放器
-- 使用最新的FragmentPagerAdapter进行平滑滚动更顺畅
+- 为安卓设计的赞美诗歌词页面浏览器,内容搜索和诗歌媒体播放器
+- 使用最新的 Fragment Pager Adapter 进行平滑滚动更顺畅
 - 直接输入诗歌编号以显示歌词；或从目录分类进入:
   <br/>"诗歌类别"，"笔画索引"，和"拼音索引"
-- 以最大允许的屏幕大小，同时显示诗歌乐谱和歌词文本
-- 手机横向模式时，乐谱和歌词文本，显示自动加大150%，易于阅读
-- 开发新的媒体播放器用户界面。给用户最大的控制权
-- 媒体播放类别：midi，伴奏，教唱，唱诗
-- 可调媒体播放速度：0.7x〜1.3x，和重复播放
-- 网络媒体下载仅一次；内部存储，供以后播放
-- 媒体和播放同步于用户新选诗歌编号，无需返回主页
-- 媒体播放以当前状态继续，直到歌曲结束；然后再同步用户新选诗歌编号
-- 可自我下载并复制媒体文件到预定义的目录（Download/hymnchtv）以用于播放
 - 给予完整大本詩歌，補充本詩歌，新歌颂咏，及儿童诗歌歌，诗词搜索和选项进入
 - 最大搜索增加到100项，显示匹配结果的4行完整诗词句
-- 长按\[内容搜索]按钮即可将输入文字词组转换‘他’=>‘祂’
-- 用户可选的主界面背景图片和字体颜色
+- 长按\[内容搜索]按钮即可将输入文字词组转换‘他’&#10145;‘祂’
+- 以最大允许的屏幕大小，同时显示诗歌乐谱和歌词文本
+- 手机横向模式时，媒体播放器界面自动隐藏；乐谱和歌词文本，显示自动加大150%，易于阅读
+- 开发新的媒体播放器用户界面。给用户最大的控制权
+- 媒体播放类别：midi，伴奏，教唱，唱诗
+- 可调媒体播放速度：0.7x〜1.3x；和可选重复次数播放
+- 网络媒体下载仅一次；内部存储，供以后播放
+- 媒体播放同步于用户新选诗歌编号，无需返回主页
+- 诗歌媒体播放以当前状态继续，直到歌曲结束；然后再同步用户新选诗歌编号
+- 可自我下载并复制媒体文件到预定义的目录（Download/hymnchtv）以用于播放
+- 用户可选的主界面包括墙纸，字体大小，字体颜色
 - 自动检查版本更新，并通知用户任何新的更新以采取措施
+
+##### 该项目中使用的库源：
+* [Android Support Library](https://developer.android.com/topic/libraries/support-library/index.html)
+* [annotations-java5](https://mvnrepository.com/artifact/org.jetbrains/annotations)
+* [ckChangeLog](https://github.com/cketti/ckChangeLog)
+* [glide](https://github.com/bumptech/glide)
+* [httpcore](http://hc.apache.org/httpcomponents-core-ga/)
+* [Timber](https://github.com/JakeWharton/timber)
 
 ## 致谢
 * [书拉密女小站-诗歌本](http://shulami02.net/bbs):<br/>
@@ -35,23 +58,12 @@
   <br/>正如神白白的恩典,所以请不要用做商业用途。
 * [其他贡献者](https://github.com/cmeng-git/hymntv/graphs/contributors)
 
-##### 该项目中使用的库：
-* [Android Support Library](https://developer.android.com/topic/libraries/support-library/index.html)
-* [annotations-java5](https://mvnrepository.com/artifact/org.jetbrains/annotations)
-* [ckChangeLog](https://github.com/cketti/ckChangeLog)
-* [commons-lang](https://commons.apache.org/proper/commons-lang/)
-* [glide](https://github.com/bumptech/glide)
-* [httpcore](http://hc.apache.org/httpcomponents-core-ga/)
-* [play-apk-expansion](https://github.com/google/play-apk-expansion)
-* [play-licensing](https://github.com/google/play-licensing)
-* [Timber](https://github.com/JakeWharton/timber)
-
 ## 文献资料
-* [Release Notes](https://github.com/cmeng-git/hymnchtv/blob/master/hymnchtv/ReleaseNotes.txt)
+* [书拉密女小站-诗歌本](https://cmeng-git.github.io/hymnchtv)
+* [历史记录](https://github.com/cmeng-git/hymnchtv/blob/master/hymnchtv/ReleaseNotes.txt)
 * 因为有版权的诗歌的源材料，请查看[内容](https://github.com/cmeng-git/hymnchtv/blob/master/documentation/content.md)
 
 ## 反馈和贡献
-
 如果您发现错误，希望使用新功能或有其他问题，请到 [此网址](https://github。com/cmeng-git/hymnchtv/issues) 提出意见。
 
 许可证

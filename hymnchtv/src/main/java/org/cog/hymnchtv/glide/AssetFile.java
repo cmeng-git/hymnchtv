@@ -17,48 +17,44 @@
 package org.cog.hymnchtv.glide;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 
-import com.google.android.vending.expansion.zipfile.APKExpansionSupport;
-import com.google.android.vending.expansion.zipfile.ZipResourceFile;
-
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import timber.log.Timber;
 
 /**
- * Class implements the reader for the android OBB object for the glideApp
+ * Class implements the reader for the android Play Asset Delivery object for the glideApp
  *
  * @author Eng Chong Meng
  */
-public class OBBFile
+public class AssetFile
 {
-    public static final int mainVersion = 104000;
-    public static final long mFileSize = 169701052L;
-    public static final int patchVersion = -1;
-
-    private final Context mContext;
     private final String path;
+    private static AssetManager assetManager = null;
 
-    private static ZipResourceFile obbZip;
-
-    public OBBFile(Context context, String path)
+    public AssetFile(Context context, String path)
     {
         this.path = path;
-        mContext = context;
 
-        if (obbZip == null) {
+        if (assetManager == null) {
             try {
-                obbZip = APKExpansionSupport.getAPKExpansionZipFile(mContext, mainVersion, patchVersion);
-            } catch (IOException e) {
-                Timber.w("getAPKExpansionZipFile exception: %s", e.getMessage());
+                Context ctx = context.createPackageContext("org.cog.hymnchtv", 0);
+                assetManager = ctx.getAssets();
+            } catch (Exception e) {
+                Timber.w("Create AssetManager Exception: %s", e.getMessage());
             }
         }
     }
 
     public InputStream getInputStream() throws IOException
     {
-        return (obbZip == null) ? null : obbZip.getInputStream(path);
+        try {
+            return (assetManager == null) ? null : assetManager.open(path);
+        } catch (Exception e) {
+            Timber.w("AssetFile get inputStream exception: %s", e.getMessage());
+            return null;
+        }
     }
 
     public String getPath()

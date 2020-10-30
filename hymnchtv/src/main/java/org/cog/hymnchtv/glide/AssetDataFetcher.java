@@ -28,30 +28,30 @@ import java.io.InputStream;
 import timber.log.Timber;
 
 /**
- * Class extends the DataFetcher for the glideApp
+ * Class extends the DataFetcher of the android PAD for the glideApp
  *
  * @author Eng Chong Meng
  */
-public class OBBDataFetcher implements DataFetcher<InputStream>
+public class AssetDataFetcher implements DataFetcher<InputStream>
 {
-    private InputStream obbFileStream;
+    private final AssetFile assetFile;
 
-    private OBBFile obbFile;
+    private InputStream assetFileStream;
 
-    public OBBDataFetcher(OBBFile model)
+    public AssetDataFetcher(AssetFile model)
     {
-        obbFile = model;
+        assetFile = model;
     }
 
     @Override
     public void loadData(@NonNull Priority priority, @NonNull DataCallback<? super InputStream> callback)
     {
         try {
-            obbFileStream = obbFile.getInputStream();
-            callback.onDataReady(obbFileStream);
+            assetFileStream = assetFile.getInputStream();
+            callback.onDataReady(assetFileStream);
         } catch (Exception e) {
             callback.onLoadFailed(e);
-            Timber.w("obbFileStream Exception: %s", e.getMessage());
+            Timber.w("Asset FileStream Load Exception: %s", e.getMessage());
         }
     }
 
@@ -59,11 +59,11 @@ public class OBBDataFetcher implements DataFetcher<InputStream>
     public void cleanup()
     {
         try {
-            if (obbFileStream != null) {
-                obbFileStream.close();
+            if (assetFileStream != null) {
+                assetFileStream.close();
             }
         } catch (IOException e) {
-            Timber.w("OBBDataFetcher Cannot clean up after stream %s", e.getMessage());
+            Timber.w("AssetDataFetcher failed to clean up stream %s", e.getMessage());
         }
     }
 

@@ -171,7 +171,7 @@ public class HymnsApp extends Application implements LifecycleObserver
     private static void startUpdateService()
     {
         // Perform software version update check on first launch
-        if (!isUpdateServerStarted) {
+        if (BuildConfig.DEBUG && !isUpdateServerStarted) {
             ActivityManager manager = (ActivityManager) mInstance.getSystemService(Context.ACTIVITY_SERVICE);
             List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = manager.getRunningAppProcesses();
             if (runningAppProcesses != null) {

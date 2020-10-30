@@ -28,6 +28,7 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.fragment.app.FragmentActivity;
@@ -51,9 +52,6 @@ public class About extends FragmentActivity implements View.OnClickListener
             new String[]{"ckChangeLog", "https://github.com/cketti/ckChangeLog"},
             new String[]{"commons-lang", "https://commons.apache.org/proper/commons-lang/"},
             new String[]{"glide", "https://github.com/bumptech/glide"},
-            new String[]{"httpcore", "https://hc.apache.org/httpcomponents-core-ga"},
-            new String[]{"play-apk-expansion", "https://github.com/google/play-apk-expansion"},
-            new String[]{"play-licensing", "https://github.com/google/play-licensing"},
             new String[]{"Timber", "https://github.com/JakeWharton/timber"},
     };
 
@@ -90,10 +88,14 @@ public class About extends FragmentActivity implements View.OnClickListener
             copyRight.setText(Html.fromHtml(getString(R.string.gui_copyright)));
         }
 
-
         findViewById(R.id.ok_button).setOnClickListener(this);
-        findViewById(R.id.check_new_version).setOnClickListener(this);
         findViewById(R.id.history_log).setOnClickListener(this);
+
+        Button btn_chkNewVersion = findViewById(R.id.check_new_version);
+        if (BuildConfig.DEBUG) {
+            btn_chkNewVersion.setVisibility(View.VISIBLE);
+            btn_chkNewVersion.setOnClickListener(this);
+        }
 
         // View btn_submitLogs = findViewById(R.id.submit_logs);
         // btn_submitLogs.setOnClickListener(this);

@@ -27,21 +27,21 @@ import java.io.InputStream;
 
 /**
  * Class extends the ModelLoader and ModelLoaderFactory for the glideApp
- * for loading generate the inputStream from the OBB archive
+ * for loading generate the inputStream from the Play Access Delivery file
  *
  * @author Eng Chong Meng
  */
-public final class OBBStreamLoader implements ModelLoader<OBBFile, InputStream>
+public final class AssetStreamLoader implements ModelLoader<AssetFile, InputStream>
 {
     @Override
-    public LoadData<InputStream> buildLoadData(OBBFile model, int width, int height, Options options)
+    public LoadData<InputStream> buildLoadData(AssetFile model, int width, int height, Options options)
     {
         Key diskCacheKey = new ObjectKey(model.getPath());
-        return new LoadData<>(diskCacheKey, new OBBDataFetcher(model));
+        return new LoadData<>(diskCacheKey, new AssetDataFetcher(model));
     }
 
     @Override
-    public boolean handles(OBBFile model)
+    public boolean handles(AssetFile model)
     {
         return true;
     }
@@ -51,13 +51,13 @@ public final class OBBStreamLoader implements ModelLoader<OBBFile, InputStream>
      *
      * @author Eng Chong Meng
      */
-    public static final class Factory implements ModelLoaderFactory<OBBFile, InputStream>
+    public static final class Factory implements ModelLoaderFactory<AssetFile, InputStream>
     {
         @NonNull
         @Override
-        public ModelLoader<OBBFile, InputStream> build(@NonNull MultiModelLoaderFactory multiFactory)
+        public ModelLoader<AssetFile, InputStream> build(@NonNull MultiModelLoaderFactory multiFactory)
         {
-            return new OBBStreamLoader();
+            return new AssetStreamLoader();
         }
 
         @Override

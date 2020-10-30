@@ -3,8 +3,6 @@
     package="org.cog.hymnchtv"
     android:installLocation="preferExternal">
 
-    <!-- Required to access Google Play Licensing -->
-    <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
     <!-- Required to poll the state of the network connection and respond to changes -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Required to check whether Wi-Fi is enabled -->
@@ -57,8 +55,6 @@
             android:label="@string/gui_about"
             android:theme="@android:style/Theme.Holo.Dialog.MinWidth" />
 
-        <activity android:name=".xapk.xAPKDownloaderActivity" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.files"
@@ -76,9 +72,5 @@
         <service
             android:name=".service.androidupdate.OnlineUpdateService"
             android:enabled="true" />
-
-        <service android:name=".xapk.xAPKDownloaderService"/>
-        <receiver android:name=".xapk.xAPKDownloaderBroadcastReceiver" />
-        <receiver android:name=".xapk.xAPKAlarmReceiver"/>
     </application>
 </manifest>

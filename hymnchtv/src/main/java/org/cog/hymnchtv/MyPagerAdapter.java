@@ -17,14 +17,8 @@
 package org.cog.hymnchtv;
 
 import android.os.Bundle;
-import android.view.ViewGroup;
 
 import androidx.fragment.app.*;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.cog.hymnchtv.ContentView.LYRICS_INDEX;
 import static org.cog.hymnchtv.ContentView.LYRICS_TYPE;
@@ -40,11 +34,11 @@ import static org.cog.hymnchtv.MainActivity.HYMN_XB;
  */
 public class MyPagerAdapter extends FragmentPagerAdapter
 {
-    /**
-     * A map reference to find the FragmentPagerAdapter's fragmentTag (String) by a given position (Integer)
-     */
-    private static final Map<Integer, String> mFragmentTags = new HashMap<>();
-    private static FragmentManager mFragmentManager;
+//    /**
+//     * A map reference to find the FragmentPagerAdapter's fragmentTag (String) by a given position (Integer)
+//     */
+//    private final Map<Integer, String> mFragmentTags = new HashMap<>();
+//    private static FragmentManager mFragmentManager;
 
     private final String mHymnType;
 
@@ -53,7 +47,7 @@ public class MyPagerAdapter extends FragmentPagerAdapter
         // Must use BEHAVIOR_SET_USER_VISIBLE_HINT to see conference list on first slide to conference view
         // super(fm, BEHAVIOR_SET_USER_VISIBLE_HINT); not valid anymore after change to BaseChatRoomListAdapte
         super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        mFragmentManager = fm;
+//        mFragmentManager = fm;
         mHymnType = hymnType;
     }
 
@@ -80,6 +74,7 @@ public class MyPagerAdapter extends FragmentPagerAdapter
 
     public Fragment getItem(int index)
     {
+        // Timber.w("Get item fragment @: %s", index);
         Bundle bundle = new Bundle();
         bundle.putString(LYRICS_TYPE, mHymnType);
         bundle.putInt(LYRICS_INDEX, index);
@@ -88,35 +83,36 @@ public class MyPagerAdapter extends FragmentPagerAdapter
         return objContentView;
     }
 
-    /**
-     * Save the reference of position to FragmentPagerAdapter fragmentTag in mFragmentTags
-     *
-     * @param container The viewGroup
-     * @param position The pager position
-     * @return Fragment object at the specific location
-     */
-    @NotNull
-    @Override
-    public Object instantiateItem(@NotNull ViewGroup container, int position)
-    {
-        Object obj = super.instantiateItem(container, position);
-        if (obj instanceof Fragment) {
-            Fragment f = (Fragment) obj;
-            assert f.getTag() != null;
-            mFragmentTags.put(position, f.getTag());
-        }
-        return obj;
-    }
+//    /**
+//     * Save the reference of position to FragmentPagerAdapter fragmentTag in mFragmentTags
+//     *
+//     * @param container The viewGroup
+//     * @param position The pager position
+//     * @return Fragment object at the specific location
+//     */
+//    @NotNull
+//    @Override
+//    public Object instantiateItem(@NotNull ViewGroup container, int position)
+//    {
+//        Object obj = super.instantiateItem(container, position);
+//        if (obj instanceof Fragment) {
+//            Fragment f = (Fragment) obj;
+//            assert f.getTag() != null;
+//            mFragmentTags.put(position, f.getTag());
+//            Timber.w("Instantiate fragment: %s/%s: %s", position, mFragmentTags.size(), mFragmentTags.get(position));
+//        }
+//        return obj;
+//    }
 
-    /**
-     * Get the fragment reference for the given position in pager
-     *
-     * @param position position in the mFragmentTags
-     * @return the requested fragment for the specified postion or null
-     */
-    public static Fragment getFragment(int position)
-    {
-        String tag = mFragmentTags.get(position);
-        return (mFragmentManager != null) ? mFragmentManager.findFragmentByTag(tag) : null;
-    }
+//    /**
+//     * Get the fragment reference for the given position in pager
+//     *
+//     * @param position in the mFragmentTags
+//     * @return the requested fragment for the specified postion or null
+//     */
+//    public static Fragment getFragment(int position)
+//    {
+//        String tag = mFragmentTags.get(position);
+//        return (mFragmentManager != null) ? mFragmentManager.findFragmentByTag(tag) : null;
+//    }
 }

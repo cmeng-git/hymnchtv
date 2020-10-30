@@ -1,6 +1,21 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	10/25/2020
+Version:		1.4.0 (104000)
+- Implement Play Asset Delivery to meet play store requirements
+  https://developer.android.com/guide/app-bundle/asset-delivery
+- Add support for PAD AssetFile object access and InputStream for Glide image loader
+- Add online help contents and youtube hymnchtv demo video
+- Remove app update option for play store release
+- For PAD local testing need to build bundle, then use the following for apk conversion and install
+  java -jar ../bundletool.jar build-apks --bundle=./hymnchtv/build/outputs/bundle/debug/hymnchtv-debug.aab --output=./hymnchtv/build/outputs/apk/debug/hymnchtv-debug.apks --overwrite --local-testing
+  java -jar ../bundletool.jar install-apks --apks=./hymnchtv/build/outputs/apk/debug/hymnchtv-debug.apks  --adb=/usr/bin/adb40
+  * Refet to https://developer.android.com/studio/command-line/bundletool for more info
+- Remove the unused flag ContentHanlder#mPlayMode
+
+=========================================================================
+Author:         cmeng
 Upload Date:	10/21/2020
 Version:		1.3.5 (103050)
 - Migrate to use android OBB objects to reduce the size of the main apk file

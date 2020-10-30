@@ -17,6 +17,7 @@
 package org.cog.hymnchtv;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.*;
@@ -29,9 +30,7 @@ import androidx.fragment.app.Fragment;
 
 import org.cog.hymnchtv.glide.MyGlideApp;
 import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
-
-import com.google.android.vending.expansion.zipfile.APKExpansionSupport;
-import com.google.android.vending.expansion.zipfile.ZipResourceFile;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 
@@ -73,8 +72,6 @@ public class ContentView extends Fragment
     private View mConvertView;
     private ImageView mContentView = null;
 
-    private ZipResourceFile zipResFile;
-
     // Need this to prevent crash on rotation if there are other constructors implementation
     // public ContentView()
     // {
@@ -101,12 +98,6 @@ public class ContentView extends Fragment
     {
         super.onResume();
         registerForContextMenu(lyricsView);
-
-        try {
-            zipResFile = APKExpansionSupport.getAPKExpansionZipFile(getContext(), 104000, -1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -129,7 +120,7 @@ public class ContentView extends Fragment
     private void updateHymnContent(String hymnType, int hymnIndex)
     {
         String resPrefix;
-        String resFName = "";
+        String resFName;
 
         int[] hymnScoreInfo = HymnIdx2NoConvert.hymnIdx2NoConvert(hymnType, hymnIndex);
 
@@ -178,18 +169,19 @@ public class ContentView extends Fragment
     {
         int pages = hymnScoreInfo[1]; // The number of pages for the current hymn number
         ImageView contentView;
+        Context ctx = getContext();
 
         String resName = resPrefix + ".png";
         // Uri resUri = Uri.fromFile(new File("//android_asset/", resName));
-        // MyGlideApp.loadImage(mContentView, resUri);
+        // MyGlideApp.loadImage(ctx, mContentView, resUri);
 
-        MyGlideApp.loadImage(mContentView, resName);
+        MyGlideApp.loadImage(ctx, mContentView, resName);
 
         if (pages > 1) {
             contentView = mConvertView.findViewById(R.id.contentView_a);
             resName = resPrefix + "a.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
-            MyGlideApp.loadImage(contentView, resName);
+            MyGlideApp.loadImage(ctx, contentView, resName);
         }
         else {
             return;
@@ -199,7 +191,7 @@ public class ContentView extends Fragment
             contentView = mConvertView.findViewById(R.id.contentView_b);
             resName = resPrefix + "b.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
-            MyGlideApp.loadImage(contentView, resName);
+            MyGlideApp.loadImage(ctx, contentView, resName);
         }
         else {
             return;
@@ -209,7 +201,7 @@ public class ContentView extends Fragment
             contentView = mConvertView.findViewById(R.id.contentView_c);
             resName = resPrefix + "c.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
-            MyGlideApp.loadImage(contentView, resName);
+            MyGlideApp.loadImage(ctx, contentView, resName);
         }
         else {
             return;
@@ -219,7 +211,7 @@ public class ContentView extends Fragment
             contentView = mConvertView.findViewById(R.id.contentView_d);
             resName = resPrefix + "d.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
-            MyGlideApp.loadImage(contentView, resName);
+            MyGlideApp.loadImage(ctx, contentView, resName);
         }
     }
 
@@ -252,7 +244,7 @@ public class ContentView extends Fragment
      * {@inheritDoc}
      */
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)
+    public void onCreateContextMenu(@NotNull ContextMenu menu, @NotNull View v, ContextMenu.ContextMenuInfo menuInfo)
     {
         super.onCreateContextMenu(menu, v, menuInfo);
         getActivity().getMenuInflater().inflate(R.menu.content_menu, menu);
