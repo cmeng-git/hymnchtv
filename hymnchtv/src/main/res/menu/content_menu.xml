@@ -13,6 +13,10 @@
         android:title="@string/menu_media_ui_toggle" />
 
     <item
+        android:id="@+id/lyrcsEnglish"
+        android:title="@string/gui_lyrics_english" />
+
+    <item
         android:id="@+id/help"
         android:title="@string/help" />
 

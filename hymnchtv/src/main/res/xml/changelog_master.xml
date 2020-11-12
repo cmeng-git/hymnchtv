@@ -6,6 +6,13 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.4.1 (11/12/2020)" versioncode="104010">
+        <change>修复媒体播放结束，偶尔不返回播放停止位置的情况</change>
+        <change>改善下载剩余时间显示，使其不大度跳动</change>
+        <change>添加"英中对照"目录选项</change>
+        <change>添加在线英文歌词显示。长按歌词内容显示屏，然后选择"英文歌词"选项进入</change>
+    </release>
+
     <release version="1.4.0 (10/25/2020)" versioncode="104000">
         <change>首次谷歌版本发布</change>
         <change>添加在线帮助选项：可选youtube互联网视频网站书拉密女诗歌本演示视频播放</change>

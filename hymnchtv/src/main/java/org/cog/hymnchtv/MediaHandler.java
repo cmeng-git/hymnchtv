@@ -75,9 +75,7 @@ public class MediaHandler extends Fragment
     private ContentHandler mContentHandler;
 
     // Need this to prevent crash on rotation if there are other constructors implementation
-    // public MediaController()
-    // {
-    // }
+    // public MediaController() { }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -95,9 +93,7 @@ public class MediaHandler extends Fragment
         fileXferUi = convertView.findViewById(R.id.filexferUi);
         fileXferUi.setVisibility(View.GONE);
 
-        convertView.findViewById(R.id.view_cancel).setOnClickListener(view -> {
-            fileXferUi.setVisibility(View.GONE);
-        });
+        convertView.findViewById(R.id.view_cancel).setOnClickListener(view -> fileXferUi.setVisibility(View.GONE));
         return convertView;
     }
 
@@ -158,7 +154,7 @@ public class MediaHandler extends Fragment
 
         String encLnk = dnLnk;
         try {
-            // Need to encode chinese link for safe access; revert all "%2F" to "/"e
+            // Need to encode chinese link for safe access; revert all "%3A" and "%2F" to ":" and "/"
             encLnk = URLEncoder.encode(dnLnk, "UTF-8").replace("%3A", ":").replace("%2F", "/");
             Timber.d("Download URL link encoded: %s", encLnk);
         } catch (UnsupportedEncodingException e) {
@@ -224,12 +220,14 @@ public class MediaHandler extends Fragment
                         // Rename will move the received media infile to outfile dir.
                         if (inFile.renameTo(outFile)) {
                             String uiLabel = fileLabel.getText().toString();
-                            // Start playing only if the user still stay put. Otherwise, ui is not sync and user has no control
+                            Timber.d("Downloaded file: %s (%s): %s (%s) <= %s", outFile.getAbsolutePath(),
+                                    mFileSize, uiLabel, fileXferUi.isShown(), outFile.getName());
+
+                            // Start playing only if the same player user still stay put.
+                            // Otherwise, ui is not sync and user has no control of the play back
                             if (fileXferUi.isShown() && uiLabel.startsWith(outFile.getName())) {
                                 mContentHandler.startPlay();
                             }
-                            Timber.d("Downloaded file: %s (%s): %s (%s) <= %s", outFile.getAbsolutePath(),
-                                    mFileSize, uiLabel, fileXferUi.isShown(), outFile.getName());
                         }
                         else {
                             Timber.d("Downloaded file rename failed: %s (%s) => %s", inFile.getAbsolutePath(),
@@ -297,25 +295,25 @@ public class MediaHandler extends Fragment
     /**
      * The time of the last fileTransfer update.
      */
-    private long mLastTimestamp = 0;
+    private long mLastTimestamp = -1;
 
     /**
-     * The number of bytes last transferred.
+     * The number of bytes in last transferred.
      */
     private long mLastTransferredBytes = 0;
 
     /**
-     * The last calculated progress speed.
+     * The last calculated average progress speed.
      */
-    private long mTransferSpeed = 0;
+    private long mTransferSpeedAverage = 0;
 
     /**
-     * The last estimated time.
+     * The last estimated remaining time.
      */
-    private long mEstimatedTimeLeft = 0;
+    private long mEstimatedTimeLeft = -1;
 
     /**
-     * Starts watching download progress.
+     * Starts monitoring the download progress.
      *
      * This method is safe to call multiple times. Starting an already running progress checker is a no-op.
      */
@@ -333,7 +331,7 @@ public class MediaHandler extends Fragment
     }
 
     /**
-     * Stops watching download progress.
+     * Stops monitoring download progress.
      */
     private void stopProgressChecker()
     {
@@ -357,10 +355,11 @@ public class MediaHandler extends Fragment
     };
 
     /**
-     * Queries the <tt>DownloadManager</tt> for the status of download job identified by given <tt>id</tt>.
+     * Queries the <tt>DownloadManager</tt> for the status of download job identified by the given <tt>id</tt>.
      *
      * @param id download identifier which status will be returned.
-     * @return download status of the job identified by given id. If given job is not found
+     * @return download status of the job identified by given id. If the given job is not found
+     *
      * {@link DownloadManager#STATUS_FAILED} will be returned.
      */
     private int checkDownloadStatus(long id)
@@ -378,7 +377,7 @@ public class MediaHandler extends Fragment
     }
 
     /**
-     * Checks download progress for the last entry only
+     * Checks and show to user download progress for the last file transfer task entry only
      */
     private void checkProgress()
     {
@@ -436,27 +435,41 @@ public class MediaHandler extends Fragment
     }
 
     /**
-     * update the file download progress info
+     * Calculate a moving average for file download speed with a larger SMOOTHING_FACTOR;
+     * so the UI display remaining time is no so jumpy
      *
      * @param transferredBytes file size
      * @param progressTimestamp time stamp
      */
     private void updateProgress(String fileName, long transferredBytes, long progressTimestamp)
     {
+        long SMOOTHING_FACTOR = 100;
+
         // before file transfer start is -1
         if (transferredBytes == -1)
             return;
 
         final String bytesString = ByteFormat.format(transferredBytes);
         long byteTransferDelta = (transferredBytes == 0) ? 0 : (transferredBytes - mLastTransferredBytes);
-        long timeElapsed = progressTimestamp - mLastTimestamp;
 
-        // Calculate running average transfer speed in bytes/sec and time left, new input has only 33% weighting
-        if (timeElapsed > 0)
-            mTransferSpeed = (((byteTransferDelta * 1000) / timeElapsed) + mTransferSpeed + mTransferSpeed) / 3;
+        // Calculate running average transfer speed in bytes/sec and time left, with the given SMOOTHING_FACTOR
+        if (mLastTimestamp > 0) {
+            long timeElapsed = progressTimestamp - mLastTimestamp;
+            long transferSpeedCurrent = (timeElapsed > 0) ? (byteTransferDelta * 1000) / timeElapsed : 0;
+            if (mTransferSpeedAverage != 0) {
+                mTransferSpeedAverage = (transferSpeedCurrent + (SMOOTHING_FACTOR - 1) * mTransferSpeedAverage) / SMOOTHING_FACTOR;
+            }
+            else {
+                mTransferSpeedAverage = transferSpeedCurrent;
+            }
+        }
+        else {
+            mEstimatedTimeLeft = -1;
+        }
+
         // Calculate  running average time left in sec
-        if (mTransferSpeed > 0)
-            mEstimatedTimeLeft = (((mFileSize - transferredBytes) / mTransferSpeed) + mEstimatedTimeLeft + mEstimatedTimeLeft) / 3;
+        if (mTransferSpeedAverage > 0)
+            mEstimatedTimeLeft = (mFileSize - transferredBytes) / mTransferSpeedAverage;
 
         mLastTimestamp = progressTimestamp;
         mLastTransferredBytes = transferredBytes;
@@ -470,13 +483,13 @@ public class MediaHandler extends Fragment
         // Note: progress bar can only handle int size (4-bytes: 2,147,483, 647);
         progressBar.setProgress((int) transferredBytes);
 
-        if (mTransferSpeed > 0) {
+        if (mTransferSpeedAverage > 0) {
             fileXferSpeed.setVisibility(View.VISIBLE);
             fileXferSpeed.setText(
-                    HymnsApp.getResString(R.string.gui_download_speed, ByteFormat.format(mTransferSpeed), bytesString));
+                    HymnsApp.getResString(R.string.gui_download_speed, ByteFormat.format(mTransferSpeedAverage), bytesString));
         }
         Timber.d("%s RxByte = %s / %s; TimeLeft = %s; speed = %s", fileName, transferredBytes, mFileSize,
-                mEstimatedTimeLeft, mTransferSpeed);
+                mEstimatedTimeLeft, mTransferSpeedAverage);
 
         if (transferredBytes >= mFileSize) {
             estTimeRemain.setVisibility(View.GONE);

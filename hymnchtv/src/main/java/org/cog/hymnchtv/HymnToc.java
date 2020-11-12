@@ -98,13 +98,16 @@ public class HymnToc extends FragmentActivity
     public static final String TOC_CATEGORY = "诗歌类别";
     public static final String TOC_STROKE = "笔画索引";
     public static final String TOC_PINYIN = "拼音索引";
+    public static final String TOC_ENGLISH = "英中对照";
 
     public static List<String> hymnTocPage = new ArrayList<>();
+
     static {
         hymnTocPage.add(TOC_TITLE);
         hymnTocPage.add(TOC_CATEGORY);
         hymnTocPage.add(TOC_STROKE);
         hymnTocPage.add(TOC_PINYIN);
+        hymnTocPage.add(TOC_ENGLISH);
     }
 
     // The TOC prefix for creating the correct toc text file name
@@ -116,6 +119,7 @@ public class HymnToc extends FragmentActivity
     // The text files use to generate the various toc type for display and selection
     private static String STROKE_FILE = "_stroke.txt";
     private static String PINYIN_FILE = "_pinyin.txt";
+    private static String ENGLISH_FILE = "_eng2ch.txt";
 
     // The treeView arrays for display
     private HashMap<String, List<String>> tocListDetail = new LinkedHashMap<>();
@@ -209,7 +213,6 @@ public class HymnToc extends FragmentActivity
      *
      * @param hymnType the hymn type
      * @param tocPage the toc page
-     *
      * @return HashMap to build the tree view
      */
     private HashMap<String, List<String>> getHymnToc(String hymnType, String tocPage)
@@ -231,6 +234,11 @@ public class HymnToc extends FragmentActivity
 
                     case TOC_PINYIN:
                         fname = LYRICS_TOC + TOC_DB + PINYIN_FILE;
+                        getHymnTocType(fname);
+                        break;
+
+                    case TOC_ENGLISH:
+                        fname = LYRICS_TOC + TOC_DB + ENGLISH_FILE;
                         getHymnTocType(fname);
                         break;
 
@@ -274,6 +282,11 @@ public class HymnToc extends FragmentActivity
 
                     case TOC_PINYIN:
                         fname = LYRICS_TOC + TOC_BB + PINYIN_FILE;
+                        getHymnTocType(fname);
+                        break;
+
+                    case TOC_ENGLISH:
+                        fname = LYRICS_TOC + TOC_BB + ENGLISH_FILE;
                         getHymnTocType(fname);
                         break;
 
@@ -416,7 +429,7 @@ public class HymnToc extends FragmentActivity
 //    }
 
     /**
-     * Generate the expandable TOC list from the given tocFile sorted by stroke or pinyin
+     * Generate the expandable TOC list from the given tocFile sorted by the stroke or pinyin
      *
      * @param tocFile the toc file to extract info from
      */
@@ -437,7 +450,7 @@ public class HymnToc extends FragmentActivity
 
             int ml = 0;
             while (ml < mList.length) {
-                if (mList[ml].matches("^.+画$|[A-Z]")) {
+                if (mList[ml].matches("^.+画$|[A-Z]|[0-9~]+")) {
                     tocCategory = mList[ml++];
                     tocItems = new ArrayList<>();
                     indexString = new StringBuilder("（");
@@ -456,8 +469,12 @@ public class HymnToc extends FragmentActivity
                         break;
                     }
                 }
-                tocCategory += indexString + "）";
-                Collections.sort(tocItems);
+
+                // Do not add additional info in the title text or sort the toc for English cross-reference
+                if (!tocFile.contains(ENGLISH_FILE)) {
+                    tocCategory += indexString + "）";
+                    Collections.sort(tocItems);
+                }
                 tocListDetail.put(tocCategory, tocItems);
             }
         } catch (IOException e) {
@@ -477,6 +494,10 @@ public class HymnToc extends FragmentActivity
     {
         String hymnTitle = "";
 
+        // These two variables are used to generate "英中对照"
+        // String engStr = "";
+        // String engNoStr = "";
+
         try {
             InputStream in2 = getResources().getAssets().open(fName);
             byte[] buffer2 = new byte[in2.available()];
@@ -492,6 +513,7 @@ public class HymnToc extends FragmentActivity
             if (idx != -1) {
                 hymnTitle = hymnTitle.substring(idx + 1);
             }
+            // engStr = hymnTitle; //"英中对照"
 
             // Check the third line for additional info e.g.（诗篇二篇）（英1094）
             idx = mList[2].indexOf("（");
@@ -500,6 +522,18 @@ public class HymnToc extends FragmentActivity
             }
             hymnTitle = String.format(Locale.CHINA, "%04d: %s", hymnNo, hymnTitle);
 
+            // This section is used to generate "英中对照"
+//            {
+//                idx = mList[2].lastIndexOf("（英");
+//                if (idx != -1) {
+//                    int idx2 = mList[2].lastIndexOf("）");
+//                    engNoStr = mList[2].substring(idx + 2, idx2);
+//                }
+//
+//                int engNo = (TextUtils.isEmpty(engNoStr)) ? 0 : Integer.parseInt(engNoStr.split("[，|,]")[0]);
+//                // String engXRef = String.format(Locale.CHINA, "%s %s #%d", engNo, engStr, hymnNo);
+//                Timber.d("English ### %04d: %s #%d", engNo, engStr, hymnNo);
+//            }
 
         } catch (IOException e) {
             Timber.w("Content search error: %s", e.getMessage());

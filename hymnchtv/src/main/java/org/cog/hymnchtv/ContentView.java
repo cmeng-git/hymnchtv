@@ -30,9 +30,11 @@ import androidx.fragment.app.Fragment;
 
 import org.cog.hymnchtv.glide.MyGlideApp;
 import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
+import org.cog.hymnchtv.utils.HymnNoCh2EngXRef;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.util.Locale;
 
 import timber.log.Timber;
 
@@ -43,7 +45,9 @@ import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 
 /**
  * The class displays the hymn lyrics content selected by user;
- * It is a part of the whole Hymn UI display
+ * It is a part of the whole Hymn lyrics content UI display
+ *
+ * Note: The context menu needs to be created here, instead its parent, for it to be visible
  *
  * @author Eng Chong Meng
  */
@@ -63,6 +67,8 @@ public class ContentView extends Fragment
     public static String LYRICS_BB_TEXT = "lyrics_bb_text/";
     public static String LYRICS_DB_TEXT = "lyrics_db_text/";
 
+    public static String LYRICS_ED_TEXT = "lyrics_ed_text/ed%04d.txt";
+
     public static String LYRICS_TOC = "lyrics_toc/";
 
     public final static String LYRICS_TYPE = "lyricsType";
@@ -71,6 +77,10 @@ public class ContentView extends Fragment
     private View lyricsView;
     private View mConvertView;
     private ImageView mContentView = null;
+    private Integer hymnNoEng = null;
+
+    // Maximum of the local available English lyrics text for DB
+    private static final int dbEngMax = 18;
 
     // Need this to prevent crash on rotation if there are other constructors implementation
     // public ContentView()
@@ -121,28 +131,42 @@ public class ContentView extends Fragment
     {
         String resPrefix;
         String resFName;
+        String resEnFName = null;
 
         int[] hymnScoreInfo = HymnIdx2NoConvert.hymnIdx2NoConvert(hymnType, hymnIndex);
 
+        // Chinese lyrics#
+        int lyricsNo = hymnScoreInfo[0];
+
+        // get the corresponding English lyrics# or null if none
+        hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(hymnType, lyricsNo);
+
         switch (hymnType) {
             case HYMN_ER:
-                resPrefix = LYRICS_ER_SCORE + hymnScoreInfo[0];
-                resFName = LYRICS_ER_TEXT + "er" + hymnScoreInfo[0] + ".txt";
+                resPrefix = LYRICS_ER_SCORE + lyricsNo;
+                resFName = LYRICS_ER_TEXT + "er" + lyricsNo + ".txt";
                 break;
 
             case HYMN_XB:
-                resPrefix = LYRICS_XB_SCORE + "xb" + hymnScoreInfo[0];
-                resFName = LYRICS_XB_TEXT + "xb" + hymnScoreInfo[0] + ".txt";
+                resPrefix = LYRICS_XB_SCORE + "xb" + lyricsNo;
+                resFName = LYRICS_XB_TEXT + "xb" + lyricsNo + ".txt";
                 break;
 
             case HYMN_BB:
-                resPrefix = LYRICS_BB_SCORE + "bb" + hymnScoreInfo[0];
-                resFName = LYRICS_BBS_TEXT + hymnScoreInfo[0] + ".txt";
+                resPrefix = LYRICS_BB_SCORE + "bb" + lyricsNo;
+                resFName = LYRICS_BBS_TEXT + lyricsNo + ".txt";
                 break;
 
             case HYMN_DB:
-                resPrefix = LYRICS_DB_SCORE + "db" + hymnScoreInfo[0];
-                resFName = LYRICS_DBS_TEXT + hymnScoreInfo[0] + ".txt";
+                resPrefix = LYRICS_DB_SCORE + "db" + lyricsNo;
+                resFName = LYRICS_DBS_TEXT + lyricsNo + ".txt";
+
+                // Show the English lyrics if available (to be removed in next release)
+                // To avoid copyright, the new approach is to show as webPage
+                Integer hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(hymnType, lyricsNo);
+                if ((hymnNoEng != null) && (hymnNoEng <= dbEngMax)) {
+                    resEnFName = String.format(Locale.US, LYRICS_ED_TEXT, hymnNoEng);
+                }
                 break;
 
             default:
@@ -154,8 +178,14 @@ public class ContentView extends Fragment
         showLyricsScore(resPrefix, hymnScoreInfo);
 
         // Show Hymn Lyric Text for the selected hymnNo
-        if (!TextUtils.isEmpty(resFName))
-            showLyricsText(resFName);
+        if (!TextUtils.isEmpty(resFName)) {
+            showLyricsChText(resFName);
+        }
+
+        // Show the associated English Lyric for the selected hymnNo
+        if (resEnFName != null) {
+            showLyricsEnText(resEnFName);
+        }
     }
 
     /**
@@ -220,9 +250,9 @@ public class ContentView extends Fragment
      *
      * @param resFName Lyrics text resource fileName
      */
-    private void showLyricsText(String resFName)
+    private void showLyricsChText(String resFName)
     {
-        TextView lyricsView = mConvertView.findViewById(R.id.contentView_txt);
+        TextView lyricsView = mConvertView.findViewById(R.id.contentViewCh_txt);
         lyricsView.setTextSize(HymnsApp.isPortrait ? 20 : 35);
 
         try {
@@ -241,6 +271,31 @@ public class ContentView extends Fragment
     }
 
     /**
+     * Display the associated English lyrics of the selected hymn
+     *
+     * @param resEnFName Lyrics english text resource fileName
+     */
+    private void showLyricsEnText(String resEnFName)
+    {
+        TextView lyricsView = mConvertView.findViewById(R.id.contentViewEn_txt);
+        lyricsView.setTextSize(HymnsApp.isPortrait ? 20 : 35);
+
+        try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().getAssets().open(resEnFName)));
+            StringBuilder lyrics = new StringBuilder();
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                lyrics.append(line.replace("\t", "    "));
+                lyrics.append('\n');
+            }
+            lyricsView.setText(lyrics);
+        } catch (IOException e) {
+            Timber.w("Error reading file: %s", resEnFName);
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override
@@ -248,5 +303,8 @@ public class ContentView extends Fragment
     {
         super.onCreateContextMenu(menu, v, menuInfo);
         getActivity().getMenuInflater().inflate(R.menu.content_menu, menu);
+
+        // Hide "英文歌词" if no associated English lyrics
+        menu.findItem(R.id.lyrcsEnglish).setVisible(hymnNoEng != null);
     }
 }

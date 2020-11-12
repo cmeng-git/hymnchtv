@@ -21,8 +21,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.MenuItem;
+import android.view.*;
 import android.widget.PopupWindow;
 
 import androidx.fragment.app.FragmentActivity;
@@ -34,6 +33,7 @@ import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.utils.*;
+import org.cog.hymnchtv.webview.WebViewFragment;
 
 import java.io.File;
 import java.io.InputStream;
@@ -76,10 +76,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     public static String MEDIA_BANZOU = "/media_banzou/";
     public static String MEDIA_CHANGSHI = "/media_changshi/";
 
-    public static final String PAGE_CONTENT = "content";
-    public static final String PAGE_MAIN = "main";
     public static final String PAGE_SEARCH = "search";
-    public static final String PAGE_TOC = "toc";
 
     public static final String MIDI_BB = "bm";
     public static final String MIDI_BBC = "bmc";
@@ -93,10 +90,11 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     private int hymnNo;
     private int hymnIdx = -1;
 
+    // Null if there is no corresponding English lyrics
+    private Integer hymnNoEng = null;
+
     private String mSelect;
-
     public PopupWindow pop;
-
     public SharedPreferences sPreference;
 
     /**
@@ -109,6 +107,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
      */
     private MediaController mMediaController;
     private MediaHandler mMediaHandler;
+
+    private View mWebView;
 
     public void onCreate(Bundle savedInstanceState)
     {
@@ -123,13 +123,16 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         mMediaController = (MediaController) getSupportFragmentManager().findFragmentById(R.id.mediaPlayer);
         if (mMediaController == null) {
             mMediaController = new MediaController();
-            getSupportFragmentManager().beginTransaction().add(R.id.mediaPlayer, mMediaController).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.mediaPlayer, mMediaController).commit();
         }
 
         // Attach the File Transfer GUI; Use single instance created in HymnApp;
         // do not create/add new, otherwise GUI display is no working properly
         mMediaHandler = HymnsApp.mMediaHandler;
         getSupportFragmentManager().beginTransaction().replace(R.id.filexferGui, mMediaHandler).commit();
+
+        mWebView = findViewById(R.id.webView);
+        mWebView.setVisibility(View.INVISIBLE);
 
         // Always start with UiPlayer hidden if in landscape mode
         sPreference = getSharedPreferences(PREF_SETTINGS, 0);
@@ -138,6 +141,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         Bundle bundle = getIntent().getExtras();
         mSelect = bundle.getString(ATTR_SELECT);
         hymnNo = bundle.getInt(ATTR_NUMBER);
+        hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mSelect, hymnNo);
 
         switch (mSelect) {
             // Convert the user input hymn number i.e: hymn #1 => #0 i.e.index number
@@ -155,7 +159,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
         ViewPager mPager = findViewById(R.id.viewPager);
         // default seems to have only created 2 previous items, so omit this statement, otherwise 9 items get created
-        mPager.setOffscreenPageLimit(1);
+       //  mPager.setOffscreenPageLimit(1);
         mPager.setAdapter(mPagerAdapter);
         mPager.setPageTransformer(true, new DepthPageTransformer());
         // Set the viewPager to the user selected hymn number
@@ -165,13 +169,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
             mPager.setCurrentItem(hymnNo);
 
         mPager.addOnPageChangeListener(this);
-    }
-
-    @Override
-    protected void onResume()
-    {
-        super.onResume();
-        showPlayerUi(isShowMenu && !mSelect.startsWith("toc_"));
     }
 
     private void showPlayerUi(boolean show)
@@ -191,7 +188,11 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         }
 
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            backToHome();
+            if (mWebView.isShown()) {
+                mWebView.setVisibility(View.INVISIBLE);
+            } else {
+                backToHome();
+            }
             return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -227,6 +228,22 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                 showPlayerUi(isShowMenu);
                 return true;
 
+            case R.id.lyrcsEnglish:
+                if (hymnNoEng == null) {
+                    HymnsApp.showToastMessage(R.string.gui_error_english_lyrics_null, hymnNo);
+                    return true;
+                }
+
+                WebViewFragment mWebFragment = (WebViewFragment) getSupportFragmentManager().findFragmentById(R.id.webView);
+                if (mWebFragment == null) {
+                    mWebFragment = new WebViewFragment();
+                } else {
+                    mWebFragment.initWebView();
+                }
+                getSupportFragmentManager().beginTransaction().replace(R.id.webView, mWebFragment).commit();
+                mWebView.setVisibility(View.VISIBLE);
+                return true;
+
             case R.id.help:
                 DialogActivity.showDialog(this, R.string.help, R.string.content_help);
                 return true;
@@ -256,6 +273,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         int tmp = HymnIdx2NoConvert.hymnIdx2NoConvert(mSelect, pos)[0];
         if (tmp != hymnNo) {
             hymnNo = tmp;
+            hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mSelect, hymnNo);
             mMediaController.initHymnInfo(getHymnInfo());
         }
     }
@@ -415,9 +433,9 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
      * Otherwise, fetch from online sites with predefined link;
      * else drop to next mediaType for playback
      *
-     * @param mediaType media Type for playback i.e. midi, BanZhou, JianChang or MP3
+     * @param mediaType media Type for the playback i.e. midi, BanZhou, JianChang or MP3
      * @param proceedDownLoad download from the specified dnLink if true;
-     * @return arrya of media resouce to placback. Usually only one item, two for midi resources
+     * @return array of media resource to playback. Usually only one item, two for midi resources
      */
     public List<Uri> getPlayHymn(MediaType mediaType, boolean proceedDownLoad)
     {
@@ -673,7 +691,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
      * @param dir the media local dir
      * @param fileName the media filename
      * @param uriList the media URI list
-     * @return true if local medai file is found else false
+     * @return true if local media file is found else false
      */
     private boolean isExist(String dir, String fileName, List<Uri> uriList)
     {
@@ -686,8 +704,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     }
 
     /**
-     * Get the hymn information for media controller.
-     * It alyas try to generate the possible lyricsPhrase for media download link
+     * Get the hymn information for the media controller.
+     * It always try to generate the possible lyricsPhrase for media download link
      *
      * @return the hymn info for display
      */
@@ -773,5 +791,16 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                 break;
         }
         return hymnInfo;
+    }
+
+    /**
+     * fetch the link for the current selected hymn corresponding English lyrics
+     *
+     * @return the webLink for the Engilish lyrics
+     */
+    public String getWebUrl()
+    {
+        String HymnalLink = "https://www.hymnal.net/en/hymn/h/";
+        return (hymnNoEng == null) ? null : HymnalLink + hymnNoEng;
     }
 }

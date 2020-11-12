@@ -37,6 +37,7 @@ import java.util.List;
 
 import de.cketti.library.changelog.ChangeLog;
 
+import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
 import static org.cog.hymnchtv.HymnToc.hymnTocPage;
 
 /**
@@ -516,8 +517,13 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      */
     private void showHymnToc(String hymnType)
     {
-        Intent intent = new Intent(this, HymnToc.class);
+        // "英中对照" not implemented for HYMN_ER or HYMN_XB
+        if (TOC_ENGLISH.equals(tocPage) && (HYMN_ER.equals(hymnType) || HYMN_XB.equals(hymnType))) {
+            HymnsApp.showToastMessage(R.string.gui_in_development);
+            return;
+        }
 
+        Intent intent = new Intent(this, HymnToc.class);
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_SELECT, hymnType);
         bundle.putString(ATTR_PAGE, tocPage);

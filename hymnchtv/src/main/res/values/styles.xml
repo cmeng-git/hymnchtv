@@ -103,4 +103,18 @@
         <item name="android:paddingStart">12sp</item>
     </style>
 
+    <style name="EntryTextView" parent="@android:style/Widget.Holo.EditText">
+        <item name="android:radius">5dp</item>
+        <item name="android:textColor">@color/textColorBlack</item>
+        <item name="android:textCursorDrawable">@null</item>
+        <item name="android:background">@drawable/white_rounded</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:textSize">21sp</item>
+    </style>
+
+
+
 </resources>

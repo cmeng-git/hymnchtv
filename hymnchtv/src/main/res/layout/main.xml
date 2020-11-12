@@ -17,7 +17,7 @@
         android:maxLines="2"
         android:textColor="@color/red800"
         android:textStyle="bold"
-        android:textSize="25sp" />
+        android:textSize="22sp" />
 
     <TextView
         android:id="@+id/tv_entry"

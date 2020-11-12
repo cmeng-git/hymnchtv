@@ -31,4 +31,12 @@
         android:orientation="vertical" >
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/webView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/viewPager"
+        android:orientation="vertical" >
+    </LinearLayout>
+
 </RelativeLayout>

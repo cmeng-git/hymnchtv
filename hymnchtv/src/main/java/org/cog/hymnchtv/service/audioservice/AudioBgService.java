@@ -92,10 +92,10 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
 
     private MediaRecorder mRecorder = null;
 
-    private Map<Uri, MediaPlayer> uriPlayers = new ConcurrentHashMap<>();
+    private final Map<Uri, MediaPlayer> uriPlayers = new ConcurrentHashMap<>();
 
     // Map contains the running loop count for the reference media player
-    private Map<MediaPlayer, Integer> playbackCounts = new ConcurrentHashMap<>();
+    private final Map<MediaPlayer, Integer> playbackCounts = new ConcurrentHashMap<>();
 
     private long startTime = 0L;
 
@@ -108,13 +108,13 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     // The Google ASR input requirements state that audio input sensitivity should be set such
     // that 90 dB SPL_LEVEL at 1000 Hz yields RMS of 2500 for 16-bit samples,
     // i.e. 20 * log_10 (2500 / mGain) = 90.
-    private double mGain = 2500.0 / Math.pow(10.0, 90.0 / 20.0);
+    private final double mGain = 2500.0 / Math.pow(10.0, 90.0 / 20.0);
 
     // For displaying error in calibration.
     public static double mOffsetDB = 0.0f;  //10 Offset for bar, i.e. 0 lit LEDs at 10 dB.
     public static double mDBRange = 70.0f;  //SPL display range.
 
-    private static double mEMA = 1.0; // Temporally filtered version of RMS
+    private static double mEMA = 1.0; // a temporally filtered version of RMS
     //private double mAlpha =  0.9 Coefficient of IIR smoothing filter for RMS.
     static final private double EMA_FILTER = 0.4;
 
@@ -278,12 +278,13 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
         if (mHandlerPlayback == null)
             mHandlerPlayback = new Handler();
 
-        // Check player status on return to chatSession before start new
+        // Check player status on return to chatSession before start new;
+        // Not applicable to hymnchtv, audio playback stops on exit content view page
         mPlayer = uriPlayers.get(uri);
         if (mPlayer != null) {
             if (mPlayer.isPlaying()) {
                 playbackState(PlaybackState.play, uri);
-                // Cancel and resync with only one loop running
+                // Cancel and re-sync with only one loop running
                 mHandlerPlayback.removeCallbacks(playbackStatus);
                 mHandlerPlayback.postDelayed(playbackStatus, 500);
             }
@@ -307,7 +308,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     }
 
     /**
-     * Reinit an existing player and return its status
+     * Re-init an existing player and broadcast its state
      *
      * @param uri the media file uri
      */
@@ -325,7 +326,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     /**
      * Pause the current player and return the action result
      *
-     * @param uri Media file uri
+     * @param uri the media file uri
      */
     public void playerPause(Uri uri)
     {
@@ -415,8 +416,9 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
         if (mPlayer != null) {
             mPlayer.seekTo(0);
             playbackState(PlaybackState.stop, uri);
-            uriPlayers.remove(uri);
 
+            playbackCounts.remove(mPlayer);
+            uriPlayers.remove(uri);
             if (mPlayer.isPlaying()) {
                 mPlayer.stop();
             }
@@ -454,6 +456,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
      */
     private void checkLoopSyncAction(MediaPlayer mp)
     {
+        // Decrement and update mp player loop counter in playbackCounts
         Integer count = playbackCounts.get(mp) - 1;
         playbackCounts.put(mp, count);
         Set<MediaPlayer> mps = playbackCounts.keySet();
@@ -535,7 +538,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
      * b. playback position
      * c. uri playback duration
      */
-    private Runnable playbackStatus = new Runnable()
+    private final Runnable playbackStatus = new Runnable()
     {
         public void run()
         {
@@ -640,7 +643,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private Runnable updateSPL = new Runnable()
+    private final Runnable updateSPL = new Runnable()
     {
         public void run()
         {

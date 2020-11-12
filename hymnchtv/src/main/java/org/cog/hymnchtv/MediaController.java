@@ -322,8 +322,8 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
         }
 
         /*
-         * Clear the hymns list on stopPlay, allowing playback to fetch new if user changes the hymn
-         * Let MpBroadcastReceiver perform the required task, else has problem in Stop state update
+         * Do not clear the hymns list on stopPlay, allowing playback to fetch new if user changes the hymn
+         * Must let MpBroadcastReceiver perform the required task, else has problem in Stop state update
          */
         // mediaHymns.clear();
         // initHymnInfo(mContentHandler.getHymnInfo());
@@ -629,7 +629,7 @@ public class MediaController extends Fragment implements AdapterView.OnItemSelec
 
                         LocalBroadcastManager.getInstance(mContentHandler).unregisterReceiver(mReceiver);
                         initHymnInfo(mContentHandler.getHymnInfo());
-                        // flow through
+                        // flow through to reset player state
 
                     case pause:
                         if (playerState != STATE_STOP) {

@@ -46,10 +46,19 @@
             android:scaleType="fitStart" />
 
         <TextView
-            android:id="@+id/contentView_txt"
+            android:id="@+id/contentViewCh_txt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/border_bg_grey"
+            android:paddingStart="30dp"
+            android:paddingTop="10dp"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:id="@+id/contentViewEn_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_bg_blue"
             android:paddingStart="30dp"
             android:paddingTop="10dp"
             android:textSize="20sp"/>

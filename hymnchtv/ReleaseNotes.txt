@@ -1,6 +1,19 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	11/12/2020
+Version:		1.4.1 (104010)
+- Fix MediaPlayer UI does not update its UI when playback end-occur if last playback is manually stop.
+  * Must clear playbackCounts value for the key mp after it is stopped and released;
+    else it has loopCount value == 1 in checkLoopSyncAction() and PlaybackState.stop is not broadcast
+- Cleanup MediaHandler# updateProgress() and Calculate a moving average for file download speed with
+  a larger SMOOTHING_FACTOR; so the UI display remaining time is no so jumpy
+- Add TOC for English to Chinese cross-reference option
+- Implement local English lyrics content display - will be removed in next release
+- Correct mistakes in lyrics bb139 and dds & bbs English cross-references
+
+=========================================================================
+Author:         cmeng
 Upload Date:	10/25/2020
 Version:		1.4.0 (104000)
 - Implement Play Asset Delivery to meet play store requirements
