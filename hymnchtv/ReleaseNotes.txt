@@ -1,6 +1,13 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	11/15/2020
+Version:		1.4.2 (104020)
+- Add back accidentally removed feature: auto hide media player UI when device is in landscape mode
+- Remove local English lyrics content display feature - keep the web access
+
+=========================================================================
+Author:         cmeng
 Upload Date:	11/12/2020
 Version:		1.4.1 (104010)
 - Fix MediaPlayer UI does not update its UI when playback end-occur if last playback is manually stop.
@@ -9,7 +16,6 @@ Version:		1.4.1 (104010)
 - Cleanup MediaHandler# updateProgress() and Calculate a moving average for file download speed with
   a larger SMOOTHING_FACTOR; so the UI display remaining time is no so jumpy
 - Add TOC for English to Chinese cross-reference option
-- Implement local English lyrics content display - will be removed in next release
 - Correct mistakes in lyrics bb139 and dds & bbs English cross-references
 
 =========================================================================

@@ -6,6 +6,11 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.4.2 (11/15/2020)" versioncode="104020">
+        <change>手机横向模式时，媒体播放器界面自动隐藏；意外移除而进行的维修</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.4.1 (11/12/2020)" versioncode="104010">
         <change>修复媒体播放结束，偶尔不返回播放停止位置的情况</change>
         <change>改善下载剩余时间显示，使其不大度跳动</change>

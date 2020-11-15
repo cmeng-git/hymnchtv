@@ -118,7 +118,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         setContentView(R.layout.content_main);
         registerForContextMenu(findViewById(R.id.linear));
 
-        // Attach the media controller player UI; Reuse the fragment is found;
+        // Attach the media controller player UI; Reuse the fragment if found;
         // do not create/add new, otherwise playerUi setVisibility is no working
         mMediaController = (MediaController) getSupportFragmentManager().findFragmentById(R.id.mediaPlayer);
         if (mMediaController == null) {
@@ -169,6 +169,13 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
             mPager.setCurrentItem(hymnNo);
 
         mPager.addOnPageChangeListener(this);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        showPlayerUi(isShowMenu);
     }
 
     private void showPlayerUi(boolean show)

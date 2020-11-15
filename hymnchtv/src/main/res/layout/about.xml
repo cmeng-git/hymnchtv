@@ -98,7 +98,7 @@
         <Button
             android:id="@+id/history_log"
             style="@style/Button"
-            android:text="@string/show_history_log" />
+            android:text="@string/gui_show_history_log" />
 
         <Button
             android:id="@+id/check_new_version"

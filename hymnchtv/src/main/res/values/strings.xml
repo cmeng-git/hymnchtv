@@ -18,7 +18,7 @@
     <string name="gui_ok">确认</string>
     <string name="gui_to_be_added">待加</string>
     <string name="gui_version">程式版本: %1$s</string>
-    <string name="show_history_log">历史记录</string>
+    <string name="gui_show_history_log">历史记录</string>
 
     <string name="gui_error">Error</string>
     <string name="gui_error_invalid">输入错误: 未按目录或输入(附)号码</string>

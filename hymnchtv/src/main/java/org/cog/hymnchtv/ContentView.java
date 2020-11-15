@@ -67,8 +67,6 @@ public class ContentView extends Fragment
     public static String LYRICS_BB_TEXT = "lyrics_bb_text/";
     public static String LYRICS_DB_TEXT = "lyrics_db_text/";
 
-    public static String LYRICS_ED_TEXT = "lyrics_ed_text/ed%04d.txt";
-
     public static String LYRICS_TOC = "lyrics_toc/";
 
     public final static String LYRICS_TYPE = "lyricsType";
@@ -78,9 +76,6 @@ public class ContentView extends Fragment
     private View mConvertView;
     private ImageView mContentView = null;
     private Integer hymnNoEng = null;
-
-    // Maximum of the local available English lyrics text for DB
-    private static final int dbEngMax = 18;
 
     // Need this to prevent crash on rotation if there are other constructors implementation
     // public ContentView()
@@ -160,13 +155,6 @@ public class ContentView extends Fragment
             case HYMN_DB:
                 resPrefix = LYRICS_DB_SCORE + "db" + lyricsNo;
                 resFName = LYRICS_DBS_TEXT + lyricsNo + ".txt";
-
-                // Show the English lyrics if available (to be removed in next release)
-                // To avoid copyright, the new approach is to show as webPage
-                Integer hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(hymnType, lyricsNo);
-                if ((hymnNoEng != null) && (hymnNoEng <= dbEngMax)) {
-                    resEnFName = String.format(Locale.US, LYRICS_ED_TEXT, hymnNoEng);
-                }
                 break;
 
             default:
@@ -180,11 +168,6 @@ public class ContentView extends Fragment
         // Show Hymn Lyric Text for the selected hymnNo
         if (!TextUtils.isEmpty(resFName)) {
             showLyricsChText(resFName);
-        }
-
-        // Show the associated English Lyric for the selected hymnNo
-        if (resEnFName != null) {
-            showLyricsEnText(resEnFName);
         }
     }
 
@@ -267,31 +250,6 @@ public class ContentView extends Fragment
             lyricsView.setText(lyrics);
         } catch (IOException e) {
             Timber.w("Error reading file: %s", resFName);
-        }
-    }
-
-    /**
-     * Display the associated English lyrics of the selected hymn
-     *
-     * @param resEnFName Lyrics english text resource fileName
-     */
-    private void showLyricsEnText(String resEnFName)
-    {
-        TextView lyricsView = mConvertView.findViewById(R.id.contentViewEn_txt);
-        lyricsView.setTextSize(HymnsApp.isPortrait ? 20 : 35);
-
-        try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().getAssets().open(resEnFName)));
-            StringBuilder lyrics = new StringBuilder();
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                lyrics.append(line.replace("\t", "    "));
-                lyrics.append('\n');
-            }
-            lyricsView.setText(lyrics);
-        } catch (IOException e) {
-            Timber.w("Error reading file: %s", resEnFName);
         }
     }
 
