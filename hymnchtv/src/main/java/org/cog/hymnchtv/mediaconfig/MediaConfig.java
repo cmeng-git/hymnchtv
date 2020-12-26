@@ -863,7 +863,7 @@ public class MediaConfig extends FragmentActivity
                                 mFileName = mFileName.substring(0, idx);
                             String hymnNo = mFileName.replaceAll("\\D*", "");
 
-                            if (!TextUtils.isEmpty(hymnNo)) {
+                            if (TextUtils.isEmpty(hymnNo)) {
                                 hymnNo = "0000";
                             }
                             mediaRecord = String.format(Locale.CHINA, "%s,%s,%d,%s,%s,%s\r\n",

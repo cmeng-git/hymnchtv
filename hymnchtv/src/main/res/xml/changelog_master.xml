@@ -6,7 +6,7 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="1.5.0 (12/26/2020)" versioncode="105000">
+    <release version="1.5.0 (12/26/2020)" versioncode="105001">
         <change>添加对用户定义媒体内容的支持，即每个诗歌标题的视频和音频以进行播放</change>
         <change>支持安卓共享以添加媒体内容，或来自第三方应用程序的网址链接作为用户定义的媒体内容</change>
         <change>允许导出保存中的用户定义媒体内容，以通过导入与其他安卓设备共享</change>
