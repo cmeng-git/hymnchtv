@@ -16,7 +16,7 @@
  */
 package org.cog.hymnchtv;
 
-import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -31,6 +31,8 @@ import androidx.viewpager.widget.ViewPager;
 
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.TextUtils;
+import org.cog.hymnchtv.mediaconfig.MediaRecord;
+import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.utils.*;
 import org.cog.hymnchtv.webview.WebViewFragment;
@@ -53,12 +55,12 @@ import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB_NO_MAX;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB_NO_TMAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.PREF_MENU_SHOW;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
 
 // import static org.cog.hymnchtv.HymnToc.TOC_BB;
 
@@ -67,10 +69,12 @@ import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
  *
  * @author Eng Chong Meng
  */
-@SuppressLint("NonConstantResourceId")
 public class ContentHandler extends FragmentActivity implements ViewPager.OnPageChangeListener
 {
+    public static String HYMNCHTV_FAQ_PLAYBACK = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0050";
+
     // sub-directory for various media type
+    public static String MEDIA_MEDIA = "/media_media/";
     public static String MEDIA_MIDI = "/media_midi/";
     public static String MEDIA_JIAOCHANG = "/media_jiaochang/";
     public static String MEDIA_BANZOU = "/media_banzou/";
@@ -84,16 +88,18 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     public static final String MIDI_DB = "dm";
     public static final String MIDI_DBC = "dmc";
 
+    private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
+
     public boolean isShowMenu;
 
-    // Hymn number selected by user
+    // Hymn Type and number selected by user
+    private String mSelect;
     private int hymnNo;
     private int hymnIdx = -1;
 
     // Null if there is no corresponding English lyrics
     private Integer hymnNoEng = null;
 
-    private String mSelect;
     public PopupWindow pop;
     public SharedPreferences sPreference;
 
@@ -105,8 +111,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     /**
      * The media controller used to handle the playback of the user selected hymn.
      */
-    private MediaController mMediaController;
-    private MediaHandler mMediaHandler;
+    private MediaGuiController mMediaGuiController;
+    private MediaDownloadHandler mMediaDownloadHandler;
 
     private View mWebView;
 
@@ -120,16 +126,16 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
         // Attach the media controller player UI; Reuse the fragment if found;
         // do not create/add new, otherwise playerUi setVisibility is no working
-        mMediaController = (MediaController) getSupportFragmentManager().findFragmentById(R.id.mediaPlayer);
-        if (mMediaController == null) {
-            mMediaController = new MediaController();
-            getSupportFragmentManager().beginTransaction().replace(R.id.mediaPlayer, mMediaController).commit();
+        mMediaGuiController = (MediaGuiController) getSupportFragmentManager().findFragmentById(R.id.mediaPlayer);
+        if (mMediaGuiController == null) {
+            mMediaGuiController = new MediaGuiController();
+            getSupportFragmentManager().beginTransaction().replace(R.id.mediaPlayer, mMediaGuiController).commit();
         }
 
         // Attach the File Transfer GUI; Use single instance created in HymnApp;
         // do not create/add new, otherwise GUI display is no working properly
-        mMediaHandler = HymnsApp.mMediaHandler;
-        getSupportFragmentManager().beginTransaction().replace(R.id.filexferGui, mMediaHandler).commit();
+        mMediaDownloadHandler = HymnsApp.mMediaDownloadHandler;
+        getSupportFragmentManager().beginTransaction().replace(R.id.filexferGui, mMediaDownloadHandler).commit();
 
         mWebView = findViewById(R.id.webView);
         mWebView.setVisibility(View.INVISIBLE);
@@ -159,7 +165,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
         ViewPager mPager = findViewById(R.id.viewPager);
         // default seems to have only created 2 previous items, so omit this statement, otherwise 9 items get created
-       //  mPager.setOffscreenPageLimit(1);
+        // mPager.setOffscreenPageLimit(1);
         mPager.setAdapter(mPagerAdapter);
         mPager.setPageTransformer(true, new DepthPageTransformer());
         // Set the viewPager to the user selected hymn number
@@ -180,7 +186,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
     private void showPlayerUi(boolean show)
     {
-        mMediaController.initPlayerUi(show);
+        mMediaGuiController.initPlayerUi(show);
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event)
@@ -197,7 +203,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (mWebView.isShown()) {
                 mWebView.setVisibility(View.INVISIBLE);
-            } else {
+            }
+            else {
                 backToHome();
             }
             return true;
@@ -244,7 +251,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                 WebViewFragment mWebFragment = (WebViewFragment) getSupportFragmentManager().findFragmentById(R.id.webView);
                 if (mWebFragment == null) {
                     mWebFragment = new WebViewFragment();
-                } else {
+                }
+                else {
                     mWebFragment.initWebView();
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.webView, mWebFragment).commit();
@@ -252,7 +260,10 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                 return true;
 
             case R.id.help:
-                DialogActivity.showDialog(this, R.string.help, R.string.content_help);
+                // DialogActivity.showDialog(this, R.string.help, R.string.content_help);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(HYMNCHTV_FAQ_PLAYBACK));
+                startActivity(intent);
                 return true;
 
             case R.id.home:
@@ -266,7 +277,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
     private void backToHome()
     {
-        mMediaController.stopPlay();
+        mMediaGuiController.stopPlay();
         finish();
     }
 
@@ -280,9 +291,25 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         int tmp = HymnIdx2NoConvert.hymnIdx2NoConvert(mSelect, pos)[0];
         if (tmp != hymnNo) {
             hymnNo = tmp;
-            hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mSelect, hymnNo);
-            mMediaController.initHymnInfo(getHymnInfo());
+            updateMediaPlayerInfo();
         }
+    }
+
+    /**
+     * Update all the required media info base on the current selected hymnType and hymnNo i.e.
+     * a. English hymn number or null if none
+     * b. The media player hymn title info
+     * c. The text color of the Button Media
+     */
+    public void updateMediaPlayerInfo() {
+        hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mSelect, hymnNo);
+
+        // Check to see if user defined media is available for the current selected HymnType/HymnNo
+        boolean isFu = mSelect.equals(HYMN_DB) && (hymnNo > HYMN_DB_NO_MAX);
+        MediaRecord mediaRecord = new MediaRecord(mSelect, hymnNo, isFu, MediaType.HYMN_MEDIA);
+        boolean isAvailable = mDB.getMediaRecord(mediaRecord, false);
+
+        mMediaGuiController.initHymnInfo(getHymnInfo(), isAvailable);
     }
 
     @Override
@@ -300,12 +327,12 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
      */
     public void startPlay()
     {
-        mMediaController.startPlay();
+        mMediaGuiController.startPlay();
     }
 
     public void onError(String statusText)
     {
-        mMediaController.playbackPlay.setImageResource(R.drawable.ic_play_stop);
+        mMediaGuiController.playbackPlay.setImageResource(R.drawable.ic_play_stop);
         HymnsApp.showToastMessage(statusText);
     }
 
@@ -452,6 +479,18 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         String tmpName;
 
         /*
+         * Try to fetch the user defined media contents for all user selected media types (first priority).
+         * Proceed to other media handlers if is not handled so in getMediaUris
+         * Otherwise return the returned uriList: may contain empty list,
+         * or a filled uri list of audio links to be playback by caller
+         * Note: a remote media url link will be played via streaming using ExoPlayer without downloading the file
+        */
+        MediaContentHandler instance = MediaContentHandler.getInstance();
+        if (instance.getMediaUris(mSelect, hymnNo, mediaType, uriList)) {
+            return uriList;
+        }
+
+        /*
          * Generate the hymn fileName (remove all punctuation marks), and the lyricsPhrase
          * Currently use in  MP3 media fileName is: ? + hymnNo + hymnTitle + ".mp3"
          */
@@ -467,15 +506,17 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         switch (mSelect) {
             case HYMN_ER:
                 switch (mediaType) {
-                    case HYMN_MIDI:
+                    case HYMN_MEDIA:
+                        // drop down to next level
+
+                    // https://heavenlyfood.cn/hymns/music/er/C1.mp3
+                    case HYMN_BANZOU:
                         dir = mSelect + MEDIA_MIDI;
                         tmpName = "C" + hymnNo + ".mid";
                         if (isExist(dir, tmpName, uriList)) {
                             return uriList;
                         }
 
-                        // https://heavenlyfood.cn/hymns/music/er/C1.mp3
-                    case HYMN_BANZOU:
                         dir = mSelect + MEDIA_BANZOU;
                         fileName = "C" + hymnNo + ".mp3";
                         dnLink = "https://heavenlyfood.cn/hymns/music/er/" + fileName;
@@ -521,14 +562,16 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
             case HYMN_XB:
                 switch (mediaType) {
-                    case HYMN_MIDI:
+                    case HYMN_MEDIA:
+                        // drop down to next level
+
+                    case HYMN_BANZOU:
                         dir = mSelect + MEDIA_MIDI;
                         tmpName = "X" + hymnNo + ".mid";
                         if (isExist(dir, tmpName, uriList)) {
                             return uriList;
                         }
 
-                    case HYMN_BANZOU:
                         dir = mSelect + MEDIA_BANZOU;
                         tmpName = "X" + hymnNo + ".mp3";
                         if (isExist(dir, tmpName, uriList)) {
@@ -563,16 +606,18 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
             case HYMN_BB:
                 switch (mediaType) {
-                    case HYMN_MIDI:
-                        // Drop down to play HYMN_BANZOU if no midi files available
+                    case HYMN_MEDIA:
+                        // drop down to next level
+
+                        // https://heavenlyfood.cn/hymns/music/bu/B15.mp3
+                    case HYMN_BANZOU:
+                        // proceed to use HYMN_BANZOU if no midi files available
                         if (HymnsApp.getFileResId(MIDI_BB + hymnNo, "raw") != 0) {
                             uriList.add(HymnsApp.getRawUri(MIDI_BB + hymnNo));
                             uriList.add(HymnsApp.getRawUri(MIDI_BBC + hymnNo));
                             break;
                         }
 
-                        // https://heavenlyfood.cn/hymns/music/bu/B15.mp3
-                    case HYMN_BANZOU:
                         dir = mSelect + MEDIA_BANZOU;
                         fileName = "B" + hymnNo + ".mp3";
                         dnLink = "https://heavenlyfood.cn/hymns/music/bu/" + fileName;
@@ -619,17 +664,19 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
 
             case HYMN_DB:
                 switch (mediaType) {
-                    case HYMN_MIDI:
-                        // Drop down to play HYMN_BANZOU if no midi files available
+                    case HYMN_MEDIA:
+                        // drop down to next level
+
+                    // https://heavenlyfood.cn/hymns/music/da/D45.mp3
+                    // https://heavenlyfood.cn/hymns/music/da/D781.mp3
+                    case HYMN_BANZOU:
+                        // proceed to use HYMN_BANZOU if no midi files available
                         if (HymnsApp.getFileResId(MIDI_DB + hymnNo, "raw") != 0) {
                             uriList.add(HymnsApp.getRawUri(MIDI_DB + hymnNo));
                             uriList.add(HymnsApp.getRawUri(MIDI_DBC + hymnNo));
                             break;
                         }
 
-                        // https://heavenlyfood.cn/hymns/music/da/D45.mp3
-                        // https://heavenlyfood.cn/hymns/music/da/D781.mp3
-                    case HYMN_BANZOU:
                         dir = mSelect + MEDIA_BANZOU;
                         fileName = "D" + hymnNo + ".mp3";
                         dnLink = "https://heavenlyfood.cn/hymns/music/da/" + fileName;
@@ -686,14 +733,14 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                 uriList.add(Uri.fromFile(mediaFile));
             }
             else if (!TextUtils.isEmpty(dnLink) && proceedDownLoad) {
-                mMediaHandler.initHttpFileDownload(dnLink, dir, fileName);
+                mMediaDownloadHandler.initHttpFileDownload(dnLink, dir, fileName);
             }
         }
         return uriList;
     }
 
     /**
-     * Fetch and init the local media file URI path for play back if any else return false;
+     * Fetch and init the local media file URI path for play back if any else return false
      *
      * @param dir the media local dir
      * @param fileName the media filename
@@ -803,7 +850,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     /**
      * fetch the link for the current selected hymn corresponding English lyrics
      *
-     * @return the webLink for the Engilish lyrics
+     * @return the webLink for the English lyrics
      */
     public String getWebUrl()
     {

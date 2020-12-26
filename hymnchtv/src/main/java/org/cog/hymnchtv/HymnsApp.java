@@ -28,10 +28,10 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.*;
 
 import org.cog.hymnchtv.impl.timberlog.TimberLogImpl;
+import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
 import org.cog.hymnchtv.service.androidupdate.OnlineUpdateService;
 import org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl;
@@ -66,9 +66,9 @@ public class HymnsApp extends Application implements LifecycleObserver
     private static HymnsApp mInstance;
 
     /**
-     * Must have only one instance of the MediaHandler for properly UI display
+     * Must have only one instance of the MediaDownloadHandler for properly UI display
      */
-    public static MediaHandler mMediaHandler;
+    public static MediaDownloadHandler mMediaDownloadHandler;
 
     public static boolean isPortrait = true;
 
@@ -93,10 +93,10 @@ public class HymnsApp extends Application implements LifecycleObserver
         new NotificationHelper(this);
 
         // force delete in case system locked during testing
-        // ServerPersistentStoresRefreshDialog.deleteDB();  // purge sql database
+        // deleteDatabase(DatabaseBackend.DATABASE_NAME);
 
         // Trigger the hymnchtv database upgrade or creation if none exist
-        // DatabaseBackend.getInstance(this);
+        DatabaseBackend.getInstance(this);
 
         // Do this after WebView(this).destroy(); Set up contextWrapper to use hymnchtv user selected Language
         mInstance = this;
@@ -105,7 +105,7 @@ public class HymnsApp extends Application implements LifecycleObserver
 
         super.onCreate();
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
-        mMediaHandler = new MediaHandler();
+        mMediaDownloadHandler = new MediaDownloadHandler();
 
         // Get android device screen display size
         Point size = new Point();

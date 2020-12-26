@@ -30,6 +30,7 @@ import androidx.core.content.FileProvider;
 import org.cog.hymnchtv.HymnsApp;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -54,12 +55,8 @@ public class FileBackend
 
     // android-Q accessible path to apk is: /storage/emulated/0/Android/data/org.cog.hymnchtv/files
     public static String FP_HYMNCHTV = "/hymnchtv";
-    public static String EXPROT_DB = "EXPORT_DB";
 
-    public static String MEDIA = "Media";
     public static String MEDIA_CAMERA = "Media/Camera";
-    public static String MEDIA_DOCUMENT = "Media/Documents";
-    public static String MEDIA_VOICE_RECEIVE = "Media/Voice_Receive";
     public static String MEDIA_VOICE_SEND = "Media/Voice_Send";
     public static String TMP = "tmp";
 
@@ -147,7 +144,7 @@ public class FileBackend
                 throw new IOException("Cannot copy file onto itself.");
             }
 
-            // replace existing file, but not directory
+            // replace the existing file, but not directory
             if (dstPath.exists()) {
                 if (dstPath.isDirectory()) {
                     throw new IOException("Cannot overwrite existing directory.");
@@ -220,7 +217,8 @@ public class FileBackend
     }
 
     /**
-     * Default hymnchtv downloadable directory i.e. Download/hymnchtv
+     * Default hymnchtv downloadable directory i.e. Download/hymnchtv;
+     * create subFolder if none found and createNew is true
      *
      * @param subFolder subFolder to be created under hymnchtv downloadable directory, null if root
      * @return hymnchtv default directory
@@ -288,32 +286,28 @@ public class FileBackend
         }
     }
 
-    /**
-     * To guess if a given link string is a file link address
-     *
-     * @param link a string to be checked for file link
-     * @return true if the string is likely to be a Http File Download link
-     */
-    public static boolean isHttpFileDnLink(String link)
-    {
-        if (link != null) {
-            if (link.matches("(?s)^aesgcm:.*")) {
-                return true;
-            }
-            else if (link.matches("(?s)^http[s]:.*") && !link.contains("\\s")) {
-                // return false if there is no ext or 2 < ext.length() > 5
-                String ext = link.replaceAll("(?s)^.+/[\\w-]+\\.([\\w-]{2,5})$", "$1");
-                if (ext.length() > 5) {
-                    return false;
-                } else {
-                    // web common extensions: asp, cgi, [s]htm[l], js, php, pl
-                    // android asp, cgi shtm, shtml, js, php, pl => (mimeType == null)
-                    return !ext.matches("s*[achjp][sgthl][pim]*[l]*");
-                }
-            }
-        }
-        return false;
-    }
+//    /**
+//     * To guess if a given link string is a file link address
+//     * Use URLUtil.isValidUrl(link);
+//     * @param link a string to be checked for file link
+//     * @return true if the string is likely to be a Http File Download link
+//     */
+//    public static boolean isHttpFileLink(String link)
+//    {
+//        if (!TextUtils.isEmpty(link) && link.matches("(?s)^http[s]:.*") && !link.contains("\\s")) {
+//            // return false if there is no ext or 2 < ext.length() > 5
+//            String ext = link.replaceAll("(?s)^.+/[\\w-]+\\.([\\w-]{2,5})$", "$1");
+//            if (ext.length() > 5) {
+//                return false;
+//            }
+//            else {
+//                // web common extensions: asp, cgi, [s]htm[l], js, php, pl
+//                // android asp, cgi shtm, shtml, js, php, pl => (mimeType == null)
+//                return !ext.matches("s*[achjp][sgthl][pim]*[l]*");
+//            }
+//        }
+//        return false;
+//    }
 
     /**
      * To guess the mime type of the given uri using the mimeMap or from path name
@@ -340,6 +334,11 @@ public class FileBackend
 
     /**
      * To guess the mime type of the given uri using the mimeMap or from path name
+     * Unicode uri string must be urlEncoded for android getFileExtensionFromUrl(),
+     * else alwyas return ""
+     *
+     * Note: android returns *.mp3 file as audio/mpeg. See https://tools.ietf.org/html/rfc3003;
+     * and returns as video/mpeg on re-submission with *.mpeg
      *
      * @param ctx the reference Context
      * @param uri content:// or file:// or whatever suitable Uri you want.
@@ -353,21 +352,32 @@ public class FileBackend
             mimeType = cr.getType(uri);
         }
         else {
-            String fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+            String fileExtension = "";
+            try {
+                // Need to encode unicode uri before proceed; revert all "%3A", "%2F" and "+" to ":", "/" and "%20"
+                String uriEncoded = URLEncoder.encode(uri.toString(), "UTF-8")
+                        .replaceAll("%2F", "/")
+                        .replaceAll("%3A", ":")
+                        .replaceAll("\\+", "%20");
+                fileExtension = MimeTypeMap.getFileExtensionFromUrl(uriEncoded);
+            } catch (UnsupportedEncodingException e) {
+                Timber.w("urlEncode exception: %s", e.getMessage());
+                fileExtension = MimeTypeMap.getFileExtensionFromUrl(uri.toString());
+            }
             if (fileExtension != null)
                 mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileExtension.toLowerCase());
         }
 
-        // Make a guess base on filePath
-        if ((mimeType == null) || mimeType.equals(("application/octet-stream"))) {
-            String fileName = uri.getPath();
-            if (fileName != null) {
-                if (fileName.contains("image"))
-                    mimeType = "image/*";
-                else if (fileName.contains("video"))
-                    mimeType = "video/*";
-            }
-        }
+        // Make a guess base on filePath - not good for hymnchtv for uri link
+//        if ((mimeType == null) || mimeType.equals(("application/octet-stream"))) {
+//            String fileName = uri.getPath();
+//            if (fileName != null) {
+//                if (fileName.contains("image"))
+//                    mimeType = "image/*";
+//                else if (fileName.contains("video"))
+//                    mimeType = "video/*";
+//            }
+//        }
         return mimeType;
     }
 

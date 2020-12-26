@@ -123,7 +123,7 @@ public class UpdateServiceImpl
                 if (lastJobStatus == DownloadManager.STATUS_SUCCESSFUL) {
                     DownloadManager downloadManager = HymnsApp.getDownloadManager();
                     Uri fileUri = downloadManager.getUriForDownloadedFile(lastDownload);
-                    File apkFile = new File(FilePathHelper.getPath(HymnsApp.getGlobalContext(), fileUri));
+                    File apkFile = new File(FilePathHelper.getFilePath(HymnsApp.getGlobalContext(), fileUri));
 
                     // Ask the user if he wants to install if available and valid apk is found
                     if (isValidApkVersion(apkFile, latestVersionCode)) {
@@ -215,7 +215,7 @@ public class UpdateServiceImpl
     private void askUninstallApk(Uri fileUri)
     {
         String app_pkg_name = "org.cog.hymnchtv";
-        File apkFile = new File(FilePathHelper.getPath(HymnsApp.getGlobalContext(), fileUri));
+        File apkFile = new File(FilePathHelper.getFilePath(HymnsApp.getGlobalContext(), fileUri));
 
         DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
                 R.string.gui_download_completed,
@@ -318,7 +318,7 @@ public class UpdateServiceImpl
                 if (lastJobStatus == DownloadManager.STATUS_SUCCESSFUL) {
                     DownloadManager downloadManager = HymnsApp.getDownloadManager();
                     Uri fileUri = downloadManager.getUriForDownloadedFile(lastDownload);
-                    File apkFile = new File(FilePathHelper.getPath(HymnsApp.getGlobalContext(), fileUri));
+                    File apkFile = new File(FilePathHelper.getFilePath(HymnsApp.getGlobalContext(), fileUri));
 
                     // Ask the user if he wants to install if available and valid apk is found
                     if (isValidApkVersion(apkFile, latestVersionCode)) {

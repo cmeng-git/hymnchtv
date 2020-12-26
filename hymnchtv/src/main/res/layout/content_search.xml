@@ -12,5 +12,6 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:text="Medium Text"
+        android:textIsSelectable="true"
         android:textAppearance="?android:textAppearanceMedium" />
 </RelativeLayout>

@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public enum MediaType
 {
-    HYMN_MIDI(0),
+    HYMN_MEDIA(0),
     HYMN_BANZOU(1),
     HYMN_JIAOCHANG(2),
     HYMN_CHANGSHI(3);
@@ -35,18 +35,18 @@ public enum MediaType
     private final int value;
     private static final Map<Integer, MediaType> map = new HashMap<>();
 
-    MediaType(int value) {
-        this.value = value;
-    }
-
     static {
         for (MediaType mediaType : MediaType.values()) {
             map.put(mediaType.value, mediaType);
         }
     }
 
+    MediaType(int value) {
+        this.value = value;
+    }
+
     public static MediaType valueOf(int hymnType) {
-        return (MediaType) map.get(hymnType);
+        return map.get(hymnType);
     }
 
     public int getValue() {

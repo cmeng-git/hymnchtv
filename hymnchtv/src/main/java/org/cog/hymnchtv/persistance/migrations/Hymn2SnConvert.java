@@ -31,10 +31,10 @@ import timber.log.Timber;
 import static org.cog.hymnchtv.ContentView.LYRICS_BB_SCORE;
 import static org.cog.hymnchtv.ContentView.LYRICS_DB_SCORE;
 import static org.cog.hymnchtv.ContentView.LYRICS_XB_SCORE;
-import static org.cog.hymnchtv.MainActivity.rangeBbLimit;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
 
 /**
  * LyricsNoConvert hymns' lyrics file index number to file using actual hymn lyrics  number.

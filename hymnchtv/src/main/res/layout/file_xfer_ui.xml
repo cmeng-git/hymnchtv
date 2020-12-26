@@ -17,7 +17,7 @@
 
     <TextView
         android:id="@+id/filexferFileNameView"
-        style="@style/SmallFont"
+        style="@style/TinyFont"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="start"
@@ -26,7 +26,7 @@
 
     <TextView
         android:id="@+id/filexferStatusView"
-        style="@style/SmallFont"
+        style="@style/TinyFont"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="start"
@@ -52,7 +52,7 @@
 
         <TextView
             android:id="@+id/file_progressSpeed"
-            style="@style/SmallFont"
+            style="@style/TinyFont"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -73,7 +73,7 @@
 
     <TextView
         android:id="@+id/file_estTime"
-        style="@style/SmallFont"
+        style="@style/TinyFont"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="start"

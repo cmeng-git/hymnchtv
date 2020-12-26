@@ -1,6 +1,30 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	12/26/2020
+Version:		1.5.0 (105000)
+- Add support for User Defined Media Contents i.e. video and audio per hymn title for play back
+- Support android share sheet to add media content or url link from external application as user defined media content
+- Allow export of the user defined media contents saved in predefined directory to share with other devices via import
+- Auto creation of the export file from media contents files stored in the predefined directory; for inclusion in the user defined media for play back
+- Include embedded media player for playing back of the user defined video media and youtube url
+- Support user defined media list viewer, and an embedded text editor to ease the export and import the user defined media
+- Created dbHymnApp.db database to support User Defined Media
+- Make lyrics text and search content selectable for copy via double clicks at desired text location
+- Enhance android getMimeType i.e. MimeTypeMap.getFileExtensionFromUrl() to support unicode uri
+  Must URLEncoder for unicode text before submit for MimeTypeMap.getFileExtensionFromUrl(), else return ""
+- Fix media player not playing user newly selected media type on entry to the lyrics display page;
+  it plays previously selected media type instead.
+  * Do not init mediaHymns in onResume stage as it will use the old HymnType to load the uri
+- Ensure mTocSpinnerItem on selection, its fontType and fontColor are set to user defined
+- Fixed main UI Category text style not properly updated to user selected font size/color properties
+- Retrieve the actual fileName when android share file via content:// scheme.
+  See FilePathHelper#getFilePathWithCreate()
+- Cleanup and consolidate all HymnType buttons click in main UI into a common routine
+- Rename MediaController to MediaGuiController to avoid conflict with android class
+
+=========================================================================
+Author:         cmeng
 Upload Date:	11/15/2020
 Version:		1.4.2 (104020)
 - Add back accidentally removed feature: auto hide media player UI when device is in landscape mode

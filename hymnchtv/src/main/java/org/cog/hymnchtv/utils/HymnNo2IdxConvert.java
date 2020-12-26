@@ -24,15 +24,15 @@ import java.util.List;
 import timber.log.Timber;
 
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
-import static org.cog.hymnchtv.MainActivity.HYMN_BB_NO_MAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB_NO_TMAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
-import static org.cog.hymnchtv.MainActivity.HYMN_ER_NO_MAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
-import static org.cog.hymnchtv.MainActivity.HYMN_XB_NO_MAX;
-import static org.cog.hymnchtv.MainActivity.rangeBbLimit;
-import static org.cog.hymnchtv.MainActivity.rangeErLimit;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
+import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
 
 /**
  * HymnNo2IdxConvert convert the hymn lyrics number to index for used by pagerAdapter.
@@ -138,7 +138,8 @@ public class HymnNo2IdxConvert
 
         if (hymnIdx == -1) {
             Timber.w("Invalid %s hymnNo: %s => %s", hymnType, hymnNo, hymnIdx);
-        } else {
+        }
+        else {
             Timber.d("%s number to index: %s => %s", hymnType, hymnNo, hymnIdx);
         }
 

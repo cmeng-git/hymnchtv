@@ -51,6 +51,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/border_bg_grey"
             android:paddingStart="30dp"
+            android:textIsSelectable="true"
             android:paddingTop="10dp"
             android:textSize="20sp"/>
     </LinearLayout>

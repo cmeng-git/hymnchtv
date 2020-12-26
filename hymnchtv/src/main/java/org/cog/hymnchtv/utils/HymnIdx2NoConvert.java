@@ -22,15 +22,15 @@ import java.util.Map;
 import timber.log.Timber;
 
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
-import static org.cog.hymnchtv.MainActivity.HYMN_BB_NO_MAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB_NO_TMAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
-import static org.cog.hymnchtv.MainActivity.HYMN_ER_NO_MAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
-import static org.cog.hymnchtv.MainActivity.HYMN_XB_NO_MAX;
-import static org.cog.hymnchtv.MainActivity.rangeBbLimit;
-import static org.cog.hymnchtv.MainActivity.rangeErLimit;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
+import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
 
 /**
  * This class converts the give hymn index and hymnType to the actual hymn lyrics number.

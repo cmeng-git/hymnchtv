@@ -4,20 +4,20 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:alpha="20.0"
-    android:padding="5dp"
     android:background="@drawable/bg0"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="5dp">
 
     <TextView
         android:id="@+id/tv_hint"
+        style="@style/LargeFont"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="@string/hint_hymn_ui"
         android:maxLines="2"
+        android:text="@string/hint_hymn_ui"
         android:textColor="@color/red800"
-        android:textStyle="bold"
-        android:textSize="22sp" />
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_entry"
@@ -33,10 +33,10 @@
 
     <EditText
         android:id="@+id/tv_search"
+        style="@style/XLargeFont"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="0.9"
-        android:textSize="25sp"
         android:hint="@string/hint_hymn_content_search" />
 
     <LinearLayout
@@ -59,10 +59,12 @@
         <Spinner
             android:id="@+id/spinner_toc"
             style="@style/SpinnerView"
+            android:background="@drawable/btn_transparent"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_marginStart="20dp" />
-
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_gravity="top"/>
     </LinearLayout>
 
     <LinearLayout
@@ -159,7 +161,7 @@
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
-                android:text="@string/hymn_new"
+                android:text="@string/hymn_xb"
                 android:textSize="25sp"
                 android:textStyle="bold" />
         </LinearLayout>

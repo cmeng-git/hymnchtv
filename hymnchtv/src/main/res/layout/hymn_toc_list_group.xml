@@ -15,7 +15,7 @@
 
     <TextView
         android:id="@+id/hymnCategory"
-        style="@style/XLargeFont"
+        style="@style/LargeFont"
         android:singleLine="true"
         android:textColor="@color/textColorWhite"
         android:layout_width="match_parent"

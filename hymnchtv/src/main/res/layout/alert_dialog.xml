@@ -19,7 +19,7 @@
 
             <TextView
                 android:id="@+id/alertText"
-                style="@style/LargeFont"
+                style="@style/MediumFont"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="{Alert dialog text}" />

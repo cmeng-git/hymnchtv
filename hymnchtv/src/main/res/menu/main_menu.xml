@@ -103,6 +103,10 @@
         android:title="@string/gui_hymn_sn_convert" />
 
     <item
+        android:id="@+id/media_config"
+        android:title="@string/gui_media_config" />
+
+    <item
         android:id="@+id/online_help"
         android:title="@string/gui_help_online" />
 

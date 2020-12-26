@@ -51,7 +51,6 @@ import static org.cog.hymnchtv.MainActivity.HYMN_XB;
  *
  * @author Eng Chong Meng
  */
-@SuppressLint("NonConstantResourceId")
 public class ContentView extends Fragment
 {
     public static String LYRICS_ER_SCORE = "lyrics_er_score/";
@@ -126,7 +125,6 @@ public class ContentView extends Fragment
     {
         String resPrefix;
         String resFName;
-        String resEnFName = null;
 
         int[] hymnScoreInfo = HymnIdx2NoConvert.hymnIdx2NoConvert(hymnType, hymnIndex);
 

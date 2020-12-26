@@ -18,7 +18,7 @@
 
         <TextView
             android:id="@+id/hymnTitle"
-            style="@style/LargeFont"
+            style="@style/MediumFont"
             android:textColor="@color/textColorBlack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -14,7 +14,7 @@
 
         <TextView
             android:id="@+id/username_label"
-            style="@style/XLargeFont"
+            style="@style/LargeFont"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:textColor="@color/textColorWhite"
@@ -34,7 +34,7 @@
 
         <TextView
             android:id="@+id/password_label"
-            style="@style/XLargeFont"
+            style="@style/LargeFont"
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:textColor="@color/textColorWhite"

@@ -9,14 +9,14 @@
     android:orientation="horizontal" >
 
     <RadioButton
-        android:id="@+id/btn_midi"
+        android:id="@+id/btn_media"
         style="@style/ButtonTop"
-        android:checked="true"
-        android:text="@string/hymn_media_midi" />
+        android:text="@string/hymn_media_media" />
 
     <RadioButton
         android:id="@+id/btn_banzhou"
         style="@style/ButtonTop"
+        android:checked="true"
         android:layout_marginStart="2dp"
         android:text="@string/hymn_media_banzou" />
 

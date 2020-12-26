@@ -6,9 +6,22 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.5.0 (12/26/2020)" versioncode="105000">
+        <change>添加对用户定义媒体内容的支持，即每个诗歌标题的视频和音频以进行播放</change>
+        <change>支持安卓共享以添加媒体内容，或来自第三方应用程序的网址链接作为用户定义的媒体内容</change>
+        <change>允许导出保存中的用户定义媒体内容，以通过导入与其他安卓设备共享</change>
+        <change>根据存储在预定义目录中的媒体内容文件自动创建导出文件；用于包含在用户定义的媒体中以进行播放</change>
+        <change>包括嵌入式视频媒体播放器，用于播放用户定义的视频媒体和其他优酷网址</change>
+        <change>支持用户定义的媒体列表查看器和嵌入式文本编辑器，以简化导出和导入用户定义的媒体操作</change>
+        <change>通过双击所需的文本位置，可以选择歌词文本和搜索内容以进行复制</change>
+        <change>修复媒体播放器在进入歌词显示页面时不播放用户新选择的媒体类型的问题</change>
+        <change>优化安卓获取多功能互联网邮件扩展类型以支持统一码网址链接</change>
+        <change>将midi和伴奏合并为单个伴奏控制按钮</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.4.2 (11/15/2020)" versioncode="104020">
         <change>手机横向模式时，媒体播放器界面自动隐藏；意外移除而进行的维修</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.4.1 (11/12/2020)" versioncode="104010">

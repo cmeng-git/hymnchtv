@@ -20,25 +20,24 @@
         <item name="android:layout_height">44dp</item>
     </style>
 
-    <style name="SmallFont" parent="@android:style/TextAppearance.Small">
+    <style name="TinyFont" parent="@android:style/TextAppearance.Small">
         <item name="android:textSize">12sp</item>
     </style>
 
-    <style name="MediumFont" parent="@android:style/TextAppearance.Medium">
+    <style name="SmallFont" parent="@android:style/TextAppearance.Small">
         <item name="android:textSize">15sp</item>
     </style>
 
-    <style name="LargeFont" parent="@android:style/TextAppearance.Large">
+    <style name="MediumFont" parent="@android:style/TextAppearance.Medium">
         <item name="android:textSize">18sp</item>
     </style>
 
-    <style name="XLargeFont" parent="@android:style/TextAppearance.Large">
+    <style name="LargeFont" parent="@android:style/TextAppearance.Large">
         <item name="android:textSize">21sp</item>
     </style>
 
-    <style name="TocFont" parent="@android:style/TextAppearance.Large">
-        <item name="android:textColor">@color/textColorWhite</item>
-        <item name="android:textSize">22sp</item>
+    <style name="XLargeFont" parent="@android:style/TextAppearance.Large">
+        <item name="android:textSize">25sp</item>
     </style>
 
     <style name="AboutDialogTextColor" parent="@android:style/TextAppearance">
@@ -46,24 +45,24 @@
         <item name="android:textColorLink">@color/blue100</item>
     </style>
 
-    <!-- Main UI Spinner (Large)-->
+    <!-- Standard Spinner for hymnchtv -->
     <style name="SpinnerView" parent="@android:style/Widget.Spinner">
         <item name="android:textColor">@color/textColorBlack</item>
         <item name="android:textCursorDrawable">@null</item>
-        <item name="android:background">@drawable/btn_transparent</item>
+        <item name="android:background">@drawable/spinner_dark</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">40dp</item>
         <item name="android:spinnerMode">dropdown</item>
+        <item name="android:textSize">21sp</item>
     </style>
 
     <style name="SpinnerItem" parent="@android:style/Widget.TextView.SpinnerItem">
         <item name="android:textColor">@color/textColorBlack</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:gravity">center</item>
+        <item name="android:gravity">center_vertical</item>
         <item name="android:paddingStart">10dp</item>
         <item name="android:textSize">25sp</item>
-        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="SpinnerItem.DropDownItem" parent="@android:style/Widget.DropDownItem.Spinner">

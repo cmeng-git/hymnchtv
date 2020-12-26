@@ -26,6 +26,10 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_INDEX_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_INDEX_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_INDEX_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_INDEX_MAX;
 
 /**
  * The hymn lyrics implementation for the user page sliding and display update
@@ -56,16 +60,16 @@ public class MyPagerAdapter extends FragmentPagerAdapter
     {
         switch (mHymnType) {
             case HYMN_ER:
-                return MainActivity.HYMN_ER_INDEX_MAX;
+                return HYMN_ER_INDEX_MAX;
 
             case HYMN_XB:
-                return MainActivity.HYMN_XB_INDEX_MAX;
+                return HYMN_XB_INDEX_MAX;
 
             case HYMN_BB:
-                return MainActivity.HYMN_BB_INDEX_MAX;
+                return HYMN_BB_INDEX_MAX;
 
             case HYMN_DB:
-                return MainActivity.HYMN_DB_INDEX_MAX;
+                return HYMN_DB_INDEX_MAX;
 
             default:
                 return 1;

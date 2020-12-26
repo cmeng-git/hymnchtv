@@ -33,7 +33,6 @@ import java.util.*;
 
 import timber.log.Timber;
 
-import static org.cog.hymnchtv.ContentHandler.PAGE_SEARCH;
 import static org.cog.hymnchtv.ContentView.LYRICS_BBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_BB_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
@@ -44,16 +43,16 @@ import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_SEARCH;
 import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
-import static org.cog.hymnchtv.MainActivity.HYMN_BB_NO_MAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB_NO_MAX;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB_NO_TMAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
-import static org.cog.hymnchtv.MainActivity.HYMN_ER_NO_MAX;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
-import static org.cog.hymnchtv.MainActivity.HYMN_XB_NO_MAX;
-import static org.cog.hymnchtv.MainActivity.rangeBbLimit;
-import static org.cog.hymnchtv.MainActivity.rangeErLimit;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
+import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
 
 /**
  * ContentSearch: search and display the matched results based on uer input text string.

@@ -21,19 +21,23 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.*;
+import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Range;
 import android.view.*;
 import android.widget.*;
 
 import androidx.fragment.app.FragmentActivity;
 
+import org.cog.hymnchtv.mediaconfig.MediaConfig;
+import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.persistance.PermissionUtils;
-import org.cog.hymnchtv.utils.HymnNo2IdxConvert;
+import org.cog.hymnchtv.utils.HymnNoValidate;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 import de.cketti.library.changelog.ChangeLog;
 
@@ -46,9 +50,10 @@ import static org.cog.hymnchtv.HymnToc.hymnTocPage;
  * @author Eng Chong Meng
  * @author wayfarer
  */
-@SuppressLint("NonConstantResourceId")
 public class MainActivity extends FragmentActivity implements AdapterView.OnItemSelectedListener
 {
+    public static String HYMNCHTV_FAQ = "https://cmeng-git.github.io/hymnchtv/faq.html";
+
     public static final String ATTR_SELECT = "select";
     public static final String ATTR_NUMBER = "number";
     public static final String ATTR_SEARCH = "search";
@@ -100,71 +105,14 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     private boolean isFu = false;
     private boolean isToc = false;
-    private boolean isValid = true;
 
     private int fontSize = FONT_SIZE_DEFAULT;
-
-    private int nui;
-    private String sNumber = "";
+    private int fontColor = Color.BLACK;
 
     public static MainActivity mActivity;
 
+    private String sNumber = "";
     private String tocPage;
-
-    /* Maximum HymnNo/HymnIndex: 大本诗歌 and start of its supplement */
-    // The values and the similar must be updated if there are any new contents added
-    public static final int HYMN_DB_NO_MAX = 780;
-    public static final int HYMN_DBS_NO_MAX = 6;
-
-    // FuGe pass-in index is HYMN_DB_NO_MAX + fu Number
-    public static final int HYMN_DB_NO_TMAX = 786;
-    public static final int HYMN_DB_INDEX_MAX = 786;
-
-    /* Maximum HymnNo/HymnIndex (excluding multiPage i.e. a,b,c,d,e): 補充本 */
-    public static final int HYMN_BB_NO_MAX = 1005;
-    public static final int HYMN_BB_INDEX_MAX = 513;
-
-    /* Maximum HymnNo/HymnIndex: 新歌颂咏 */
-    public static final int HYMN_XB_NO_MAX = 169;
-    public static final int HYMN_XB_INDEX_MAX = 169;
-
-    /* Maximum HymnNo/HymnIndex: 儿童诗歌 */
-    public static final int HYMN_ER_NO_MAX = 1232;
-    public static final int HYMN_ER_INDEX_MAX = 330;
-
-
-    // ======================================================== //
-    // 補充本 range parameters for page number (i.e. less than in each 100 range)
-    // Each value is hymnNo + 1 within each 100 range; it is used to generate rangeBbInvalid
-    // The values must be updated if there are any new contents added
-    public static final int[] rangeBbLimit = {38, 151, 259, 350, 471, 544, 630, 763, 881, 931, 1006};
-
-    // invalid range for 補充本
-    public static final List<Range<Integer>> rangeBbInvalid = new ArrayList<>();
-
-    // Auto generated invalid range for based 補充本 on rangeBbLimit; invalid range for 補充本:
-    // (38, 100),(151, 200),(259, 300),(350, 400),(471, 500),(544, 600),(630, 700),(763, 800),(881, 900),(931, 1000)
-    static {
-        for (int i = 0; i < (rangeBbLimit.length - 1); i++) {
-            rangeBbInvalid.add(Range.create(rangeBbLimit[i], 100 * (i + 1)));
-        }
-    }
-
-    // ======================================================== //
-    // 儿童诗歌 range parameters for page number (i.e. less than in each 100 range)
-    // Each value is hymnNo + 1 within each 100 range; it is used to generate rangeErInvalid
-    // The values must be updated if there are any new contents added
-    public static final int[] rangeErLimit = {18, 125, 213, 324, 446, 525, 622, 720, 837, 921, 1040, 1119, 1233};
-
-    // invalid range for 儿童诗歌
-    public static final List<Range<Integer>> rangeErInvalid = new ArrayList<>();
-
-    // Auto generated invalid range for 儿童诗歌 based on rangeErLimit
-    static {
-        for (int i = 0; i < (rangeErLimit.length - 1); i++) {
-            rangeErInvalid.add(Range.create(rangeErLimit[i], 100 * (i + 1)));
-        }
-    }
 
     // Available background wall papers
     public static int[] bgResId = {R.drawable.bg0, R.drawable.bg1, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4, R.drawable.bg5,
@@ -181,8 +129,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
         mEditor = mSharedPref.edit();
 
-        initButton();
         setTitle(R.string.app_title_main);
+        initButton();
         initUserSettings();
 
         // PermissionUtils.isPermissionGranted(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -199,16 +147,16 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         }, 15000));
 
         // 儿童诗歌
-        btn_er.setOnClickListener(v -> onErClicked());
+        btn_er.setOnClickListener(v -> onHymnButtonClicked(HYMN_ER));
 
         // 新歌颂咏
-        btn_xb.setOnClickListener(v -> onXbClicked());
+        btn_xb.setOnClickListener(v -> onHymnButtonClicked(HYMN_XB));
 
         // 补充本
-        btn_bb.setOnClickListener(v -> onBbClicked());
+        btn_bb.setOnClickListener(v -> onHymnButtonClicked(HYMN_BB));
 
         // 大本诗歌
-        btn_db.setOnClickListener(v -> onDbClicked());
+        btn_db.setOnClickListener(v -> onHymnButtonClicked(HYMN_DB));
 
         // Numeric number entry handlers for 0~9
         btn_n0.setOnClickListener(this::onNumberClick);
@@ -257,6 +205,69 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             tv_Search.setText(sValue);
             return true;
         });
+
+        handleIntent(getIntent());
+    }
+
+    /**
+     * Called when new <tt>Intent</tt> is received(this <tt>Activity</tt> is launched in <tt>singleTask</tt> mode.
+     *
+     * @param intent new <tt>Intent</tt> data.
+     */
+    @Override
+    protected void onNewIntent(Intent intent)
+    {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    /**
+     * Handle share intent to extract the share text content or URIS
+     *
+     * @param intent <tt>Activity</tt> <tt>Intent</tt>.
+     */
+    private void handleIntent(Intent intent)
+    {
+        super.onStart();
+        if (intent == null) {
+            return;
+        }
+
+        final String action = intent.getAction();
+        final String type = intent.getType();
+
+        String mediaLink = null;
+
+        if (Intent.ACTION_SEND.equals(action) && (type != null)) {
+            if ("text/plain".equals(type)) {
+                mediaLink = intent.getStringExtra(Intent.EXTRA_TEXT);
+            } else {
+                mediaLink = getFile(intent.getParcelableExtra(Intent.EXTRA_STREAM));
+            }
+        }
+        else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && (type != null)) {
+            final ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            mediaLink = getFile(uris.get(0));
+        }
+
+        if (mediaLink != null) {
+            intent = new Intent(this, MediaConfig.class);
+            Bundle bundle = new Bundle();
+            bundle.putString(MediaConfig.ATTR_MEDIA_URI, mediaLink);
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
+    }
+
+    private String getFile(Uri uri) {
+        File inFile = new File(FilePathHelper.getFilePath(this, uri));
+        if (inFile.exists()) {
+            return inFile.getPath();
+        }
+        else
+            HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
+
+        return null;
     }
 
     // 目录 Spinner selector handler
@@ -273,6 +284,14 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         else if (TextUtils.isEmpty(sNumber)) {
             mEntry.setText("");
         }
+
+        // Need to re-init mTocSpinnerItem here whenever a new item is selected
+        mTocSpinnerItem = tocSpinner.findViewById(R.id.textItem);
+        mTocSpinnerItem.setTypeface(null, Typeface.BOLD);
+        mTocSpinnerItem.setGravity(Gravity.CENTER);
+
+        mTocSpinnerItem.setTextSize(fontSize - 10);
+        mTocSpinnerItem.setTextColor(fontColor);
     }
 
     @Override
@@ -282,6 +301,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     /**
      * Routine to handle Fu and all numeric buttons click
+     *
      * @param btnView fu and number buttons views
      */
     private void onNumberClick(View btnView)
@@ -297,159 +317,12 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
     /**
-     * Handler for 儿童诗歌 button clicked
+     * Handler for user hymnType button clicks;
+     * Show TOC is selected else the content for the hymnNo if valid
+     *
+     * @param hymnType the button being clicked
      */
-    private void onErClicked()
-    {
-        if (!isToc) {
-            if (isFu) {
-                HymnsApp.showToastMessage(R.string.hymn_info_sp_none);
-                return;
-            }
-
-            isValid = true;
-            sNumber = mEntry.getText().toString();
-            if (TextUtils.isEmpty(sNumber)) {
-                sNumber = "0";
-            }
-
-            nui = Integer.parseInt(sNumber);
-            if (nui > HYMN_ER_NO_MAX) {
-                HymnsApp.showToastMessage(R.string.hymn_info_er_max, HYMN_ER_NO_MAX);
-                sNumber = "";
-                mEntry.setText(sNumber);
-                isValid = false;
-            }
-            else if (nui < 1) {
-                HymnsApp.showToastMessage(R.string.gui_error_invalid);
-                sNumber = "";
-                mEntry.setText(sNumber);
-                isValid = false;
-            }
-            else {
-                for (Range<Integer> rangeX : rangeErInvalid) {
-                    if (rangeX.contains(nui)) {
-                        HymnsApp.showToastMessage(R.string.hymn_info_er_range_over, rangeX.getLower(), rangeX.getUpper());
-                        isValid = false;
-                        break;
-                    }
-                }
-            }
-
-            if (isValid) {
-                showContent(HYMN_ER, nui);
-            }
-            else {
-                sNumber = "";
-                mEntry.setText(sNumber);
-            }
-        }
-        else {
-            showHymnToc(HYMN_ER);
-        }
-    }
-
-    /**
-     * Handler for 新歌颂咏 button clicked
-     */
-    private void onXbClicked()
-    {
-        if (!isToc) {
-            if (isFu) {
-                HymnsApp.showToastMessage(R.string.hymn_info_sp_none);
-                return;
-            }
-
-            isValid = true;
-            sNumber = mEntry.getText().toString();
-            if (TextUtils.isEmpty(sNumber)) {
-                sNumber = "0";
-            }
-
-            nui = Integer.parseInt(sNumber);
-            if (nui > HYMN_XB_NO_MAX) {
-                HymnsApp.showToastMessage(R.string.hymn_info_xb_max, HYMN_XB_NO_MAX);
-                sNumber = "";
-                mEntry.setText(sNumber);
-                isValid = false;
-            }
-            else if (nui < 1) {
-                HymnsApp.showToastMessage(R.string.gui_error_invalid);
-                sNumber = "";
-                mEntry.setText(sNumber);
-                isValid = false;
-            }
-
-            if (isValid) {
-                showContent(HYMN_XB, nui);
-            }
-            else {
-                sNumber = "";
-                mEntry.setText(sNumber);
-            }
-        }
-        else {
-            showHymnToc(HYMN_XB);
-        }
-    }
-
-    /**
-     * Handler for 补充本 button clicked
-     */
-    private void onBbClicked()
-    {
-        if (!isToc) {
-            if (isFu) {
-                HymnsApp.showToastMessage(R.string.hymn_info_sp_none);
-                return;
-            }
-
-            isValid = true;
-            sNumber = mEntry.getText().toString();
-            if (TextUtils.isEmpty(sNumber)) {
-                sNumber = "0";
-            }
-
-            nui = Integer.parseInt(sNumber);
-            if (nui > HYMN_BB_NO_MAX) {
-                HymnsApp.showToastMessage(R.string.hymn_info_bb_max, HYMN_BB_NO_MAX);
-                sNumber = "";
-                mEntry.setText(sNumber);
-                isValid = false;
-            }
-            else if (nui < 1) {
-                HymnsApp.showToastMessage(R.string.gui_error_invalid);
-                sNumber = "";
-                mEntry.setText(sNumber);
-                isValid = false;
-            }
-            else {
-                for (Range<Integer> rangeX : rangeBbInvalid) {
-                    if (rangeX.contains(nui)) {
-                        HymnsApp.showToastMessage(R.string.hymn_info_bb_range_over, rangeX.getLower(), rangeX.getUpper());
-                        isValid = false;
-                        break;
-                    }
-                }
-            }
-
-            if (isValid) {
-                showContent(HYMN_BB, nui);
-            }
-            else {
-                sNumber = "";
-                mEntry.setText(sNumber);
-            }
-        }
-        else {
-            showHymnToc(HYMN_BB);
-        }
-    }
-
-    /**
-     * Handler for 大本诗歌 button clicked
-     */
-    private void onDbClicked()
+    private void onHymnButtonClicked(String hymnType)
     {
         if (!isToc) {
             sNumber = mEntry.getText().toString();
@@ -459,52 +332,36 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             if (TextUtils.isEmpty(sNumber)) {
                 sNumber = "0";
             }
-            nui = Integer.parseInt(sNumber);
+            int hymnNo = Integer.parseInt(sNumber);
 
-            isValid = true;
-            if (isFu) {
-                if (nui < 1 || nui > HYMN_DBS_NO_MAX) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_db_range_fu);
-                    isFu = false;
-                    isValid = false;
-                }
-                nui += HYMN_DB_NO_MAX;
-            }
-            else if (nui > HYMN_DB_NO_MAX) {
-                HymnsApp.showToastMessage(R.string.hymn_info_db_max, HYMN_DB_NO_MAX);
-                isValid = false;
-            }
-            else if (nui < 1) {
-                HymnsApp.showToastMessage(R.string.gui_error_invalid);
-                isValid = false;
-            }
-
-            if (isValid) {
-                showContent(HYMN_DB, nui);
+            int nui = HymnNoValidate.validateHymnNo(hymnType, hymnNo, isFu);
+            if (nui != -1) {
+                showContent(hymnType, nui);
             }
             else {
                 sNumber = "";
                 mEntry.setText(sNumber);
+                isFu = false;
             }
         }
         else {
-            showHymnToc(HYMN_DB);
+            showHymnToc(hymnType);
         }
     }
 
     /**
-     * Show the content of user selected hymn type
+     * Show the content of user selected hymnType and hymnNo
      *
-     * @param mode Toc or hymn lyrics
-     * @param number the content of hymn number to display
+     * @param hymnType lyrics content of the hymnType
+     * @param hymnNo the content of hymnNo to display
      */
-    public void showContent(String mode, int number)
+    public void showContent(String hymnType, int hymnNo)
     {
         Intent intent = new Intent(this, ContentHandler.class);
 
         Bundle bundle = new Bundle();
-        bundle.putString(ATTR_SELECT, mode);
-        bundle.putInt(ATTR_NUMBER, number);
+        bundle.putString(ATTR_SELECT, hymnType);
+        bundle.putInt(ATTR_NUMBER, hymnNo);
 
         intent.putExtras(bundle);
         startActivity(intent);
@@ -532,16 +389,22 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
     /**
-     * KeyEvent handler for KeyEvent.KEYCODE_BACK
+     * KeyEvent handler for KeyEvent.KEYCODE_BACK.
+     * Remove the fragment view if triggers from a fragment else close app
      *
      * @param keyCode android keyCode
      * @param event KeyEvent
-     * @return handler state
+     * @return handler state from android super
      */
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            finish();
+            if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                super.onBackPressed();
+            }
+            else {
+                getSupportFragmentManager().popBackStack();
+            }
             return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -564,6 +427,13 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         return true;
     }
 
+    /**
+     * Pop up the main menu if user long press on the main UI
+     *
+     * @param menu menu
+     * @param v view
+     * @param menuInfo info
+     */
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)
     {
         getMenuInflater().inflate(R.menu.main_menu, menu);
@@ -572,7 +442,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     /**
      * Handler for the Context item clicked; use the same handlers as Option Item clicked
      *
-     * @param item Option Item Item
+     * @param item Option Item
      * @return the handle state
      */
     public boolean onContextItemSelected(MenuItem item)
@@ -588,6 +458,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      */
     public boolean onOptionsItemSelected(MenuItem item)
     {
+        Intent intent;
+
         switch (item.getItemId()) {
             // Set font size
             case R.id.small:
@@ -704,16 +576,21 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
             case R.id.sn_convert:
                 // HymnIdx2NoConvert.validateIdx2NoConversion(HYMN_ER, HYMN_ER_INDEX_MAX);
-                HymnNo2IdxConvert.validateNo2IdxConversion(HYMN_DB, HYMN_DB_NO_TMAX);
+                // HymnNo2IdxConvert.validateNo2IdxConversion(HYMN_DB, HYMN_DB_NO_TMAX);
                 // Hymn2SnConvert.startConvert(); use for old to new file name conversion for 1.1.0 only
                 return true;
 
+            case R.id.media_config:
+                intent = new Intent(this, MediaConfig.class);
+                startActivity(intent);
+                return true;
+
             case R.id.online_help:
-                About.hymnUrlAccess(this, About.HYMNCHTV_HTTP_LINK);
+                About.hymnUrlAccess(this, HYMNCHTV_FAQ);
                 return true;
 
             case R.id.about:
-                Intent intent = new Intent(this, About.class);
+                intent = new Intent(this, About.class);
                 startActivity(intent);
                 return true;
 
@@ -762,7 +639,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
         btn_search = findViewById(R.id.btn_search);
 
-        // Create an ArrayAdapter using the string array and aTalk default spinner layout
+        // Create an ArrayAdapter using the string array and hymnApp default spinner layout
         ArrayAdapter<String> mAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, hymnTocPage);
         // Specify the layout to use when the list of choices appears
         mAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
@@ -775,6 +652,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         tocSpinner.setOnItemSelectedListener(this);
 
         mTocSpinnerItem = tocSpinner.findViewById(R.id.textItem);
+        mTocSpinnerItem.setTypeface(null, Typeface.BOLD);
+        mTocSpinnerItem.setGravity(Gravity.CENTER);
     }
 
     /**
@@ -789,7 +668,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         fontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT);
         setFontSize(fontSize, false);
 
-        int fontColor = mSharedPref.getInt(PREF_TEXT_COLOR, Color.BLACK);
+        fontColor = mSharedPref.getInt(PREF_TEXT_COLOR, Color.BLACK);
         setFontColor(fontColor, false);
     }
 
@@ -838,6 +717,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      */
     private void setFontColor(int color, boolean update)
     {
+        fontColor = color;
         if (update) {
             mEditor.putInt(PREF_TEXT_COLOR, color);
             mEditor.commit();

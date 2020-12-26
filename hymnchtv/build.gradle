@@ -7,8 +7,8 @@ android {
     defaultConfig {
         applicationId "org.cog.hymnchtv"
         // End digit - change to force update with same version number
-        versionCode 104020
-        versionName "1.4.2"
+        versionCode 105000
+        versionName "1.5.0"
 
         minSdkVersion 21
         targetSdkVersion 30
@@ -60,6 +60,7 @@ android {
     lintOptions {
         abortOnError false
         lintConfig file("lint.xml")
+        disable 'NonConstantResourceId'
         // disable 'MissingTranslation', 'InvalidPackage', 'MissingQuantity', 'AppCompatResource'
     }
 }
@@ -67,21 +68,28 @@ android {
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
-    implementation 'org.jetbrains:annotations:16.0.1'
+    implementation 'org.jetbrains:annotations:19.0.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+
     // implementation 'com.google.android.material:material:1.2.1'
-    implementation 'com.google.android.play:core:1.8.3'
+    implementation 'com.google.android.play:core:1.9.0'
 
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
+
+    implementation 'com.github.HaarigerHarald:android-youtubeExtractor:v2.1.0'
+    // implementation 'com.github.kotvertolet:youtube-jextractor:v0.3.3'
+
+    implementation 'com.google.android.exoplayer:exoplayer:2.12.2'
 
     implementation('com.jakewharton.timber:timber:4.7.1') {
         transitive = false
     }
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'
-    implementation 'org.apache.httpcomponents:httpcore:4.4.13'
+    implementation 'jp.wasabeef:richeditor-android:2.0.0'
+    implementation 'org.apache.httpcomponents:httpcore:4.4.14'
 }
-
 
 task updateVersionFile(type: Copy) {
     description '<!-- Generate versionupdate.properties file -->'
