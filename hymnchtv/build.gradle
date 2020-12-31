@@ -7,8 +7,8 @@ android {
     defaultConfig {
         applicationId "org.cog.hymnchtv"
         // End digit - change to force update with same version number
-        versionCode 105001
-        versionName "1.5.0"
+        versionCode 105010
+        versionName "1.5.1"
 
         minSdkVersion 21
         targetSdkVersion 30
@@ -72,6 +72,9 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
+    implementation "androidx.activity:activity:1.2.0-rc01"
+    implementation "androidx.fragment:fragment:1.3.0-rc01"
+
     // implementation 'com.google.android.material:material:1.2.1'
     implementation 'com.google.android.play:core:1.9.0'
 
@@ -81,7 +84,12 @@ dependencies {
     implementation 'com.github.HaarigerHarald:android-youtubeExtractor:v2.1.0'
     // implementation 'com.github.kotvertolet:youtube-jextractor:v0.3.3'
 
+    implementation 'com.github.yalantis:ucrop:2.2.6'
+
     implementation 'com.google.android.exoplayer:exoplayer:2.12.2'
+
+    // https://github.com/guardian/toolargetool
+    // implementation 'com.gu.android:toolargetool:0.2.1'
 
     implementation('com.jakewharton.timber:timber:4.7.1') {
         transitive = false

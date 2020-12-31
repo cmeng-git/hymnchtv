@@ -6,6 +6,18 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.5.1 (01/01/2021)" versioncode="105010">
+        <change>添加用户定义的墙纸选项。</change>
+        <change>通过集成的图像编辑器，及其缩放/方向旋转/裁剪功能支持，以简化用户定义的墙纸设置。</change>
+        <change>改用 StatePagerAdapter 以大程度减少内存使用，并避免内存不足异常。</change>
+        <change>在创建导出文件之前，按升序对文件列表进行排序以方便文件编辑。</change>
+        <change>添加播放应用程序的使用演示视频选项，以帮助用户定义媒体配置设置。</change>
+        <change>用户选择媒体文件时，不自动启动富文本编辑器。</change>
+        <change>富文本编辑器标题将显示编辑后的文件名。</change>
+        <change>媒体文件下载无响应超时，向用户显示错误消息。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.5.0 (12/26/2020)" versioncode="105001">
         <change>添加对用户定义媒体内容的支持，即每个诗歌标题的视频和音频以进行播放</change>
         <change>支持安卓共享以添加媒体内容，或来自第三方应用程序的网址链接作为用户定义的媒体内容</change>
@@ -17,7 +29,6 @@
         <change>修复媒体播放器在进入歌词显示页面时不播放用户新选择的媒体类型的问题</change>
         <change>优化安卓获取多功能互联网邮件扩展类型以支持统一码网址链接</change>
         <change>将midi和伴奏合并为单个伴奏控制按钮</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.4.2 (11/15/2020)" versioncode="104020">

@@ -16,7 +16,6 @@
  */
 package org.cog.hymnchtv.mediaconfig;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,7 +24,9 @@ import android.view.View;
 import android.webkit.URLUtil;
 import android.widget.*;
 
-import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.FragmentActivity;
 
 import org.apache.http.util.EncodingUtils;
@@ -48,6 +49,8 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.MediaExoPlayer.ATTR_VIDEO_URL;
+import static org.cog.hymnchtv.MediaExoPlayer.ATTR_VIDEO_URLS;
 import static org.cog.hymnchtv.MediaType.HYMN_BANZOU;
 import static org.cog.hymnchtv.MediaType.HYMN_CHANGSHI;
 import static org.cog.hymnchtv.MediaType.HYMN_JIAOCHANG;
@@ -76,33 +79,29 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 public class MediaConfig extends FragmentActivity
         implements View.OnClickListener, AdapterView.OnItemSelectedListener
 {
-    public static String HYMNCHTV_FAQ_UDC_RECORD = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0070";
-    public static String HYMNCHTV_FAQ__UDC_DB = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0080";
+    // Online text and video playback help contents
+    private static final String HYMNCHTV_FAQ_UDC_RECORD = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0070";
+    private static final ArrayList<String> videoUrls = new ArrayList<>();
 
-    // For testing only
-    private static ArrayList<String> videoUrls = new ArrayList<>();
     static {
-        videoUrls.add("https://cmeng-git.github.io/atalk/video/01.atalk_main.mp4");
-        videoUrls.add("https://cmeng-git.github.io/atalk/video/02.atalk_conference.mp4");
-        videoUrls.add("https://cmeng-git.github.io/atalk/video/03.atalk_file_transfer.mp4");
+        videoUrls.add("https:/cmeng-git.github.io/hymnchtv/video/mediaconfig_01.mp4");
+        videoUrls.add("https:/cmeng-git.github.io/hymnchtv/video/mediaconfig_02.mp4");
     }
 
-    // public static final String TABLE_NAME = "hymn_db"; // HYMN_DB
+    // public static final String TABLE_NAME = "hymn_db"; // use as database name
     public static final String HYMN_NO = "hymnNo";
-    public static final String HYMN_FU = "isFu";
+    public static final String HYMN_FU = "isFu"; // set to 1 if fu else 0
 
     public static final String MEDIA_TYPE = "mediaType";  // see MEDIA_xxx
-    public static final String MEDIA_URI = "mediaUri";
-    public static final String MEDIA_FILE_PATH = "mediaFilePath";
-
-    private static final int REQUEST_CODE_OPEN_FILE = 105;
+    public static final String MEDIA_URI = "mediaUri";    // set to null if none
+    public static final String MEDIA_FILE_PATH = "mediaFilePath"; // set to null if none
 
     // The default directory when import_export files are being saved
-    public static String DIR_MEDIA_RECORDS = "import_export/";
+    public static final String DIR_IMPORT_EXPORT = "import_export/";
 
     public static final String ATTR_MEDIA_URI = "attr_media_uri";
 
-    /* Flag indicates if there were any uncommitted changes that shall be applied on exit */
+    /* Flag indicates if there were any uncommitted changes that should be saved on-exit */
     private boolean hasChanges = false;
 
     // Flag indicates the content is auto filled and may be overwritten when user changes the hymnNo ect.
@@ -123,7 +122,7 @@ public class MediaConfig extends FragmentActivity
     // The EditText view to be filled onActivityResult upon user selection
     private TextView mViewRequest;
 
-    // Focused view uses as indication to determine if the tvMediaUri is auto filled or user entered
+    // Focused view uses as indication to determine if the tvMediaUri is the auto filled or user entered
     private View mFocusedView = null;
 
     // DB based media record list view
@@ -227,7 +226,13 @@ public class MediaConfig extends FragmentActivity
         cbFu = findViewById(R.id.cbFu);
         cbFu.setOnCheckedChangeListener((buttonView, isChecked) -> checkEntry());
 
-        findViewById(R.id.browseMediaUri).setOnClickListener(this);
+        ActivityResultLauncher<String> mGetContent = getFileUri();
+        /* The media uri is selected by user via file explorer */
+        findViewById(R.id.browseMediaUri).setOnClickListener(view -> {
+            mViewRequest = tvMediaUri;
+            mGetContent.launch("*/*");
+        });
+
         findViewById(R.id.decodeUri).setOnClickListener(this);
         findViewById(R.id.decodeUri).setOnClickListener(this);
 
@@ -253,7 +258,12 @@ public class MediaConfig extends FragmentActivity
         tvImportFile = findViewById(R.id.importFile);
         cbOverwrite = findViewById(R.id.recordOverwrite);
 
-        findViewById(R.id.browseImportFile).setOnClickListener(this);
+        /* Use a file explorer to load in an import file */
+        findViewById(R.id.browseImportFile).setOnClickListener(view -> {
+            mViewRequest = tvImportFile;
+            mGetContent.launch("*/*");
+        });
+
         findViewById(R.id.editFile).setOnClickListener(this);
 
         findViewById(R.id.button_import).setOnClickListener(this);
@@ -266,12 +276,6 @@ public class MediaConfig extends FragmentActivity
     public void onClick(View v)
     {
         switch (v.getId()) {
-            /* The media uri is selected by user via file explorer */
-            case R.id.browseMediaUri:
-                mViewRequest = tvMediaUri;
-                browseFileStore();
-                break;
-
             case R.id.help_text:
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse(HYMNCHTV_FAQ_UDC_RECORD));
@@ -279,18 +283,14 @@ public class MediaConfig extends FragmentActivity
                 break;
 
             case R.id.help_video:
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(HYMNCHTV_FAQ__UDC_DB));
-                startActivity(intent);
+                Bundle bundle = new Bundle();
+                bundle.putString(ATTR_VIDEO_URL, null);
+                bundle.putStringArrayList(ATTR_VIDEO_URLS, videoUrls);
 
-//                Bundle bundle = new Bundle();
-//                bundle.putString(ATTR_VIDEO_URL, null);
-//                bundle.putStringArrayList(ATTR_VIDEO_URLS, videoUrls);
-//
-//                intent = new Intent(this, MediaExoPlayer.class);
-//                intent.putExtras(bundle);
-//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                startActivity(intent);
+                intent = new Intent(this, MediaExoPlayer.class);
+                intent.putExtras(bundle);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
                 break;
 
             /* Decode the media uri so it is user readable instead of %xx */
@@ -320,12 +320,6 @@ public class MediaConfig extends FragmentActivity
                 }
                 break;
 
-            // User a file explorer to load in an import file
-            case R.id.browseImportFile:
-                mViewRequest = tvImportFile;
-                browseFileStore();
-                break;
-
             // use Rich Text Editor to modify or view the import file content
             case R.id.editFile:
                 String filename = ViewUtil.toString(tvImportFile);
@@ -343,7 +337,7 @@ public class MediaConfig extends FragmentActivity
                 generateExportFile();
                 break;
 
-            // Auto create the export file based on the sub-directory media files
+            // Auto creates the export file based on the sub-directory media files
             case R.id.button_export_create:
                 createImportFile();
                 break;
@@ -353,6 +347,61 @@ public class MediaConfig extends FragmentActivity
                 showMediaRecords();
                 break;
         }
+    }
+
+    /**
+     * A contract specifying that an activity can be called with an input of type I
+     * and produce an output of type O
+     *
+     * @return an instant of ActivityResultLauncher<String>
+     * @see ActivityResultCaller
+     */
+    private ActivityResultLauncher<String> getFileUri()
+    {
+        return registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
+            if (uri == null) {
+                HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
+            }
+            else {
+                File inFile = new File(FilePathHelper.getFilePath(this, uri));
+                if (inFile.exists()) {
+                    String filename = inFile.getPath();
+                    if (mViewRequest == tvImportFile) {
+                        filename = copyToLocalFile(filename);
+                        editFile(filename);
+                    } else {
+                        isAutoFilled = false;
+                    }
+                    mViewRequest.setText(filename);
+                }
+            }
+        });
+    }
+
+    /**
+     * Copy the user selected import_export file (content://) to the hymnchtv own import_export directory;
+     * So it will be properly updated with user edited content.
+     * The mediaUri will only moved to its final media directory when user performs add command
+     *
+     * @param uriPath the uri path returns by File(FilePathHelper.getFilePath(mContext, uri))
+     * @return original uri path or newly copied uri path
+     */
+    private String copyToLocalFile(String uriPath)
+    {
+        if (uriPath.contains(FileBackend.TMP)) {
+            File inFile = new File(uriPath);
+            String fileName = inFile.getName();
+
+            File outFile = new File(FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true), fileName);
+            try {
+                if (inFile.renameTo(outFile)) {
+                    uriPath = outFile.getAbsolutePath();
+                }
+            } catch (Exception e) {
+                HymnsApp.showToastMessage(e.getMessage());
+            }
+        }
+        return uriPath;
     }
 
     // ================= User entry events ================
@@ -410,7 +459,6 @@ public class MediaConfig extends FragmentActivity
         {
             hasChanges = true;
         }
-
     }
 
     // ================= Need user confirmation before exit if changes detected ================
@@ -427,7 +475,7 @@ public class MediaConfig extends FragmentActivity
                     R.string.gui_add, new DialogActivity.DialogListener()
                     {
                         /**
-                         * Fired when user clicks the dialog's confirm button.
+                         * Fired when user clicks the dialog's the confirm button.
                          *
                          * @param dialog source <tt>DialogActivity</tt>.
                          */
@@ -624,69 +672,6 @@ public class MediaConfig extends FragmentActivity
     }
 
     /**
-     * Opens a FileChooserDialog to let the user pick a file for local store
-     */
-    private void browseFileStore()
-    {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-
-        Intent chooseFile = Intent.createChooser(intent, "File Browser");
-        startActivityForResult(chooseFile, REQUEST_CODE_OPEN_FILE);
-    }
-
-    /**
-     * Update the specified TextView field after user has chosen the file
-     *
-     * @param requestCode Pre-defied requestCode
-     * @param resultCode result of user selection
-     * @param intent the return data
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent)
-    {
-        super.onActivityResult(requestCode, resultCode, intent);
-        if (resultCode == Activity.RESULT_OK) {
-            if ((requestCode == REQUEST_CODE_OPEN_FILE) && (intent != null)) {
-                Uri uri = intent.getData();
-                File inFile = new File(FilePathHelper.getFilePath(this, uri));
-                if (inFile.exists()) {
-                    String filename = copyToLocalFile(inFile.getPath());
-                    mViewRequest.setText(filename);
-                    editFile(filename);
-                }
-                else
-                    HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
-            }
-        }
-    }
-
-    /**
-     * Copy the user selected file (content://) to the hymnchtv own directory
-     *
-     * @param uriPath the uri path returns by File(FilePathHelper.getFilePath(mContext, uri))
-     * @return original uri path or newly copied uri path
-     */
-    private String copyToLocalFile(String uriPath)
-    {
-        if (uriPath.contains(FileBackend.TMP)) {
-            File inFile = new File(uriPath);
-            String fileName = inFile.getName();
-
-            File outFile = new File(FileBackend.getHymnchtvStore(DIR_MEDIA_RECORDS, true), fileName);
-            try {
-                if (inFile.renameTo(outFile)) {
-                    uriPath = outFile.getAbsolutePath();
-                }
-            } catch (Exception e) {
-                HymnsApp.showToastMessage(e.getMessage());
-            }
-        }
-        return uriPath;
-    }
-
-    /**
      * Launch the Rich Text Editor activity for user to view, changes and saves
      *
      * @param fileName the import_export file name
@@ -792,7 +777,7 @@ public class MediaConfig extends FragmentActivity
         String fileName = String.format("%s-%s.txt", mHymnType,
                 new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
 
-        File exportFile = new File(FileBackend.getHymnchtvStore(DIR_MEDIA_RECORDS, true), fileName);
+        File exportFile = new File(FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true), fileName);
         try {
             exportFile.createNewFile();
         } catch (IOException e) {
@@ -840,7 +825,7 @@ public class MediaConfig extends FragmentActivity
         String fileName = String.format("%s-%s.txt", mHymnType,
                 new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
 
-        File exportFile = new File(FileBackend.getHymnchtvStore(DIR_MEDIA_RECORDS, true), fileName);
+        File exportFile = new File(FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true), fileName);
         try {
             exportFile.createNewFile();
         } catch (IOException e) {
@@ -851,6 +836,8 @@ public class MediaConfig extends FragmentActivity
             File srcPath = FileBackend.getHymnchtvStore(mHymnType + MEDIA_MEDIA, false);
             if ((srcPath != null) && srcPath.isDirectory()) {
                 File[] files = srcPath.listFiles();
+                // Sort filename in ascending order i.e. so the export file has its hymnNo in ascending order
+                Arrays.sort(files);
                 if ((files != null) && (files.length > 0)) {
                     try {
                         FileWriter fileWriter = new FileWriter(exportFile.getAbsolutePath());
@@ -946,18 +933,4 @@ public class MediaConfig extends FragmentActivity
             }
         });
     }
-
-//    private void showHelp()
-//    {
-//        WebViewFragment mWebFragment = (WebViewFragment) getSupportFragmentManager().findFragmentById(R.id.webView);
-//        if (mWebFragment == null) {
-//            mWebFragment = new WebViewFragment();
-//        }
-//        else {
-//            mWebFragment.initWebView();
-//        }
-//
-//        getSupportFragmentManager().beginTransaction().replace(R.id.webView, mWebFragment).commit();
-//        mWebView.setVisibility(View.VISIBLE);
-//    }
 }

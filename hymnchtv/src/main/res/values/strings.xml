@@ -5,6 +5,7 @@
 
     <string name="gui_about">关于</string>
     <string name="gui_add">加添</string>
+    <string name="gui_add_renew">添加/更新</string>
     <string name="gui_overwrite">覆盖</string>
     <string name="gui_add_to_db">已经添加并保存到数据库！</string>
     <string name="gui_app_libraries">诗歌本程序使用以下第三方库： %1$s</string>
@@ -76,6 +77,7 @@
 
     <string name="gui_download_remaining_time">剩余时间: %1$s</string>
     <string name="gui_download_speed">下载速度: %1$s/sec (%2$s)</string>
+    <string name="gui_download_timeout_timer">下载无响应超时倒数: %1$02d秒</string>
     <string name="gui_download_wait">请稍候，文件下载已在进行中。</string>
 
     <string name="gui_downloaded_uninstall">您的版本 v1.2.0 需要先卸载再更新。
@@ -107,7 +109,7 @@
     <string name="gui_no_app_to_open_file">No application found to open file</string>
 
     <string name="hint_app_state">目前只是草稿版，如有任何问题，请发电邮至: cmeng.gm@gmail.com</string>
-    <string name="hint_hymn_content_search">输入歌词搜索，最多显示100项</string>
+    <string name="hint_hymn_content_search">歌词搜索，仅支持简体中文</string>
     <string name="hint_hymn_number_enter">输入第几首诗歌</string>
     <string name="hint_hymn_ui">按目录选项，或输入(附)号码\n后按大本、补充、新颂或儿诗</string>
 
@@ -218,6 +220,7 @@
     <string name="sbg10">绿叶水珠</string>
     <string name="sbg11">绿色幽幽</string>
     <string name="sbg12">薰衣草</string>
+    <string name="wallpaperUser">用户定义墙纸</string>
 
     /* ChangeLog parameters */
     <string name="changelog_full_title">应用程序变更历史</string>

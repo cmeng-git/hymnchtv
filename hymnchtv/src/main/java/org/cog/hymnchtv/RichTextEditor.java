@@ -166,6 +166,7 @@ public class RichTextEditor extends FragmentActivity
                 }
             }
         }
+        setTitle(new File(fileUri).getName());
     }
 
     /**

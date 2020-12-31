@@ -23,6 +23,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 
 import org.cog.hymnchtv.*;
@@ -40,20 +41,19 @@ import timber.log.Timber;
 
 /**
  * hymnchtv update service implementation. It checks for an update and schedules .apk download using android DownloadManager.
+ * It is only activated for the debug version. Android initials the auto-update from PlayStore for release version.
  *
  * @author Eng Chong Meng
  */
 public class UpdateServiceImpl
 {
-    public static int UNINSTALL_REQUEST_CODE = 120;
-
     // Default update link
     private static final String[] updateLinks = {"https://atalk.sytes.net", "https://atalk.mooo.com"};
 
     /**
      * Apk mime type constant.
      */
-    public static final String APK_MIME_TYPE = "application/vnd.android.package-archive";
+    private static final String APK_MIME_TYPE = "application/vnd.android.package-archive";
 
     // path are case-sensitive
     private static final String filePath = "/releases/hymnchtv/versionupdate.properties";
@@ -127,7 +127,7 @@ public class UpdateServiceImpl
 
                     // Ask the user if he wants to install if available and valid apk is found
                     if (isValidApkVersion(apkFile, latestVersionCode)) {
-                        checkUninstallBeforeInstallApk(fileUri);
+                        askInstallDownloadedApk(fileUri);
                         return;
                     }
                 }
@@ -191,7 +191,11 @@ public class UpdateServiceImpl
                     {
                         // Need REQUEST_INSTALL_PACKAGES in manifest; Intent.ACTION_VIEW works for both
                         Intent intent;
-                        intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                            intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                        else
+                            intent = new Intent(Intent.ACTION_VIEW);
+
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         intent.setDataAndType(fileUri, APK_MIME_TYPE);
@@ -205,59 +209,6 @@ public class UpdateServiceImpl
                     {
                     }
                 });
-    }
-
-    /**
-     * Asks the user to install downloaded .apk; e.g. due to version code conflict.
-     *
-     * @param fileUri download file uri of the apk to install.
-     */
-    private void askUninstallApk(Uri fileUri)
-    {
-        String app_pkg_name = "org.cog.hymnchtv";
-        File apkFile = new File(FilePathHelper.getFilePath(HymnsApp.getGlobalContext(), fileUri));
-
-        DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
-                R.string.gui_download_completed,
-                R.string.gui_downloaded_uninstall,
-                R.string.gui_ok,
-                new DialogActivity.DialogListener()
-                {
-                    @Override
-                    public boolean onConfirmClicked(DialogActivity dialog)
-                    {
-                        // Need REQUEST_INSTALL_PACKAGES in manifest; Intent.ACTION_VIEW works for both
-                        Intent intent;
-
-                        intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE);
-                        intent.setData(Uri.parse("package:" + app_pkg_name));
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-                        MainActivity.mActivity.startActivityForResult(intent, UNINSTALL_REQUEST_CODE);
-                        return true;
-                    }
-
-                    @Override
-                    public void onDialogCancelled(DialogActivity dialog)
-                    {
-                        askInstallDownloadedApk(fileUri);
-                    }
-                }, apkFile.getAbsolutePath());
-    }
-
-    /**
-     * Ask the user whether to allow uninstall app.
-     *
-     * @param fileUri download file uri of the apk to install.
-     */
-    private void checkUninstallBeforeInstallApk(Uri fileUri)
-    {
-        if (currentVersionCode > latestVersionCode) {
-            askUninstallApk(fileUri);
-        }
-        else {
-            askInstallDownloadedApk(fileUri);
-        }
     }
 
     /**
@@ -322,7 +273,7 @@ public class UpdateServiceImpl
 
                     // Ask the user if he wants to install if available and valid apk is found
                     if (isValidApkVersion(apkFile, latestVersionCode)) {
-                        checkUninstallBeforeInstallApk(fileUri);
+                        askInstallDownloadedApk(fileUri);
                         return;
                     }
                 }

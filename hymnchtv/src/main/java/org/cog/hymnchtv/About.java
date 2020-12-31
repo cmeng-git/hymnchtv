@@ -57,6 +57,7 @@ public class About extends FragmentActivity implements View.OnClickListener
             new String[]{"glide", "https://github.com/bumptech/glide"},
             new String[]{"RichEditor for Android", "https://github.com/wasabeef/richeditor-android"},
             new String[]{"Timber", "https://github.com/JakeWharton/timber"},
+            new String[]{"uCrop", "https://github.com/Yalantis/uCrop"}
     };
 
     /**

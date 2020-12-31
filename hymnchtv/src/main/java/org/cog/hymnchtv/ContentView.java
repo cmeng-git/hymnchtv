@@ -16,7 +16,6 @@
  */
 package org.cog.hymnchtv;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -34,7 +33,6 @@ import org.cog.hymnchtv.utils.HymnNoCh2EngXRef;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.util.Locale;
 
 import timber.log.Timber;
 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_dark"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/wallpaper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@drawable/hymnchtv" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="20dp">
+
+        <Button
+            android:id="@+id/btnCancel"
+            style="@style/ButtonTop"
+            android:text="@string/gui_cancel"
+            android:textSize="22sp" />
+
+        <Button
+            android:id="@+id/btnOk"
+            style="@style/ButtonTop"
+            android:layout_marginStart="4dp"
+            android:text="@string/gui_ok"
+            android:textSize="22sp" />
+
+        <Button
+            android:id="@+id/btnRenew"
+            style="@style/ButtonTop"
+            android:layout_marginStart="4dp"
+            android:text="@string/gui_add_renew"
+            android:textSize="22sp" />
+
+    </LinearLayout>
+</LinearLayout>

@@ -5,6 +5,9 @@
         android:title="@string/wall_paper">
         <menu>
             <item
+                android:id="@+id/sbguser"
+                android:title="@string/wallpaperUser" />
+            <item
                 android:id="@+id/sbg1"
                 android:title="@string/sbg1" />
             <item

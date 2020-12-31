@@ -16,6 +16,7 @@
  */
 package org.cog.hymnchtv;
 
+import android.annotation.SuppressLint;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -40,9 +41,8 @@ import java.util.*;
 
 import timber.log.Timber;
 
-import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
-import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
+import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.service.audioservice.AudioBgService.PlaybackState;
 
 /**
@@ -61,6 +61,7 @@ import static org.cog.hymnchtv.service.audioservice.AudioBgService.PlaybackState
  *
  * @author Eng Chong Meng
  */
+
 public class MediaGuiController extends Fragment implements AdapterView.OnItemSelectedListener,
         SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener
 {
@@ -112,6 +113,9 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private final boolean isMediaAudio = true;
 
     private MediaType mMediaType;
+
+    private SharedPreferences mSharedPref;
+    private static SharedPreferences.Editor mEditor;
 
     private MpBroadcastReceiver mReceiver = null;
 
@@ -200,6 +204,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     }
 
     @Override
+    @SuppressLint("CommitPrefEdits")
     public void onResume()
     {
         super.onResume();
@@ -217,13 +222,18 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         mContentHandler.updateMediaPlayerInfo();
 
         // Get the user selected mediaType for playback
-        SharedPreferences sPref = MainActivity.getSharedPref();
-        int mediaType = sPref.getInt(PREF_MEDIA_HYMN, MediaType.HYMN_BANZOU.getValue());
+        mSharedPref = getActivity().getSharedPreferences(PREF_SETTINGS, 0);
+        mEditor = mSharedPref.edit();
+        if (null == mEditor) {
+            Timber.d("SharePref (Editor): %s (%s)", mSharedPref, mEditor);
+        }
+
+        int mediaType = mSharedPref.getInt(PREF_MEDIA_HYMN, MediaType.HYMN_BANZOU.getValue());
         mMediaType = MediaType.valueOf(mediaType);
         checkRadioButton(mMediaType);
 
         // Init user selected playback speed
-        String speed = sPref.getString(PREF_PLAYBACK_SPEED, "1.0");
+        String speed = mSharedPref.getString(PREF_PLAYBACK_SPEED, "1.0");
         for (int i = 0; i < mpSpeedValues.length; i++) {
             if (mpSpeedValues[i].equals(speed)) {
                 playbackSpeed.setSelection(i);
@@ -233,19 +243,13 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         setPlaybackSpeed(speed);
 
         // Init user selected playback loop parameters (order important)
-        boolean isLoop = sPref.getBoolean(PREF_PLAYBACK_LOOP, false);
+        boolean isLoop = mSharedPref.getBoolean(PREF_PLAYBACK_LOOP, false);
         cbPlaybackLoop.setChecked(isLoop);
         edLoopCount.setVisibility(isLoop ? View.VISIBLE : View.GONE);
 
-        String loopValue = sPref.getString(PREF_PLAYBACK_LOOPCOUNT, "1");
+        String loopValue = mSharedPref.getString(PREF_PLAYBACK_LOOPCOUNT, "1");
         edLoopCount.setText(loopValue);
         setPlaybackLoopCount(loopValue);
-
-        // Just update the mediaHymns if any, do not proceed to download;
-        // cannot do it here as it does not reflect the new hymn type selected by user after entry
-//        if (mediaHymns.isEmpty()) {
-//            mediaHymns = mContentHandler.getPlayHymn(mMediaType, false);
-//        }
 
         // Need this to resume last play state when user changes hymnNo while playing
         for (Uri uri : mediaHymns) {
@@ -356,9 +360,13 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                     break;
             }
 
-            SharedPreferences.Editor editor = MainActivity.getSharedPref().edit();
-            editor.putInt(PREF_MEDIA_HYMN, mMediaType.getValue());
-            editor.apply();
+            // Still return NPF?
+            try {
+                mEditor.putInt(PREF_MEDIA_HYMN, mMediaType.getValue());
+                mEditor.apply();
+            } catch (NullPointerException e) {
+                Timber.e("SharePref NPE: %s (%s)", e.getMessage(), getActivity().getSharedPreferences(PREF_SETTINGS, 0));
+            }
         }
     }
 
@@ -381,23 +389,6 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                 ((RadioButton) playerUi.findViewById(R.id.btn_changshi)).setChecked(true);
                 break;
         }
-    }
-
-    /**
-     * Show the content of user selected hymn type
-     *
-     * @param mode Toc or hymn lyrics
-     * @param number the content of hymn number to display
-     */
-    private void showMediaContent(String mode, int number)
-    {
-        Intent intent = new Intent(mContentHandler, MediaContentHandler.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(ATTR_SELECT, mode);
-        bundle.putInt(ATTR_NUMBER, number);
-
-        intent.putExtras(bundle);
-        startActivity(intent);
     }
 
     /**
@@ -537,9 +528,8 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         String speed = mpSpeedValues[position];
         setPlaybackSpeed(speed);
 
-        SharedPreferences.Editor editor = MainActivity.getSharedPref().edit();
-        editor.putString(PREF_PLAYBACK_SPEED, speed);
-        editor.apply();
+        mEditor.putString(PREF_PLAYBACK_SPEED, speed);
+        mEditor.apply();
         Timber.d("Set mediaPlayer playback speed to: %sx", speed);
     }
 
@@ -556,9 +546,8 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         String loopValue = ViewUtil.toString(edLoopCount);
         setPlaybackLoopCount(loopValue);
 
-        SharedPreferences.Editor editor = MainActivity.getSharedPref().edit();
-        editor.putBoolean(PREF_PLAYBACK_LOOP, isLoop);
-        editor.apply();
+        mEditor.putBoolean(PREF_PLAYBACK_LOOP, isLoop);
+        mEditor.apply();
     }
 
     private void onLoopValueChange()
@@ -569,9 +558,8 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         edLoopCount.setText(loopValue);
         setPlaybackLoopCount(loopValue);
 
-        SharedPreferences.Editor editor = MainActivity.getSharedPref().edit();
-        editor.putString(PREF_PLAYBACK_LOOPCOUNT, loopValue);
-        editor.apply();
+        mEditor.putString(PREF_PLAYBACK_LOOPCOUNT, loopValue);
+        mEditor.apply();
     }
 
     private void setPlaybackLoopCount(String loopValue)

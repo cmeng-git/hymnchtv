@@ -78,14 +78,23 @@
 
         <activity android:name=".RichTextEditor" />
 
+        <activity android:name=".utils.WallPaperUtil"
+            android:label="@string/wallpaperUser"
+            android:screenOrientation="portrait" />
+
         <activity
-            android:name=".utils.DialogActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:theme="@android:style/Theme.Holo.Dialog.MinWidth" />
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity
             android:name=".About"
             android:label="@string/gui_about"
+            android:theme="@android:style/Theme.Holo.Dialog.MinWidth" />
+
+        <activity
+            android:name=".utils.DialogActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@android:style/Theme.Holo.Dialog.MinWidth" />
 
         <provider

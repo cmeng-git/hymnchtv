@@ -1,6 +1,27 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	01/01/2021
+Version:		1.5.1 (105010)
+- Support user defined wall paper with integrated image editor zoom/crop to ease user defined wallpaper setup
+- Extends MyPagerAdapter to use FragmentStatePagerAdapter instead of FragmentPagerAdapter to minimize memory usage
+  see: https://stackoverflow.com/questions/18747975/what-is-the-difference-between-fragmentpageradapter-and-fragmentstatepageradapte
+- MediaConfig#createImportFile(): Sort file list in ascending order before creating export file
+- Add demo video on the user in user defined media configuration setup for both android share and auto create export file
+- Show error message when media file downloading timeout in MediaDownloadHandler#checkProgress().
+- Fix field failure report for hymnchtv v1.4.2
+  1. android.os.TransactionTooLargeException: (unable to find any large transaction)
+  * see https://github.com/guardian/toolargetool on usage
+  * TooLargeTool: MainActivity.onSaveInstanceState wrote: Bundle181794671 contains 6 keys and measures 5.4 KB when serialized as a Parcel
+- Do not auto launch the RichText Editor if user selection is for mediaUri and set isAutoFilled to false
+- RichText Editor title will diplay edited file name
+- MediaConfig#copyToLocalFile() should only apply to import_export file and not the mediaUri
+- MediaConfig: replace StartForActivity with ActivityResultLauncher callback
+- Remove askUninstallApk() option in UpdateServiceImpl and remove static reference to MainActivity instance
+- Remove playVideoUrl_mp support source using mediaPlayer - not used.
+
+=========================================================================
+Author:         cmeng
 Upload Date:	12/26/2020
 Version:		1.5.0 (105001)
 - Add support for User Defined Media Contents i.e. video and audio per hymn title for play back

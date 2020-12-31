@@ -30,6 +30,8 @@ import android.widget.Toast;
 
 import androidx.lifecycle.*;
 
+// import com.gu.toolargetool.TooLargeTool;
+
 import org.cog.hymnchtv.impl.timberlog.TimberLogImpl;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
@@ -82,6 +84,8 @@ public class HymnsApp extends Application implements LifecycleObserver
     public void onCreate()
     {
         TimberLogImpl.init();
+        // https://github.com/guardian/toolargetool
+        // TooLargeTool.startLogging(this);
 
         // This helps to prevent WebView resets UI back to system default.
         // Must skip for < N else weired exceptions happen in Note-5
@@ -111,7 +115,8 @@ public class HymnsApp extends Application implements LifecycleObserver
         Point size = new Point();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             mInstance.getDisplay().getSize(size);
-        } else {
+        }
+        else {
             ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
         }
         screenWidth = size.x;

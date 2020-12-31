@@ -397,14 +397,15 @@ public class MediaDownloadHandler extends Fragment
         String mFileName = lastOutFile.getName();
 
         // Terminate downloading task if failed or idleTime timeout
-        if (lastJobStatus == DownloadManager.STATUS_FAILED || waitTime < 0) {
+        if (lastJobStatus == DownloadManager.STATUS_FAILED || waitTime <= 0) {
             // Remove lastDownloadId from downloadManager record and delete the tmp file
             downloadManager.remove(lastDownloadId);
             fileDownloads.remove(lastDownloadId);
 
             File tmpFile = new File(FileBackend.getHymnchtvStore(FileBackend.TMP, false), mFileName);
-            Timber.d("Downloaded file failed in slow progress: %s (%s): %s",
+            Timber.d("Downloading file failed due to slow progress: %s (%s): %s",
                     tmpFile.length(), mFileSize, tmpFile.getAbsolutePath());
+            onError(HymnsApp.getResString(R.string.gui_file_DOWNLOAD_FAILED, tmpFile.getAbsolutePath()));
             return;
         }
 
@@ -426,6 +427,9 @@ public class MediaDownloadHandler extends Fragment
                 waitTime--;
                 Timber.d("Downloading file countdown, jobId: %s; status: %s; dnProgress: %s (%s)",
                         lastDownloadId, lastJobStatus, previousProgress, waitTime);
+                if (waitTime < 50) {
+                    fileXferSpeed.setText(HymnsApp.getResString(R.string.gui_download_timeout_timer, waitTime));
+                }
             }
             else {
                 waitTime = MAX_IDLE_TIME;

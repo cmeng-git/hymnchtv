@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,17 +33,19 @@ import android.widget.*;
 import androidx.fragment.app.FragmentActivity;
 
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
-import org.cog.hymnchtv.persistance.FilePathHelper;
-import org.cog.hymnchtv.persistance.PermissionUtils;
+import org.cog.hymnchtv.persistance.*;
 import org.cog.hymnchtv.utils.HymnNoValidate;
+import org.cog.hymnchtv.utils.WallPaperUtil;
 
 import java.io.File;
 import java.util.ArrayList;
 
 import de.cketti.library.changelog.ChangeLog;
+import timber.log.Timber;
 
 import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
 import static org.cog.hymnchtv.HymnToc.hymnTocPage;
+import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
 
 /**
  * MainActivity: The hymnchtv app main user interface.
@@ -69,9 +72,12 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     public static final String PREF_TEXT_SIZE = "TextSize";
     public static final String PREF_TEXT_COLOR = "TextColor";
     public static final String PREF_BACKGROUND = "Background";
+    public static final String PREF_WALLPAPER = "WallPaper";
 
     public static final String PREF_MEDIA_HYMN = "MediaHymn";
     private static final int FONT_SIZE_DEFAULT = 35;
+
+    public static final int REQUEST_WALLPAPER = 102;
 
     private Button btn_n0;
     private Button btn_n1;
@@ -100,16 +106,14 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     private LinearLayout background;
 
-    private static SharedPreferences mSharedPref;
-    private static SharedPreferences.Editor mEditor;
+    private SharedPreferences mSharedPref;
+    private SharedPreferences.Editor mEditor;
 
     private boolean isFu = false;
     private boolean isToc = false;
 
     private int fontSize = FONT_SIZE_DEFAULT;
     private int fontColor = Color.BLACK;
-
-    public static MainActivity mActivity;
 
     private String sNumber = "";
     private String tocPage;
@@ -125,7 +129,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         setContentView(R.layout.main);
         registerForContextMenu(findViewById(R.id.viewMain));
 
-        mActivity = this;
         mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
         mEditor = mSharedPref.edit();
 
@@ -241,7 +244,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         if (Intent.ACTION_SEND.equals(action) && (type != null)) {
             if ("text/plain".equals(type)) {
                 mediaLink = intent.getStringExtra(Intent.EXTRA_TEXT);
-            } else {
+            }
+            else {
                 mediaLink = getFile(intent.getParcelableExtra(Intent.EXTRA_STREAM));
             }
         }
@@ -259,7 +263,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         }
     }
 
-    private String getFile(Uri uri) {
+    private String getFile(Uri uri)
+    {
         File inFile = new File(FilePathHelper.getFilePath(this, uri));
         if (inFile.exists()) {
             return inFile.getPath();
@@ -574,6 +579,11 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 setBgColor(11, R.drawable.bg25);
                 return true;
 
+            case R.id.sbguser:
+                intent = new Intent(this, WallPaperUtil.class);
+                startActivityForResult(intent, REQUEST_WALLPAPER);
+                return true;
+
             case R.id.sn_convert:
                 // HymnIdx2NoConvert.validateIdx2NoConversion(HYMN_ER, HYMN_ER_INDEX_MAX);
                 // HymnNo2IdxConvert.validateNo2IdxConversion(HYMN_DB, HYMN_DB_NO_TMAX);
@@ -661,15 +671,33 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      */
     private void initUserSettings()
     {
-        mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
-        int bgResId = mSharedPref.getInt(PREF_BACKGROUND, 5);
-        background.setBackgroundResource(MainActivity.bgResId[bgResId]);
+        setWallpaper();
 
         fontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT);
         setFontSize(fontSize, false);
 
         fontColor = mSharedPref.getInt(PREF_TEXT_COLOR, Color.BLACK);
         setFontColor(fontColor, false);
+    }
+
+    /**
+     * Init the main UI wallpaper with one of the predefined image in drawable or user own if bgResId == -1
+     */
+    private void setWallpaper()
+    {
+        mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
+        int bgResId = mSharedPref.getInt(PREF_BACKGROUND, 5);
+        if (bgResId != -1) {
+            background.setBackgroundResource(MainActivity.bgResId[bgResId]);
+        }
+        else  {
+            String fileName = mSharedPref.getString(PREF_WALLPAPER, null);
+            File wpFile = FileBackend.getHymnchtvStore(DIR_WALLPAPER + fileName, false);
+            if (wpFile.exists()) {
+                Drawable drawable = Drawable.createFromPath(wpFile.getAbsolutePath());
+                background.setBackground(drawable);
+            }
+        }
     }
 
     /**
@@ -682,7 +710,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     {
         if (update) {
             mEditor.putInt(PREF_TEXT_SIZE, size);
-            mEditor.commit();
+            mEditor.apply();
         }
         int fs_delta = size - 10;
 
@@ -720,7 +748,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         fontColor = color;
         if (update) {
             mEditor.putInt(PREF_TEXT_COLOR, color);
-            mEditor.commit();
+            mEditor.apply();
         }
 
         btn_n0.setTextColor(color);
@@ -755,12 +783,31 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     private void setBgColor(int bgMode, int resid)
     {
         mEditor.putInt(PREF_BACKGROUND, bgMode);
-        mEditor.commit();
+        mEditor.apply();
         background.setBackgroundResource(resid);
     }
 
-    public static SharedPreferences getSharedPref()
+    /**
+     * Method handles callbacks from external {@link Intent} that retrieve avatar image
+     *
+     * @param requestCode the request code {@link #REQUEST_WALLPAPER}
+     * @param resultCode the result code
+     * @param data the source {@link Intent} that returns the result
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        return mSharedPref;
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_OK)
+            return;
+
+        if (requestCode == REQUEST_WALLPAPER) {
+            Uri uri = data.getData();
+            if (uri == null) {
+                Timber.d("No image data selected: %s", data);
+            }
+            else {
+                setWallpaper();
+            }
+        }
     }
 }

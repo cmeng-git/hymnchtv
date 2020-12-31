@@ -19,7 +19,7 @@
 ## 特征和工能
 书拉密女小站-诗歌本:
 - 为安卓设计的赞美诗歌词页面浏览器,内容搜索和诗歌媒体播放器
-- 使用最新的 Fragment Pager Adapter 进行平滑滚动更顺畅
+- 使用最新的 Android Pager Adapter 进行平滑滚动更顺畅
 - 直接输入诗歌编号以显示歌词和媒体播放；或从目录分类进入:
   <br/>"诗歌类别"，"笔画索引"，"拼音索引"，和"英中对照"
 - 给予完整大本詩歌，補充本詩歌，新歌颂咏，及儿童诗歌歌，诗词搜索和选项进入
@@ -40,7 +40,8 @@
 - 媒体播放同步于用户新选诗歌编号，无需返回主页
 - 诗歌媒体播放以当前状态继续，直到歌曲结束；然后再同步用户新选诗歌编号
 - 可自我下载并复制媒体文件到预定义的目录（Download/hymnchtv）以用于播放
-- 用户可选的主界面包括墙纸，字体大小，字体颜色
+- 用户可选的主界面包括预定或用户定义的墙纸，字体大小，字体颜色
+- 集成的图像编辑器具有缩放/方向旋转/裁剪功能，用户可以轻松更新墙纸
 - 在线英文歌词显示
 - 自动检查版本更新，并通知用户任何新的更新以采取措施
 - 请检阅 [诗歌本应用程序功能](https://cmeng-git.github.io/hymnchtv/faq.html)
@@ -56,6 +57,7 @@
 * [httpcore](http://hc.apache.org/httpcomponents-core-ga/)
 * [RichEditor for Android](https://github.com/wasabeef/richeditor-android)
 * [Timber](https://github.com/JakeWharton/timber)
+* [uCrop](https://github.com/Yalantis/uCrop)
 
 ## 致谢
 * [书拉密女小站-诗歌本](http://shulami02.net/bbs):<br/>

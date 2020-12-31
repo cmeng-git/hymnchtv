@@ -32,14 +32,16 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_INDEX_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_INDEX_MAX;
 
 /**
- * The hymn lyrics implementation for the user page sliding and display update
+ * The hymn lyrics implementation for the user page sliding and display update using
+ * FragmentStatePagerAdapter to minimize OOM Exception:
+ * See: https://stackoverflow.com/questions/18747975/what-is-the-difference-between-fragmentpageradapter-and-fragmentstatepageradapte
  *
  * @author Eng Chong Meng
  */
-public class MyPagerAdapter extends FragmentPagerAdapter
+public class MyPagerAdapter extends FragmentStatePagerAdapter
 {
 //    /**
-//     * A map reference to find the FragmentPagerAdapter's fragmentTag (String) by a given position (Integer)
+//     * A map reference to find the FragmentStatePagerAdapter's fragmentTag (String) by a given position (Integer)
 //     */
 //    private final Map<Integer, String> mFragmentTags = new HashMap<>();
 //    private static FragmentManager mFragmentManager;
@@ -82,41 +84,9 @@ public class MyPagerAdapter extends FragmentPagerAdapter
         Bundle bundle = new Bundle();
         bundle.putString(LYRICS_TYPE, mHymnType);
         bundle.putInt(LYRICS_INDEX, index);
+
         ContentView objContentView = new ContentView();
         objContentView.setArguments(bundle);
         return objContentView;
     }
-
-//    /**
-//     * Save the reference of position to FragmentPagerAdapter fragmentTag in mFragmentTags
-//     *
-//     * @param container The viewGroup
-//     * @param position The pager position
-//     * @return Fragment object at the specific location
-//     */
-//    @NotNull
-//    @Override
-//    public Object instantiateItem(@NotNull ViewGroup container, int position)
-//    {
-//        Object obj = super.instantiateItem(container, position);
-//        if (obj instanceof Fragment) {
-//            Fragment f = (Fragment) obj;
-//            assert f.getTag() != null;
-//            mFragmentTags.put(position, f.getTag());
-//            Timber.w("Instantiate fragment: %s/%s: %s", position, mFragmentTags.size(), mFragmentTags.get(position));
-//        }
-//        return obj;
-//    }
-
-//    /**
-//     * Get the fragment reference for the given position in pager
-//     *
-//     * @param position in the mFragmentTags
-//     * @return the requested fragment for the specified postion or null
-//     */
-//    public static Fragment getFragment(int position)
-//    {
-//        String tag = mFragmentTags.get(position);
-//        return (mFragmentManager != null) ? mFragmentManager.findFragmentByTag(tag) : null;
-//    }
 }
