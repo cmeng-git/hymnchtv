@@ -24,9 +24,7 @@ public class Migrations
     public static void upgradeDatabase(SQLiteDatabase db, MigrationsHelper migrationsHelper) {
         switch (db.getVersion()) {
             case 1:
-                // MigrationTo2.createOmemoTables(db);
-            case 2:
-                // MigrationTo3.updateSQLDatabase(db);
+                MigrationTo2.createHymnHistoryTable(db);
         }
     }
 }

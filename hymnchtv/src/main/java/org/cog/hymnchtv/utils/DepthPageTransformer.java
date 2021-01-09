@@ -19,13 +19,14 @@ package org.cog.hymnchtv.utils;
 import android.view.View;
 
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 /**
  * Class provides the transition effect when user slides the hymn lyrics view page
  *
  * @author Eng Chong Meng
  */
-public class DepthPageTransformer implements ViewPager.PageTransformer
+public class DepthPageTransformer implements ViewPager2.PageTransformer
 {
     private static final float MIN_SCALE = 0.75f;
 

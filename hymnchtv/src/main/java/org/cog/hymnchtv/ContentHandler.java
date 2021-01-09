@@ -25,9 +25,8 @@ import android.view.*;
 import android.widget.PopupWindow;
 
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
 
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.TextUtils;
@@ -69,7 +68,7 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
  *
  * @author Eng Chong Meng
  */
-public class ContentHandler extends FragmentActivity implements ViewPager.OnPageChangeListener
+public class ContentHandler extends FragmentActivity
 {
     public static String HYMNCHTV_FAQ_PLAYBACK = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0050";
 
@@ -79,8 +78,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
     public static String MEDIA_JIAOCHANG = "/media_jiaochang/";
     public static String MEDIA_BANZOU = "/media_banzou/";
     public static String MEDIA_CHANGSHI = "/media_changshi/";
-
-    public static final String PAGE_SEARCH = "search";
 
     public static final String MIDI_BB = "bm";
     public static final String MIDI_BBC = "bmc";
@@ -160,21 +157,25 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         }
 
         // The pager adapter, which provides the pages to the view pager widget.
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        PagerAdapter mPagerAdapter = new MyPagerAdapter(fragmentManager, mSelect);
+        MyPagerAdapter mPagerAdapter = new MyPagerAdapter(this, mSelect);
 
-        ViewPager mPager = findViewById(R.id.viewPager);
-        // default seems to have only created 2 previous items, so omit this statement, otherwise 9 items get created
+        // Instantiate a ViewPager2 and a PagerAdapter.
+        ViewPager2 mPager = findViewById(R.id.viewPager);
+        // FragmentStatePagerAdapter default seems to create only 2, so omit this statement, otherwise 9 items get created
+        // FragmentStateAdapter default created 9, setOffscreenPageLimit has no effet
         // mPager.setOffscreenPageLimit(1);
+        // mPager.setCurrentItem(hymnIdx, false) will force it to load only user selected page
         mPager.setAdapter(mPagerAdapter);
-        mPager.setPageTransformer(true, new DepthPageTransformer());
-        // Set the viewPager to the user selected hymn number
-        if (hymnIdx != -1)
-            mPager.setCurrentItem(hymnIdx);
-        else
-            mPager.setCurrentItem(hymnNo);
+        mPager.setPageTransformer(new DepthPageTransformer());
 
-        mPager.addOnPageChangeListener(this);
+        // Set the viewPager to the user selected hymn number, no transform animation; this also fixed incorrect page being displayed
+        // see https://issuetracker.google.com/issues/177051960
+        if (hymnIdx != -1)
+            mPager.setCurrentItem(hymnIdx, false);
+        else
+            mPager.setCurrentItem(hymnNo, false);
+
+        mPager.registerOnPageChangeCallback(initOnPageChangeCallback());
     }
 
     @Override
@@ -281,18 +282,28 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         finish();
     }
 
-    @Override
-    public void onPageSelected(int pos)
+    /**
+     * Callback interface for responding to changing state of the selected page.
+     */
+    private OnPageChangeCallback initOnPageChangeCallback()
     {
-        if (mSelect.startsWith("toc_")) {
-            return;
-        }
-
-        int tmp = HymnIdx2NoConvert.hymnIdx2NoConvert(mSelect, pos)[0];
-        if (tmp != hymnNo) {
-            hymnNo = tmp;
-            updateMediaPlayerInfo();
-        }
+        return new OnPageChangeCallback()
+        {
+            /**
+             * This method will be invoked when a new page becomes selected. Animation is not necessarily complete.
+             *
+             * @param position Position index of the new selected page.
+             */
+            @Override
+            public void onPageSelected(int position)
+            {
+                int tmp = HymnIdx2NoConvert.hymnIdx2NoConvert(mSelect, position)[0];
+                if (tmp != hymnNo) {
+                    hymnNo = tmp;
+                    updateMediaPlayerInfo();
+                }
+            }
+        };
     }
 
     /**
@@ -301,7 +312,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
      * b. The media player hymn title info
      * c. The text color of the Button Media
      */
-    public void updateMediaPlayerInfo() {
+    public void updateMediaPlayerInfo()
+    {
         hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mSelect, hymnNo);
 
         // Check to see if user defined media is available for the current selected HymnType/HymnNo
@@ -310,16 +322,6 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
         boolean isAvailable = mDB.getMediaRecord(mediaRecord, false);
 
         mMediaGuiController.initHymnInfo(getHymnInfo(), isAvailable);
-    }
-
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-    {
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state)
-    {
     }
 
     /**
@@ -484,7 +486,7 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
          * Otherwise return the returned uriList: may contain empty list,
          * or a filled uri list of audio links to be playback by caller
          * Note: a remote media url link will be played via streaming using ExoPlayer without downloading the file
-        */
+         */
         MediaContentHandler instance = MediaContentHandler.getInstance();
         if (instance.getMediaUris(mSelect, hymnNo, mediaType, uriList)) {
             return uriList;
@@ -836,8 +838,8 @@ public class ContentHandler extends FragmentActivity implements ViewPager.OnPage
                 hymnInfo = res.getString(R.string.hymn_title_mc_bb, hymnNo, hymnTitle);
                 break;
             case HYMN_DB:
-                if (hymnNo > 780) {
-                    hymnInfo = res.getString(R.string.hymn_title_mc_dbs, hymnNo - 780, hymnTitle);
+                if (hymnNo > HYMN_DB_NO_MAX) {
+                    hymnInfo = res.getString(R.string.hymn_title_mc_dbs, hymnNo - HYMN_DB_NO_MAX, hymnTitle);
                 }
                 else {
                     hymnInfo = res.getString(R.string.hymn_title_mc_db, hymnNo, hymnTitle);

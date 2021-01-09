@@ -18,6 +18,7 @@ package org.cog.hymnchtv;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -30,8 +31,11 @@ import android.text.TextUtils;
 import android.view.*;
 import android.widget.*;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.fragment.app.FragmentActivity;
 
+import org.cog.hymnchtv.hymnhistory.HistoryRecord;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.persistance.*;
 import org.cog.hymnchtv.utils.HymnNoValidate;
@@ -39,6 +43,7 @@ import org.cog.hymnchtv.utils.WallPaperUtil;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import de.cketti.library.changelog.ChangeLog;
 import timber.log.Timber;
@@ -56,6 +61,7 @@ import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
 public class MainActivity extends FragmentActivity implements AdapterView.OnItemSelectedListener
 {
     public static String HYMNCHTV_FAQ = "https://cmeng-git.github.io/hymnchtv/faq.html";
+    private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
     public static final String ATTR_SELECT = "select";
     public static final String ATTR_NUMBER = "number";
@@ -76,8 +82,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     public static final String PREF_MEDIA_HYMN = "MediaHymn";
     private static final int FONT_SIZE_DEFAULT = 35;
-
-    public static final int REQUEST_WALLPAPER = 102;
 
     private Button btn_n0;
     private Button btn_n1;
@@ -101,6 +105,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     private Spinner tocSpinner;
     private EditText tv_Search;
+    private ListView mHistoryListView;
     private TextView mTocSpinnerItem;
     private TextView mEntry;
 
@@ -128,11 +133,13 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         registerForContextMenu(findViewById(R.id.viewMain));
+        setTitle(R.string.app_title_main);
 
         mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
         mEditor = mSharedPref.edit();
 
-        setTitle(R.string.app_title_main);
+        mHistoryListView = findViewById(R.id.historyListView);
+        mHistoryListView.setVisibility(View.GONE);
         initButton();
         initUserSettings();
 
@@ -355,6 +362,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
     /**
+     * Save the user selected hymn into the history table
      * Show the content of user selected hymnType and hymnNo
      *
      * @param hymnType lyrics content of the hymnType
@@ -362,8 +370,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      */
     public void showContent(String hymnType, int hymnNo)
     {
-        Intent intent = new Intent(this, ContentHandler.class);
+        HistoryRecord historyRecord = new HistoryRecord(hymnType, hymnNo, isFu);
+        mDB.storeHymnHistory(historyRecord);
 
+        Intent intent = new Intent(this, ContentHandler.class);
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_SELECT, hymnType);
         bundle.putInt(ATTR_NUMBER, hymnNo);
@@ -404,7 +414,11 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     public boolean onKeyDown(int keyCode, KeyEvent event)
     {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            if (mHistoryListView.getVisibility() == View.VISIBLE) {
+                mEntry.setHint(R.string.hint_hymn_number_enter);
+                mHistoryListView.setVisibility(View.GONE);
+            }
+            else if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
                 super.onBackPressed();
             }
             else {
@@ -580,8 +594,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 return true;
 
             case R.id.sbguser:
-                intent = new Intent(this, WallPaperUtil.class);
-                startActivityForResult(intent, REQUEST_WALLPAPER);
+                mStartForResult.launch(new Intent(this, WallPaperUtil.class));
                 return true;
 
             case R.id.sn_convert:
@@ -626,6 +639,18 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     {
         background = findViewById(R.id.viewMain);
         mEntry = findViewById(R.id.tv_entry);
+
+        mEntry.setOnClickListener(view -> {
+            if (mHistoryListView.getVisibility() == View.GONE) {
+                mEntry.setHint(R.string.hint_hymn_history);
+                initHistoryList();
+                mHistoryListView.setVisibility(View.VISIBLE);
+            } else {
+                mEntry.setHint(R.string.hint_hymn_number_enter);
+                mHistoryListView.setVisibility(View.GONE);
+            }
+        });
+
         tv_Search = findViewById(R.id.tv_search);
 
         btn_n0 = findViewById(R.id.n0);
@@ -680,6 +705,25 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         setFontColor(fontColor, false);
     }
 
+    private void initHistoryList()
+    {
+        List<HistoryRecord> historyRecords = mDB.getHistoryRecords();
+        ArrayAdapter<?> historyAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, historyRecords);
+        historyAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+        mHistoryListView.setAdapter(historyAdapter);
+
+        mHistoryListView.setOnItemClickListener((adapterView, view, position, l) -> {
+            mEntry.setHint(R.string.hint_hymn_number_enter);
+            mHistoryListView.setVisibility(View.GONE);
+
+            HistoryRecord sRecord = historyRecords.get(position);
+            isFu = sRecord.isFu();
+            sNumber = sRecord.getHymnNoFu();
+            mEntry.setText(sNumber);
+            showContent(sRecord.getHymnType(), sRecord.getHymnNo());
+        });
+    }
+
     /**
      * Init the main UI wallpaper with one of the predefined image in drawable or user own if bgResId == -1
      */
@@ -690,10 +734,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         if (bgResId != -1) {
             background.setBackgroundResource(MainActivity.bgResId[bgResId]);
         }
-        else  {
+        else {
             String fileName = mSharedPref.getString(PREF_WALLPAPER, null);
             File wpFile = FileBackend.getHymnchtvStore(DIR_WALLPAPER + fileName, false);
-            if (wpFile.exists()) {
+            if ((wpFile != null) && wpFile.exists()) {
                 Drawable drawable = Drawable.createFromPath(wpFile.getAbsolutePath());
                 background.setBackground(drawable);
             }
@@ -788,26 +832,18 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
     /**
-     * Method handles callbacks from external {@link Intent} that retrieve avatar image
-     *
-     * @param requestCode the request code {@link #REQUEST_WALLPAPER}
-     * @param resultCode the result code
-     * @param data the source {@link Intent} that returns the result
-     */
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode != RESULT_OK)
-            return;
-
-        if (requestCode == REQUEST_WALLPAPER) {
-            Uri uri = data.getData();
+     * standard ActivityResultContract#StartActivityForResult
+     **/
+    ActivityResultLauncher<Intent> mStartForResult = registerForActivityResult(new StartActivityForResult(), result -> {
+        if (result.getResultCode() == Activity.RESULT_OK) {
+            Intent intent = result.getData();
+            Uri uri = intent.getData();
             if (uri == null) {
-                Timber.d("No image data selected: %s", data);
+                Timber.d("No image data selected: %s", intent);
             }
             else {
                 setWallpaper();
             }
         }
-    }
+    });
 }

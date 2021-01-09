@@ -101,6 +101,8 @@ public class HymnsApp extends Application implements LifecycleObserver
 
         // Trigger the hymnchtv database upgrade or creation if none exist
         DatabaseBackend.getInstance(this);
+        // Recreate HistoryRecord due to change in column name
+        // MigrationTo2.createHymnHistoryTable(DatabaseBackend.getInstance(this).getWritableDatabase());
 
         // Do this after WebView(this).destroy(); Set up contextWrapper to use hymnchtv user selected Language
         mInstance = this;
@@ -113,11 +115,11 @@ public class HymnsApp extends Application implements LifecycleObserver
 
         // Get android device screen display size
         Point size = new Point();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            mInstance.getDisplay().getSize(size);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
         }
         else {
-            ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
+            mInstance.getDisplay().getSize(size);
         }
         screenWidth = size.x;
         screenHeight = size.y;

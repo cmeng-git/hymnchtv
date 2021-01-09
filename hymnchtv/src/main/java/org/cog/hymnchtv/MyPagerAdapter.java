@@ -19,6 +19,11 @@ package org.cog.hymnchtv;
 import android.os.Bundle;
 
 import androidx.fragment.app.*;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+import org.jetbrains.annotations.NotNull;
+
+import timber.log.Timber;
 
 import static org.cog.hymnchtv.ContentView.LYRICS_INDEX;
 import static org.cog.hymnchtv.ContentView.LYRICS_TYPE;
@@ -33,32 +38,24 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_INDEX_MAX;
 
 /**
  * The hymn lyrics implementation for the user page sliding and display update using
- * FragmentStatePagerAdapter to minimize OOM Exception:
- * See: https://stackoverflow.com/questions/18747975/what-is-the-difference-between-fragmentpageradapter-and-fragmentstatepageradapte
- *
+ * the latest FragmentStateAdapter to minimize OOM Exception:
+ * See https://stackoverflow.com/questions/18747975/what-is-the-difference-between-fragmentpageradapter-and-fragmentstatepageradapte
+ * See Reported problem on FragmentStateAdapter: https://issuetracker.google.com/issues/177051960
  * @author Eng Chong Meng
+ *
  */
-public class MyPagerAdapter extends FragmentStatePagerAdapter
+public class MyPagerAdapter extends FragmentStateAdapter
 {
-//    /**
-//     * A map reference to find the FragmentStatePagerAdapter's fragmentTag (String) by a given position (Integer)
-//     */
-//    private final Map<Integer, String> mFragmentTags = new HashMap<>();
-//    private static FragmentManager mFragmentManager;
-
     private final String mHymnType;
 
-    public MyPagerAdapter(FragmentManager fm, String hymnType)
+    public MyPagerAdapter(FragmentActivity fragmentActivity, String hymnType)
     {
-        // Must use BEHAVIOR_SET_USER_VISIBLE_HINT to see conference list on first slide to conference view
-        // super(fm, BEHAVIOR_SET_USER_VISIBLE_HINT); not valid anymore after change to BaseChatRoomListAdapte
-        super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-//        mFragmentManager = fm;
+        super(fragmentActivity);
         mHymnType = hymnType;
     }
 
     @Override
-    public int getCount()
+    public int getItemCount()
     {
         switch (mHymnType) {
             case HYMN_ER:
@@ -78,9 +75,10 @@ public class MyPagerAdapter extends FragmentStatePagerAdapter
         }
     }
 
-    public Fragment getItem(int index)
+    @Override
+    public @NotNull Fragment createFragment(int index)
     {
-        // Timber.w("Get item fragment @: %s", index);
+        Timber.d("Get item fragment @: %s", index);
         Bundle bundle = new Bundle();
         bundle.putString(LYRICS_TYPE, mHymnType);
         bundle.putInt(LYRICS_INDEX, index);

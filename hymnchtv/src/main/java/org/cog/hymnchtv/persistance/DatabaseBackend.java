@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import org.cog.hymnchtv.*;
+import org.cog.hymnchtv.hymnhistory.HistoryRecord;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.mediaconfig.MediaRecord;
 import org.cog.hymnchtv.persistance.migrations.Migrations;
@@ -37,6 +38,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.hymnhistory.HistoryRecord.TIME_STAMP;
 
 /**
  * The <tt>DatabaseBackend</tt> uses SQLite to store all the aTalk application data in the database "dbRecords.db"
@@ -50,7 +52,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      * Increment DATABASE_VERSION when there is a change in database records
      */
     public static final String DATABASE_NAME = "dbHymnApp.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static DatabaseBackend instance = null;
     private final Context mContext;
@@ -108,10 +110,20 @@ public class DatabaseBackend extends SQLiteOpenHelper
             + MediaConfig.HYMN_NO + ", " + MediaConfig.HYMN_FU + ", " + MediaConfig.MEDIA_TYPE
             + ") ON CONFLICT REPLACE);";
 
+    // Recent message table
+    public static String CREATE_HYMN_HISTORY = "CREATE TABLE " + HistoryRecord.TABLE_NAME + " ("
+            + HistoryRecord.HYMN_TYPE + " TEXT, "
+            + HistoryRecord.HYMN_NO + " INTEGER, "
+            + MediaConfig.HYMN_FU + " BOOL, "
+            + HistoryRecord.HYMN_TITLE + " TEXT, "
+            + TIME_STAMP + " NUMBER,  UNIQUE("
+            + HistoryRecord.HYMN_TYPE + ", " + HistoryRecord.HYMN_NO  + ", " + MediaConfig.HYMN_FU
+            + ") ON CONFLICT REPLACE);";
+
     /**
      * Create all the required virgin database tables and perform initial data migration:
-     * a. System properties
-     * b. HymnContent Tablee per HYMN_XXX
+     * a. HymnContent Tablee per HYMN_XXX
+     * b. HistoryRecord Table
      *
      * # Initialize and initial data migration
      *
@@ -129,25 +141,17 @@ public class DatabaseBackend extends SQLiteOpenHelper
         db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_XB));
         db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_ER));
 
+        db.execSQL(CREATE_HYMN_HISTORY);
+
         // Perform the first data migration to SQLite database
         initDatabase(db);
     }
 
     /**
-     * Initialize, migrate and fill the database from old data implementation
+     * Save the given MediaRecord to the database table mRecord.getHymnType()
+     *
+     * @param mRecord an instance of MediaRecord
      */
-    private void initDatabase(SQLiteDatabase db)
-    {
-        Timber.i("### Starting Database migration! ###");
-        db.beginTransaction();
-        try {
-            db.setTransactionSuccessful();
-            Timber.i("### Completed SQLite DataBase migration successfully! ###");
-        } finally {
-            db.endTransaction();
-        }
-    }
-
     public void storeMediaRecord(MediaRecord mRecord)
     {
         SQLiteDatabase db = getWritableDatabase();
@@ -165,6 +169,22 @@ public class DatabaseBackend extends SQLiteOpenHelper
             Timber.e("### Error in creating media record for table:hymNo: %s:%s", mRecord.getHymnType(), mRecord.getHymnNo());
         }
     }
+
+    /**
+     * Initialize, migrate and fill the database from old data implementation
+     */
+    private void initDatabase(SQLiteDatabase db)
+    {
+        Timber.i("### Starting Database migration! ###");
+        db.beginTransaction();
+        try {
+            db.setTransactionSuccessful();
+            Timber.i("### Completed SQLite DataBase migration successfully! ###");
+        } finally {
+            db.endTransaction();
+        }
+    }
+
 
     /**
      * Check if mRecord exist in DB and update with the DB result if update if true
@@ -224,6 +244,60 @@ public class DatabaseBackend extends SQLiteOpenHelper
         }
         cursor.close();
         return mediaRecords;
+    }
+
+    /**
+     * Save the given HistoryRecord to the database table hymnHistory
+     * Purge old records in excess of (NUMBER_OF_RECORDS_IN_HISTORY - 10)
+     *
+     * @param mRecord an instance of HistoryRecord
+     */
+    public void storeHymnHistory(HistoryRecord mRecord)
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        String ORDER_ASC = TIME_STAMP + " ASC";
+
+        Cursor cursor = db.query(HistoryRecord.TABLE_NAME, null, null, null, null, null, ORDER_ASC);
+        int excess = cursor.getCount() - HistoryRecord.NUMBER_OF_RECORDS_IN_HISTORY;
+        if (excess > 0) {
+            cursor.move(excess + 10);
+            String[] args = {cursor.getString(cursor.getColumnIndex(TIME_STAMP))};
+            int count = db.delete(HistoryRecord.TABLE_NAME, TIME_STAMP + "<?", args);
+            Timber.d("No of old history deleted : %s", count);
+        }
+        cursor.close();
+
+        ContentValues values = new ContentValues();
+        values.put(HistoryRecord.HYMN_TYPE, mRecord.getHymnType());
+        values.put(HistoryRecord.HYMN_NO, mRecord.getHymnNo());
+        values.put(HistoryRecord.HYMN_FU, mRecord.isFu());
+        values.put(HistoryRecord.HYMN_TITLE, mRecord.getHymnTitle());
+        values.put(TIME_STAMP, mRecord.getTimeStamp());
+
+        long row = db.insert(HistoryRecord.TABLE_NAME, null, values);
+        if (row == -1) {
+            Timber.e("### Error in creating history record HymnType#hymNo: %s#%s", mRecord.getHymnType(), mRecord.getHymnNo());
+        }
+    }
+
+    public List<HistoryRecord> getHistoryRecords()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<HistoryRecord> historyRecords = new ArrayList<>();
+        String ORDER_DESC = TIME_STAMP + " DESC";
+
+        Cursor cursor = db.query(HistoryRecord.TABLE_NAME, null, null, null, null, null, ORDER_DESC);
+        while (cursor.moveToNext()) {
+            HistoryRecord historyRecord = new HistoryRecord(
+                    cursor.getString(cursor.getColumnIndex(HistoryRecord.HYMN_TYPE)),
+                    cursor.getInt(cursor.getColumnIndex(HistoryRecord.HYMN_NO)),
+                    cursor.getInt(cursor.getColumnIndex(HistoryRecord.HYMN_FU)) > 0,
+                    cursor.getString(cursor.getColumnIndex(HistoryRecord.HYMN_TITLE)),
+                    cursor.getLong(cursor.getColumnIndex(TIME_STAMP)));
+            historyRecords.add(historyRecord);
+        }
+        cursor.close();
+        return historyRecords;
     }
 
     @Override

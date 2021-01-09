@@ -61,10 +61,10 @@ public class VersionServiceImpl
             String versionName = pckgInfo.versionName;
 
             long versionCode;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-                versionCode = pckgInfo.getLongVersionCode();
-            else
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P)
                 versionCode = pckgInfo.versionCode;
+            else
+                versionCode = pckgInfo.getLongVersionCode();
 
             CURRENT_VERSION_NAME = versionName;
             CURRENT_VERSION_CODE = versionCode;

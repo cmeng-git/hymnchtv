@@ -1,6 +1,19 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	01/09/2021
+Version:		1.5.2 (105020)
+- Add history for recently selected hymn title
+- Migrate FragmentStatePagerAdapter to the latest improved viewpager2.adapter.FragmentStateAdapter:
+  stable version and fixes many of the weaknesses.
+  see reported problem on FragmentStateAdapter: https://issuetracker.google.com/issues/177051960
+- Resolve youtube link extractor error with build from lastest master release i.e.
+  'com.github.HaarigerHarald:android-youtubeExtractor:69f7045'
+- Migrate all the StartActivityForResult calls to ActivityResultContract#ActivityResultLauncher implementation
+- Remove openFileChooser() support in WebViewFragment
+
+=========================================================================
+Author:         cmeng
 Upload Date:	01/01/2021
 Version:		1.5.1 (105010)
 - Support user defined wall paper with integrated image editor zoom/crop to ease user defined wallpaper setup

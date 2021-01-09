@@ -31,6 +31,8 @@ import android.view.View.OnKeyListener;
 import android.webkit.*;
 import android.widget.ProgressBar;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 
 import org.cog.hymnchtv.*;
@@ -60,10 +62,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
     private boolean isLoadFromStack = false;
 
     private String webUrl = null;
-    private ValueCallback<Uri> mUploadMessage;
     private ValueCallback<Uri[]> mUploadMessageArray;
-
-    private final static int FILE_REQUEST_CODE = 1;
 
     @SuppressLint("JavascriptInterface")
     @Override
@@ -92,12 +91,10 @@ public class WebViewFragment extends Fragment implements OnKeyListener
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
+        webSettings.setMixedContentMode(0);
+        webSettings.setAllowUniversalAccessFromFileURLs(true);
 
-        if (Build.VERSION.SDK_INT >= 21) {
-            webSettings.setMixedContentMode(0);
-            webSettings.setAllowUniversalAccessFromFileURLs(true);
-        }
-
+        ActivityResultLauncher<String> mGetContents = getFileUris();
         webview.setWebChromeClient(new WebChromeClient()
         {
             public void onProgressChanged(WebView view, int progress)
@@ -112,27 +109,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
                 }
             }
 
-            public void openFileChooser(ValueCallback<Uri> uploadMsg)
-            {
-                openFileChooser(uploadMsg, null, null);
-            }
-
-            public void openFileChooser(ValueCallback uploadMsg, String acceptType)
-            {
-                openFileChooser(uploadMsg, acceptType, null);
-            }
-
-            public void openFileChooser(ValueCallback<Uri> uploadMsg, String acceptType, String capture)
-            {
-                mUploadMessage = uploadMsg;
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.addCategory(Intent.CATEGORY_OPENABLE);
-                i.setType(acceptType);
-
-                Intent chooseFile = Intent.createChooser(i, "File Browser");
-                startActivityForResult(chooseFile, FILE_REQUEST_CODE);
-            }
-
+            @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> uploadMessageArray,
                     FileChooserParams fileChooserParams)
             {
@@ -140,13 +117,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
                     mUploadMessageArray.onReceiveValue(null);
 
                 mUploadMessageArray = uploadMessageArray;
-
-                Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.addCategory(Intent.CATEGORY_OPENABLE);
-                i.setType("*/*");
-
-                Intent chooseFile = Intent.createChooser(i, "File Browser");
-                startActivityForResult(chooseFile, FILE_REQUEST_CODE);
+                mGetContents.launch("*/*");
                 return true;
             }
         });
@@ -166,6 +137,28 @@ public class WebViewFragment extends Fragment implements OnKeyListener
         webview.setFocusableInTouchMode(true);
         webview.requestFocus();
         webview.setOnKeyListener(this);
+    }
+
+    /**
+     * Opens a FileChooserDialog to let the user pick files for upload
+     */
+    private ActivityResultLauncher<String> getFileUris()
+    {
+        return registerForActivityResult(new ActivityResultContracts.GetMultipleContents(), uris -> {
+            if (uris != null) {
+                if (mUploadMessageArray == null)
+                    return;
+
+                Uri[] uriArray = new Uri[uris.size()];
+                uriArray = uris.toArray(uriArray);
+
+                mUploadMessageArray.onReceiveValue(uriArray);
+                mUploadMessageArray = null;
+            }
+            else {
+                HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
+            }
+        });
     }
 
     // Prevent the webView from reloading on device rotation
@@ -198,30 +191,6 @@ public class WebViewFragment extends Fragment implements OnKeyListener
     {
         urlStack.push(url);
         isLoadFromStack = false;
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode != FILE_REQUEST_CODE || resultCode != Activity.RESULT_OK || data.getData() == null)
-            return;
-
-        if (Build.VERSION.SDK_INT >= 21) {
-            if (mUploadMessageArray == null)
-                return;
-
-            mUploadMessageArray.onReceiveValue(new Uri[]{data.getData()});
-            mUploadMessageArray = null;
-        }
-        else {
-            if (mUploadMessage == null)
-                return;
-
-            mUploadMessage.onReceiveValue(data.getData());
-            mUploadMessage = null;
-        }
     }
 
     public static Bitmap getBitmapFromURL(String src)

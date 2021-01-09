@@ -249,23 +249,27 @@ public class MediaExoPlayer extends FragmentActivity
 //            Timber.w("Exception: %s", e.getMessage());
 //        }
 
-        new YouTubeExtractor(this)
-        {
-            @Override
-            public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta)
+        try {
+            new YouTubeExtractor(this)
             {
-                if (ytFiles != null) {
-                    int itag = ytFiles.keyAt(0); //22; get the first available itag
-                    String downloadUrl = ytFiles.get(itag).getUrl();
-                    MediaItem mediaItem = MediaItem.fromUri(downloadUrl);
-                    playMedia(mediaItem);
+                @Override
+                public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta)
+                {
+                    if (ytFiles != null) {
+                        int itag = ytFiles.keyAt(0); //22; get the first available itag
+                        String downloadUrl = ytFiles.get(itag).getUrl();
+                        MediaItem mediaItem = MediaItem.fromUri(downloadUrl);
+                        playMedia(mediaItem);
+                    }
+                    else {
+                        HymnsApp.showToastMessage(R.string.gui_error_playback);
+                        playVideoUrlExt(youtubeLink);
+                    }
                 }
-                else {
-                    HymnsApp.showToastMessage(R.string.gui_error_playback);
-                    playVideoUrlExt(youtubeLink);
-                }
-            }
-        }.extract(youtubeLink, true, true);
+            }.extract(youtubeLink, true, true);
+        } catch (Exception e) {
+            Timber.e("YouTubeExtractor Exception: %s", e.getMessage());
+        }
     }
 
     /**
@@ -286,12 +290,11 @@ public class MediaExoPlayer extends FragmentActivity
      */
     private void hideSystemUi()
     {
-        mVideoView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        mVideoView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LOW_PROFILE
                 | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 

@@ -197,9 +197,9 @@ public class HymnIdx2NoConvert
         if (hymnNo_page[0] == -1) {
             Timber.w("Computed %s number exceeded hymnNo max: %s => %s", hymnType, hymnIdx, hymnNo);
         }
-//        else {
-//            Timber.d("Conversion %s for index %s => %s", hymnType, hymnIdx, hymnNo_page[0]);
-//        }
+        else {
+            Timber.d("Conversion %s for index %s => %s", hymnType, hymnIdx, hymnNo_page[0]);
+        }
 
         return hymnNo_page;
     }

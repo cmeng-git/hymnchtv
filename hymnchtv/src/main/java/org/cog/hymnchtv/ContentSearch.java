@@ -320,7 +320,7 @@ public class ContentSearch extends FragmentActivity
             bundle.putInt(ATTR_NUMBER, hymnNo);
             bundle.putString(ATTR_SELECT, mHmynNoType.get(hymnNo));
             intent.putExtras(bundle);
-            startActivityForResult(intent, -1);
+            startActivity(intent);
         });
     }
 

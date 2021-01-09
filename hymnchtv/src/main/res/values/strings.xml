@@ -110,8 +110,9 @@
 
     <string name="hint_app_state">目前只是草稿版，如有任何问题，请发电邮至: cmeng.gm@gmail.com</string>
     <string name="hint_hymn_content_search">歌词搜索，仅支持简体中文</string>
-    <string name="hint_hymn_number_enter">输入第几首诗歌</string>
-    <string name="hint_hymn_ui">按目录选项，或输入(附)号码\n后按大本、补充、新颂或儿诗</string>
+    <string name="hint_hymn_history">&#11014;最近选择诗歌编号</string>
+    <string name="hint_hymn_number_enter">输入诗歌编号&#11015;</string>
+    <string name="hint_hymn_ui">按目录选项，或输入(附)编号\n后按大本、补充、新颂或儿诗</string>
 
     // hymnchtv main interface gui names
     <string name="hymn_db">大本</string>
@@ -138,11 +139,11 @@
     <string name="hymn_media_media">媒体</string>
 
     // Hymn info for media controller title
-    <string name="hymn_title_mc_bb">补充本 %1$d: %2$s</string>
-    <string name="hymn_title_mc_db">大本诗歌 %1$d: %2$s</string>
-    <string name="hymn_title_mc_dbs">大本诗歌 附%1$d: %2$s</string>
-    <string name="hymn_title_mc_er">儿童诗歌 %1$d: %2$s</string>
-    <string name="hymn_title_mc_xb">新歌颂咏 %1$d: %2$s</string>
+    <string name="hymn_title_mc_bb">补充 %1$d: %2$s</string>
+    <string name="hymn_title_mc_db">大本 %1$d: %2$s</string>
+    <string name="hymn_title_mc_dbs">大本 附%1$d: %2$s</string>
+    <string name="hymn_title_mc_er">儿诗 %1$d: %2$s</string>
+    <string name="hymn_title_mc_xb">新颂 %1$d: %2$s</string>
 
     // hymn search gui strings
     <string name="hymn_number">第几首</string>

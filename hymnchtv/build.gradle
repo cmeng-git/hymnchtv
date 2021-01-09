@@ -7,8 +7,8 @@ android {
     defaultConfig {
         applicationId "org.cog.hymnchtv"
         // End digit - change to force update with same version number
-        versionCode 105010
-        versionName "1.5.1"
+        versionCode 105020
+        versionName "1.5.2"
 
         minSdkVersion 21
         targetSdkVersion 30
@@ -71,6 +71,7 @@ dependencies {
     implementation 'org.jetbrains:annotations:19.0.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation 'androidx.viewpager2:viewpager2:1.0.0'
 
     implementation "androidx.activity:activity:1.2.0-rc01"
     implementation "androidx.fragment:fragment:1.3.0-rc01"
@@ -81,8 +82,10 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
 
-    implementation 'com.github.HaarigerHarald:android-youtubeExtractor:v2.1.0'
+	// Need latest release to fix incorrect youtube link extraction
+    implementation 'com.github.HaarigerHarald:android-youtubeExtractor:69f7045'
     // implementation 'com.github.kotvertolet:youtube-jextractor:v0.3.3'
+    // implementation 'com.github.sealedtx:java-youtube-downloader:2.4.5'
 
     implementation 'com.github.yalantis:ucrop:2.2.6'
 
@@ -125,6 +128,6 @@ tasks.getByName("build").dependsOn updateVersionFile
 
 // Uncomment below lines if you want to show all deprecated warnings
 tasks.withType(JavaCompile) {
-    options.compilerArgs << '-Xlint:unchecked'
-    options.deprecation = true
+    // options.compilerArgs << '-Xlint:unchecked'
+    // options.deprecation = true
 }

@@ -167,7 +167,7 @@ public class HymnToc extends FragmentActivity
 //                HymnsApp.showToastMessage(tocListCategory.get(groupPosition) + " List Collapsed."));
 
         expandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
-            String hymnCatory = tocListCategory.get(groupPosition);
+            String hymnCategory = tocListCategory.get(groupPosition);
             String hymnTitle = tocListDetail.get(tocListCategory.get(groupPosition)).get(childPosition);
 
             if (!TextUtils.isEmpty(hymnTitle)) {
@@ -186,7 +186,7 @@ public class HymnToc extends FragmentActivity
      */
     private void onHymnTitleClick(String hymnType, String hymnTitle)
     {
-        int hymnNo = 1;
+        int hymnNo;
 
         int idx = hymnTitle.lastIndexOf("#");
         if (idx != -1) {

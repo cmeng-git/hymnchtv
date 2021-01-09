@@ -6,6 +6,13 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.5.2 (01/09/2021)" versioncode="105020">
+        <change>添加最近选择诗歌编号的历史记录。</change>
+        <change>解决优酷媒体链接提取错误。</change>
+        <change>升级到最新改进的FragmentStateAdapter：稳定版本并修复了许多弱点。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.5.1 (01/01/2021)" versioncode="105010">
         <change>添加用户定义的墙纸选项。</change>
         <change>通过集成的图像编辑器，及其缩放/方向旋转/裁剪功能支持，以简化用户定义的墙纸设置。</change>
@@ -15,7 +22,6 @@
         <change>用户选择媒体文件时，不自动启动富文本编辑器。</change>
         <change>富文本编辑器标题将显示编辑后的文件名。</change>
         <change>媒体文件下载无响应超时，向用户显示错误消息。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.5.0 (12/26/2020)" versioncode="105001">

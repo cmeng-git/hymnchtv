@@ -352,16 +352,19 @@ public class UpdateServiceImpl
     {
         boolean isValid = false;
         if (apkFile.exists()) {
-            // Get downloaded apk actual versionName and versionCode
+            // Get downloaded apk actual versionCode and check its versionCode validity
             PackageManager pm = HymnsApp.getGlobalContext().getPackageManager();
-            PackageInfo info = pm.getPackageArchiveInfo(apkFile.getAbsolutePath(), 0);
-            isValid = (info != null) && (versionCode == info.versionCode);
+            PackageInfo pckgInfo = pm.getPackageArchiveInfo(apkFile.getAbsolutePath(), 0);
 
-            // Notify that the download version is not valid
-//            if (!isValid) {
-//                AndroidUtils.showAlertDialog(HymnsApp.getGlobalContext(),
-//                        R.string.gui_update_none, R.string.gui_update_invalid);
-//            }
+            if (pckgInfo != null) {
+                long apkVersionCode;
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P)
+                    apkVersionCode = pckgInfo.versionCode;
+                else
+                    apkVersionCode = pckgInfo.getLongVersionCode();
+
+                isValid = (versionCode == apkVersionCode);
+            }
         }
         return isValid;
     }
