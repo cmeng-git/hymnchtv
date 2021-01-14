@@ -17,7 +17,12 @@
 package org.cog.hymnchtv;
 
 import android.annotation.SuppressLint;
-import android.content.*;
+import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -26,8 +31,20 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.view.*;
-import android.widget.*;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,7 +54,11 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.cog.hymnchtv.service.audioservice.AudioBgService;
 import org.cog.hymnchtv.utils.ViewUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import timber.log.Timber;
 
@@ -113,8 +134,6 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private final boolean isMediaAudio = true;
 
     private MediaType mMediaType;
-
-    private SharedPreferences mSharedPref;
     private static SharedPreferences.Editor mEditor;
 
     private MpBroadcastReceiver mReceiver = null;
@@ -222,10 +241,10 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         mContentHandler.updateMediaPlayerInfo();
 
         // Get the user selected mediaType for playback
-        mSharedPref = getActivity().getSharedPreferences(PREF_SETTINGS, 0);
+        SharedPreferences mSharedPref = getActivity().getSharedPreferences(PREF_SETTINGS, 0);
         mEditor = mSharedPref.edit();
         if (null == mEditor) {
-            Timber.d("SharePref (Editor): %s (%s)", mSharedPref, mEditor);
+            Timber.d("SharePref (Editor): %s (null)", mSharedPref);
         }
 
         int mediaType = mSharedPref.getInt(PREF_MEDIA_HYMN, MediaType.HYMN_BANZOU.getValue());
@@ -360,12 +379,9 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                     break;
             }
 
-            // Still return NPF?
-            try {
+            if (mEditor != null) {
                 mEditor.putInt(PREF_MEDIA_HYMN, mMediaType.getValue());
                 mEditor.apply();
-            } catch (NullPointerException e) {
-                Timber.e("SharePref NPE: %s (%s)", e.getMessage(), getActivity().getSharedPreferences(PREF_SETTINGS, 0));
             }
         }
     }
@@ -528,9 +544,11 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         String speed = mpSpeedValues[position];
         setPlaybackSpeed(speed);
 
-        mEditor.putString(PREF_PLAYBACK_SPEED, speed);
-        mEditor.apply();
-        Timber.d("Set mediaPlayer playback speed to: %sx", speed);
+        if (mEditor != null) {
+            mEditor.putString(PREF_PLAYBACK_SPEED, speed);
+            mEditor.apply();
+            Timber.d("Set mediaPlayer playback speed to: %sx", speed);
+        }
     }
 
     @Override
@@ -546,8 +564,10 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         String loopValue = ViewUtil.toString(edLoopCount);
         setPlaybackLoopCount(loopValue);
 
-        mEditor.putBoolean(PREF_PLAYBACK_LOOP, isLoop);
-        mEditor.apply();
+        if (mEditor != null) {
+            mEditor.putBoolean(PREF_PLAYBACK_LOOP, isLoop);
+            mEditor.apply();
+        }
     }
 
     private void onLoopValueChange()
@@ -558,8 +578,10 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         edLoopCount.setText(loopValue);
         setPlaybackLoopCount(loopValue);
 
-        mEditor.putString(PREF_PLAYBACK_LOOPCOUNT, loopValue);
-        mEditor.apply();
+        if (mEditor != null) {
+            mEditor.putString(PREF_PLAYBACK_LOOPCOUNT, loopValue);
+            mEditor.apply();
+        }
     }
 
     private void setPlaybackLoopCount(String loopValue)

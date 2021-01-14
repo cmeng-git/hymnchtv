@@ -6,11 +6,16 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.5.3 (01/15/2021)" versioncode="105030">
+        <change>修复不支持的操作异常：Xiaomi Mi 11 Android 11（SDK 30）</change>
+        <change>使用 android studio v4.2-Beta3 进行重建，似乎已解决 SM-J730GM 随机中止问题。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.5.2 (01/09/2021)" versioncode="105020">
         <change>添加最近选择诗歌编号的历史记录。</change>
         <change>解决优酷媒体链接提取错误。</change>
         <change>升级到最新改进的FragmentStateAdapter：稳定版本并修复了许多弱点。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.5.1 (01/01/2021)" versioncode="105010">

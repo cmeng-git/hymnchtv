@@ -18,7 +18,8 @@ package org.cog.hymnchtv;
 
 import android.os.Bundle;
 
-import androidx.fragment.app.*;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import org.jetbrains.annotations.NotNull;
@@ -41,8 +42,8 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_INDEX_MAX;
  * the latest FragmentStateAdapter to minimize OOM Exception:
  * See https://stackoverflow.com/questions/18747975/what-is-the-difference-between-fragmentpageradapter-and-fragmentstatepageradapte
  * See Reported problem on FragmentStateAdapter: https://issuetracker.google.com/issues/177051960
- * @author Eng Chong Meng
  *
+ * @author Eng Chong Meng
  */
 public class MyPagerAdapter extends FragmentStateAdapter
 {
@@ -78,7 +79,7 @@ public class MyPagerAdapter extends FragmentStateAdapter
     @Override
     public @NotNull Fragment createFragment(int index)
     {
-        Timber.d("Get item fragment @: %s", index);
+        Timber.d("Get item fragment index @: %s", index);
         Bundle bundle = new Bundle();
         bundle.putString(LYRICS_TYPE, mHymnType);
         bundle.putInt(LYRICS_INDEX, index);

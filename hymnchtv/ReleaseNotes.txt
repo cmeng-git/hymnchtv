@@ -1,6 +1,14 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	01/15/2021
+Version:		1.5.3 (105030)
+- Fix UnsupportedOperationException: in Xiaomi Mi 11 Android 11 (SDK 30)
+ * Change deprecated mInstance.getDisplay().getSize(size) to
+- Rebuild with AS v4.2-Beta3, seems to resolve SM-J730GM random abort problem
+
+=========================================================================
+Author:         cmeng
 Upload Date:	01/09/2021
 Version:		1.5.2 (105020)
 - Add history for recently selected hymn title

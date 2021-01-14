@@ -21,6 +21,7 @@ import android.content.*;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.*;
@@ -114,16 +115,19 @@ public class HymnsApp extends Application implements LifecycleObserver
         mMediaDownloadHandler = new MediaDownloadHandler();
 
         // Get android device screen display size
-        Point size = new Point();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            Point size = new Point();
             ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay().getSize(size);
+            screenWidth = size.x;
+            screenHeight = size.y;
         }
         else {
-            mInstance.getDisplay().getSize(size);
+            // UnsupportedOperationException: in Xiaomi Mi 11 Android 11 (SDK 30)
+            // mInstance.getDisplay().getSize(size);
+            Rect mBounds = ((WindowManager) getSystemService(WINDOW_SERVICE)).getCurrentWindowMetrics().getBounds();
+            screenWidth = Math.abs(mBounds.width());
+            screenHeight = Math.abs(mBounds.height());
         }
-        screenWidth = size.x;
-        screenHeight = size.y;
-
         // Purge all the previously old downloaded apk
         UpdateServiceImpl.getInstance().removeOldDownloads();
     }
