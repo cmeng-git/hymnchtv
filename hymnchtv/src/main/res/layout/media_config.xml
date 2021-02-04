@@ -154,6 +154,12 @@
             android:text="@string/gui_exit" />
 
         <Button
+            android:id="@+id/button_play"
+            style="@style/ButtonTop"
+            android:layout_marginStart="4dp"
+            android:text="@string/play" />
+
+        <Button
             android:id="@+id/button_delete"
             style="@style/ButtonTop"
             android:layout_marginStart="4dp"

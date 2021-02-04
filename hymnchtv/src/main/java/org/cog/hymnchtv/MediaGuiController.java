@@ -165,10 +165,10 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         playbackDuration = convertView.findViewById(R.id.playback_duration);
         playbackSeekBar = convertView.findViewById(R.id.playback_seekbar);
 
-        cbPlaybackLoop = convertView.findViewById(R.id.playback_loop);
+        cbPlaybackLoop = convertView.findViewById(R.id.playback_repeat);
         cbPlaybackLoop.setOnClickListener(v -> onLoopClick());
 
-        edLoopCount = convertView.findViewById(R.id.loopCount);
+        edLoopCount = convertView.findViewById(R.id.repeatCount);
         edLoopCount.setOnKeyListener((v, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 onLoopValueChange();

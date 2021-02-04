@@ -101,6 +101,12 @@
             android:text="@string/gui_show_history_log" />
 
         <Button
+            android:id="@+id/submit_logs"
+            style="@style/Button"
+            android:layout_marginStart="2dp"
+            android:text="@string/gui_SEND_LOGS" />
+
+        <Button
             android:id="@+id/check_new_version"
             style="@style/Button"
             android:layout_marginStart="2dp"

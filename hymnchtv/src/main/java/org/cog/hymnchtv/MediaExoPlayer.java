@@ -18,16 +18,25 @@ package org.cog.hymnchtv;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseArray;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
+import androidx.annotation.Size;
 import androidx.fragment.app.FragmentActivity;
 
-import com.google.android.exoplayer2.*;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.util.MimeTypes;
 
 import org.apache.http.util.TextUtils;
@@ -36,7 +45,9 @@ import org.cog.hymnchtv.persistance.FileBackend;
 import java.util.ArrayList;
 import java.util.List;
 
-import at.huber.youtubeExtractor.*;
+import at.huber.youtubeExtractor.VideoMeta;
+import at.huber.youtubeExtractor.YouTubeExtractor;
+import at.huber.youtubeExtractor.YtFile;
 import timber.log.Timber;
 
 // import java.lang.reflect.Field;
@@ -47,43 +58,55 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class MediaExoPlayer extends FragmentActivity
+public class MediaExoPlayer extends FragmentActivity implements AdapterView.OnItemSelectedListener
 {
     // Tag for the instance state bundle.
-    public static final String ATTR_VIDEO_URL = "videoUrl";
-    public static final String ATTR_VIDEO_URLS = "videoUrls";
+    public static final String ATTR_MEDIA_URL = "mediaUrl";
+    public static final String ATTR_MEDIA_URLS = "mediaUrls";
 
     private static final String START_POSITION = "start_position";
+    public static final String PB_SPEED = "playback_speed";
+    public static final String PB_PITCH = "playback_pitch";
 
     private static final String sampleUrl = "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4";
 
     // Start playback video url
-    private String videoUrl = sampleUrl;
-    private ArrayList<String> videoUrls = null;
+    private String mediaUrl = sampleUrl;
+    private ArrayList<String> mediaUrls = null;
 
     // Playback position (in milliseconds).
     private long startPositionMs = 0;
+    private float mSpeed = 1.0f;
+    private float mPitch = 1.0f;
 
-    private SimpleExoPlayer mVideoPlayer = null;
-    private PlayerView mVideoView;
+    private SimpleExoPlayer mExoPlayer = null;
+    private StyledPlayerView mPlayerView;
     private PlaybackStateListener playbackStateListener;
+
+    private Spinner playbackSpeed;
+    private static final String[] mpSpeedValues = HymnsApp.getAppResources().getStringArray(R.array.mp_speed_value);
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.media_player_exo_ui);
-        mVideoView = findViewById(R.id.video_player_view);
+        mPlayerView = findViewById(R.id.exoplayerView);
+
+        playbackSpeed = findViewById(R.id.playback_speed);
+        playbackSpeed.setOnItemSelectedListener(this);
 
         if (savedInstanceState != null) {
-            videoUrl = savedInstanceState.getString(ATTR_VIDEO_URL);
-            videoUrls = savedInstanceState.getStringArrayList(ATTR_VIDEO_URLS);
+            mediaUrl = savedInstanceState.getString(ATTR_MEDIA_URL);
+            mediaUrls = savedInstanceState.getStringArrayList(ATTR_MEDIA_URLS);
             startPositionMs = savedInstanceState.getLong(START_POSITION);
+            mSpeed = savedInstanceState.getFloat(PB_SPEED);
+            mPitch = savedInstanceState.getFloat(PB_PITCH);
         }
         else {
             Bundle bundle = getIntent().getExtras();
-            videoUrl = bundle.getString(ATTR_VIDEO_URL);
-            videoUrls = bundle.getStringArrayList(ATTR_VIDEO_URLS);
+            mediaUrl = bundle.getString(ATTR_MEDIA_URL);
+            mediaUrls = bundle.getStringArrayList(ATTR_MEDIA_URLS);
         }
         playbackStateListener = new PlaybackStateListener();
     }
@@ -99,73 +122,46 @@ public class MediaExoPlayer extends FragmentActivity
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
-
-        outState.putString(ATTR_VIDEO_URL, videoUrl);
-        outState.putStringArrayList(ATTR_VIDEO_URLS, videoUrls);
-        outState.putLong(START_POSITION, mVideoPlayer.getCurrentPosition());
-    }
-
-    /*
-     * Android API level 24 and higher supports multiple windows. As your app can be visible,
-     * but not active in split window mode, you need to initialize the player in onStart.
-     * Android API level 24 and lower requires you to wait as long as possible until you grab resources,
-     * so you wait until onResume before initializing the player.
-     */
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-
-        // Load the media each time onStart() is called.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            initializePlayer();
-        }
+        outState.putString(ATTR_MEDIA_URL, mediaUrl);
+        outState.putStringArrayList(ATTR_MEDIA_URLS, mediaUrls);
+        outState.putLong(START_POSITION, startPositionMs);
+        outState.putFloat(PB_SPEED, mSpeed);
+        outState.putFloat(PB_PITCH, mPitch);
     }
 
     @Override
     protected void onResume()
     {
-        hideSystemUi();
         super.onResume();
+        hideSystemUi();
         // Load the media each time onStart() is called.
-        if ((Build.VERSION.SDK_INT < Build.VERSION_CODES.N) || (mVideoPlayer == null)) {
-            initializePlayer();
-        }
-    }
-
-    // With API Level lower than 24, there is no guarantee of onStop being called,
-    // so you have to release the player as early as possible in onPause.
-    @Override
-    protected void onPause()
-    {
-        super.onPause();
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            releasePlayer();
-        }
+        initializePlayer();
     }
 
     @Override
     protected void onStop()
     {
         super.onStop();
-
-        mVideoPlayer.setPlayWhenReady(false);
-        // Media play-back takes a lot of resources, so everything should be stopped and released at this time.
-        if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) && isFinishing()) {
-            releasePlayer();
-        }
+        releasePlayer();
     }
 
     private void initializePlayer()
     {
-        if (mVideoPlayer == null) {
-            mVideoPlayer = new SimpleExoPlayer.Builder(this).build();
-            mVideoPlayer.addListener(playbackStateListener);
-            mVideoView.setPlayer(mVideoPlayer);
+        if (mExoPlayer == null) {
+            mExoPlayer = new SimpleExoPlayer.Builder(this).build();
+            mExoPlayer.addListener(playbackStateListener);
+            mPlayerView.setPlayer(mExoPlayer);
         }
 
-        if ((videoUrls == null) || videoUrls.isEmpty()) {
-            MediaItem mediaItem = buildMediaItem(videoUrl);
+        for (int i = 0; i < mpSpeedValues.length; i++) {
+            if (mpSpeedValues[i].equals(Float.toString(mSpeed))) {
+                playbackSpeed.setSelection(i);
+                break;
+            }
+        }
+
+        if ((mediaUrls == null) || mediaUrls.isEmpty()) {
+            MediaItem mediaItem = buildMediaItem(mediaUrl);
             if (mediaItem != null)
                 playMedia(mediaItem);
         }
@@ -182,9 +178,10 @@ public class MediaExoPlayer extends FragmentActivity
     private void playMedia(MediaItem mediaItem)
     {
         if (mediaItem != null) {
-            mVideoPlayer.setMediaItem(mediaItem, startPositionMs);
-            mVideoPlayer.setPlayWhenReady(true);
-            mVideoPlayer.prepare();
+            mExoPlayer.setMediaItem(mediaItem, startPositionMs);
+            setSpeedPitch(mSpeed, mPitch);
+            mExoPlayer.setPlayWhenReady(true);
+            mExoPlayer.prepare();
         }
     }
 
@@ -193,14 +190,14 @@ public class MediaExoPlayer extends FragmentActivity
      */
     private void playVideoUrls()
     {
-        if ((videoUrls != null) && !videoUrls.isEmpty()) {
+        if ((mediaUrls != null) && !mediaUrls.isEmpty()) {
             List<MediaItem> mediaItems = new ArrayList<>();
-            for (String tmpUrl : videoUrls) {
+            for (String tmpUrl : mediaUrls) {
                 mediaItems.add(buildMediaItem(tmpUrl));
             }
-            mVideoPlayer.setMediaItems(mediaItems);
-            mVideoPlayer.setPlayWhenReady(true);
-            mVideoPlayer.prepare();
+            mExoPlayer.setMediaItems(mediaItems);
+            mExoPlayer.setPlayWhenReady(true);
+            mExoPlayer.prepare();
         }
     }
 
@@ -217,7 +214,7 @@ public class MediaExoPlayer extends FragmentActivity
 
         Uri uri = Uri.parse(mediaUrl);
         String mimeType = FileBackend.getMimeType(this, uri);
-        if (!TextUtils.isEmpty(mimeType) && mimeType.contains("video")) {
+        if (!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio"))) {
             mediaItem = MediaItem.fromUri(mediaUrl);
         }
         else if (mediaUrl.matches("http[s]*://[w.]*youtu[.]*be.*")) {
@@ -241,13 +238,13 @@ public class MediaExoPlayer extends FragmentActivity
     @SuppressLint("StaticFieldLeak")
     private void playYoutubeUrl(String youtubeLink)
     {
-//        try {
-//            Field field = YouTubeExtractor.class.getDeclaredField("LOGGING");
-//            field.setAccessible(true);
-//            field.set(field, true);
-//        } catch (NoSuchFieldException | IllegalAccessException e) {
-//            Timber.w("Exception: %s", e.getMessage());
-//        }
+        //        try {
+        //            Field field = YouTubeExtractor.class.getDeclaredField("LOGGING");
+        //            field.setAccessible(true);
+        //            field.set(field, true);
+        //        } catch (NoSuchFieldException | IllegalAccessException e) {
+        //            Timber.w("Exception: %s", e.getMessage());
+        //        }
 
         try {
             new YouTubeExtractor(this)
@@ -273,16 +270,54 @@ public class MediaExoPlayer extends FragmentActivity
     }
 
     /**
+     * Media play-back takes a lot of resources, so everything should be stopped and released at this time.
      * Release all media-related resources. In a more complicated app this
      * might involve unregistering listeners or releasing audio focus.
      */
     private void releasePlayer()
     {
-        if (mVideoPlayer != null) {
-            mVideoPlayer.removeListener(playbackStateListener);
-            mVideoPlayer.release();
-            mVideoPlayer = null;
+        if (mExoPlayer != null) {
+            // Timber.d("Media Player stopping: %s", mExoPlayer);
+            startPositionMs = mExoPlayer.getCurrentPosition();
+            mExoPlayer.setPlayWhenReady(false);
+            mExoPlayer.removeListener(playbackStateListener);
+            mExoPlayer.release();
+            mExoPlayer = null;
         }
+    }
+
+    /**
+     * Playback speed
+     * *
+     *
+     * @param speed playback speed: default 1.0f
+     * @param pitch audio pitch，default 1.0f
+     */
+    public void setSpeedPitch(@Size(min = 0) float speed, @Size(min = 0) float pitch)
+    {
+        mSpeed = speed;
+        mPitch = pitch;
+        PlaybackParameters playbackParameters = new PlaybackParameters(speed, pitch);
+        if (mExoPlayer != null) {
+            mExoPlayer.setPlaybackParameters(playbackParameters);
+        }
+    }
+
+    @Override
+    // (view == null) when rotated on first call, follow by second call with value
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+    {
+        if (view != null) {
+            ((TextView) view).setTextColor(getResources().getColor(R.color.textColorWhite));
+            ((TextView) view).setTextSize(14);
+            mSpeed = Float.parseFloat(mpSpeedValues[position]);
+            setSpeedPitch(mSpeed, mPitch);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent)
+    {
     }
 
     /**
@@ -290,7 +325,7 @@ public class MediaExoPlayer extends FragmentActivity
      */
     private void hideSystemUi()
     {
-        mVideoView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE
+        mPlayerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE
                 | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -301,33 +336,29 @@ public class MediaExoPlayer extends FragmentActivity
     /**
      * ExoPlayer playback state listener
      */
-    private static class PlaybackStateListener implements Player.EventListener
+    private class PlaybackStateListener implements Player.EventListener
     {
         @Override
         public void onPlaybackStateChanged(int playbackState)
         {
-            String stateString;
             switch (playbackState) {
                 case ExoPlayer.STATE_IDLE:
                     HymnsApp.showToastMessage(R.string.gui_error_playback);
-                    stateString = "ExoPlayer.STATE_IDLE      -";
                     break;
+
                 case ExoPlayer.STATE_BUFFERING:
-                    HymnsApp.showToastMessage(R.string.gui_buffering);
-                    stateString = "ExoPlayer.STATE_BUFFERING -";
                     break;
+
                 case ExoPlayer.STATE_READY:
-                    stateString = "ExoPlayer.STATE_READY     -";
                     break;
+
                 case ExoPlayer.STATE_ENDED:
                     HymnsApp.showToastMessage(R.string.gui_playback_completed);
-                    stateString = "ExoPlayer.STATE_ENDED     -";
                     break;
+
                 default:
-                    stateString = "UNKNOWN_STATE             -";
                     break;
             }
-            Timber.d("ExoPlayer changes state to: %s", stateString);
         }
     }
 

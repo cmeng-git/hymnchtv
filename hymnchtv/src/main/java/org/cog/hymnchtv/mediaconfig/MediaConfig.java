@@ -16,13 +16,27 @@
  */
 package org.cog.hymnchtv.mediaconfig;
 
+import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.*;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.webkit.URLUtil;
-import android.widget.*;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
@@ -30,14 +44,34 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.FragmentActivity;
 
 import org.apache.http.util.EncodingUtils;
-import org.cog.hymnchtv.*;
-import org.cog.hymnchtv.persistance.*;
-import org.cog.hymnchtv.utils.*;
+import org.cog.hymnchtv.ContentHandler;
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MediaExoPlayer;
+import org.cog.hymnchtv.MediaType;
+import org.cog.hymnchtv.R;
+import org.cog.hymnchtv.RichTextEditor;
+import org.cog.hymnchtv.persistance.DatabaseBackend;
+import org.cog.hymnchtv.persistance.FileBackend;
+import org.cog.hymnchtv.persistance.FilePathHelper;
+import org.cog.hymnchtv.utils.DialogActivity;
+import org.cog.hymnchtv.utils.HymnNoValidate;
+import org.cog.hymnchtv.utils.ViewUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import timber.log.Timber;
 
@@ -45,12 +79,16 @@ import static org.cog.hymnchtv.ContentHandler.MEDIA_BANZOU;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_CHANGSHI;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_JIAOCHANG;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_MEDIA;
+import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
+import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
-import static org.cog.hymnchtv.MediaExoPlayer.ATTR_VIDEO_URL;
-import static org.cog.hymnchtv.MediaExoPlayer.ATTR_VIDEO_URLS;
+import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
+import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+import static org.cog.hymnchtv.MediaExoPlayer.ATTR_MEDIA_URL;
+import static org.cog.hymnchtv.MediaExoPlayer.ATTR_MEDIA_URLS;
 import static org.cog.hymnchtv.MediaType.HYMN_BANZOU;
 import static org.cog.hymnchtv.MediaType.HYMN_CHANGSHI;
 import static org.cog.hymnchtv.MediaType.HYMN_JIAOCHANG;
@@ -77,7 +115,7 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
  * @author Eng Chong Meng
  */
 public class MediaConfig extends FragmentActivity
-        implements View.OnClickListener, AdapterView.OnItemSelectedListener
+        implements View.OnClickListener, View.OnLongClickListener, AdapterView.OnItemSelectedListener
 {
     // Online text and video playback help contents
     private static final String HYMNCHTV_FAQ_UDC_RECORD = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0070";
@@ -125,7 +163,7 @@ public class MediaConfig extends FragmentActivity
     // Focused view uses as indication to determine if the tvMediaUri is the auto filled or user entered
     private View mFocusedView = null;
 
-    // DB based media record list view
+    // DB based media record list view and last selected view
     private ListView mrListView;
 
     public static List<String> hymnTypeEntry = new ArrayList<>();
@@ -239,6 +277,7 @@ public class MediaConfig extends FragmentActivity
         cmdAdd = findViewById(R.id.button_add);
         cmdAdd.setOnClickListener(this);
 
+        findViewById(R.id.button_play).setOnClickListener(this);
         findViewById(R.id.button_delete).setOnClickListener(this);
         findViewById(R.id.button_Exit).setOnClickListener(this);
 
@@ -254,6 +293,7 @@ public class MediaConfig extends FragmentActivity
 
         // ======== database Media Record ==========
         mrListView = findViewById(R.id.mrListView);
+        mrListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         tvImportFile = findViewById(R.id.importFile);
         cbOverwrite = findViewById(R.id.recordOverwrite);
@@ -267,7 +307,10 @@ public class MediaConfig extends FragmentActivity
         findViewById(R.id.editFile).setOnClickListener(this);
 
         findViewById(R.id.button_import).setOnClickListener(this);
-        findViewById(R.id.button_export).setOnClickListener(this);
+        Button btnExport = findViewById(R.id.button_export);
+        btnExport.setOnClickListener(this);
+        btnExport.setOnLongClickListener(this);
+
         findViewById(R.id.button_export_create).setOnClickListener(this);
         findViewById(R.id.button_db_records).setOnClickListener(this);
     }
@@ -284,8 +327,8 @@ public class MediaConfig extends FragmentActivity
 
             case R.id.help_video:
                 Bundle bundle = new Bundle();
-                bundle.putString(ATTR_VIDEO_URL, null);
-                bundle.putStringArrayList(ATTR_VIDEO_URLS, videoUrls);
+                bundle.putString(ATTR_MEDIA_URL, null);
+                bundle.putStringArrayList(ATTR_MEDIA_URLS, videoUrls);
 
                 intent = new Intent(this, MediaExoPlayer.class);
                 intent.putExtras(bundle);
@@ -303,6 +346,10 @@ public class MediaConfig extends FragmentActivity
                     HymnsApp.showToastMessage(R.string.gui_add_to_db);
                     // getActivity().getSupportFragmentManager().popBackStack();
                 }
+                break;
+
+            case R.id.button_play:
+                startPlayOrActionView();
                 break;
 
             // Manual deletion must be performed by user if the user modifies the link to point to different HymnType
@@ -349,6 +396,88 @@ public class MediaConfig extends FragmentActivity
         }
     }
 
+    @Override
+    public boolean onLongClick(View v)
+    {
+        // Export the database to a text file for sharing
+        if (v.getId() == R.id.button_export) {
+            generateExportAll();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * This is activated by user; or automatic from mediaController when the downloaded uri is completed
+     */
+    private void startPlayOrActionView()
+    {
+        String mediaUrl = ViewUtil.toString(tvMediaUri);
+
+        if ((mediaUrl != null) && (URLUtil.isValidUrl(mediaUrl) || new File(mediaUrl).exists())) {
+            Uri uri = Uri.parse(mediaUrl);
+            String mimeType = FileBackend.getMimeType(this, uri);
+
+            String hymnNo = ViewUtil.toString(tvHymnNo);
+            boolean isFu = cbFu.isChecked();
+            int nui = (hymnNo == null) ? -1 : HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), isFu);
+            if ((nui != -1) && new File(mediaUrl).exists() && !TextUtils.isEmpty(mimeType) && mimeType.contains("audio")) {
+                // Get the user selected mediaType for playback
+                SharedPreferences mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
+                SharedPreferences.Editor mEditor = mSharedPref.edit();
+                mEditor.putInt(PREF_MEDIA_HYMN, mMediaType.getValue());
+                mEditor.apply();
+                showContent(mHymnType, nui);
+            }
+            else if ((!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio")))
+                    || mediaUrl.matches("http[s]*://[w.]*youtu[.]*be.*")) {
+                Bundle bundle = new Bundle();
+                bundle.putString(ATTR_MEDIA_URL, mediaUrl);
+
+                Intent intent = new Intent(this, MediaExoPlayer.class);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+            else {
+                Intent openIntent = new Intent(Intent.ACTION_VIEW);
+                openIntent.setDataAndType(uri, mimeType);
+                openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                PackageManager manager = getPackageManager();
+                List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
+                if (info.size() == 0) {
+                    openIntent.setDataAndType(uri, "*/*");
+                }
+                try {
+                    startActivity(openIntent);
+                } catch (ActivityNotFoundException e) {
+                    // showToastMessage(R.string.service_gui_FILE_OPEN_NO_APPLICATION);
+                }
+            }
+        }
+        else {
+            HymnsApp.showToastMessage(R.string.gui_error_playback);
+        }
+    }
+
+    /**
+     * Save the user selected hymn into the history table
+     * Show the content of user selected hymnType and hymnNo
+     *
+     * @param hymnType lyrics content of the hymnType
+     * @param hymnNo the content of hymnNo to display
+     */
+    private void showContent(String hymnType, int hymnNo)
+    {
+        Intent intent = new Intent(this, ContentHandler.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(ATTR_SELECT, hymnType);
+        bundle.putInt(ATTR_NUMBER, hymnNo);
+
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
     /**
      * A contract specifying that an activity can be called with an input of type I
      * and produce an output of type O
@@ -369,7 +498,8 @@ public class MediaConfig extends FragmentActivity
                     if (mViewRequest == tvImportFile) {
                         filename = copyToLocalFile(filename);
                         editFile(filename);
-                    } else {
+                    }
+                    else {
                         isAutoFilled = false;
                     }
                     mViewRequest.setText(filename);
@@ -410,6 +540,9 @@ public class MediaConfig extends FragmentActivity
     {
         if (parent == hymnTypeSpinner) {
             mHymnType = hymnTypeValue.get(position);
+            if (mrListView.getVisibility() == View.VISIBLE) {
+                showMediaRecords();
+            }
         }
         else if (parent == mediaTypeSpinner) {
             mMediaType = mediaTypeValue.get(position);
@@ -459,6 +592,7 @@ public class MediaConfig extends FragmentActivity
         {
             hasChanges = true;
         }
+
     }
 
     // ================= Need user confirmation before exit if changes detected ================
@@ -788,7 +922,6 @@ public class MediaConfig extends FragmentActivity
             FileWriter fileWriter;
             try {
                 fileWriter = new FileWriter(exportFile.getAbsolutePath());
-
                 List<MediaRecord> mediaRecords = mDB.getMediaRecords(mHymnType);
                 if (!mediaRecords.isEmpty()) {
                     for (MediaRecord mediaRecord : mediaRecords) {
@@ -804,6 +937,54 @@ public class MediaConfig extends FragmentActivity
                     HymnsApp.showToastMessage(R.string.hymn_match_none);
                 }
                 fileWriter.close();
+            } catch (IOException e) {
+                Timber.e("Export media record exception: %s", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Export the media records in database for the all the HymnType and
+     * filename tagged with timeStamp e.g hymn_all-20201212_092033
+     */
+    private void generateExportAll()
+    {
+        String fileName = String.format("hymn_all-%s.txt",
+                new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
+
+        File exportFile = new File(FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true), fileName);
+        try {
+            exportFile.createNewFile();
+        } catch (IOException e) {
+            Timber.w("Failed to create media export file!");
+        }
+
+        if (exportFile.exists()) {
+            int recordSize = 0;
+            FileWriter fileWriter;
+            try {
+                fileWriter = new FileWriter(exportFile.getAbsolutePath());
+                for (String hymnType : hymnTypeValue) {
+                    List<MediaRecord> mediaRecords = mDB.getMediaRecords(hymnType);
+                    if (!mediaRecords.isEmpty()) {
+                        recordSize += mediaRecords.size();
+                        for (MediaRecord mediaRecord : mediaRecords) {
+                            String mRecord = mediaRecord.getExportString();
+                            if (mRecord != null)
+                                fileWriter.write(mRecord);
+                        }
+                    }
+                }
+                fileWriter.close();
+
+                if (recordSize != 0) {
+                    HymnsApp.showToastMessage(R.string.hymn_match, recordSize);
+                    tvImportFile.setText(exportFile.getPath());
+                    editFile(exportFile.getPath());
+                }
+                else {
+                    HymnsApp.showToastMessage(R.string.hymn_match_none);
+                }
             } catch (IOException e) {
                 Timber.e("Export media record exception: %s", e.getMessage());
             }
@@ -876,6 +1057,7 @@ public class MediaConfig extends FragmentActivity
     /**
      * Show all the DB media records in the DB based on user selected HymnType and MediaType
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void showMediaRecords()
     {
         List<MediaRecord> mediaRecords = mDB.getMediaRecords(mHymnType);
@@ -893,7 +1075,7 @@ public class MediaConfig extends FragmentActivity
         }
 
         /* Display the search result to the user */
-        SimpleAdapter adapter = new SimpleAdapter(this, data, R.layout.media_records_list, new String[]{"match"},
+        SimpleListAdapter adapter = new SimpleListAdapter(this, data, R.layout.media_records_list, new String[]{"match"},
                 new int[]{R.id.item_record});
 
         mrListView.setAdapter(adapter);
@@ -901,6 +1083,8 @@ public class MediaConfig extends FragmentActivity
 
         // Update the media Record Editor info.
         mrListView.setOnItemClickListener((adapterView, view, pos, id) -> {
+            adapter.setSelectItem(pos, view);
+
             if (isAutoFilled) {
                 Map<String, String> item_db = data.get(pos);
                 String mRecord = item_db.get("match");

@@ -7,8 +7,8 @@ android {
     defaultConfig {
         applicationId "org.cog.hymnchtv"
         // End digit - change to force update with same version number
-        versionCode 105030
-        versionName "1.5.3"
+        versionCode 105040
+        versionName "1.5.4"
 
         minSdkVersion 21
         targetSdkVersion 30
@@ -89,7 +89,7 @@ dependencies {
 
     implementation 'com.github.yalantis:ucrop:2.2.6'
 
-    implementation 'com.google.android.exoplayer:exoplayer:2.12.2'
+    implementation 'com.google.android.exoplayer:exoplayer:2.12.3'
 
     // https://github.com/guardian/toolargetool
     // implementation 'com.gu.android:toolargetool:0.2.1'

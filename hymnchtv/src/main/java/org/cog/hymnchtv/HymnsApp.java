@@ -53,11 +53,6 @@ import timber.log.Timber;
 public class HymnsApp extends Application implements LifecycleObserver
 {
     /**
-     * The EXIT action name that is broadcast to all Activities
-     */
-    public static final String ACTION_EXIT = "org.cog.hymnchtv.exit";
-
-    /**
      * Indicate if hymnchtv is in the foreground (true) or background (false)
      */
     public static boolean isForeground = false;
@@ -159,7 +154,6 @@ public class HymnsApp extends Application implements LifecycleObserver
     }
 
     // ========= Lifecycle implementations ======= //
-
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     public void onAppForegrounded()
     {

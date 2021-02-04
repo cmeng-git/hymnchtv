@@ -33,6 +33,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.FragmentActivity;
 
+import org.cog.hymnchtv.logutils.LogUploadServiceImpl;
 import org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl;
 
 import de.cketti.library.changelog.ChangeLog;
@@ -44,6 +45,8 @@ import de.cketti.library.changelog.ChangeLog;
  */
 public class About extends FragmentActivity implements View.OnClickListener
 {
+    private static String LOG_REPORT_EMAIL = "cmeng.gm@gmail.com";
+
     public static String HYMNCHTV_HTTP_LINK = "https://cmeng-git.github.io/hymnchtv/";
 
     private static String[][] USED_LIBRARIES = new String[][]{
@@ -93,8 +96,9 @@ public class About extends FragmentActivity implements View.OnClickListener
             copyRight.setText(Html.fromHtml(getString(R.string.gui_copyright)));
         }
 
-        findViewById(R.id.ok_button).setOnClickListener(this);
         findViewById(R.id.history_log).setOnClickListener(this);
+        findViewById(R.id.submit_logs).setOnClickListener(this);
+        findViewById(R.id.ok_button).setOnClickListener(this);
 
         Button btn_chkNewVersion = findViewById(R.id.check_new_version);
         if (BuildConfig.DEBUG) {
@@ -136,6 +140,12 @@ public class About extends FragmentActivity implements View.OnClickListener
                         UpdateServiceImpl.getInstance().checkForUpdates(true);
                     }
                 }.start();
+                break;
+
+            case R.id.submit_logs:
+                new LogUploadServiceImpl().sendLogs(new String[]{LOG_REPORT_EMAIL},
+                        getString(R.string.gui_SEND_LOGS_SUBJECT),
+                        getString(R.string.gui_SEND_LOGS_TITLE));
                 break;
 
             case R.id.history_log:

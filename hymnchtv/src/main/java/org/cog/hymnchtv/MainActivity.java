@@ -36,6 +36,7 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.fragment.app.FragmentActivity;
 
 import org.cog.hymnchtv.hymnhistory.HistoryRecord;
+import org.cog.hymnchtv.logutils.LogUploadServiceImpl;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.persistance.*;
 import org.cog.hymnchtv.utils.HymnNoValidate;
@@ -368,7 +369,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * @param hymnType lyrics content of the hymnType
      * @param hymnNo the content of hymnNo to display
      */
-    public void showContent(String hymnType, int hymnNo)
+    private void showContent(String hymnType, int hymnNo)
     {
         HistoryRecord historyRecord = new HistoryRecord(hymnType, hymnNo, isFu);
         mDB.storeHymnHistory(historyRecord);
@@ -618,6 +619,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 return true;
 
             case R.id.exit:
+                LogUploadServiceImpl.purgeDebugLog();
                 finishAndRemoveTask();
                 System.exit(0);
                 return true;

@@ -18,6 +18,10 @@
     <!-- Required to read and write the expansion files on shared storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <queries>
+        <package android:name="android.content.pm" />
+    </queries>
+
     <application
         android:name=".HymnsApp"
         android:allowBackup="true"

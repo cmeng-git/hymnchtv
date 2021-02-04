@@ -1,6 +1,22 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	02/02/2021
+Version:		1.5.4 (105040)
+- MediaConfig DB record list if visible, will be updated when user selects other HymnType
+- Highlight user selected media record item (See SimpleList Adapter implementation)
+- Support media records export for all the four hymnType in a single file by long press "DB Export"
+- Enhance MediaExoPlayer features to include user selectable options for playback repeat and speed etc.
+- Add audio media capable to mExpPlayer for mediaConfig local playback;
+  Use content view UI for playback if local MP3 media is specified with valid hymn parameters
+- MediaExoPlayer: onSaveInstanceState() may be called after or prior to onStop pending on OS version;
+  must save a copy of mExoPlayer.getCurrentPosition() in startPositionMs before stopping mExpPlayer.
+- Fix logical check for ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) && isFinishing()) leads to
+  mExpPlayer not properly stop; and keep adding new on screen rotation.
+- Add support for user to report bug with attached logcat in About menu
+
+=========================================================================
+Author:         cmeng
 Upload Date:	01/15/2021
 Version:		1.5.3 (105030)
 - Fix UnsupportedOperationException: in Xiaomi Mi 11 Android 11 (SDK 30)

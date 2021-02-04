@@ -16,8 +16,11 @@
  */
 package org.cog.hymnchtv;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.webkit.URLUtil;
@@ -31,7 +34,7 @@ import java.io.File;
 import java.util.List;
 
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MediaExoPlayer.ATTR_VIDEO_URL;
+import static org.cog.hymnchtv.MediaExoPlayer.ATTR_MEDIA_URL;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 
 /**
@@ -81,17 +84,19 @@ public class MediaContentHandler
         if (!TextUtils.isEmpty(uriString)) {
             // uriString is an external URL.
             if (URLUtil.isValidUrl(uriString)) {
-                playVideoUrl(uriString);
+                playMediaUrl(uriString);
                 return true;
             }
             File uriFile = new File(uriString);
             if (uriFile.exists()) {
                 Uri uri = Uri.parse(uriString);
                 String mimeType = FileBackend.getMimeType(mContext, uri);
+                // Let playMediaUrl handle unknown or video mimeType
                 if (TextUtils.isEmpty(mimeType) || mimeType.contains("video")) {
-                    playVideoUrl(uriString);
+                    playMediaUrl(uriString);
                     return true;
                 }
+                // Otherwise, pass handling to local audio service
                 else {
                     uriList.add(uri);
                     return true;
@@ -101,14 +106,14 @@ public class MediaContentHandler
         return false;
     }
 
-    public void playVideoUrl(String videoUrl)
+    public void playMediaUrl(String videoUrl)
     {
         Uri uri = Uri.parse(videoUrl);
         String mimeType = FileBackend.getMimeType(mContext, uri);
-        if ((!TextUtils.isEmpty(mimeType) && mimeType.contains("video"))
+        if ((!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio")))
                 || videoUrl.matches("http[s]*://[w.]*youtu[.]*be.*")) {
             Bundle bundle = new Bundle();
-            bundle.putString(ATTR_VIDEO_URL, videoUrl);
+            bundle.putString(ATTR_MEDIA_URL, videoUrl);
 
             Intent intent = new Intent(mContext, MediaExoPlayer.class);
             intent.putExtras(bundle);
@@ -116,9 +121,21 @@ public class MediaContentHandler
             mContext.startActivity(intent);
         }
         else {
-            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl));
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(intent);
+            Intent openIntent = new Intent(Intent.ACTION_VIEW);
+            openIntent.setDataAndType(uri, mimeType);
+            openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            openIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            PackageManager manager = mContext.getPackageManager();
+            List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
+            if (info.size() == 0) {
+                openIntent.setDataAndType(uri, "*/*");
+            }
+            try {
+                mContext.startActivity(openIntent);
+            } catch (ActivityNotFoundException e) {
+                // showToastMessage(R.string.service_gui_FILE_OPEN_NO_APPLICATION);
+            }
         }
     }
 }

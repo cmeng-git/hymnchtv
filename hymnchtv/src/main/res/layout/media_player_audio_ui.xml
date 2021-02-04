@@ -88,16 +88,16 @@
             android:paddingEnd="60dp">
 
             <CheckBox
-                android:id="@+id/playback_loop"
+                android:id="@+id/playback_repeat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:button="@drawable/checkbox_loop"
+                android:button="@drawable/checkbox_repeat"
                 android:gravity="center_vertical"
-                android:scaleX="0.7"
-                android:scaleY="0.7" />
+                android:scaleX="1.0"
+                android:scaleY="1.0" />
 
             <EditText
-                android:id="@+id/loopCount"
+                android:id="@+id/repeatCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="-15dp"
@@ -113,7 +113,7 @@
 
             <Spinner
                 android:id="@+id/playback_speed"
-                style="@style/SpinnerStyle"
+                style="@style/SpinnerTransparentStyle"
                 android:layout_width="55dp"
                 android:entries="@array/mp_speed_name"
                 android:entryValues="@array/mp_speed_value"

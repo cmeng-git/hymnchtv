@@ -114,6 +114,16 @@
     <string name="hint_hymn_number_enter">输入诗歌编号&#11015;</string>
     <string name="hint_hymn_ui">按目录选项，或输入(附)编号\n后按大本、补充、新颂或儿诗</string>
 
+    <!-- Logs -->
+    <string name="gui_SEND_LOGS">提報错误</string>
+    <string name="gui_SEND_LOGS_QUESTION">诗歌本在严重崩溃后刚刚恢复。 您想将错误报告给开发人员吗？</string>
+    <string name="gui_SEND_LOGS_SUBJECT">诗歌本错误报告</string>
+    <string name="gui_SEND_LOGS_TITLE">通过电子邮件报告诗歌本错误</string>
+    <string name="gui_SEND_LOGS_INFO">您提供的以下信息可以帮助开发人员解决问题：
+        \n\n1.在问题发生之前您做的最后一件事是什么？
+        \n\n\n2.您看到的问题是什么，如果有的话，还包括显示屏的快照？
+        \n\n\n3.您能否或如何重现问题？</string>
+
     // hymnchtv main interface gui names
     <string name="hymn_db">大本</string>
     <string name="hymn_content">内容</string>

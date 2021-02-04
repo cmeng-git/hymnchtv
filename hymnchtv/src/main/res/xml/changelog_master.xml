@@ -6,10 +6,20 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.5.4 (02/04/2021)" versioncode="105040">
+        <change>支持用户定义媒体设置，可在本地播放用戶选择的媒体项目。</change>
+        <change>用户定义媒体设置数库记录列表显示时，当用户选择其他诗歌类型时将加以更新。</change>
+        <change>使用不同的颜色以显示用户选择媒体记录项目。</change>
+        <change>长按“数库导出”，可在单个文件生成中支持所有四种诗歌类型的媒体记录导出。</change>
+        <change>增强媒体播放器功能，以包括用户可选择的选项，例如重复播放和速度等。</change>
+        <change>修复屏幕旋转时，创建的多个媒体播放器实例和应用程序崩溃的问题。</change>
+        <change>在“关于”菜单中，添加对用户的支持以提报带有附加错误的报告。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.5.3 (01/15/2021)" versioncode="105030">
         <change>修复不支持的操作异常：Xiaomi Mi 11 Android 11（SDK 30）</change>
         <change>使用 android studio v4.2-Beta3 进行重建，似乎已解决 SM-J730GM 随机中止问题。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.5.2 (01/09/2021)" versioncode="105020">
