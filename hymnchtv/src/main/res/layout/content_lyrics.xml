@@ -45,7 +45,7 @@
             android:adjustViewBounds="true"
             android:scaleType="fitStart" />
 
-        <TextView
+        <org.cog.hymnchtv.utils.ZoomTextView
             android:id="@+id/contentViewCh_txt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

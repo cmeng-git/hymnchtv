@@ -3,7 +3,7 @@
 
 <p align="center">
     <a href="https://cmeng-git.github.io/hymnchtv">
-        <img src="./art/hymnchtv.png" alt="aTalk">
+        <img src="./art/hymnchtv.png" alt="hymnchtv">
     </a>
     &nbsp;
     <a href="https://play.google.com/store/apps/details?id=org.cog.hymnchtv&hl=zh-CN">

@@ -93,6 +93,13 @@ public class MediaExoPlayer extends FragmentActivity implements AdapterView.OnIt
         setContentView(R.layout.media_player_exo_ui);
         mPlayerView = findViewById(R.id.exoplayerView);
 
+        // Need to set text color in Hymnchtv; although ExoStyledControls.ButtonText specifies while
+        TextView rewindButtonTextView = findViewById(com.google.android.exoplayer2.ui.R.id.exo_rew_with_amount);
+        rewindButtonTextView.setTextColor(Color.WHITE);
+
+        TextView fastForwardButtonTextView = findViewById(com.google.android.exoplayer2.ui.R.id.exo_ffwd_with_amount);
+        fastForwardButtonTextView.setTextColor(Color.WHITE);
+
         playbackSpeed = findViewById(R.id.playback_speed);
         playbackSpeed.setOnItemSelectedListener(this);
 
@@ -116,12 +123,19 @@ public class MediaExoPlayer extends FragmentActivity implements AdapterView.OnIt
      * a. Playback video url
      * b. Current playback position using getCurrentPosition (in milliseconds).
      *
+     * if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+     *   onSaveInstanceState is called after onPause but before onStop
+     * if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+     *   onSaveInstanceState is called only after onStop
+     * So call releasePlayer() in onPause to save startPositionMs = mExoPlayer.getCurrentPosition();
+     *
      * @param outState Bundle
      */
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
         super.onSaveInstanceState(outState);
+
         outState.putString(ATTR_MEDIA_URL, mediaUrl);
         outState.putStringArrayList(ATTR_MEDIA_URLS, mediaUrls);
         outState.putLong(START_POSITION, startPositionMs);
@@ -139,9 +153,9 @@ public class MediaExoPlayer extends FragmentActivity implements AdapterView.OnIt
     }
 
     @Override
-    protected void onStop()
+    protected void onPause()
     {
-        super.onStop();
+        super.onPause();
         releasePlayer();
     }
 

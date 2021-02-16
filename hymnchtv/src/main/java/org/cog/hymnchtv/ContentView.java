@@ -30,6 +30,7 @@ import androidx.fragment.app.Fragment;
 import org.cog.hymnchtv.glide.MyGlideApp;
 import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
 import org.cog.hymnchtv.utils.HymnNoCh2EngXRef;
+import org.cog.hymnchtv.utils.ZoomTextView;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -231,8 +232,8 @@ public class ContentView extends Fragment
      */
     private void showLyricsChText(String resFName)
     {
-        TextView lyricsView = mConvertView.findViewById(R.id.contentViewCh_txt);
-        lyricsView.setTextSize(HymnsApp.isPortrait ? 20 : 35);
+        ZoomTextView lyricsTextView = mConvertView.findViewById(R.id.contentViewCh_txt);
+        lyricsTextView.setTextSize(HymnsApp.isPortrait ? 20 : 35);
 
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().getAssets().open(resFName)));
@@ -243,7 +244,7 @@ public class ContentView extends Fragment
                 lyrics.append(line);
                 lyrics.append('\n');
             }
-            lyricsView.setText(lyrics);
+            lyricsTextView.setText(lyrics);
         } catch (IOException e) {
             Timber.w("Error reading file: %s", resFName);
         }

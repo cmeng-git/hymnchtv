@@ -104,8 +104,7 @@ public class LogUploadServiceImpl
         }
 
         VersionServiceImpl versionService = VersionServiceImpl.getInstance();
-
-        Timber.i("Device installed with aTalk-android version: %s, version code: %s",
+        Timber.i("Device installed with hymnchtv version: %s, version code: %s",
                 versionService.getCurrentVersionName(), versionService.getCurrentVersionCode());
     }
 

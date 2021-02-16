@@ -41,6 +41,7 @@ import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.persistance.*;
 import org.cog.hymnchtv.utils.HymnNoValidate;
 import org.cog.hymnchtv.utils.WallPaperUtil;
+import org.cog.hymnchtv.utils.ZoomTextView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,6 +53,8 @@ import timber.log.Timber;
 import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
 import static org.cog.hymnchtv.HymnToc.hymnTocPage;
 import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
+import static org.cog.hymnchtv.utils.ZoomTextView.MAX_SCALE_FACTOR;
+import static org.cog.hymnchtv.utils.ZoomTextView.STEP_SCALE_FACTOR;
 
 /**
  * MainActivity: The hymnchtv app main user interface.
@@ -78,6 +81,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     public static final String PREF_SETTINGS = "Settings";
     public static final String PREF_TEXT_SIZE = "TextSize";
     public static final String PREF_TEXT_COLOR = "TextColor";
+    public static final String PREF_LYRICS_SCALE_FACTOR = "LyricsScaleFactor";
     public static final String PREF_BACKGROUND = "Background";
     public static final String PREF_WALLPAPER = "WallPaper";
 
@@ -120,6 +124,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     private int fontSize = FONT_SIZE_DEFAULT;
     private int fontColor = Color.BLACK;
+    private float lyricsScaleFactor = MAX_SCALE_FACTOR;
 
     private String sNumber = "";
     private String tocPage;
@@ -545,6 +550,19 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 setFontColor(Color.BLACK, true);
                 return true;
 
+            // Set lyrics font scale factor
+            case R.id.defaultSf:
+                setLyricsScaleFactor(MAX_SCALE_FACTOR, true);
+                return true;
+
+            case R.id.incSf:
+                setLyricsScaleFactor(lyricsScaleFactor + STEP_SCALE_FACTOR, true);
+                return true;
+
+            case R.id.decSf:
+                setLyricsScaleFactor(lyricsScaleFactor - STEP_SCALE_FACTOR, true);
+                return true;
+
             // Set background color
             case R.id.sbg1:
                 setBgColor(0, R.drawable.bg0);
@@ -705,6 +723,9 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
         fontColor = mSharedPref.getInt(PREF_TEXT_COLOR, Color.BLACK);
         setFontColor(fontColor, false);
+
+        lyricsScaleFactor = mSharedPref.getFloat(PREF_LYRICS_SCALE_FACTOR, MAX_SCALE_FACTOR);
+        setLyricsScaleFactor(lyricsScaleFactor, false);
     }
 
     private void initHistoryList()
@@ -818,6 +839,23 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         btn_search.setTextColor(color);
 
         mTocSpinnerItem.setTextColor(color);
+    }
+
+    /**
+     * Set the font size of the buttons' labels
+     *
+     * @param scaleFactor Lyrics max scale factory
+     * @param update true to update the preference settings
+     */
+    private void setLyricsScaleFactor(float scaleFactor, boolean update)
+    {
+        if (update) {
+            mEditor.putFloat(PREF_LYRICS_SCALE_FACTOR, scaleFactor);
+            mEditor.apply();
+            HymnsApp.showToastMessage(R.string.gui_setLyricsScale, scaleFactor);
+        }
+        lyricsScaleFactor = scaleFactor;
+        ZoomTextView.setMaxScaleFactor(scaleFactor);
     }
 
     /**

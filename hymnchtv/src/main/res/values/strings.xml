@@ -80,6 +80,8 @@
     <string name="gui_download_timeout_timer">下载无响应超时倒数: %1$02d秒</string>
     <string name="gui_download_wait">请稍候，文件下载已在进行中。</string>
 
+    <string name="gui_setLyricsScale">设置歌词文字最大比例因子为: %.2f</string>
+
     <string name="gui_downloaded_uninstall">您的版本 v1.2.0 需要先卸载再更新。
     \n然后从下载目录手动安装:\n%1$s</string>
     <string name="gui_download_in_progress">正在下载更新。</string>
@@ -197,17 +199,18 @@
     <string name="wall_paper">墙纸</string>
     <string name="checkup">检查升级</string>
     <string name="stext">设置主面版文字大小</string>
+    <string name="lyricstext">歌词文字最大比例</string>
     <string name="sptext">设置播放条文字大小</string>
     <string name="smtext">设置目录文字大小</string>
     <string name="small">小</string>
     <string name="lager">大</string>
-    <string name="middle">中 (默认)</string>
+    <string name="normal">默认</string>
     <string name="xlager">超大</string>
     <string name="bigger">最大</string>
     <string name="inc">加大</string>
     <string name="dec">减小</string>
 
-    / *文字颜色* /
+    /* 文字颜色 */
     <string name="stextcolor">设置主面版字体颜色</string>
     <string name="red">红色</string>
     <string name="blue">蓝色</string>

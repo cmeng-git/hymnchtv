@@ -6,6 +6,14 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.5.5 (02/16/2021)" versioncode="105050">
+        <change>添加支持缩放诗歌词文本显示；捏缩放，或用两指双击在默认和用户定义的比例值之间切换。</change>
+        <change>添加用户选项以设置最大歌词文本显示比例值。</change>
+        <change>修复了 OS &lt; android 7（api-24）在屏幕方向更改时视频播放重新启动的问题。</change>
+        <change>更改视频播放快速倒带和快进按钮字体颜色。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.5.4 (02/04/2021)" versioncode="105040">
         <change>支持用户定义媒体设置，可在本地播放用戶选择的媒体项目。</change>
         <change>用户定义媒体设置数库记录列表显示时，当用户选择其他诗歌类型时将加以更新。</change>
@@ -14,11 +22,10 @@
         <change>增强媒体播放器功能，以包括用户可选择的选项，例如重复播放和速度等。</change>
         <change>修复屏幕旋转时，创建的多个媒体播放器实例和应用程序崩溃的问题。</change>
         <change>在“关于”菜单中，添加对用户的支持以提报带有附加错误的报告。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.5.3 (01/15/2021)" versioncode="105030">
-        <change>修复不支持的操作异常：Xiaomi Mi 11 Android 11（SDK 30）</change>
+        <change>修复不支持的操作异常：Xiaomi Mi 11 Android 11（api-30）</change>
         <change>使用 android studio v4.2-Beta3 进行重建，似乎已解决 SM-J730GM 随机中止问题。</change>
     </release>
 

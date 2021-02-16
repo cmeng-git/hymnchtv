@@ -1,13 +1,32 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	02/16/2021
+Version:		1.5.5 (105050)
+- Implement ZoomTextView class for lyrics text allowing user zoomIn/zoomOut with pin action or with 2-point double touch detection
+- Add user option to set max lyrics scale factor (or zoomIn)
+- Release ExoPlayer resources in onPause life cycle to take care (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+- MediaExoPlayer: onSaveInstanceState() may be called after or prior to onStop pending on OS version
+  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+     onSaveInstanceState is called after onPause but before onStop
+  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+    onSaveInstanceState is called only after onStop
+- Need to set text color in Hymnchtv; although ExoStyledControls.ButtonText specifies while
+  TextView rewindButtonTextView = findViewById(com.google.android.exoplayer2.ui.R.id.exo_rew_with_amount);
+  rewindButtonTextView.setTextColor(Color.WHITE);
+  TextView fastForwardButtonTextView = findViewById(com.google.android.exoplayer2.ui.R.id.exo_ffwd_with_amount);
+  fastForwardButtonTextView.setTextColor(Color.WHITE);
+- Clean database and log utilities to remove stray info for aTalk
+
+=========================================================================
+Author:         cmeng
 Upload Date:	02/02/2021
 Version:		1.5.4 (105040)
 - MediaConfig DB record list if visible, will be updated when user selects other HymnType
 - Highlight user selected media record item (See SimpleList Adapter implementation)
 - Support media records export for all the four hymnType in a single file by long press "DB Export"
 - Enhance MediaExoPlayer features to include user selectable options for playback repeat and speed etc.
-- Add audio media capable to mExpPlayer for mediaConfig local playback;
+- Add audio media capable to mExoPlayer for mediaConfig local playback;
   Use content view UI for playback if local MP3 media is specified with valid hymn parameters
 - MediaExoPlayer: onSaveInstanceState() may be called after or prior to onStop pending on OS version;
   must save a copy of mExoPlayer.getCurrentPosition() in startPositionMs before stopping mExpPlayer.

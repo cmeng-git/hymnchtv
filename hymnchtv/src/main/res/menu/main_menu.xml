@@ -54,7 +54,7 @@
                 android:title="@string/small" />
             <item
                 android:id="@+id/middle"
-                android:title="@string/middle" />
+                android:title="@string/normal" />
             <item
                 android:id="@+id/lager"
                 android:title="@string/lager" />
@@ -99,6 +99,23 @@
                 android:title="@string/black" />
         </menu>
     </item>
+
+    <item
+        android:id="@+id/lyricsText"
+        android:title="@string/lyricstext">
+        <menu>
+            <item
+                android:id="@+id/decSf"
+                android:title="@string/dec" />
+            <item
+                android:id="@+id/defaultSf"
+                android:title="@string/normal" />
+            <item
+                android:id="@+id/incSf"
+                android:title="@string/inc" />
+        </menu>
+    </item>
+
 
     <item
         android:id="@+id/sn_convert"

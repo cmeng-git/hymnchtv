@@ -41,7 +41,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.hymnhistory.HistoryRecord.TIME_STAMP;
 
 /**
- * The <tt>DatabaseBackend</tt> uses SQLite to store all the aTalk application data in the database "dbRecords.db"
+ * The <tt>DatabaseBackend</tt> uses SQLite to store all the hymnchtv application data in the database "dbHymnApp.db"
  *
  * @author Eng Chong Meng
  */
