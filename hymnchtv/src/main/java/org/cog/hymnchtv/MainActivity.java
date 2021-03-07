@@ -119,6 +119,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     private SharedPreferences mSharedPref;
     private SharedPreferences.Editor mEditor;
 
+    private boolean autoClear = false;
     private boolean isFu = false;
     private boolean isToc = false;
 
@@ -189,6 +190,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         btn_fu.setOnClickListener(v -> {
             isFu = true;
             sNumber = "";
+            autoClear = false;
             onNumberClick(v);
         });
 
@@ -221,7 +223,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             tv_Search.setText(sValue);
             return true;
         });
-
         handleIntent(getIntent());
     }
 
@@ -276,6 +277,13 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         }
     }
 
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        autoClear = true;
+    }
+
     private String getFile(Uri uri)
     {
         File inFile = new File(FilePathHelper.getFilePath(this, uri));
@@ -324,6 +332,13 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      */
     private void onNumberClick(View btnView)
     {
+        // Auto clear sNumber to "" if this is first resume
+        if (autoClear) {
+            autoClear = false;
+            isFu = false;
+            sNumber = "";
+        }
+
         sNumber = sNumber + ((Button) btnView).getText();
         mEntry.setText(sNumber);
 
@@ -356,10 +371,13 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             if (nui != -1) {
                 showContent(hymnType, nui);
             }
-            else {
+            // Only clear the user entry hymnNo if user entry is Fu and HymnType is not HYMN_DB
+            else if (isFu && !hymnType.equals(HYMN_DB)) {
                 sNumber = "";
                 mEntry.setText(sNumber);
                 isFu = false;
+            } else {
+                autoClear = true;
             }
         }
         else {

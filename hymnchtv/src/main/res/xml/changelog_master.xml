@@ -6,12 +6,16 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.5.6 (03/07/2021)" versioncode="105060">
+        <change>改善应用程序用户界面，以获得更好的用户体验。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.5.5 (02/16/2021)" versioncode="105050">
         <change>添加支持缩放诗歌词文本显示；捏缩放，或用两指双击在默认和用户定义的比例值之间切换。</change>
         <change>添加用户选项以设置最大歌词文本显示比例值。</change>
         <change>修复了 OS &lt; android 7（api-24）在屏幕方向更改时视频播放重新启动的问题。</change>
         <change>更改视频播放快速倒带和快进按钮字体颜色。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.5.4 (02/04/2021)" versioncode="105040">

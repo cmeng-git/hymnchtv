@@ -1,6 +1,14 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	03/07/2021
+Version:		1.5.6 (105060)
+- Lyrics zoom double fingers tap UI improvement in size reduction steps
+- Intelligently auto clear the previous entered hymnNo on user digit entry
+- Only clear the user entered hymnNo if user entry is Fu and HymnType is not HYMN_DB
+
+=========================================================================
+Author:         cmeng
 Upload Date:	02/16/2021
 Version:		1.5.5 (105050)
 - Implement ZoomTextView class for lyrics text allowing user zoomIn/zoomOut with pin action or with 2-point double touch detection

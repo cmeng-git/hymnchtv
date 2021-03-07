@@ -130,7 +130,10 @@ public class ZoomTextView extends AppCompatTextView
      */
     private void onDouble2PointTap()
     {
-        if (mScaleFactor > MIN_SCALE_FACTOR + MIN_CHANGE) {
+        if (mScaleFactor > maxScaleFactor + MIN_CHANGE) {
+            mScaleFactor = maxScaleFactor;
+        }
+        else if (mScaleFactor > MIN_SCALE_FACTOR + MIN_CHANGE) {
             mScaleFactor = MIN_SCALE_FACTOR;
         }
         else {
