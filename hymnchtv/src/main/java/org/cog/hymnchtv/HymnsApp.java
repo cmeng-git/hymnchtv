@@ -31,8 +31,6 @@ import android.widget.Toast;
 
 import androidx.lifecycle.*;
 
-// import com.gu.toolargetool.TooLargeTool;
-
 import org.cog.hymnchtv.impl.timberlog.TimberLogImpl;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;

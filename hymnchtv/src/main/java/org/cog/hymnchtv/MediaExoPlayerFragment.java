@@ -17,15 +17,21 @@
 package org.cog.hymnchtv;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.fragment.app.FragmentActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.exoplayer2.*;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
@@ -33,109 +39,148 @@ import com.google.android.exoplayer2.util.MimeTypes;
 
 import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.persistance.FileBackend;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
 
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
 import at.huber.youtubeExtractor.YtFile;
 import timber.log.Timber;
 
-// import java.lang.reflect.Field;
+import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+import static org.cog.hymnchtv.MediaGuiController.PREF_PLAYBACK_SPEED;
 
 /**
  * The class handles the actual content source address decoding for the user selected hymn
  * see https://developer.android.com/codelabs/exoplayer-intro#0
  *
- * Orientation change is handled by exoPlayer itself for smooth audio/video playback
- * android:configChanges="keyboardHidden|orientation|screenSize"
+ * This MediaExoPlayerFragment requires its parent FragmentActivity to handle onConfigurationChanged()
+ * It does not consider onSaveInstanceState(); it uses the speed in the user configuration setting.
  *
  * @author Eng Chong Meng
  */
-public class MediaExoPlayer extends FragmentActivity
+public class MediaExoPlayerFragment extends Fragment
 {
     // Tag for the instance state bundle.
     public static final String ATTR_MEDIA_URL = "mediaUrl";
-    public static final String ATTR_MEDIA_URLS = "mediaUrls";
-
     private static final String sampleUrl = "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4";
 
-    // Start playback video url
+    // Default playback video url
     private String mediaUrl = sampleUrl;
-    private ArrayList<String> mediaUrls = null;
 
-    private SimpleExoPlayer mExoPlayer = null;
+    // Playback ratio of normal speed.
+    private float mSpeed = 1.0f;
+
+    private ContentHandler mContentHandler;
+    private SharedPreferences mSharedPref;
+
+    private SimpleExoPlayer mSimpleExoPlayer = null;
     private StyledPlayerView mPlayerView;
     private PlaybackStateListener playbackStateListener;
 
+    /**
+     * Create a new instance of MediaExoPlayerFragment, providing "bundle" as an argument.
+     */
+    static MediaExoPlayerFragment getInstance(Bundle args)
+    {
+        MediaExoPlayerFragment mExoPlayer = new MediaExoPlayerFragment();
+        mExoPlayer.setArguments(args);
+        return mExoPlayer;
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    public void onAttach(@NonNull @NotNull Context context)
+    {
+        super.onAttach(context);
+        mContentHandler = (ContentHandler) context;
+    }
+
+    @SuppressLint("CommitPrefEdits")
+    @Override
+    public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.media_player_exo_ui);
-        mPlayerView = findViewById(R.id.exoplayerView);
 
-        // Need to set text color in Hymnchtv; although ExoStyledControls.ButtonText specifies while
-        TextView rewindButtonTextView = findViewById(com.google.android.exoplayer2.ui.R.id.exo_rew_with_amount);
-        rewindButtonTextView.setTextColor(Color.WHITE);
+        // Get the user defined mediaType for playback
+        mSharedPref = mContentHandler.getSharedPreferences(PREF_SETTINGS, 0);
 
-        TextView fastForwardButtonTextView = findViewById(com.google.android.exoplayer2.ui.R.id.exo_ffwd_with_amount);
-        fastForwardButtonTextView.setTextColor(Color.WHITE);
-
-        Bundle bundle = getIntent().getExtras();
-        mediaUrl = bundle.getString(ATTR_MEDIA_URL);
-        mediaUrls = bundle.getStringArrayList(ATTR_MEDIA_URLS);
+        Bundle args = getArguments();
+        if (args != null) {
+            mediaUrl = args.getString(ATTR_MEDIA_URL);
+        }
         playbackStateListener = new PlaybackStateListener();
     }
 
     @Override
-    protected void onResume()
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
+    {
+        View mConvertView = inflater.inflate(R.layout.media_player_exo_ui, container, false);
+        mPlayerView = mConvertView.findViewById(R.id.exoplayerView);
+
+        if (container != null)
+            container.setVisibility(View.VISIBLE);
+
+        // Need to set text color in Hymnchtv; although ExoStyledControls.ButtonText specifies while
+        TextView rewindButtonTextView = mConvertView.findViewById(com.google.android.exoplayer2.ui.R.id.exo_rew_with_amount);
+        rewindButtonTextView.setTextColor(Color.WHITE);
+
+        TextView fastForwardButtonTextView = mConvertView.findViewById(com.google.android.exoplayer2.ui.R.id.exo_ffwd_with_amount);
+        fastForwardButtonTextView.setTextColor(Color.WHITE);
+
+        return mConvertView;
+    }
+
+    @Override
+    public void onResume()
     {
         super.onResume();
-        hideSystemUi();
-        // Load the media each time onResume() is called.
+        // Load the media and start playback each time onResume() is called.
         initializePlayer();
     }
 
     @Override
-    protected void onPause()
+    public void onPause()
     {
         super.onPause();
         releasePlayer();
     }
 
-    private void initializePlayer()
+    public void initializePlayer()
     {
-        if (mExoPlayer == null) {
-            mExoPlayer = new SimpleExoPlayer.Builder(this).build();
-            mExoPlayer.addListener(playbackStateListener);
-            mPlayerView.setPlayer(mExoPlayer);
+        if (mSimpleExoPlayer == null) {
+            mSimpleExoPlayer = new SimpleExoPlayer.Builder(mContentHandler).build();
+            mSimpleExoPlayer.addListener(playbackStateListener);
+            mPlayerView.setPlayer(mSimpleExoPlayer);
         }
 
-        if ((mediaUrls == null) || mediaUrls.isEmpty()) {
-            MediaItem mediaItem = buildMediaItem(mediaUrl);
-            if (mediaItem != null)
-                playMedia(mediaItem);
-        }
-        else {
-            playVideoUrls();
-        }
+        MediaItem mediaItem = buildMediaItem(mediaUrl);
+        if (mediaItem != null)
+            playMedia(mediaItem);
     }
 
     /**
      * Media play-back takes a lot of resources, so everything should be stopped and released at this time.
      * Release all media-related resources. In a more complicated app this
      * might involve unregistering listeners or releasing audio focus.
+     *
+     * Save the user defined playback speed
      */
-    private void releasePlayer()
+    public void releasePlayer()
     {
-        if (mExoPlayer != null) {
-            // Timber.d("Media Player stopping: %s", mExoPlayer);
-            mExoPlayer.setPlayWhenReady(false);
-            mExoPlayer.removeListener(playbackStateListener);
-            mExoPlayer.release();
-            mExoPlayer = null;
+        if (mSimpleExoPlayer != null) {
+            mSpeed = mSimpleExoPlayer.getPlaybackParameters().speed;
+            SharedPreferences.Editor mEditor = mSharedPref.edit();
+
+            // Audio media player speed is (0.5 > mSpeed < 1.5)
+            if ((mEditor != null) && (mSpeed > 0.5 && mSpeed < 1.5)) {
+                String speed = Float.toString(mSpeed);
+                mEditor.putString(PREF_PLAYBACK_SPEED, speed);
+                mEditor.apply();
+            }
+
+            mSimpleExoPlayer.setPlayWhenReady(false);
+            mSimpleExoPlayer.removeListener(playbackStateListener);
+            mSimpleExoPlayer.release();
+            mSimpleExoPlayer = null;
         }
     }
 
@@ -147,25 +192,26 @@ public class MediaExoPlayer extends FragmentActivity
     private void playMedia(MediaItem mediaItem)
     {
         if (mediaItem != null) {
-            mExoPlayer.setMediaItem(mediaItem, 0);
-            mExoPlayer.setPlayWhenReady(true);
-            mExoPlayer.prepare();
+            String speed = mSharedPref.getString(PREF_PLAYBACK_SPEED, "1.0");
+            mSpeed = Float.parseFloat(speed);
+
+            setPlaybackSpeed(mSpeed);
+            mSimpleExoPlayer.setMediaItem(mediaItem, 0);
+            mSimpleExoPlayer.setPlayWhenReady(true);
+            mSimpleExoPlayer.prepare();
         }
     }
 
     /**
-     * Prepare and playback a list of given video URLs if not empty
+     * set SimpleExoPlayer playback speed
+     *
+     * @param speed playback speed: default 1.0f
      */
-    private void playVideoUrls()
+    private void setPlaybackSpeed(float speed)
     {
-        if ((mediaUrls != null) && !mediaUrls.isEmpty()) {
-            List<MediaItem> mediaItems = new ArrayList<>();
-            for (String tmpUrl : mediaUrls) {
-                mediaItems.add(buildMediaItem(tmpUrl));
-            }
-            mExoPlayer.setMediaItems(mediaItems);
-            mExoPlayer.setPlayWhenReady(true);
-            mExoPlayer.prepare();
+        PlaybackParameters playbackParameters = new PlaybackParameters(speed, 1.0f);
+        if (mSimpleExoPlayer != null) {
+            mSimpleExoPlayer.setPlaybackParameters(playbackParameters);
         }
     }
 
@@ -181,7 +227,7 @@ public class MediaExoPlayer extends FragmentActivity
         MediaItem mediaItem = null;
 
         Uri uri = Uri.parse(mediaUrl);
-        String mimeType = FileBackend.getMimeType(this, uri);
+        String mimeType = FileBackend.getMimeType(mContentHandler, uri);
         if (!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio"))) {
             mediaItem = MediaItem.fromUri(mediaUrl);
         }
@@ -206,16 +252,8 @@ public class MediaExoPlayer extends FragmentActivity
     @SuppressLint("StaticFieldLeak")
     private void playYoutubeUrl(String youtubeLink)
     {
-        //        try {
-        //            Field field = YouTubeExtractor.class.getDeclaredField("LOGGING");
-        //            field.setAccessible(true);
-        //            field.set(field, true);
-        //        } catch (NoSuchFieldException | IllegalAccessException e) {
-        //            Timber.w("Exception: %s", e.getMessage());
-        //        }
-
         try {
-            new YouTubeExtractor(this)
+            new YouTubeExtractor(mContentHandler)
             {
                 @Override
                 public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta)
@@ -235,19 +273,6 @@ public class MediaExoPlayer extends FragmentActivity
         } catch (Exception e) {
             Timber.e("YouTubeExtractor Exception: %s", e.getMessage());
         }
-    }
-
-    /**
-     * playback in full screen
-     */
-    private void hideSystemUi()
-    {
-        mPlayerView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     /**
@@ -285,7 +310,7 @@ public class MediaExoPlayer extends FragmentActivity
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
-        finish();
+        mContentHandler.getSupportFragmentManager().beginTransaction().remove(this).commit();
     }
 }
 

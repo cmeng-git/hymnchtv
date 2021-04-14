@@ -6,9 +6,17 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.5.7 (04/14/2021)" versioncode="105070">
+        <change>在手机纵向模式下，允许同时显示诗歌词和视频播放。</change>
+        <change>在手机屏幕方向改变时，平稳无中断播放诗歌音频/视频。</change>
+        <change>将自定义播放速度与 ExoPlayer 播放控制设置合并。</change>
+        <change>媒体控制器用户界面的切换，在手机屏幕方向更改时保持不变。</change>
+        <change>允许用户删除诗歌历史选择记录-用长按历史选择进入。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.5.6 (03/07/2021)" versioncode="105060">
         <change>改善应用程序用户界面，以获得更好的用户体验。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.5.5 (02/16/2021)" versioncode="105050">

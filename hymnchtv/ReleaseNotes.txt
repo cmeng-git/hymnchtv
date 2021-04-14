@@ -1,6 +1,19 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	04/14/2021
+Version:		1.5.7 (105070)
+- Implement ExoPlayer in a fragment, to allow coexistence of lyrics view and video playback
+- User toggles of media controller gui view is persistent across screen rotations
+- Allow removal of hymn playback history item
+
+- ContentHandler and MediaExoPLayer activities are set to android:configChanges="keyboardHidden|orientation|screenSize";
+  device orientation changes are now handled by mediaPlayer/exoPlayer with smooth audio/video playback on screen rotation.
+- Merge custom playback speeds with exoplayer playback control settings
+- Upgrade exoplayer to v2.13.2
+
+=========================================================================
+Author:         cmeng
 Upload Date:	03/07/2021
 Version:		1.5.6 (105060)
 - Lyrics zoom double fingers tap UI improvement in size reduction steps

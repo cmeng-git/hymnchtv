@@ -18,10 +18,13 @@ package org.cog.hymnchtv;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.*;
+import android.view.KeyEvent;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.PopupWindow;
 
 import androidx.fragment.app.FragmentActivity;
@@ -35,6 +38,7 @@ import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.utils.*;
 import org.cog.hymnchtv.webview.WebViewFragment;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.InputStream;
@@ -61,8 +65,6 @@ import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
 
-// import static org.cog.hymnchtv.HymnToc.TOC_BB;
-
 /**
  * The class handles the actual content source address decoding for the user selected hymn
  *
@@ -86,8 +88,9 @@ public class ContentHandler extends FragmentActivity
     public static final String MIDI_DBC = "dmc";
 
     private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
+    private MediaContentHandler mMediaContentHandler;
 
-    public boolean isShowMenu;
+    private boolean isShowPlayerUi;
 
     // Hymn Type and number selected by user
     private String mSelect;
@@ -112,6 +115,7 @@ public class ContentHandler extends FragmentActivity
     private MediaDownloadHandler mMediaDownloadHandler;
 
     private View mWebView;
+    private View mExoPlayerView;
 
     public void onCreate(Bundle savedInstanceState)
     {
@@ -128,18 +132,22 @@ public class ContentHandler extends FragmentActivity
             mMediaGuiController = new MediaGuiController();
             getSupportFragmentManager().beginTransaction().replace(R.id.mediaPlayer, mMediaGuiController).commit();
         }
+        mMediaContentHandler = MediaContentHandler.getInstance(this);
 
         // Attach the File Transfer GUI; Use single instance created in HymnApp;
         // do not create/add new, otherwise GUI display is no working properly
         mMediaDownloadHandler = HymnsApp.mMediaDownloadHandler;
         getSupportFragmentManager().beginTransaction().replace(R.id.filexferGui, mMediaDownloadHandler).commit();
 
+        mExoPlayerView = findViewById(R.id.exoPlayer);
+        mExoPlayerView.setVisibility(View.INVISIBLE);
+
         mWebView = findViewById(R.id.webView);
         mWebView.setVisibility(View.INVISIBLE);
 
         // Always start with UiPlayer hidden if in landscape mode
         sPreference = getSharedPreferences(PREF_SETTINGS, 0);
-        isShowMenu = sPreference.getBoolean(PREF_MENU_SHOW, true) && HymnsApp.isPortrait;
+        isShowPlayerUi = sPreference.getBoolean(PREF_MENU_SHOW, true);
 
         Bundle bundle = getIntent().getExtras();
         mSelect = bundle.getString(ATTR_SELECT);
@@ -182,10 +190,10 @@ public class ContentHandler extends FragmentActivity
     protected void onResume()
     {
         super.onResume();
-        showPlayerUi(isShowMenu);
+        showPlayerUi(isShowPlayerUi && HymnsApp.isPortrait);
     }
 
-    private void showPlayerUi(boolean show)
+    public void showPlayerUi(boolean show)
     {
         mMediaGuiController.initPlayerUi(show);
     }
@@ -197,13 +205,21 @@ public class ContentHandler extends FragmentActivity
                 pop.dismiss();
                 pop = null;
             }
-            isShowMenu = !isShowMenu;
+            isShowPlayerUi = !isShowPlayerUi;
             return true;
         }
 
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (mWebView.isShown()) {
                 mWebView.setVisibility(View.INVISIBLE);
+            }
+            else if (mExoPlayerView.getVisibility() == View.VISIBLE) {
+                mMediaContentHandler.releasePlayer();
+                mExoPlayerView.setVisibility(View.INVISIBLE);
+                showPlayerUi(isShowPlayerUi && HymnsApp.isPortrait);
+
+                // Must do this only after mMediaContentHandler.releasePlayer()
+                mMediaGuiController.initPlaybackSpeed();
             }
             else {
                 backToHome();
@@ -225,22 +241,22 @@ public class ContentHandler extends FragmentActivity
         SharedPreferences.Editor editor = sPreference.edit();
         switch (item.getItemId()) {
             case R.id.alwayshow:
-                isShowMenu = true;
+                isShowPlayerUi = true;
                 editor.putBoolean(PREF_MENU_SHOW, true);
                 editor.apply();
                 showPlayerUi(true);
                 return true;
 
             case R.id.alwayhide:
-                isShowMenu = false;
+                isShowPlayerUi = false;
                 editor.putBoolean(PREF_MENU_SHOW, false);
                 editor.apply();
                 showPlayerUi(false);
                 return true;
 
             case R.id.menutoggle:
-                isShowMenu = !isShowMenu;
-                showPlayerUi(isShowMenu);
+                isShowPlayerUi = !(isShowPlayerUi && mMediaGuiController.isShown());
+                showPlayerUi(isShowPlayerUi);
                 return true;
 
             case R.id.lyrcsEnglish:
@@ -487,8 +503,7 @@ public class ContentHandler extends FragmentActivity
          * or a filled uri list of audio links to be playback by caller
          * Note: a remote media url link will be played via streaming using ExoPlayer without downloading the file
          */
-        MediaContentHandler instance = MediaContentHandler.getInstance();
-        if (instance.getMediaUris(mSelect, hymnNo, mediaType, uriList)) {
+        if (mMediaContentHandler.getMediaUris(mSelect, hymnNo, mediaType, uriList)) {
             return uriList;
         }
 
@@ -511,7 +526,7 @@ public class ContentHandler extends FragmentActivity
                     case HYMN_MEDIA:
                         // drop down to next level
 
-                    // https://heavenlyfood.cn/hymns/music/er/C1.mp3
+                        // https://heavenlyfood.cn/hymns/music/er/C1.mp3
                     case HYMN_BANZOU:
                         dir = mSelect + MEDIA_MIDI;
                         tmpName = "C" + hymnNo + ".mid";
@@ -669,8 +684,8 @@ public class ContentHandler extends FragmentActivity
                     case HYMN_MEDIA:
                         // drop down to next level
 
-                    // https://heavenlyfood.cn/hymns/music/da/D45.mp3
-                    // https://heavenlyfood.cn/hymns/music/da/D781.mp3
+                        // https://heavenlyfood.cn/hymns/music/da/D45.mp3
+                        // https://heavenlyfood.cn/hymns/music/da/D781.mp3
                     case HYMN_BANZOU:
                         // proceed to use HYMN_BANZOU if no midi files available
                         if (HymnsApp.getFileResId(MIDI_DB + hymnNo, "raw") != 0) {
@@ -858,5 +873,24 @@ public class ContentHandler extends FragmentActivity
     {
         String HymnalLink = "https://www.hymnal.net/en/hymn/h/";
         return (hymnNoEng == null) ? null : HymnalLink + hymnNoEng;
+    }
+
+    /*
+     * This method handles the display of PlayerGui when screen orientation is rotated
+     * Override onConfigurationChanged() so that media playback is smooth when device is rotated
+     */
+    @Override
+    public void onConfigurationChanged(@NotNull Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+        if (HymnsApp.isPortrait) {
+            if (mExoPlayerView.getVisibility() == View.VISIBLE) {
+                showPlayerUi(false);
+            } else {
+                showPlayerUi(isShowPlayerUi);
+            }
+        } else {
+            showPlayerUi(false);
+        }
     }
 }

@@ -39,9 +39,7 @@ import org.cog.hymnchtv.hymnhistory.HistoryRecord;
 import org.cog.hymnchtv.logutils.LogUploadServiceImpl;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.persistance.*;
-import org.cog.hymnchtv.utils.HymnNoValidate;
-import org.cog.hymnchtv.utils.WallPaperUtil;
-import org.cog.hymnchtv.utils.ZoomTextView;
+import org.cog.hymnchtv.utils.*;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -376,7 +374,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 sNumber = "";
                 mEntry.setText(sNumber);
                 isFu = false;
-            } else {
+            }
+            else {
                 autoClear = true;
             }
         }
@@ -464,9 +463,9 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.main_menu, menu);
 
-//        if (BuildConfig.DEBUG) {
-//            menu.findItem(R.id.sn_convert).setVisible(true);
-//        }
+        //        if (BuildConfig.DEBUG) {
+        //            menu.findItem(R.id.sn_convert).setVisible(true);
+        //        }
         return true;
     }
 
@@ -683,7 +682,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 mEntry.setHint(R.string.hint_hymn_history);
                 initHistoryList();
                 mHistoryListView.setVisibility(View.VISIBLE);
-            } else {
+            }
+            else {
                 mEntry.setHint(R.string.hint_hymn_number_enter);
                 mHistoryListView.setVisibility(View.GONE);
             }
@@ -753,6 +753,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         historyAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
         mHistoryListView.setAdapter(historyAdapter);
 
+        // short click to enter and show user selected lyrics
         mHistoryListView.setOnItemClickListener((adapterView, view, position, l) -> {
             mEntry.setHint(R.string.hint_hymn_number_enter);
             mHistoryListView.setVisibility(View.GONE);
@@ -762,6 +763,31 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             sNumber = sRecord.getHymnNoFu();
             mEntry.setText(sNumber);
             showContent(sRecord.getHymnType(), sRecord.getHymnNo());
+        });
+
+        // Long click to delete hymn selection entry history on user confirmation
+        mHistoryListView.setOnItemLongClickListener((adapterView, view, position, l) -> {
+            HistoryRecord sRecord = historyRecords.get(position);
+
+            DialogActivity.showConfirmDialog(this,
+                    R.string.gui_delete,
+                    R.string.gui_delete_history,
+                    R.string.gui_delete, new DialogActivity.DialogListener()
+                    {
+                        public boolean onConfirmClicked(DialogActivity dialog)
+                        {
+                            int count = mDB.deleteHymnHistory(sRecord);
+                            if (count == 1)
+                                historyRecords.remove(position);
+                            historyAdapter.notifyDataSetChanged();
+                            return true;
+                        }
+
+                        public void onDialogCancelled(DialogActivity dialog)
+                        {
+                        }
+                    }, sRecord.toString());
+            return true;
         });
     }
 

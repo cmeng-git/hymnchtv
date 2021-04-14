@@ -280,6 +280,25 @@ public class DatabaseBackend extends SQLiteOpenHelper
         }
     }
 
+    /**
+     * Delete the given HistoryRecord in the database table hymnHistory
+     *
+     * @param mRecord an instance of HistoryRecord
+     */
+    public int deleteHymnHistory(HistoryRecord mRecord)
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        String[] args = {mRecord.getHymnType(), Integer.toString(mRecord.getHymnNo())};
+
+        return db.delete(HistoryRecord.TABLE_NAME, HistoryRecord.HYMN_TYPE + "=? AND "
+                + HistoryRecord.HYMN_NO + "=?", args);
+    }
+
+    /**
+     * Fetch a list of the history record from hymnHistory table for user selection
+     *
+     * @return List of HistoryRecord
+     */
     public List<HistoryRecord> getHistoryRecords()
     {
         SQLiteDatabase db = this.getReadableDatabase();

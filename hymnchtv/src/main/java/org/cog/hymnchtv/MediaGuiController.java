@@ -53,6 +53,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.cog.hymnchtv.service.audioservice.AudioBgService;
 import org.cog.hymnchtv.utils.ViewUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -134,6 +135,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private final boolean isMediaAudio = true;
 
     private MediaType mMediaType;
+    private SharedPreferences mSharedPref;
     private static SharedPreferences.Editor mEditor;
 
     private MpBroadcastReceiver mReceiver = null;
@@ -149,6 +151,13 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     // public MediaGuiController()
     // {
     // }
+
+    @Override
+    public void onAttach(@NonNull @NotNull Context context)
+    {
+        super.onAttach(context);
+        mContentHandler = (ContentHandler) context;
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
@@ -227,9 +236,6 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     public void onResume()
     {
         super.onResume();
-        mContentHandler = (ContentHandler) getContext();
-        if (mContentHandler == null)
-            return;
 
         // init and prepare the mediaPlayer state receiver
         if (mReceiver == null) {
@@ -241,7 +247,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         mContentHandler.updateMediaPlayerInfo();
 
         // Get the user selected mediaType for playback
-        SharedPreferences mSharedPref = getActivity().getSharedPreferences(PREF_SETTINGS, 0);
+        mSharedPref = mContentHandler.getSharedPreferences(PREF_SETTINGS, 0);
         mEditor = mSharedPref.edit();
         if (null == mEditor) {
             Timber.d("SharePref (Editor): %s (null)", mSharedPref);
@@ -252,14 +258,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         checkRadioButton(mMediaType);
 
         // Init user selected playback speed
-        String speed = mSharedPref.getString(PREF_PLAYBACK_SPEED, "1.0");
-        for (int i = 0; i < mpSpeedValues.length; i++) {
-            if (mpSpeedValues[i].equals(speed)) {
-                playbackSpeed.setSelection(i);
-                break;
-            }
-        }
-        setPlaybackSpeed(speed);
+        initPlaybackSpeed();
 
         // Init user selected playback loop parameters (order important)
         boolean isLoop = mSharedPref.getBoolean(PREF_PLAYBACK_LOOP, false);
@@ -304,6 +303,26 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     public void initPlayerUi(boolean isShow)
     {
         playerUi.setVisibility(isShow ? View.VISIBLE : View.GONE);
+    }
+
+    public boolean isShown()
+    {
+        return (playerUi.getVisibility() == View.VISIBLE);
+    }
+
+    /**
+     * Initialize the Media Player playback speed to the user defined setting
+     */
+    public void initPlaybackSpeed()
+    {
+        String speed = mSharedPref.getString(PREF_PLAYBACK_SPEED, "1.0");
+        for (int i = 0; i < mpSpeedValues.length; i++) {
+            if (mpSpeedValues[i].equals(speed)) {
+                playbackSpeed.setSelection(i);
+                break;
+            }
+        }
+        setPlaybackSpeed(speed);
     }
 
     /**

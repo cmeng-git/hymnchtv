@@ -24,6 +24,7 @@
     <string name="gui_db_overwrite">覆盖现有记录</string>
     <string name="gui_db_overwrite_media">是否覆盖数据库中的现有媒体记录？</string>
     <string name="gui_delete">删除</string>
+    <string name="gui_delete_history">删除诗歌历史记录: %s？</string>
     <string name="gui_delete_media">删除诗歌媒体记录#%d？</string>
     <string name="gui_delete_media_ok">成功删除媒体记录#%d。</string>
     <string name="gui_exit">退出</string>

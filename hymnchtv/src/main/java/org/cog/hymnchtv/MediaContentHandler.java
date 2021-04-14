@@ -23,6 +23,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.URLUtil;
 
 import org.apache.http.util.TextUtils;
@@ -46,15 +47,15 @@ public class MediaContentHandler
 {
     private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
-    private static MediaContentHandler mInstance = null;
     private final Context mContext = HymnsApp.getGlobalContext();
 
-    public static MediaContentHandler getInstance()
+    private static ContentHandler mContentHandler;
+    private MediaExoPlayerFragment mExoPlayer;
+
+    public static MediaContentHandler getInstance(ContentHandler contentHandler)
     {
-        if (mInstance == null) {
-            mInstance = new MediaContentHandler();
-        }
-        return mInstance;
+        mContentHandler = contentHandler;
+        return new MediaContentHandler();
     }
 
     /**
@@ -115,10 +116,13 @@ public class MediaContentHandler
             Bundle bundle = new Bundle();
             bundle.putString(ATTR_MEDIA_URL, videoUrl);
 
-            Intent intent = new Intent(mContext, MediaExoPlayer.class);
-            intent.putExtras(bundle);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivity(intent);
+            // Playback video in embedded fragment for lyrics coexistence
+            playEmbeddedExo(bundle);
+
+            // Intent intent = new Intent(mContext, MediaExoPlayer.class);
+            // intent.putExtras(bundle);
+            // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            // mContext.startActivity(intent);
         }
         else {
             Intent openIntent = new Intent(Intent.ACTION_VIEW);
@@ -136,6 +140,34 @@ public class MediaContentHandler
             } catch (ActivityNotFoundException e) {
                 // showToastMessage(R.string.service_gui_FILE_OPEN_NO_APPLICATION);
             }
+        }
+    }
+
+    private void playEmbeddedExo(Bundle bundle)
+    {
+        View exoPlayerView = mContentHandler.findViewById(R.id.exoPlayer);
+        exoPlayerView.setVisibility(View.VISIBLE);
+        mContentHandler.showPlayerUi(false);
+
+        // Attach the media controller player UI; Reuse the fragment if found;
+        // do not create/add new, otherwise playerUi setVisibility is no working
+        mExoPlayer = (MediaExoPlayerFragment) mContentHandler.getSupportFragmentManager().findFragmentById(R.id.exoPlayer);
+        if (mExoPlayer == null) {
+            mExoPlayer = MediaExoPlayerFragment.getInstance(bundle);
+            mContentHandler.getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.exoPlayer, mExoPlayer)
+                    .addToBackStack(null)
+                    .commit();
+        }
+        else {
+            mExoPlayer.initializePlayer();
+        }
+    }
+
+    public void releasePlayer()
+    {
+        if (mExoPlayer != null) {
+            mExoPlayer.releasePlayer();
         }
     }
 }
