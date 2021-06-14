@@ -221,6 +221,9 @@ public class ContentHandler extends FragmentActivity
                 // Must do this only after mMediaContentHandler.releasePlayer()
                 mMediaGuiController.initPlaybackSpeed();
             }
+            else if (mMediaGuiController.isPlaying()) {
+                mMediaGuiController.stopPlay();
+            }
             else {
                 backToHome();
             }

@@ -310,6 +310,11 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         return (playerUi.getVisibility() == View.VISIBLE);
     }
 
+    public boolean isPlaying()
+    {
+        return (playerState == STATE_PLAY);
+    }
+
     /**
      * Initialize the Media Player playback speed to the user defined setting
      */

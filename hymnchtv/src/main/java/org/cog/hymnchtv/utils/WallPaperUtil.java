@@ -26,6 +26,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
@@ -138,8 +139,8 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
         File outFile = new File(FileBackend.getHymnchtvStore(DIR_WALLPAPER, true), fileName);
 
         UCrop.of(Uri.fromFile(inFile), Uri.fromFile(outFile))
-                .withAspectRatio(9, 16)
-                .withMaxResultSize(CROP_MAX_SIZE_WIDTH, CROP_MAX_SIZE_HEIGHT)
+//                .withAspectRatio(9, 16)
+//                .withMaxResultSize(CROP_MAX_SIZE_WIDTH, CROP_MAX_SIZE_HEIGHT)
                 .start(WallPaperUtil.this);
     }
 
@@ -170,7 +171,6 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
                 else {
                     wpFile = new File(resultUri.getPath());
                     initWallpaperView();
-                    hasChanges = true;
                 }
                 break;
 
@@ -211,12 +211,18 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
      */
     private void initWallpaperView()
     {
+        int imageWidth = 512;
+        int imageHeight = 512;
+
         if (wpFile.exists()) {
+            // Allow user to use when there is already a defined wallpaper
+            hasChanges = true;
+
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;
             BitmapFactory.decodeFile(wpFile.getAbsolutePath(), options);
-            int imageWidth = options.outWidth;
-            int imageHeight = options.outHeight;
+            imageWidth = options.outWidth;
+            imageHeight = options.outHeight;
             LinearLayout.LayoutParams parms = new LinearLayout.LayoutParams(imageWidth, imageHeight);
             parms.gravity = Gravity.CENTER;
             wallpaperView.setLayoutParams(parms);
@@ -224,6 +230,9 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
             Drawable drawable = Drawable.createFromPath(wpFile.getAbsolutePath());
             wallpaperView.setImageDrawable(drawable);
         }
+
+        TextView wallpaperSize = findViewById(R.id.wp_size);
+        wallpaperSize.setText(getString(R.string.gui_wp_size, imageWidth, imageHeight));
     }
 
     /**

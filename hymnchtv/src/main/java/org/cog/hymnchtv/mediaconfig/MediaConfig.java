@@ -421,6 +421,7 @@ public class MediaConfig extends FragmentActivity
             String hymnNo = ViewUtil.toString(tvHymnNo);
             boolean isFu = cbFu.isChecked();
             int nui = (hymnNo == null) ? -1 : HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), isFu);
+
             if ((nui != -1) && new File(mediaUrl).exists() && !TextUtils.isEmpty(mimeType) && mimeType.contains("audio")) {
                 // Get the user selected mediaType for playback
                 SharedPreferences mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);

@@ -5,87 +5,93 @@
     android:layout_height="fill_parent"
     android:alpha="20.0"
     android:background="@drawable/bg0"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="5dp">
 
-    <TextView
-        android:id="@+id/tv_hint"
-        style="@style/LargeFont"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:maxLines="2"
-        android:text="@string/hint_hymn_ui"
-        android:textColor="@color/red800"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tv_entry"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:hint="@string/hint_hymn_number_enter"
-        android:maxLength="4"
-        android:textColor="@color/black"
-        android:textSize="35sp"
-        android:textStyle="bold" />
-
-    <ListView
-        android:id="@+id/historyListView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@drawable/border_bg_grey"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/tv_search"
-        style="@style/XLargeFont"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="bottom"
-        android:hint="@string/hint_hymn_content_search" />
-
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:gravity="top"
-        android:orientation="horizontal">
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_search"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/tv_hint"
+            style="@style/LargeFont"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="20dp"
-            android:layout_weight="1"
-            android:shadowColor="@color/black"
-            android:text="@string/hymn_search"
-            android:textSize="25sp"
+            android:gravity="center"
+            android:maxLines="2"
+            android:text="@string/hint_hymn_ui"
+            android:textColor="@color/red800"
             android:textStyle="bold" />
 
-        <Spinner
-            android:id="@+id/spinner_toc"
-            style="@style/SpinnerView"
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/tv_entry"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:hint="@string/hint_hymn_number_enter"
+            android:maxLength="4"
+            android:textColor="@color/black"
+            android:textSize="35sp"
+            android:textStyle="bold" />
+
+        <ListView
+            android:id="@+id/historyListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/border_bg_grey"
+            android:visibility="gone" />
+
+        <EditText
+            android:id="@+id/tv_search"
+            style="@style/XLargeFont"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/btn_transparent" />
+            android:gravity="bottom"
+            android:hint="@string/hint_hymn_content_search" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:gravity="top"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:layout_weight="1"
+                android:shadowColor="@color/black"
+                android:text="@string/hymn_search"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinner_toc"
+                style="@style/SpinnerView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_weight="1"
+                android:background="@drawable/btn_transparent" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="8"
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="start"
             android:orientation="horizontal">
 
             <Button

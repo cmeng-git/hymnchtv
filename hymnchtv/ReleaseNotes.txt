@@ -1,6 +1,19 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	06/14/2021
+Version:		1.5.8 (105080)
+- Main menu can now be placed in landscape mode, use in android tv box
+- Upgrade to 'com.github.HaarigerHarald:android-youtubeExtractor:46579d1'
+  Fix java.io.FileNotFoundException in youtube link extraction.
+- Standardize backKey behavior to stop current media playing in progress for both video and audio.
+- Allow user to update wallpaper with current display image, i.e. without user needs to go into crop screen.
+- Allow crop of wallpaper image in user selectable aspect ratio.
+- Show wallpaper dimension in wallpaper editor screen.
+- upgrade all available libraries' versions.
+
+=========================================================================
+Author:         cmeng
 Upload Date:	04/14/2021
 Version:		1.5.7 (105070)
 - Implement ExoPlayer in a fragment, to allow coexistence of lyrics view and video playback

@@ -33,8 +33,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait">
+            android:launchMode="singleTask" >
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -88,12 +87,10 @@
 
         <activity
             android:name=".utils.WallPaperUtil"
-            android:label="@string/wallpaperUser"
-            android:screenOrientation="portrait" />
+            android:label="@string/wallpaperUser" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
-            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <activity

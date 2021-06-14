@@ -46,6 +46,7 @@
     <string name="gui_unsaved_changes">您尚未保存更改。保存或取消并退出。</string>
     <string name="gui_version">程式版本: %1$s</string>
     <string name="gui_show_history_log">历史记录</string>
+    <string name="gui_wp_size">壁纸像素尺寸 [宽x高]：[%1$dx%2$d]</string>
 
     <string name="gui_error">错误</string>
     <string name="gui_error_hymn_config">输入错误: 未输入诗歌号码或媒体链接</string>
