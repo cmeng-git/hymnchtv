@@ -32,6 +32,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.exoplayer2.*;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
@@ -40,6 +41,9 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import at.huber.youtubeExtractor.VideoMeta;
 import at.huber.youtubeExtractor.YouTubeExtractor;
@@ -62,25 +66,33 @@ public class MediaExoPlayerFragment extends Fragment
 {
     // Tag for the instance state bundle.
     public static final String ATTR_MEDIA_URL = "mediaUrl";
+    public static final String ATTR_MEDIA_URLS = "mediaUrls";
+
+    // regression to check for valid youtube link
+    public static final String URL_YOUTUBE = "http[s]*://[w.]*youtu[.]*be.*";
+
     private static final String sampleUrl = "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4";
 
     // Default playback video url
     private String mediaUrl = sampleUrl;
+    private ArrayList<String> mediaUrls = null;
 
     // Playback ratio of normal speed.
     private float mSpeed = 1.0f;
 
-    private ContentHandler mContentHandler;
+    private FragmentActivity mContext;
     private SharedPreferences mSharedPref;
 
     private SimpleExoPlayer mSimpleExoPlayer = null;
     private StyledPlayerView mPlayerView;
     private PlaybackStateListener playbackStateListener;
 
+    private YoutubePlayerFragment mYoutubePlayer;
+
     /**
      * Create a new instance of MediaExoPlayerFragment, providing "bundle" as an argument.
      */
-    static MediaExoPlayerFragment getInstance(Bundle args)
+    public static MediaExoPlayerFragment getInstance(Bundle args)
     {
         MediaExoPlayerFragment mExoPlayer = new MediaExoPlayerFragment();
         mExoPlayer.setArguments(args);
@@ -91,7 +103,7 @@ public class MediaExoPlayerFragment extends Fragment
     public void onAttach(@NonNull @NotNull Context context)
     {
         super.onAttach(context);
-        mContentHandler = (ContentHandler) context;
+        mContext = (FragmentActivity) context;
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -101,11 +113,12 @@ public class MediaExoPlayerFragment extends Fragment
         super.onCreate(savedInstanceState);
 
         // Get the user defined mediaType for playback
-        mSharedPref = mContentHandler.getSharedPreferences(PREF_SETTINGS, 0);
+        mSharedPref = mContext.getSharedPreferences(PREF_SETTINGS, 0);
 
         Bundle args = getArguments();
         if (args != null) {
             mediaUrl = args.getString(ATTR_MEDIA_URL);
+            mediaUrls = args.getStringArrayList(ATTR_MEDIA_URLS);
         }
         playbackStateListener = new PlaybackStateListener();
     }
@@ -147,14 +160,19 @@ public class MediaExoPlayerFragment extends Fragment
     public void initializePlayer()
     {
         if (mSimpleExoPlayer == null) {
-            mSimpleExoPlayer = new SimpleExoPlayer.Builder(mContentHandler).build();
+            mSimpleExoPlayer = new SimpleExoPlayer.Builder(mContext).build();
             mSimpleExoPlayer.addListener(playbackStateListener);
             mPlayerView.setPlayer(mSimpleExoPlayer);
         }
 
-        MediaItem mediaItem = buildMediaItem(mediaUrl);
-        if (mediaItem != null)
-            playMedia(mediaItem);
+        if ((mediaUrls == null) || mediaUrls.isEmpty()) {
+            MediaItem mediaItem = buildMediaItem(mediaUrl);
+            if (mediaItem != null)
+                playMedia(mediaItem);
+        }
+        else {
+            playVideoUrls();
+        }
     }
 
     /**
@@ -168,9 +186,9 @@ public class MediaExoPlayerFragment extends Fragment
     {
         if (mSimpleExoPlayer != null) {
             mSpeed = mSimpleExoPlayer.getPlaybackParameters().speed;
-            SharedPreferences.Editor mEditor = mSharedPref.edit();
 
             // Audio media player speed is (0.5 > mSpeed < 1.5)
+            SharedPreferences.Editor mEditor = mSharedPref.edit();
             if ((mEditor != null) && (mSpeed > 0.5 && mSpeed < 1.5)) {
                 String speed = Float.toString(mSpeed);
                 mEditor.putString(PREF_PLAYBACK_SPEED, speed);
@@ -181,6 +199,9 @@ public class MediaExoPlayerFragment extends Fragment
             mSimpleExoPlayer.removeListener(playbackStateListener);
             mSimpleExoPlayer.release();
             mSimpleExoPlayer = null;
+        }
+        else if (mYoutubePlayer != null) {
+            mYoutubePlayer.release();
         }
     }
 
@@ -197,6 +218,27 @@ public class MediaExoPlayerFragment extends Fragment
 
             setPlaybackSpeed(mSpeed);
             mSimpleExoPlayer.setMediaItem(mediaItem, 0);
+            mSimpleExoPlayer.setPlayWhenReady(true);
+            mSimpleExoPlayer.prepare();
+        }
+    }
+
+    /**
+     * Prepare and playback a list of given video URLs if not empty
+     */
+    private void playVideoUrls()
+    {
+        if ((mediaUrls != null) && !mediaUrls.isEmpty()) {
+            List<MediaItem> mediaItems = new ArrayList<>();
+            for (String tmpUrl : mediaUrls) {
+                mediaItems.add(buildMediaItem(tmpUrl));
+            }
+
+            String speed = mSharedPref.getString(PREF_PLAYBACK_SPEED, "1.0");
+            mSpeed = Float.parseFloat(speed);
+            setPlaybackSpeed(mSpeed);
+
+            mSimpleExoPlayer.setMediaItems(mediaItems);
             mSimpleExoPlayer.setPlayWhenReady(true);
             mSimpleExoPlayer.prepare();
         }
@@ -227,11 +269,11 @@ public class MediaExoPlayerFragment extends Fragment
         MediaItem mediaItem = null;
 
         Uri uri = Uri.parse(mediaUrl);
-        String mimeType = FileBackend.getMimeType(mContentHandler, uri);
+        String mimeType = FileBackend.getMimeType(mContext, uri);
         if (!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio"))) {
             mediaItem = MediaItem.fromUri(mediaUrl);
         }
-        else if (mediaUrl.matches("http[s]*://[w.]*youtu[.]*be.*")) {
+        else if (mediaUrl.matches(URL_YOUTUBE)) {
             playYoutubeUrl(mediaUrl);
         }
         else {
@@ -252,8 +294,16 @@ public class MediaExoPlayerFragment extends Fragment
     @SuppressLint("StaticFieldLeak")
     private void playYoutubeUrl(String youtubeLink)
     {
+        //        try {
+        //            Field field = YouTubeExtractor.class.getDeclaredField("LOGGING");
+        //            field.setAccessible(true);
+        //            field.set(field, true);
+        //        } catch (NoSuchFieldException | IllegalAccessException e) {
+        //            Timber.w("Exception: %s", e.getMessage());
+        //        }
+
         try {
-            new YouTubeExtractor(mContentHandler)
+            new YouTubeExtractor(mContext)
             {
                 @Override
                 public void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta)
@@ -265,14 +315,41 @@ public class MediaExoPlayerFragment extends Fragment
                         playMedia(mediaItem);
                     }
                     else {
-                        HymnsApp.showToastMessage(R.string.gui_error_playback);
+                        // Use android ext app to play
+                        HymnsApp.showToastMessage(R.string.gui_error_playback, ytFiles);
                         playVideoUrlExt(youtubeLink);
+                        // playUrlYt();
                     }
                 }
             }.extract(youtubeLink, true, true);
         } catch (Exception e) {
             Timber.e("YouTubeExtractor Exception: %s", e.getMessage());
         }
+    }
+
+    /**
+     * Play the specified videoUrl using android Intent.ACTION_VIEW
+     *
+     * @param videoUrl videoUrl not playable by ExoPlayer
+     */
+    private void playVideoUrlExt(String videoUrl)
+    {
+        // remove the exoPlayer fragment
+        mContext.getSupportFragmentManager().beginTransaction().remove(this).commit();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl));
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
+
+    private void playUrlYt()
+    {
+        Bundle bundle = getArguments();
+        mYoutubePlayer = YoutubePlayerFragment.getInstance(bundle);
+        mContext.getSupportFragmentManager().beginTransaction()
+                .replace(R.id.player_container, mYoutubePlayer)
+                .addToBackStack(null)
+                .commit();
     }
 
     /**
@@ -285,7 +362,7 @@ public class MediaExoPlayerFragment extends Fragment
         {
             switch (playbackState) {
                 case ExoPlayer.STATE_IDLE:
-                    HymnsApp.showToastMessage(R.string.gui_error_playback);
+                    HymnsApp.showToastMessage(R.string.gui_error_playback, "The player does not have any media to play.");
                     break;
 
                 case ExoPlayer.STATE_ENDED:
@@ -298,19 +375,6 @@ public class MediaExoPlayerFragment extends Fragment
                     break;
             }
         }
-    }
-
-    /**
-     * Play the specified videoUrl using android Intent.ACTION_VIEW
-     *
-     * @param videoUrl videoUrl not playable by ExoPlayer
-     */
-    private void playVideoUrlExt(String videoUrl)
-    {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl));
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        mContentHandler.getSupportFragmentManager().beginTransaction().remove(this).commit();
     }
 }
 

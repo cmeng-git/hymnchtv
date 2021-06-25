@@ -6,6 +6,14 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.6.0 (06/26/2021)" versioncode="106000">
+        <change>使用 IFrame Player API 添加安卓 Youtube 播放器以避免视频链接提取错误。</change>
+        <change>诗歌配置播放选项，将使用诗歌内容用户界面；易于用户诗歌词同步确认。</change>
+        <change>用户点击诗歌配置播放选项后，将自动开始播放。</change>
+        <change>改写音频的后台服务程序，以避免安卓 8.0 在某些安卓设备上，由于 IllegalStateException 崩溃。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.5.8 (06/14/2021)" versioncode="105080">
         <change>主菜单现在可以置于横向模式，在安卓电视盒中使用。</change>
         <change>修复 YouTube 媒体播放链接提取错误。</change>
@@ -13,7 +21,6 @@
         <change>允许用户使用当前显示图像更新壁纸，即用户无需进入裁剪屏幕。</change>
         <change>允许以用户可选择的纵横比裁剪壁纸图像。</change>
         <change>在壁纸编辑器屏幕中显示壁纸像素大小：[宽x高]。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.5.7 (04/14/2021)" versioncode="105070">

@@ -16,21 +16,23 @@
  */
 package org.cog.hymnchtv.service.audioservice;
 
-import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.*;
 import android.net.Uri;
 import android.os.*;
 import android.text.TextUtils;
 
-import androidx.annotation.Nullable;
+import androidx.core.app.JobIntentService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import org.cog.hymnchtv.persistance.FileBackend;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import timber.log.Timber;
@@ -39,11 +41,14 @@ import timber.log.Timber;
  * Class provides the media playback service for the given media.
  * It also broadcasts the playback status to the broadcast listeners
  *
+ * Note: extends JobIntentService always call onDestroy for every new action
+ * Must use static variables if need to keep values (not verified for recording)
+ *
  * @author Eng Chong Meng
  */
-public class AudioBgService extends Service implements MediaPlayer.OnCompletionListener
+public class AudioBgService extends JobIntentService implements MediaPlayer.OnCompletionListener
 {
-    // Media player actions
+    // ==== Media player actions ====
     public static final String ACTION_PLAYER_INIT = "player_init";
     public static final String ACTION_PLAYER_START = "player_start";
     public static final String ACTION_PLAYER_PAUSE = "player_pause";
@@ -62,11 +67,19 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     public static final String PLAYBACK_POSITION = "playback_position";
     public static final String PLAYBACK_URI = "playback_uri";
 
+    private static final Map<Uri, MediaPlayer> uriPlayers = new ConcurrentHashMap<>();
+
+    // Map contains the running loop count for the reference media player
+    private static final Map<MediaPlayer, Integer> playbackCounts = new ConcurrentHashMap<>();
+
     // Handler for media player playback status broadcast
-    private Handler mHandlerPlayback;
+    private Handler mHandlerPlayback = new Handler(Looper.getMainLooper());
 
     private MediaPlayer mPlayer = null;
     private Uri fileUri;
+
+    private static float playbackSpeed = 1.0f;
+    private static int mLoopCount = 1;
 
     public enum PlaybackState
     {
@@ -76,7 +89,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
         stop
     }
 
-    // Audio recording
+    // ==== Audio recording ====
     public static final String ACTION_RECORDING = "recording";
     public static final String ACTION_CANCEL = "cancel";
     public static final String ACTION_SEND = "send";
@@ -92,18 +105,10 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
 
     private MediaRecorder mRecorder = null;
 
-    private final Map<Uri, MediaPlayer> uriPlayers = new ConcurrentHashMap<>();
-
-    // Map contains the running loop count for the reference media player
-    private final Map<MediaPlayer, Integer> playbackCounts = new ConcurrentHashMap<>();
-
     private long startTime = 0L;
 
     // Handler for Sound Level Meter and Record Timer
     private Handler mHandlerRecord;
-
-    private static float playbackSpeed = 1.0f;
-    private static int mLoopCount = 1;
 
     // The Google ASR input requirements state that audio input sensitivity should be set such
     // that 90 dB SPL_LEVEL at 1000 Hz yields RMS of 2500 for 16-bit samples,
@@ -118,10 +123,19 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     //private double mAlpha =  0.9 Coefficient of IIR smoothing filter for RMS.
     static final private double EMA_FILTER = 0.4;
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId)
+    /**
+     * Unique job ID for this service.
+     */
+    static final int JOB_ID = 1000;
+
+    public static void enqueueWork(Context context, Intent work)
     {
-        super.onStartCommand(intent, flags, startId);
+        enqueueWork(context, AudioBgService.class, JOB_ID, work);
+    }
+
+    @Override
+    protected void onHandleWork(Intent intent)
+    {
         switch (intent.getAction()) {
             case ACTION_PLAYER_INIT:
                 fileUri = intent.getData();
@@ -197,33 +211,26 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
                 stopSelf();
                 break;
         }
-        return START_NOT_STICKY;
     }
 
-    @Override
-    public void onDestroy()
-    {
-        super.onDestroy();
-        stopTimer();
-        stopRecording();
-
-        if (mHandlerPlayback != null) {
-            mHandlerPlayback.removeCallbacks(playbackStatus);
-            mHandlerPlayback = null;
-        }
-
-        for (Uri uri : uriPlayers.keySet()) {
-            fileUri = uri;
-            playerRelease(uri);
-        }
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent)
-    {
-        return null;
-    }
+    //    @Override
+    //    public void onDestroy()
+    //    {
+    //        super.onDestroy();
+    //        Timber.e("AudioBgService is destroyed");
+    //        stopTimer();
+    //        stopRecording();
+    //
+    //        if (mHandlerPlayback != null) {
+    //            mHandlerPlayback.removeCallbacks(playbackStatus);
+    //            mHandlerPlayback = null;
+    //        }
+    //
+    //        for (Uri uri : uriPlayers.keySet()) {
+    //            fileUri = uri;
+    //            playerRelease(uri);
+    //        }
+    //    }
 
     /* =============================================================
      * Media player handlers
@@ -239,9 +246,6 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     {
         if (uri == null)
             return false;
-
-        if (mHandlerPlayback == null)
-            mHandlerPlayback = new Handler();
 
         mPlayer = new MediaPlayer();
         uriPlayers.put(uri, mPlayer);
@@ -274,9 +278,6 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
     {
         if (uri == null)
             return;
-
-        if (mHandlerPlayback == null)
-            mHandlerPlayback = new Handler();
 
         // Check player status on return to chatSession before start new;
         // Not applicable to hymnchtv, audio playback stops on exit content view page
@@ -345,7 +346,7 @@ public class AudioBgService extends Service implements MediaPlayer.OnCompletionL
 
     /**
      * Start playing back on existing player or create new if none
-     * Broadcast the player satus at regular interval
+     * Broadcast the player status at regular interval
      *
      * @param uri the media file uri
      */

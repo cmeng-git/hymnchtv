@@ -52,12 +52,14 @@ public class About extends FragmentActivity implements View.OnClickListener
     private static String[][] USED_LIBRARIES = new String[][]{
             new String[]{"Android Support Library", "https://developer.android.com/topic/libraries/support-library/index.html"},
             new String[]{"android-youtubeExtractor", "https://github.com/HaarigerHarald/android-youtubeExtractor"},
+            new String[]{"android-youtube-player", "https://github.com/PierfrancescoSoffritti/android-youtube-player"},
             new String[]{"annotations-java5", "https://mvnrepository.com/artifact/org.jetbrains/annotations"},
             new String[]{"Apache HttpCore", "https://hc.apache.org/httpcomponents-core-4.4.x/httpcore/dependency-info.html"},
             new String[]{"ckChangeLog", "https://github.com/cketti/ckChangeLog"},
             new String[]{"commons-lang", "https://commons.apache.org/proper/commons-lang/"},
             new String[]{"ExoPlayer", "https://github.com/google/ExoPlayer"},
             new String[]{"glide", "https://github.com/bumptech/glide"},
+            new String[]{"js-evaluator-for-android", "https://github.com/evgenyneu/js-evaluator-for-android"},
             new String[]{"RichEditor for Android", "https://github.com/wasabeef/richeditor-android"},
             new String[]{"Timber", "https://github.com/JakeWharton/timber"},
             new String[]{"uCrop", "https://github.com/Yalantis/uCrop"}

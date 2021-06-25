@@ -27,16 +27,10 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.URLUtil;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.*;
 
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
@@ -44,12 +38,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.FragmentActivity;
 
 import org.apache.http.util.EncodingUtils;
-import org.cog.hymnchtv.ContentHandler;
-import org.cog.hymnchtv.HymnsApp;
-import org.cog.hymnchtv.MediaExoPlayer;
-import org.cog.hymnchtv.MediaType;
-import org.cog.hymnchtv.R;
-import org.cog.hymnchtv.RichTextEditor;
+import org.cog.hymnchtv.*;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
@@ -57,21 +46,10 @@ import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNoValidate;
 import org.cog.hymnchtv.utils.ViewUtil;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import timber.log.Timber;
 
@@ -79,6 +57,7 @@ import static org.cog.hymnchtv.ContentHandler.MEDIA_BANZOU;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_CHANGSHI;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_JIAOCHANG;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_MEDIA;
+import static org.cog.hymnchtv.MainActivity.ATTR_AUTO_PLAY;
 import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
@@ -87,8 +66,9 @@ import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
-import static org.cog.hymnchtv.MediaExoPlayer.ATTR_MEDIA_URL;
-import static org.cog.hymnchtv.MediaExoPlayer.ATTR_MEDIA_URLS;
+import static org.cog.hymnchtv.MediaExoPlayerFragment.ATTR_MEDIA_URL;
+import static org.cog.hymnchtv.MediaExoPlayerFragment.ATTR_MEDIA_URLS;
+import static org.cog.hymnchtv.MediaExoPlayerFragment.URL_YOUTUBE;
 import static org.cog.hymnchtv.MediaType.HYMN_BANZOU;
 import static org.cog.hymnchtv.MediaType.HYMN_CHANGSHI;
 import static org.cog.hymnchtv.MediaType.HYMN_JIAOCHANG;
@@ -162,6 +142,9 @@ public class MediaConfig extends FragmentActivity
 
     // Focused view uses as indication to determine if the tvMediaUri is the auto filled or user entered
     private View mFocusedView = null;
+
+    private MediaExoPlayerFragment mExoPlayer;
+    private View mPlayerView;
 
     // DB based media record list view and last selected view
     private ListView mrListView;
@@ -313,6 +296,9 @@ public class MediaConfig extends FragmentActivity
 
         findViewById(R.id.button_export_create).setOnClickListener(this);
         findViewById(R.id.button_db_records).setOnClickListener(this);
+
+        mPlayerView = findViewById(R.id.player_container);
+        mPlayerView.setVisibility(View.GONE);
     }
 
     @Override
@@ -326,17 +312,10 @@ public class MediaConfig extends FragmentActivity
                 break;
 
             case R.id.help_video:
-                Bundle bundle = new Bundle();
-                bundle.putString(ATTR_MEDIA_URL, null);
-                bundle.putStringArrayList(ATTR_MEDIA_URLS, videoUrls);
-
-                intent = new Intent(this, MediaExoPlayer.class);
-                intent.putExtras(bundle);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+                playVideoHelp();
                 break;
 
-            /* Decode the media uri so it is user readable instead of %xx */
+            /* Decode the media uri, so it is user readable instead of %xx */
             case R.id.decodeUri:
                 uriDecode();
                 break;
@@ -417,27 +396,19 @@ public class MediaConfig extends FragmentActivity
         if ((mediaUrl != null) && (URLUtil.isValidUrl(mediaUrl) || new File(mediaUrl).exists())) {
             Uri uri = Uri.parse(mediaUrl);
             String mimeType = FileBackend.getMimeType(this, uri);
+            boolean isMedia = !TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio"));
 
             String hymnNo = ViewUtil.toString(tvHymnNo);
             boolean isFu = cbFu.isChecked();
             int nui = (hymnNo == null) ? -1 : HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), isFu);
 
-            if ((nui != -1) && new File(mediaUrl).exists() && !TextUtils.isEmpty(mimeType) && mimeType.contains("audio")) {
+            if (((nui != -1) && isMedia) || mediaUrl.matches(URL_YOUTUBE)) {
                 // Get the user selected mediaType for playback
                 SharedPreferences mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
                 SharedPreferences.Editor mEditor = mSharedPref.edit();
                 mEditor.putInt(PREF_MEDIA_HYMN, mMediaType.getValue());
                 mEditor.apply();
                 showContent(mHymnType, nui);
-            }
-            else if ((!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio")))
-                    || mediaUrl.matches("http[s]*://[w.]*youtu[.]*be.*")) {
-                Bundle bundle = new Bundle();
-                bundle.putString(ATTR_MEDIA_URL, mediaUrl);
-
-                Intent intent = new Intent(this, MediaExoPlayer.class);
-                intent.putExtras(bundle);
-                startActivity(intent);
             }
             else {
                 Intent openIntent = new Intent(Intent.ACTION_VIEW);
@@ -457,7 +428,7 @@ public class MediaConfig extends FragmentActivity
             }
         }
         else {
-            HymnsApp.showToastMessage(R.string.gui_error_playback);
+            HymnsApp.showToastMessage(R.string.gui_error_playback, "url is null or not found!");
         }
     }
 
@@ -474,6 +445,7 @@ public class MediaConfig extends FragmentActivity
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_SELECT, hymnType);
         bundle.putInt(ATTR_NUMBER, hymnNo);
+        bundle.putBoolean(ATTR_AUTO_PLAY, true);
 
         intent.putExtras(bundle);
         startActivity(intent);
@@ -593,7 +565,6 @@ public class MediaConfig extends FragmentActivity
         {
             hasChanges = true;
         }
-
     }
 
     // ================= Need user confirmation before exit if changes detected ================
@@ -1018,9 +989,9 @@ public class MediaConfig extends FragmentActivity
             File srcPath = FileBackend.getHymnchtvStore(mHymnType + MEDIA_MEDIA, false);
             if ((srcPath != null) && srcPath.isDirectory()) {
                 File[] files = srcPath.listFiles();
-                // Sort filename in ascending order i.e. so the export file has its hymnNo in ascending order
-                Arrays.sort(files);
                 if ((files != null) && (files.length > 0)) {
+                    // Sort filename in ascending order i.e. so the export file has its hymnNo in ascending order
+                    Arrays.sort(files);
                     try {
                         FileWriter fileWriter = new FileWriter(exportFile.getAbsolutePath());
                         for (File file : files) {
@@ -1117,5 +1088,44 @@ public class MediaConfig extends FragmentActivity
                 }
             }
         });
+    }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event)
+    {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (mPlayerView.getVisibility() == View.VISIBLE) {
+                releasePlayer();
+                mPlayerView.setVisibility(View.GONE);
+            }
+            else {
+                finish();
+            }
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    /**
+     * Use for playing the help video content only
+     */
+    private void playVideoHelp()
+    {
+        Bundle bundle = new Bundle();
+        bundle.putString(ATTR_MEDIA_URL, null);
+        bundle.putStringArrayList(ATTR_MEDIA_URLS, videoUrls);
+
+        mPlayerView.setVisibility(View.VISIBLE);
+        mExoPlayer = MediaExoPlayerFragment.getInstance(bundle);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.player_container, mExoPlayer)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void releasePlayer()
+    {
+        if (mExoPlayer != null) {
+            mExoPlayer.releasePlayer();
+        }
     }
 }

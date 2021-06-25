@@ -105,7 +105,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private static final int STATE_PLAY = 3;
 
     public static final String PREF_PLAYBACK_LOOP = "PlayBack_Loop";
-    public static final String PREF_PLAYBACK_LOOPCOUNT = "PlayBack_LoopCount";
+    public static final String PREF_PLAYBACK_LOOP_COUNT = "PlayBack_LoopCount";
     public static final String PREF_PLAYBACK_SPEED = "PlayBack_Speed";
 
     private static final String PLAYER_STATE = "playerState";
@@ -265,13 +265,18 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         cbPlaybackLoop.setChecked(isLoop);
         edLoopCount.setVisibility(isLoop ? View.VISIBLE : View.GONE);
 
-        String loopValue = mSharedPref.getString(PREF_PLAYBACK_LOOPCOUNT, "1");
+        String loopValue = mSharedPref.getString(PREF_PLAYBACK_LOOP_COUNT, "1");
         edLoopCount.setText(loopValue);
         setPlaybackLoopCount(loopValue);
 
         // Need this to resume last play state when user changes hymnNo while playing
         for (Uri uri : mediaHymns) {
             mUri = uri;
+        }
+
+        // start auto player once only
+        if (mContentHandler.isAutoPlay(true)) {
+            startPlay();
         }
     }
 
@@ -468,7 +473,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setData(mUri);
                 intent.setAction(AudioBgService.ACTION_PLAYER_INIT);
-                mContentHandler.startService(intent);
+                AudioBgService.enqueueWork(mContentHandler, intent);
             }
             return true;
         }
@@ -487,7 +492,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setData(mUri);
                 intent.setAction(AudioBgService.ACTION_PLAYER_STOP);
-                mContentHandler.startService(intent);
+                AudioBgService.enqueueWork(mContentHandler, intent);
             }
         }
     }
@@ -506,7 +511,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
             if (playerState == STATE_PLAY) {
                 intent.setData(mUri);
                 intent.setAction(AudioBgService.ACTION_PLAYER_PAUSE);
-                mContentHandler.startService(intent);
+                AudioBgService.enqueueWork(mContentHandler, intent);
                 return;
             }
             bcReceiverInit();
@@ -515,7 +520,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             intent.setData(mUri);
             // intent.setTypeAndNormalize("1.0");
-            mContentHandler.startService(intent);
+            AudioBgService.enqueueWork(mContentHandler, intent);
             return;
         }
 
@@ -550,7 +555,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
             intent.setData(mUri);
             intent.putExtra(AudioBgService.PLAYBACK_POSITION, position);
             intent.setAction(AudioBgService.ACTION_PLAYER_SEEK);
-            mContentHandler.startService(intent);
+            AudioBgService.enqueueWork(mContentHandler, intent);
         }
     }
 
@@ -559,7 +564,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         Intent intent = new Intent(mContentHandler, AudioBgService.class);
         intent.setType(speed);
         intent.setAction(AudioBgService.ACTION_PLAYBACK_SPEED);
-        mContentHandler.startService(intent);
+        AudioBgService.enqueueWork(mContentHandler, intent);
     }
 
     @Override
@@ -603,7 +608,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         setPlaybackLoopCount(loopValue);
 
         if (mEditor != null) {
-            mEditor.putString(PREF_PLAYBACK_LOOPCOUNT, loopValue);
+            mEditor.putString(PREF_PLAYBACK_LOOP_COUNT, loopValue);
             mEditor.apply();
         }
     }
@@ -616,7 +621,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         Intent intent = new Intent(mContentHandler, AudioBgService.class);
         intent.setType(loopValue);
         intent.setAction(AudioBgService.ACTION_PLAYBACK_LOOP);
-        mContentHandler.startService(intent);
+        AudioBgService.enqueueWork(mContentHandler, intent);
     }
 
     /**

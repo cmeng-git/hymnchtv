@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.PopupWindow;
 
 import androidx.fragment.app.FragmentActivity;
@@ -54,6 +55,7 @@ import static org.cog.hymnchtv.HymnToc.hymnCategoryBb;
 import static org.cog.hymnchtv.HymnToc.hymnCategoryDb;
 import static org.cog.hymnchtv.HymnToc.hymnCategoryEr;
 import static org.cog.hymnchtv.HymnToc.hymnCategoryXb;
+import static org.cog.hymnchtv.MainActivity.ATTR_AUTO_PLAY;
 import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
@@ -93,6 +95,7 @@ public class ContentHandler extends FragmentActivity
     private boolean isShowPlayerUi;
 
     // Hymn Type and number selected by user
+    private boolean mAutoPlay = false;
     private String mSelect;
     private int hymnNo;
     private int hymnIdx = -1;
@@ -115,7 +118,7 @@ public class ContentHandler extends FragmentActivity
     private MediaDownloadHandler mMediaDownloadHandler;
 
     private View mWebView;
-    private View mExoPlayerView;
+    private FrameLayout mPlayerContainer;
 
     public void onCreate(Bundle savedInstanceState)
     {
@@ -139,8 +142,8 @@ public class ContentHandler extends FragmentActivity
         mMediaDownloadHandler = HymnsApp.mMediaDownloadHandler;
         getSupportFragmentManager().beginTransaction().replace(R.id.filexferGui, mMediaDownloadHandler).commit();
 
-        mExoPlayerView = findViewById(R.id.exoPlayer);
-        mExoPlayerView.setVisibility(View.INVISIBLE);
+        mPlayerContainer = findViewById(R.id.player_container);
+        mPlayerContainer.setVisibility(View.INVISIBLE);
 
         mWebView = findViewById(R.id.webView);
         mWebView.setVisibility(View.INVISIBLE);
@@ -153,6 +156,7 @@ public class ContentHandler extends FragmentActivity
         mSelect = bundle.getString(ATTR_SELECT);
         hymnNo = bundle.getInt(ATTR_NUMBER);
         hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mSelect, hymnNo);
+        mAutoPlay = bundle.getBoolean(ATTR_AUTO_PLAY, false);
 
         switch (mSelect) {
             // Convert the user input hymn number i.e: hymn #1 => #0 i.e.index number
@@ -213,9 +217,9 @@ public class ContentHandler extends FragmentActivity
             if (mWebView.isShown()) {
                 mWebView.setVisibility(View.INVISIBLE);
             }
-            else if (mExoPlayerView.getVisibility() == View.VISIBLE) {
+            else if (mPlayerContainer.getVisibility() == View.VISIBLE) {
                 mMediaContentHandler.releasePlayer();
-                mExoPlayerView.setVisibility(View.INVISIBLE);
+                mPlayerContainer.setVisibility(View.INVISIBLE);
                 showPlayerUi(isShowPlayerUi && HymnsApp.isPortrait);
 
                 // Must do this only after mMediaContentHandler.releasePlayer()
@@ -344,11 +348,25 @@ public class ContentHandler extends FragmentActivity
     }
 
     /**
-     * Start to play after file is download. Call from mediaHandler.
+     * Start to play after the file is downloaded. Call from mediaHandler.
      */
     public void startPlay()
     {
         mMediaGuiController.startPlay();
+    }
+
+    /**
+     * Start playing the user selected hymn upon MediaGuiController init. Call from MediaGuiController.
+     * Must reset to prevent multiple autoplay after exited from an external player.
+     */
+    public boolean isAutoPlay(boolean reset)
+    {
+        if (mAutoPlay && reset) {
+            mAutoPlay = false;
+            return true;
+        }
+        else
+            return mAutoPlay;
     }
 
     public void onError(String statusText)
@@ -887,12 +905,14 @@ public class ContentHandler extends FragmentActivity
     {
         super.onConfigurationChanged(newConfig);
         if (HymnsApp.isPortrait) {
-            if (mExoPlayerView.getVisibility() == View.VISIBLE) {
+            if (mPlayerContainer.getVisibility() == View.VISIBLE) {
                 showPlayerUi(false);
-            } else {
+            }
+            else {
                 showPlayerUi(isShowPlayerUi);
             }
-        } else {
+        }
+        else {
             showPlayerUi(false);
         }
     }

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/linear"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:padding="5dp" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp">
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
@@ -15,13 +16,12 @@
         android:background="@color/background_light"
         android:spacing="20dp" />
 
-    <LinearLayout
-        android:id="@+id/exoPlayer"
-        android:layout_width="fill_parent"
+    <FrameLayout
+        android:id="@+id/player_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_alignParentBottom="true" >
-    </LinearLayout>
+        android:layout_alignParentBottom="true" />
 
     <LinearLayout
         android:id="@+id/mediaPlayer"

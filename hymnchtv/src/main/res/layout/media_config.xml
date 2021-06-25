@@ -8,6 +8,13 @@
     android:orientation="vertical"
     android:padding="10dp">
 
+    <FrameLayout
+        android:id="@+id/player_container"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="vertical" />
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -279,7 +286,7 @@
                 style="@style/ButtonTop"
                 android:layout_marginStart="4dp"
                 android:text="@string/gui_db_export" />
-
         </LinearLayout>
     </LinearLayout>
+
 </LinearLayout>

@@ -1,6 +1,18 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	06/26/2021
+Version:		1.6.0 (106000)
+- Add android youtube player using IFrame Player API to avoid video link extraction error
+- HymnConfig playback for local media or youtube link, will always via the hymn content ui for user lyrics confirmation
+- HymnConfig playback click will auto start playing
+- Extend JobIntentService instead of background service for AudioBgService to avoid Android 8.0:
+  java.lang.IllegalStateException: Due to startup background service when aTalk is in background
+  Note: extends JobIntentService always call onDestroy everytime -> need to set many variables as static;
+        extends Service onDestroy only get executed once when aTalk exit
+
+=========================================================================
+Author:         cmeng
 Upload Date:	06/14/2021
 Version:		1.5.8 (105080)
 - Main menu can now be placed in landscape mode, use in android tv box
@@ -73,7 +85,7 @@ Author:         cmeng
 Upload Date:	01/15/2021
 Version:		1.5.3 (105030)
 - Fix UnsupportedOperationException: in Xiaomi Mi 11 Android 11 (SDK 30)
- * Change deprecated mInstance.getDisplay().getSize(size) to
+ * Change deprecated mInstance.getDisplay().getSize(size) to getCurrentWindowMetrics().getBounds()
 - Rebuild with AS v4.2-Beta3, seems to resolve SM-J730GM random abort problem
 
 =========================================================================

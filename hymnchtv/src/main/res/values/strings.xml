@@ -42,6 +42,7 @@
     <string name="gui_ok">确认</string>
     <!-- Message to display when video is finished playing. -->
     <string name="gui_playback_completed">播放结束</string>
+    <string name="gui_playback_rate">视频播放速率：%1$sx</string>
     <string name="gui_to_be_added">待加</string>
     <string name="gui_unsaved_changes">您尚未保存更改。保存或取消并退出。</string>
     <string name="gui_version">程式版本: %1$s</string>
@@ -51,7 +52,7 @@
     <string name="gui_error">错误</string>
     <string name="gui_error_hymn_config">输入错误: 未输入诗歌号码或媒体链接</string>
     <string name="gui_error_invalid">输入错误: 未按目录或输入(附)号码</string>
-    <string name="gui_error_playback">没有任何媒体可播放</string>
+    <string name="gui_error_playback">无法解码视频链接或进行播放: %1$s</string>
     <string name="gui_error_search_empty">请输入内容进行搜索</string>
     <string name="gui_error_file_not_found">（无法取得文件: %1$s）</string>
     <string name="gui_error_english_lyrics_null">对不起！当诗歌 \'%d\' 首没有英文歌词</string>

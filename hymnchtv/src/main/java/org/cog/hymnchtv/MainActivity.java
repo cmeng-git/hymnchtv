@@ -69,6 +69,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     public static final String ATTR_NUMBER = "number";
     public static final String ATTR_SEARCH = "search";
     public static final String ATTR_PAGE = "page";
+    public static final String ATTR_AUTO_PLAY = "autoPlay";
 
     public static final String HYMN_ER = "hymn_er";
     public static final String HYMN_XB = "hymn_xb";
@@ -400,6 +401,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_SELECT, hymnType);
         bundle.putInt(ATTR_NUMBER, hymnNo);
+        bundle.putBoolean(ATTR_AUTO_PLAY, false);
 
         intent.putExtras(bundle);
         startActivity(intent);

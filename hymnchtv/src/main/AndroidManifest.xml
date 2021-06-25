@@ -79,10 +79,6 @@
 
         <activity android:name=".mediaconfig.MediaConfig" />
 
-        <activity
-            android:name=".MediaExoPlayer"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-
         <activity android:name=".RichTextEditor" />
 
         <activity
@@ -115,6 +111,7 @@
 
         <service
             android:name=".service.audioservice.AudioBgService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false" />
 
         <service

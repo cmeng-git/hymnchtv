@@ -26,6 +26,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.webkit.URLUtil;
 
+import androidx.fragment.app.Fragment;
+
 import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.mediaconfig.MediaRecord;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
@@ -34,8 +36,11 @@ import org.cog.hymnchtv.persistance.FileBackend;
 import java.io.File;
 import java.util.List;
 
+import timber.log.Timber;
+
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MediaExoPlayer.ATTR_MEDIA_URL;
+import static org.cog.hymnchtv.MediaExoPlayerFragment.ATTR_MEDIA_URL;
+import static org.cog.hymnchtv.MediaExoPlayerFragment.URL_YOUTUBE;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 
 /**
@@ -51,6 +56,7 @@ public class MediaContentHandler
 
     private static ContentHandler mContentHandler;
     private MediaExoPlayerFragment mExoPlayer;
+    private YoutubePlayerFragment mYoutubePlayer;
 
     public static MediaContentHandler getInstance(ContentHandler contentHandler)
     {
@@ -112,17 +118,8 @@ public class MediaContentHandler
         Uri uri = Uri.parse(videoUrl);
         String mimeType = FileBackend.getMimeType(mContext, uri);
         if ((!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio")))
-                || videoUrl.matches("http[s]*://[w.]*youtu[.]*be.*")) {
-            Bundle bundle = new Bundle();
-            bundle.putString(ATTR_MEDIA_URL, videoUrl);
-
-            // Playback video in embedded fragment for lyrics coexistence
-            playEmbeddedExo(bundle);
-
-            // Intent intent = new Intent(mContext, MediaExoPlayer.class);
-            // intent.putExtras(bundle);
-            // intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            // mContext.startActivity(intent);
+                || videoUrl.matches(URL_YOUTUBE)) {
+            playEmbeddedExo(videoUrl);
         }
         else {
             Intent openIntent = new Intent(Intent.ACTION_VIEW);
@@ -143,31 +140,52 @@ public class MediaContentHandler
         }
     }
 
-    private void playEmbeddedExo(Bundle bundle)
+    /**
+     * Playback video in embedded fragment for lyrics coexistence
+     *
+     * @param videoUrl url for playback
+     */
+    private void playEmbeddedExo(String videoUrl)
     {
-        View exoPlayerView = mContentHandler.findViewById(R.id.exoPlayer);
-        exoPlayerView.setVisibility(View.VISIBLE);
+        Bundle bundle = new Bundle();
+        bundle.putString(ATTR_MEDIA_URL, videoUrl);
+
+        View playerContainer = mContentHandler.findViewById(R.id.player_container);
+        playerContainer.setVisibility(View.VISIBLE);
         mContentHandler.showPlayerUi(false);
 
-        // Attach the media controller player UI; Reuse the fragment if found;
-        // do not create/add new, otherwise playerUi setVisibility is no working
-        mExoPlayer = (MediaExoPlayerFragment) mContentHandler.getSupportFragmentManager().findFragmentById(R.id.exoPlayer);
-        if (mExoPlayer == null) {
-            mExoPlayer = MediaExoPlayerFragment.getInstance(bundle);
+        if (videoUrl.matches(URL_YOUTUBE)) {
+            mYoutubePlayer = YoutubePlayerFragment.getInstance(bundle);
             mContentHandler.getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.exoPlayer, mExoPlayer)
+                    .replace(R.id.player_container, mYoutubePlayer)
                     .addToBackStack(null)
                     .commit();
         }
         else {
-            mExoPlayer.initializePlayer();
+            mExoPlayer = MediaExoPlayerFragment.getInstance(bundle);
+            mContentHandler.getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.player_container, mExoPlayer)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
+    /**
+     * Release the exoPlayer resource on end
+     */
     public void releasePlayer()
     {
+        // remove the exoPlayer fragment
+        Fragment playerView = mContentHandler.getSupportFragmentManager().findFragmentById(R.id.player_container);
+        mContentHandler.getSupportFragmentManager().beginTransaction().remove(playerView).commit();
+
         if (mExoPlayer != null) {
             mExoPlayer.releasePlayer();
+            mExoPlayer = null;
+        }
+        else if (mYoutubePlayer != null) {
+            mYoutubePlayer.release();
+            mYoutubePlayer = null;
         }
     }
 }
