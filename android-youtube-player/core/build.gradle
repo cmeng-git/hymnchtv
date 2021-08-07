@@ -34,7 +34,6 @@ dependencies {
     api "androidx.annotation:annotation:$versions.androidxAnnotations"
     api "androidx.lifecycle:lifecycle-runtime:$versions.androidxLifecycleRuntime"
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin"
     implementation "androidx.appcompat:appcompat:$versions.androidxCore"
     implementation "androidx.recyclerview:recyclerview:$versions.androidxRecyclerView"
 }

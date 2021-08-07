@@ -121,7 +121,55 @@ public class MediaRecord
     }
 
     /**
-     * Convert the database media record info to user-friendly display in List record
+     * Convert the give string which containing full parameters for conversion to MediaRecord
+     *
+     * @param mRecord the exported string
+     * @return the converted MediaRecord, or null for invalid mRecord string
+     */
+    public static MediaRecord toRecord(String mRecord)
+    {
+        mRecord = mRecord.trim().replaceAll("[ ]*[,\t][ ]*", ",");
+        String[] recordItem = mRecord.split(",");
+
+        // must has all the 6 parameters of the MediaRecord
+        if (recordItem.length < 6)
+            return null;
+
+        // Fu hymnNo is added to HYMN_DB_NO_MAX before storing in DB
+        boolean isFu = "1".equals(recordItem[2]);
+        int hymnNo = Integer.parseInt(recordItem[1]);
+        if (isFu && (hymnNo <= HYMN_DB_NO_MAX)) {
+            hymnNo += HYMN_DB_NO_MAX;
+        }
+
+        return new MediaRecord(
+                recordItem[0], hymnNo, isFu,
+                Enum.valueOf(MediaType.class, recordItem[3]),
+                recordItem[4],
+                recordItem[5]);
+    }
+
+    /**
+     * Convert the media records in the database to an exportable string
+     *
+     * @return MediaRecord string for database export
+     */
+    public String toExportString()
+    {
+        String mediaRecord = null;
+        if (getMediaFilePath() != null) {
+            mediaRecord = String.format(Locale.CHINA, "%s,%d,%d,%s,%s,%s\r\n",
+                    mHymnType, mHymnNo, mIsFu ?1:0, mMediaType, null, mFilePath);
+        }
+        else if (getMediaUri() != null) {
+            mediaRecord = String.format(Locale.CHINA, "%s,%d,%d,%s,%s,%s\r\n",
+                    mHymnType, mHymnNo, mIsFu?1:0, mMediaType, mMediaUri, null);
+        }
+        return mediaRecord;
+    }
+
+    /**
+     * Convert the database MediaRecord info to user-friendly display list record
      *
      * @return MediaRecord in user readable String
      */
@@ -142,57 +190,19 @@ public class MediaRecord
             filePath = filePath.replace(DOWNLOAD_FP, DOWNLOAD_DIR);
         }
 
-        String mediaRecord;
+        String mediaRecordString;
         if (filePath != null) {
-            mediaRecord = String.format(Locale.CHINA, "%s#%s: %s:\n%s: %s",
+            mediaRecordString = String.format(Locale.CHINA, "%s#%s: %s:\n%s: %s",
                     mHymnType, getHymnNoFu(), mMediaType, FILEPATH, filePath);
         }
         else if (uriLink != null) {
-            mediaRecord = String.format(Locale.CHINA, "%s#%s: %s:\nuri: %s",
+            mediaRecordString = String.format(Locale.CHINA, "%s#%s: %s:\nuri: %s",
                     mHymnType, getHymnNoFu(), mMediaType, uriLink);
         }
         else {
-            mediaRecord = String.format(Locale.CHINA, "%s#%s: %s:\nuri: %s\n%s: %s",
+            mediaRecordString = String.format(Locale.CHINA, "%s#%s: %s:\nuri: %s\n%s: %s",
                     mHymnType, getHymnNoFu(), mMediaType, null, FILEPATH, null);
         }
-        return mediaRecord;
-    }
-
-    public static MediaRecord toRecord(String mRecord)
-    {
-        mRecord = mRecord.trim().replaceAll("[ ]*[,\t][ ]*", ",");
-        String[] recordItem = mRecord.split(",");
-
-        // Fu hymnNo is added to HYMN_DB_NO_MAX before storing in DB
-        boolean isFu = "1".equals(recordItem[2]);
-        int hymnNo = Integer.parseInt(recordItem[1]);
-        if (isFu && (hymnNo <= HYMN_DB_NO_MAX)) {
-            hymnNo += HYMN_DB_NO_MAX;
-        }
-
-        return new MediaRecord(
-                recordItem[0], hymnNo, isFu,
-                Enum.valueOf(MediaType.class, recordItem[3]),
-                recordItem[4],
-                recordItem[5]);
-    }
-
-    /**
-     * Convert the media records in the database a exportable string
-     *
-     * @return MediaRecord string for database export
-     */
-    public String getExportString()
-    {
-        String mediaRecord = null;
-        if (getMediaFilePath() != null) {
-            mediaRecord = String.format(Locale.CHINA, "%s,%d,%d,%s,%s,%s\r\n",
-                    mHymnType, mHymnNo, mIsFu ?1:0, mMediaType, null, mFilePath);
-        }
-        else if (getMediaUri() != null) {
-            mediaRecord = String.format(Locale.CHINA, "%s,%d,%d,%s,%s,%s\r\n",
-                    mHymnType, mHymnNo, mIsFu?1:0, mMediaType, mMediaUri, null);
-        }
-        return mediaRecord;
+        return mediaRecordString;
     }
 }

@@ -139,9 +139,9 @@ public class HymnNo2IdxConvert
         if (hymnIdx == -1) {
             Timber.w("Invalid %s hymnNo: %s => %s", hymnType, hymnNo, hymnIdx);
         }
-        else {
-            Timber.d("%s number to index: %s => %s", hymnType, hymnNo, hymnIdx);
-        }
+        // else {
+        //    Timber.d("%s number to index: %s => %s", hymnType, hymnNo, hymnIdx);
+        // }
 
         return hymnIdx;
     }

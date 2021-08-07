@@ -13,6 +13,14 @@
         android:title="@string/menu_media_ui_toggle" />
 
     <item
+        android:id="@+id/lyrcsTextSizeInc"
+        android:title="@string/gui_lyrics_text_size_increase" />
+
+    <item
+        android:id="@+id/lyrcsTextSizeDec"
+        android:title="@string/gui_lyrics_text_size_decrease" />
+
+    <item
         android:id="@+id/lyrcsEnglish"
         android:title="@string/gui_lyrics_english" />
 

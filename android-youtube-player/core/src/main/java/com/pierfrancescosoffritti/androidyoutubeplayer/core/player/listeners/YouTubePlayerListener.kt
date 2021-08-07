@@ -59,5 +59,7 @@ interface YouTubePlayerListener {
      */
     fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String)
 
+    fun onVideoUrl(youTubePlayer: YouTubePlayer, videoUrl: String)
+
     fun onApiChange(youTubePlayer: YouTubePlayer)
 }

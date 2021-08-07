@@ -36,8 +36,6 @@ import org.cog.hymnchtv.persistance.FileBackend;
 import java.io.File;
 import java.util.List;
 
-import timber.log.Timber;
-
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MediaExoPlayerFragment.ATTR_MEDIA_URL;
 import static org.cog.hymnchtv.MediaExoPlayerFragment.URL_YOUTUBE;
@@ -86,26 +84,47 @@ public class MediaContentHandler
         return false;
     }
 
-    private boolean getUriList(String uriString, List<Uri> uriList)
+    /**
+     * Start playback the given mediaUrl if it it is youtube link;
+     * or an internet video link, or local stored video media content
+     * Return true if the link has been handled; with an empty uriList if played
+     * or a populated uriList of audio content or download link;
+     *
+     * @param mediaUrl for
+     * @param uriList a url list to be populated for any unhandled link
+     *
+     * @return true if given mediaUrl can be playback/a valid link; else false
+     */
+    private boolean getUriList(String mediaUrl, List<Uri> uriList)
     {
-        if (!TextUtils.isEmpty(uriString)) {
-            // uriString is an external URL.
-            if (URLUtil.isValidUrl(uriString)) {
-                playMediaUrl(uriString);
-                return true;
-            }
-            File uriFile = new File(uriString);
-            if (uriFile.exists()) {
-                Uri uri = Uri.parse(uriString);
-                String mimeType = FileBackend.getMimeType(mContext, uri);
-                // Let playMediaUrl handle unknown or video mimeType
-                if (TextUtils.isEmpty(mimeType) || mimeType.contains("video")) {
-                    playMediaUrl(uriString);
-                    return true;
+        if (!TextUtils.isEmpty(mediaUrl)) {
+            Uri uri = Uri.parse(mediaUrl);
+            String mimeType = FileBackend.getMimeType(mContext, uri);
+
+            // uriString is an external URL; check to ensure it is not just a download link
+            if (URLUtil.isValidUrl(mediaUrl)) {
+                if ((!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio")))
+                    || mediaUrl.matches(URL_YOUTUBE)) {
+                    playMediaUrl(mediaUrl);
                 }
-                // Otherwise, pass handling to local audio service
                 else {
                     uriList.add(uri);
+                }
+                return true;
+            }
+            else {
+
+                // Local media file playback
+                File uriFile = new File(mediaUrl);
+                if (uriFile.exists()) {
+                    // Let playMediaUrl handle unknown or video mimeType
+                    if (TextUtils.isEmpty(mimeType) || mimeType.contains("video")) {
+                        playMediaUrl(mediaUrl);
+                    }
+                    // Otherwise, pass handling to local audio service
+                    else {
+                        uriList.add(uri);
+                    }
                     return true;
                 }
             }
@@ -113,13 +132,19 @@ public class MediaContentHandler
         return false;
     }
 
-    public void playMediaUrl(String videoUrl)
+    /**
+     * Playback the given mediaUrl via HymnApp internal players if supported,
+     * else pass it to android OS to handle
+     *
+     * @param mediaUrl for playback
+     */
+    public void playMediaUrl(String mediaUrl)
     {
-        Uri uri = Uri.parse(videoUrl);
+        Uri uri = Uri.parse(mediaUrl);
         String mimeType = FileBackend.getMimeType(mContext, uri);
         if ((!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio")))
-                || videoUrl.matches(URL_YOUTUBE)) {
-            playEmbeddedExo(videoUrl);
+                || mediaUrl.matches(URL_YOUTUBE)) {
+            playViaEmbeddedPlayer(mediaUrl);
         }
         else {
             Intent openIntent = new Intent(Intent.ACTION_VIEW);
@@ -141,11 +166,12 @@ public class MediaContentHandler
     }
 
     /**
-     * Playback video in embedded fragment for lyrics coexistence
+     * Playback the given videoUrl in embedded fragment for lyrics coexistence
+     * Use Youtube Player if it is an youtube link, else use exoplayer for video play back
      *
-     * @param videoUrl url for playback
+     * @param videoUrl an video url for playback
      */
-    private void playEmbeddedExo(String videoUrl)
+    private void playViaEmbeddedPlayer(String videoUrl)
     {
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_MEDIA_URL, videoUrl);
@@ -175,9 +201,10 @@ public class MediaContentHandler
      */
     public void releasePlayer()
     {
-        // remove the exoPlayer fragment
+        // remove the existing player fragment view
         Fragment playerView = mContentHandler.getSupportFragmentManager().findFragmentById(R.id.player_container);
-        mContentHandler.getSupportFragmentManager().beginTransaction().remove(playerView).commit();
+        if (playerView != null)
+            mContentHandler.getSupportFragmentManager().beginTransaction().remove(playerView).commit();
 
         if (mExoPlayer != null) {
             mExoPlayer.releasePlayer();

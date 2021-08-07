@@ -48,12 +48,28 @@ internal class WebViewYouTubePlayer constructor(context: Context, attrs: Attribu
         mainThreadHandler.post { loadUrl("javascript:cueVideo('$videoId', $startSeconds)") }
     }
 
+    override fun loadPlaylist(playlist: String, startIndex: Int) {
+        mainThreadHandler.post { loadUrl("javascript:loadPlaylist('$playlist', $startIndex)") }
+    }
+
+    override fun loadPlaylist_videoIds(videoIds: String) {
+        mainThreadHandler.post { loadUrl("javascript:loadPlaylist_videoIds('$videoIds')") }
+    }
+
     override fun play() {
         mainThreadHandler.post { loadUrl("javascript:playVideo()") }
     }
 
     override fun pause() {
         mainThreadHandler.post { loadUrl("javascript:pauseVideo()") }
+    }
+
+    override fun nextVideo() {
+        mainThreadHandler.post { loadUrl("javascript:nextVideo()") }
+    }
+
+    override fun previousVideo() {
+        mainThreadHandler.post { loadUrl("javascript:previousVideo()") }
     }
 
     override fun mute() {
@@ -75,7 +91,7 @@ internal class WebViewYouTubePlayer constructor(context: Context, attrs: Attribu
      * the player will advance to the closest key frame before that time.
      * If the allowSeekAhead parameter specifies a time outside of the currently buffered video data,
      * the seconds parameter determines whether the player sends a new request to the server.
-    */
+     */
     override fun seekTo(time: Float) {
         mainThreadHandler.post { loadUrl("javascript:seekTo($time)") }
     }
@@ -128,7 +144,6 @@ internal class WebViewYouTubePlayer constructor(context: Context, attrs: Attribu
         webChromeClient = object : WebChromeClient() {
             override fun getDefaultVideoPoster(): Bitmap? {
                 val result = super.getDefaultVideoPoster()
-
                 return result ?: Bitmap.createBitmap(1, 1, Bitmap.Config.RGB_565)
             }
         }

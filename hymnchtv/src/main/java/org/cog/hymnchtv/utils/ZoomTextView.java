@@ -3,42 +3,38 @@ package org.cog.hymnchtv.utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.ViewConfiguration;
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.R;
+
+import timber.log.Timber;
+
 /**
- * Text view with pinch-to-zoom and 2-points double-tap fixed zoom-in/zoom-out scale factor ability.
+ * Text view with pinch-to-zoom and user increment/decrement fixed zoom-in/zoom-out scale factor ability.
  * Ref: https://github.com/lecho/android_samples/blob/master/zoomtextview/src/lecho/sample/zoomtextview/view/ZoomTextView.java
  *
  * @author Eng Chong Meng
  */
 public class ZoomTextView extends AppCompatTextView
 {
+    // Limit the scale factors when when double taps to change the values
     private static final float MIN_SCALE_FACTOR = 1.0f;
-    public static final float MAX_SCALE_FACTOR = 2.0f;
+    public static final float MAX_SCALE_FACTOR = 5.0f;
 
     public static final float STEP_SCALE_FACTOR = 0.25f;
     private static final float MIN_CHANGE = 0.05f;
 
-    /**
-     * Defines the minimum duration in milliseconds between the first tap's up event,
-     * and the second tap's down event for an interaction to be considered a double-tap.
-     */
-    private static final int DOUBLE_TAP_MIN_TIME = 40;
-    private static final int DOUBLE_TAP_TIMEOUT = ViewConfiguration.getDoubleTapTimeout();
-
     private final ScaleGestureDetector mScaleGestureDetector;
-    private MotionEvent mCurrentDownEvent;
-    private MotionEvent mPreviousUpEvent;
+    private ZoomTextListener mListener = null;
 
     private float mScaleFactor = MIN_SCALE_FACTOR;
-    private static float maxScaleFactor = MAX_SCALE_FACTOR;
-    private final float defaultSize;
+    private float mDefaultSize;
 
     public ZoomTextView(Context context)
     {
@@ -53,17 +49,26 @@ public class ZoomTextView extends AppCompatTextView
     public ZoomTextView(Context context, AttributeSet attrs, int defStyleAttr)
     {
         super(context, attrs, defStyleAttr);
-        mScaleGestureDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
-        defaultSize = getTextSize();
+        mScaleGestureDetector = new ScaleGestureDetector(context, new ScaleGestureListener());
     }
 
     /***
-     * @param scaleFactor
-     * Default value is 3, 3 means text can zoom 3 times the default size
+     * @param listener for update the user selected zoom scale to preference
      */
-    public static void setMaxScaleFactor(float scaleFactor)
+    public void registerZoomTextListener(ZoomTextListener listener)
     {
-        maxScaleFactor = scaleFactor;
+        mListener = listener;
+    }
+
+    /***
+     * @param defaultSize default text size
+     * @param scaleFactor text size scale factor
+     */
+    public void scaleTextSize(int defaultSize, float scaleFactor)
+    {
+        mDefaultSize = defaultSize;
+        mScaleFactor = scaleFactor;
+        setTextSize(mScaleFactor * mDefaultSize);
     }
 
     /**
@@ -74,31 +79,8 @@ public class ZoomTextView extends AppCompatTextView
     public boolean onTouchEvent(@NonNull MotionEvent event)
     {
         super.onTouchEvent(event);
+        // 2-points touch detected for zoom
         mScaleGestureDetector.onTouchEvent(event);
-
-        // 2-points touch detected
-        if (event.getPointerCount() == 2) {
-            int action = event.getAction() & MotionEvent.ACTION_MASK;
-            if (action == MotionEvent.ACTION_POINTER_DOWN) {
-                if ((mCurrentDownEvent != null) && (mPreviousUpEvent != null)
-                        && isConsideredDoubleTap(mPreviousUpEvent, event)) {
-                    // This is a second tap
-                    onDouble2PointTap();
-                }
-
-                if (mCurrentDownEvent != null) {
-                    mCurrentDownEvent.recycle();
-                }
-                mCurrentDownEvent = MotionEvent.obtain(event);
-            }
-            else if ((action == MotionEvent.ACTION_POINTER_UP)) {
-                if (mPreviousUpEvent != null) {
-                    mPreviousUpEvent.recycle();
-                }
-                // Hold the event we obtained above - listeners may have changed the original.
-                mPreviousUpEvent = MotionEvent.obtain(event);
-            }
-        }
         return true;
     }
 
@@ -107,51 +89,52 @@ public class ZoomTextView extends AppCompatTextView
      * and mScaleFactor is mapped between 1.0 and zoomLimit that is MAX_SCALE_FACTOR by default.
      * You can also change it. Note: 2.0 means text can zoom to 2 times the default value.
      */
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener
+    private class ScaleGestureListener extends SimpleOnScaleGestureListener
     {
         @Override
         public boolean onScale(ScaleGestureDetector detector)
         {
-            mScaleFactor *= detector.getScaleFactor();
-            if (mScaleFactor < MIN_CHANGE)
+            float tmpScale = mScaleFactor * detector.getScaleFactor();
+            if (tmpScale < MIN_CHANGE)
                 return false;
 
-            // Don't let the object get too small or too large (user setting + 1).
-            mScaleFactor = Math.max(MIN_SCALE_FACTOR, Math.min(mScaleFactor, maxScaleFactor + 1));
-
-            // Timber.d("Set TextView font size scale to: %.3f (%s)", mScaleFactor, defaultSize * mScaleFactor);
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultSize * mScaleFactor);
+            setLyricsTextSize(tmpScale);
             return true;
         }
     }
 
     /**
-     * 2-point double touch handler implementation
+     * onText change handler implementation
      */
-    private void onDouble2PointTap()
+    public void onTextSizeChange(boolean stepInc)
     {
-        if (mScaleFactor > maxScaleFactor + MIN_CHANGE) {
-            mScaleFactor = maxScaleFactor;
-        }
-        else if (mScaleFactor > MIN_SCALE_FACTOR + MIN_CHANGE) {
-            mScaleFactor = MIN_SCALE_FACTOR;
-        }
-        else {
-            mScaleFactor = maxScaleFactor;
-        }
-        setTextSize(TypedValue.COMPLEX_UNIT_PX, mScaleFactor * defaultSize);
+        float tmpScale;
+        if (stepInc)
+            tmpScale = mScaleFactor + STEP_SCALE_FACTOR;
+        else
+            tmpScale = mScaleFactor - STEP_SCALE_FACTOR;
+        setLyricsTextSize(tmpScale);
+    }
+
+    private void setLyricsTextSize(float tmpScale)
+    {
+        // Don't let the text get too small or too large (user setting).
+        mScaleFactor = Math.max(MIN_SCALE_FACTOR, Math.min(tmpScale, MAX_SCALE_FACTOR));
+
+        Timber.d("Set TextView font size scale to: %.3f (%.3f); defaultSize: %s", mScaleFactor, tmpScale, mDefaultSize);
+        if (mScaleFactor != tmpScale)
+            HymnsApp.showToastMessage(R.string.gui_lyrics_text_size_limits);
+
+        setTextSize(mScaleFactor * mDefaultSize);
+        if (mListener != null)
+            mListener.updateTextScale(mScaleFactor);
     }
 
     /**
-     * Routine to detect double touch event
-     *
-     * @param firstUp previous ACTION_POINTER_UP MotionEvent
-     * @param secondDown new ACTION_POINTER_DOWN MotionEvent
-     * @return true id fouble 2-point touch detected
+     * Listener for the change in zoom factor; save to preferences
      */
-    private boolean isConsideredDoubleTap(MotionEvent firstUp, MotionEvent secondDown)
+    public interface ZoomTextListener
     {
-        final long deltaTime = secondDown.getEventTime() - firstUp.getEventTime();
-        return deltaTime <= DOUBLE_TAP_TIMEOUT && deltaTime >= DOUBLE_TAP_MIN_TIME;
+        void updateTextScale(Float mScale);
     }
 }

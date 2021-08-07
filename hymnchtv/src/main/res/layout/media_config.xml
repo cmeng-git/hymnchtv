@@ -114,6 +114,13 @@
             android:src="@drawable/ic_help" />
 
         <ImageButton
+            android:id="@+id/shareMediaUri"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="15dp"
+            android:src="@drawable/ic_share" />
+
+        <ImageButton
             android:id="@+id/decodeUri"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -140,15 +147,24 @@
     <EditText
         android:id="@+id/linkDecoded"
         style="@style/EntryTextView"
-        android:textColor="@color/grey500"
         android:layout_width="match_parent"
         android:layout_marginBottom="8dp"
-        android:inputType="none"
         android:focusable="false"
+        android:inputType="none"
         android:scrollHorizontally="true"
         android:singleLine="true"
+        android:textColor="@color/grey500"
         android:textSize="18sp"
-        android:visibility="gone"/>
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/mediaMissing"
+        style="@style/EntryTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/gui_media_file_not_found"
+        android:textColor="@color/red" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -180,12 +196,12 @@
     </LinearLayout>
 
     <ListView
-        android:background="@color/color_bg_share"
         android:id="@+id/mrListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:visibility="gone"/>
+        android:background="@color/color_bg_share"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -250,16 +266,12 @@
             <CheckBox
                 android:id="@+id/recordOverwrite"
                 style="@style/ButtonTop"
-                android:layout_width="0dp"
-                android:layout_weight="4"
-                android:layout_height="45dp"
+                android:layout_weight="2"
                 android:text="@string/gui_db_overwrite" />
 
             <Button
                 android:id="@+id/button_import"
                 style="@style/ButtonTop"
-                android:layout_width="0dp"
-                android:layout_weight="3"
                 android:layout_marginStart="4dp"
                 android:text="@string/gui_db_import" />
         </LinearLayout>
@@ -276,10 +288,10 @@
                 android:text="@string/gui_db_list" />
 
             <Button
-                android:id="@+id/button_export_create"
+                android:id="@+id/button_import_create"
                 style="@style/ButtonTop"
                 android:layout_marginStart="4dp"
-                android:text="@string/gui_db_export_create" />
+                android:text="@string/gui_db_import_create" />
 
             <Button
                 android:id="@+id/button_export"

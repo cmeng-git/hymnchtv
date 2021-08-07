@@ -64,7 +64,6 @@ internal class DefaultPlayerUiController(private val youTubePlayerView: LegacyYo
     private var isCustomActionRightEnabled = false
 
     init {
-
         val controlsView = View.inflate(youTubePlayerView.context, R.layout.ayp_default_player_ui, youTubePlayerView)
 
         youTubePlayerMenu = DefaultYouTubePlayerMenu(youTubePlayerView.context)
@@ -146,7 +145,7 @@ internal class DefaultPlayerUiController(private val youTubePlayerView: LegacyYo
         return this
     }
 
-    override fun setFordwardAction(icon: Drawable, clickListener: View.OnClickListener?): PlayerUiController {
+    override fun setForwardAction(icon: Drawable, clickListener: View.OnClickListener?): PlayerUiController {
         // customActionRight.setImageDrawable(icon)
         customActionRight.setOnClickListener(clickListener)
         showCustomAction2(true)
@@ -155,8 +154,8 @@ internal class DefaultPlayerUiController(private val youTubePlayerView: LegacyYo
 
     override fun setPreviousAction(icon: Drawable, clickListener: View.OnClickListener?): PlayerUiController {
         // nextAction.setImageDrawable(icon)
-        nextAction.setOnClickListener(clickListener)
-        nextAction.visibility= View.VISIBLE
+        previousAction.setOnClickListener(clickListener)
+        previousAction.visibility= View.VISIBLE
         return this
     }
 
@@ -338,4 +337,5 @@ internal class DefaultPlayerUiController(private val youTubePlayerView: LegacyYo
     override fun onCurrentSecond(youTubePlayer: YouTubePlayer, second: Float) {}
     override fun onVideoDuration(youTubePlayer: YouTubePlayer, duration: Float) {}
     override fun onVideoLoadedFraction(youTubePlayer: YouTubePlayer, loadedFraction: Float) {}
+    override fun onVideoUrl(youTubePlayer: YouTubePlayer, videoUrl: String) {}
 }

@@ -63,9 +63,9 @@ public class MediaDownloadHandler extends Fragment
     private DownloadManager downloadManager;
     private DownloadReceiver downloadReceiver = null;
 
-    /* previousDownloads <DownloadJobId, File (final saved media file) > */
-    // private final static Map<Long, File> fileDownloads = new LinkedHashMap<>();
+    /* previousDownloads map of <DownloadJobId, @notNull destFile>; need TreeMap.lastKey */
     private final static NavigableMap<Long, File> fileDownloads = new TreeMap<>();
+    private final static NavigableMap<Long, String> linkDownloads = new TreeMap<>();
 
     // File download variables
     protected File mXferFile;
@@ -132,17 +132,23 @@ public class MediaDownloadHandler extends Fragment
     /**
      * Call from ContentHandler to fetch the requested media fName from the specified dnLnk
      *
-     * @param dnLnk the source link for downloading file.
-     * @param dir the destination dir for the downloaded file.
+     * @param dnLnk    the source link for downloading file.
+     * @param dir      the destination dir for the downloaded file.
      * @param fileName the downloaded filename.
      */
     public void initHttpFileDownload(String dnLnk, String dir, String fileName)
     {
-        File outFile = new File(FileBackend.getHymnchtvStore(dir, true), fileName);
-        if (fileDownloads.containsValue(outFile)) {
+        File subDir = FileBackend.getHymnchtvStore(dir, true);
+        if (subDir == null) {
+            HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
+            return;
+        }
+
+        File destFile = new File(subDir, fileName);
+        if (fileDownloads.containsValue(destFile)) {
             HymnsApp.showToastMessage(R.string.gui_download_wait);
             fileXferUi.setVisibility(View.VISIBLE);
-            Timber.w("Skip duplicated download file request: %s", outFile.getAbsolutePath());
+            Timber.w("Skip duplicated download file request: %s", destFile.getAbsolutePath());
             return;
         }
 
@@ -150,23 +156,24 @@ public class MediaDownloadHandler extends Fragment
         fileStatus.setVisibility(View.GONE);
         fileLabel.setText(getFileLabel(fileName, mFileSize));
 
-        String encLnk = dnLnk;
+        String encDnLnk = dnLnk;
         try {
             // Need to encode chinese link for safe access; revert all "%3A" and "%2F" to ":" and "/" etc
-            encLnk = URLEncoder.encode(dnLnk, "UTF-8")
+            encDnLnk = URLEncoder.encode(dnLnk, "UTF-8")
                     .replace("%2F", "/")
                     .replace("%3A", ":")
                     .replace("%3D", "=")
                     .replace("%3F", "?");
-            Timber.d("Download URL link encoded: %s", encLnk);
+            Timber.d("Download URL link encoded: %s", encDnLnk);
         } catch (UnsupportedEncodingException e) {
             Timber.w("Exception in URLEncoder.encode (%s): %s", fileName, e.getMessage());
         }
-        Uri uri = Uri.parse(encLnk);
+        Uri uri = Uri.parse(encDnLnk);
 
         long jobId = download(uri, fileName);
         if (jobId != -1) {
-            fileDownloads.put(jobId, outFile);
+            fileDownloads.put(jobId, destFile);
+            linkDownloads.put(jobId, encDnLnk);
             startProgressChecker();
         }
         else {
@@ -208,42 +215,47 @@ public class MediaDownloadHandler extends Fragment
             int downloadJobStatus = checkDownloadStatus(downloadJobId);
 
             if (fileDownloads.containsKey(downloadJobId)) {
+                String dnLink = linkDownloads.get(downloadJobId);
 
                 if (downloadJobStatus == DownloadManager.STATUS_SUCCESSFUL) {
-
                     Uri fileUri = downloadManager.getUriForDownloadedFile(downloadJobId);
                     File inFile = new File(FilePathHelper.getFilePath(context, fileUri));
 
                     if (inFile.exists()) {
                         // update fileSize for progress bar update, in case it is still not updated by download Manager
                         mFileSize = inFile.length();
-                        File outFile = fileDownloads.get(downloadJobId);
+                        File destFile = fileDownloads.get(downloadJobId);
+                        // destFile will always not null; just to keep AS happy
+                        String destFName = (destFile != null) ? destFile.getName() : "";
 
-                        // Rename will move the received media infile to outfile dir.
-                        if (inFile.renameTo(outFile)) {
+                        // Rename will move the received media infile to destFile dir.
+                        // mFileSize == 1 if file not found online
+                        if ((mFileSize > 200) && (destFile != null) && inFile.renameTo(destFile)) {
                             String uiLabel = fileLabel.getText().toString();
-                            Timber.d("Downloaded file: %s (%s): %s (%s) <= %s", outFile.getAbsolutePath(),
-                                    mFileSize, uiLabel, fileXferUi.isShown(), outFile.getName());
+                            Timber.d("Downloaded file: %s (size: %s); label: %s; uiShown: %s",
+                                    destFName, mFileSize, uiLabel, fileXferUi.isShown());
 
                             // Start playing only if the same player user still stay put.
                             // Otherwise, ui is not sync and user has no control of the play back
-                            if (fileXferUi.isShown() && uiLabel.startsWith(outFile.getName())) {
+                            if (fileXferUi.isShown() && uiLabel.startsWith(destFName)) {
                                 mContentHandler.startPlay();
                             }
                         }
                         else {
-                            Timber.d("Downloaded file rename failed: %s (%s) => %s", inFile.getAbsolutePath(),
-                                    inFile.length(), outFile.getAbsolutePath());
+                            HymnsApp.showToastMessage(R.string.gui_file_DOWNLOAD_FAILED, dnLink);
+                            Timber.d("Downloaded file failed: %s (size: %s) <= %s",
+                                    inFile.getAbsolutePath(), mFileSize, dnLink);
                         }
                     }
                 }
                 else if (downloadJobStatus == DownloadManager.STATUS_FAILED) {
-                    onError(HymnsApp.getResString(R.string.gui_file_DOWNLOAD_FAILED, fileDownloads.get(downloadJobId).getAbsolutePath()));
+                    onError(HymnsApp.getResString(R.string.gui_file_DOWNLOAD_FAILED, dnLink));
                 }
             }
             // Remove lastDownloadId from downloadManager record and delete the tmp file
             downloadManager.remove(downloadJobId);
             fileDownloads.remove(downloadJobId);
+            linkDownloads.remove(downloadJobId);
 
             if (fileDownloads.isEmpty())
                 fileXferUi.setVisibility(View.GONE);
@@ -388,19 +400,20 @@ public class MediaDownloadHandler extends Fragment
             return;
         }
 
-        File lastOutFile = fileDownloads.get(fileDownloads.lastKey());
-        long lastDownloadId = getJobId(lastOutFile);
+        File lastdestFile = fileDownloads.get(fileDownloads.lastKey());
+        long lastDownloadId = getJobId(lastdestFile);
         if (lastDownloadId == -1)
             return;
 
         int lastJobStatus = checkDownloadStatus(lastDownloadId);
-        String mFileName = lastOutFile.getName();
+        String mFileName = lastdestFile.getName();
 
         // Terminate downloading task if failed or idleTime timeout
         if (lastJobStatus == DownloadManager.STATUS_FAILED || waitTime <= 0) {
             // Remove lastDownloadId from downloadManager record and delete the tmp file
             downloadManager.remove(lastDownloadId);
             fileDownloads.remove(lastDownloadId);
+            linkDownloads.remove(lastDownloadId);
 
             File tmpFile = new File(FileBackend.getHymnchtvStore(FileBackend.TMP, false), mFileName);
             Timber.d("Downloading file failed due to slow progress: %s (%s): %s",
@@ -444,7 +457,7 @@ public class MediaDownloadHandler extends Fragment
      * Calculate a moving average for file download speed with a larger SMOOTHING_FACTOR;
      * so the UI display remaining time is no so jumpy
      *
-     * @param transferredBytes file size
+     * @param transferredBytes  file size
      * @param progressTimestamp time stamp
      */
     private void updateProgress(String fileName, long transferredBytes, long progressTimestamp)

@@ -129,6 +129,9 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private CheckBox cbPlaybackLoop;
     private EditText edLoopCount;
     private Button mBtnMedia;
+    private Button mBtnBanZhou;
+    private Button mBtnJiaoChang;
+    private Button mBtnChangShi;
 
     private boolean isSeeking = false;
     private int positionSeek;
@@ -227,7 +230,9 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         RadioGroup hymnTypesGroup = convertView.findViewById(R.id.hymnsGroup);
         hymnTypesGroup.setOnCheckedChangeListener(this);
         mBtnMedia = convertView.findViewById(R.id.btn_media);
-
+        mBtnBanZhou = convertView.findViewById(R.id.btn_banzhou);
+        mBtnJiaoChang = convertView.findViewById(R.id.btn_jiaochang);
+        mBtnChangShi = convertView.findViewById(R.id.btn_changshi);
         return convertView;
     }
 
@@ -342,11 +347,14 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
      * @param info player info
      * @param isAvailable true if use defined media is available
      */
-    public void initHymnInfo(String info, boolean isAvailable)
+    public void initHymnInfo(String info, boolean[] isAvailable)
     {
         if (STATE_STOP == playerState) {
             hymnInfo.setText(info);
-            mBtnMedia.setTextColor(isAvailable ? Color.BLACK : Color.GRAY);
+            mBtnMedia.setTextColor(isAvailable[0] ? Color.BLACK : Color.GRAY);
+            mBtnBanZhou.setTextColor(isAvailable[1] ? Color.BLACK : Color.GRAY);
+            mBtnJiaoChang.setTextColor(isAvailable[2] ? Color.BLACK : Color.GRAY);
+            mBtnChangShi.setTextColor(isAvailable[3] ? Color.BLACK : Color.GRAY);
         }
     }
 
@@ -576,7 +584,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         if (mEditor != null) {
             mEditor.putString(PREF_PLAYBACK_SPEED, speed);
             mEditor.apply();
-            Timber.d("Set mediaPlayer playback speed to: %sx", speed);
+            // Timber.d("Set mediaPlayer playback speed to: %sx", speed);
         }
     }
 

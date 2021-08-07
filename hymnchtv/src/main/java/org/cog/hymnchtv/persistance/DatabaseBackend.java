@@ -117,7 +117,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
             + MediaConfig.HYMN_FU + " BOOL, "
             + HistoryRecord.HYMN_TITLE + " TEXT, "
             + TIME_STAMP + " NUMBER,  UNIQUE("
-            + HistoryRecord.HYMN_TYPE + ", " + HistoryRecord.HYMN_NO  + ", " + MediaConfig.HYMN_FU
+            + HistoryRecord.HYMN_TYPE + ", " + HistoryRecord.HYMN_NO + ", " + MediaConfig.HYMN_FU
             + ") ON CONFLICT REPLACE);";
 
     /**
@@ -190,8 +190,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      * Check if mRecord exist in DB and update with the DB result if update if true
      *
      * @param mRecord Media record to check for
-     * @param update Update mRecord if true, else just return the status; i.e just to check if exist in DB
-     *
+     * @param update  Update mRecord if true, else just return the status; i.e just to check if exist in DB
      * @return mRecord present status, and mRecord is updated if update is true;
      */
     public boolean getMediaRecord(MediaRecord mRecord, boolean update)
@@ -217,6 +216,12 @@ public class DatabaseBackend extends SQLiteOpenHelper
         return hasRecord;
     }
 
+    /**
+     * Delete the given mediaRecord
+     *
+     * @param mRecord mediaRecord to be deleted
+     * @return No of matched records get deleted
+     */
     public int deleteMediaRecord(MediaRecord mRecord)
     {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -226,6 +231,12 @@ public class DatabaseBackend extends SQLiteOpenHelper
                 + MediaConfig.HYMN_FU + "=? AND " + MediaConfig.MEDIA_TYPE + "=?", args);
     }
 
+    /**
+     * Get the media records for the given hymnType
+     *
+     * @param hymnType one of the MediaConfig.hymnTypeValue
+     * @return List of mediaRecords for the given hymnType
+     */
     public List<MediaRecord> getMediaRecords(String hymnType)
     {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -233,6 +244,35 @@ public class DatabaseBackend extends SQLiteOpenHelper
         String ORDER_ASC = MediaConfig.HYMN_NO + " ASC";
 
         Cursor cursor = db.query(hymnType, null, null, null, null, null, ORDER_ASC);
+        while (cursor.moveToNext()) {
+            MediaRecord mediaRecord = new MediaRecord(hymnType,
+                    cursor.getInt(cursor.getColumnIndex(MediaConfig.HYMN_NO)),
+                    cursor.getInt(cursor.getColumnIndex(MediaConfig.HYMN_FU)) > 0,
+                    Enum.valueOf(MediaType.class, cursor.getString(cursor.getColumnIndex(MediaConfig.MEDIA_TYPE))),
+                    cursor.getString(cursor.getColumnIndex(MediaConfig.MEDIA_URI)),
+                    cursor.getString(cursor.getColumnIndex(MediaConfig.MEDIA_FILE_PATH)));
+            mediaRecords.add(mediaRecord);
+        }
+        cursor.close();
+        return mediaRecords;
+    }
+
+    /**
+     * Get the media records which contain valid links
+     *
+     * @param hymnType one of the MediaConfig.hymnTypeValue
+     * @return List of mediaRecords for the given hymnType
+     */
+    public List<MediaRecord> getMediaLinks(String hymnType)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<MediaRecord> mediaRecords = new ArrayList<>();
+        String ORDER_ASC = MediaConfig.HYMN_NO + " ASC";
+
+        String[] args = {"http%"};
+        Cursor cursor = db.query(hymnType, null, MediaConfig.MEDIA_URI + " LIKE ?",
+                args, null, null, null);
+
         while (cursor.moveToNext()) {
             MediaRecord mediaRecord = new MediaRecord(hymnType,
                     cursor.getInt(cursor.getColumnIndex(MediaConfig.HYMN_NO)),

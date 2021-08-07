@@ -355,7 +355,7 @@ public class MediaExoPlayerFragment extends Fragment
     /**
      * ExoPlayer playback state listener
      */
-    private static class PlaybackStateListener implements Player.EventListener
+    private static class PlaybackStateListener implements Player.Listener
     {
         @Override
         public void onPlaybackStateChanged(int playbackState)

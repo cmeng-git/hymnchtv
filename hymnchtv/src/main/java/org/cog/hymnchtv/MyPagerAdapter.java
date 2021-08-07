@@ -18,13 +18,12 @@ package org.cog.hymnchtv;
 
 import android.os.Bundle;
 
+import androidx.collection.LongSparseArray;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import org.jetbrains.annotations.NotNull;
-
-import timber.log.Timber;
 
 import static org.cog.hymnchtv.ContentView.LYRICS_INDEX;
 import static org.cog.hymnchtv.ContentView.LYRICS_TYPE;
@@ -48,6 +47,10 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_INDEX_MAX;
 public class MyPagerAdapter extends FragmentStateAdapter
 {
     private final String mHymnType;
+    private ContentView mContentView;
+
+    // Map array of index to ContentView for correct Content reference during access
+    public final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
 
     public MyPagerAdapter(FragmentActivity fragmentActivity, String hymnType)
     {
@@ -79,13 +82,16 @@ public class MyPagerAdapter extends FragmentStateAdapter
     @Override
     public @NotNull Fragment createFragment(int index)
     {
-        Timber.d("Get item fragment index @: %s", index);
+        // Timber.d("Get item fragment index @: %s", index);
         Bundle bundle = new Bundle();
         bundle.putString(LYRICS_TYPE, mHymnType);
         bundle.putInt(LYRICS_INDEX, index);
 
-        ContentView objContentView = new ContentView();
-        objContentView.setArguments(bundle);
-        return objContentView;
+        mContentView = new ContentView();
+        // Save a copy of reference content view for local access
+        mFragments.put(index, mContentView);
+
+        mContentView.setArguments(bundle);
+        return mContentView;
     }
 }

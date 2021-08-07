@@ -20,8 +20,20 @@ interface YouTubePlayer {
      */
     fun cueVideo(videoId: String, startSeconds: Float)
 
+    /**
+     * Loads the video playlist.
+     * @param playlist youtube playlist id
+     * @param startIndex the first video start playing
+     */
+    fun loadPlaylist(playlist: String, startIndex: Int)
+
+    fun loadPlaylist_videoIds(videoIds: String)
+
     fun play()
     fun pause()
+
+    fun nextVideo()
+    fun previousVideo()
 
     fun mute()
     fun unMute()

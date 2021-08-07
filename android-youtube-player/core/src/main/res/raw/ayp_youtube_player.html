@@ -35,14 +35,12 @@
         var timerId;
 
     	function onYouTubeIframeAPIReady() {
-
             YouTubePlayerBridge.sendYouTubeIFrameAPIReady();
             
     		player = new YT.Player('youTubePlayerDOM', {
                 height: '100%',
     			width: '100%',
-    			isHTML5: true,
-    			
+
                 events: {
     				onReady: function(event) { YouTubePlayerBridge.sendReady() },
     				onStateChange: function(event) { sendPlayerStateChange(event.data) },
@@ -71,7 +69,6 @@
 
                 case YT.PlayerState.PLAYING:
                     sendStateChange(PLAYING);
-                    
                     startSendCurrentTimeInterval();
                     sendVideoData(player);
                     return;
@@ -89,13 +86,13 @@
                     return;
             }
 
+            function sendStateChange(newState) {
+                YouTubePlayerBridge.sendStateChange(newState)
+            }
+
             function sendVideoData(player) {
                 var videoDuration = player.getDuration();
                 YouTubePlayerBridge.sendVideoDuration(videoDuration);
-            }
-
-            function sendStateChange(newState) {
-                YouTubePlayerBridge.sendStateChange(newState)
             }
 
             function startSendCurrentTimeInterval() {
@@ -123,12 +120,12 @@
         	player.setPlaybackRate(rate);
         }
 
-        function pauseVideo() {
-        	player.pauseVideo();
-        }
-
         function playVideo() {
         	player.playVideo();
+        }
+
+        function pauseVideo() {
+        	player.pauseVideo();
         }
 
         function loadVideo(videoId, startSeconds) {
@@ -139,6 +136,41 @@
         function cueVideo(videoId, startSeconds) {
             player.cueVideoById(videoId, startSeconds);
             YouTubePlayerBridge.sendVideoId(videoId);
+        }
+
+        function loadPlaylist(playlist, startIndex) {
+            player.loadPlaylist({
+                'listType': 'playlist',
+                'list': playlist,
+                'index': startIndex
+            });
+        }
+
+        function loadPlaylist_videoIds(IdsString) {
+            const videoIds = [];
+            const IdsArray = IdsString.split(",");
+
+            // Convert split String to Array: i.e ['vCKCkc8llaM', 'LvetJ9U_tVY', 'S0Q4gqBUs7c', '9HPiBJBCOq8'];
+            for (var i = 0; i < IdsArray.length; i++) {
+                videoIds.push(IdsArray[i]);
+            }
+            console.log("Playlist videoIds: " + videoIds);
+
+            player.loadPlaylist({
+                'listType': 'playlist',
+                'playlist': videoIds,
+                'index': 0,
+                'startSeconds': 0,
+                'suggestedQuality': 'large'
+            });
+        }
+
+        function nextVideo() {
+        	player.nextVideo();
+        }
+
+        function previousVideo() {
+        	player.previousVideo();
         }
 
         function mute() {
@@ -155,6 +187,7 @@
 
        function getVideoUrl() {
             var videoUrl = player.getVideoUrl();
+            YouTubePlayerBridge.sendVideoUrl(videoUrl);
         }
 
     </script>

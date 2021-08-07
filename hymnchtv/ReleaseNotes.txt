@@ -1,6 +1,29 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:	08/07/2021
+Version:		1.6.1 (106010)
+- Add Lyrics text size change options in context menu and simplify UI.
+  Remove 2-point touch for lyrics size changed; too much interference with andorid native context menu.
+- Lyrics text size change settings are saved, restored and applied to existing and all new hymn content display.
+- Use alternate link address for fetching if possible when the primary link is not accessible for media content fetching
+- All the media radio buttons now provide the availability status of the local media.
+- Redefine Export button functions to createExportFile (short click), and createExportLink (long click)
+  i.e. full record or link only text file for sharing.
+- In media config, user may share single media record, or the export records/links text file with other user.
+- The media config link can now contain either a youtube link for single/playlist playback; video/audio media content link;
+  or a downloadable audio media link including mp3 and midi format.
+- Youtube player now support single or playlist playback i.e. Fallback to use as playlist if youtube url load failed.
+- Enhance android youtube player to add features:
+  loadPlaylist;  loadPlaylist_videoIds; previousVideo; nextVideo
+  getVideoUrl; sendVideoUrl; onVideoUrl
+- Check for file access permission when create new files
+- Add network_security_config to allow clearText sites access
+- Fixed ZoomTextView: need to use a Theme.AppCompat theme (or descendant) with this activity.
+  Add android:theme="@style/Theme.AppCompat.Light.NoActionBar" in ContentHandler in manifest file />
+
+=========================================================================
+Author:         cmeng
 Upload Date:	06/26/2021
 Version:		1.6.0 (106000)
 - Add android youtube player using IFrame Player API to avoid video link extraction error

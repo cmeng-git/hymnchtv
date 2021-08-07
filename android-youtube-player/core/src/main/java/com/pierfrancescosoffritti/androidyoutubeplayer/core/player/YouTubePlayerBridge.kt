@@ -32,22 +32,6 @@ class YouTubePlayerBridge(private val youTubePlayerOwner: YouTubePlayerBridgeCal
         private const val QUALITY_HIGH_RES = "highres"
         private const val QUALITY_DEFAULT = "default"
 
-        private const val RATE_0_6 = "0.6"
-        private const val RATE_0_7 = "0.7"
-        private const val RATE_0_8 = "0.8"
-        private const val RATE_0_9 = "0.9"
-        private const val RATE_1_0 = "1.0"
-        private const val RATE_1_1 = "1.1"
-        private const val RATE_1_2 = "1.2"
-        private const val RATE_1_3 = "1.3"
-        private const val RATE_1_4 = "1.4"
-
-        private const val RATE_0_25 = "0.25"
-        private const val RATE_0_5 = "0.5"
-        private const val RATE_1 = "1"
-        private const val RATE_1_5 = "1.5"
-        private const val RATE_2 = "2"
-
         private const val ERROR_INVALID_PARAMETER_IN_REQUEST = "2"
         private const val ERROR_HTML_5_PLAYER = "5"
         private const val ERROR_VIDEO_NOT_FOUND = "100"
@@ -175,6 +159,14 @@ class YouTubePlayerBridge(private val youTubePlayerOwner: YouTubePlayerBridgeCal
         mainThreadHandler.post {
             for (listener in youTubePlayerOwner.getListeners())
                 listener.onVideoId(youTubePlayerOwner.getInstance(), videoId)
+        }
+    }
+
+    @JavascriptInterface
+    fun sendVideoUrl(videoUrl: String) {
+        mainThreadHandler.post {
+            for (listener in youTubePlayerOwner.getListeners())
+                listener.onVideoUrl(youTubePlayerOwner.getInstance(), videoUrl)
         }
     }
 

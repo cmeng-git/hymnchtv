@@ -6,12 +6,23 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.6.1 (08/07/2021)" versioncode="106010">
+        <change>在上下文菜单中添加歌词文本大小更改选项，并简化用户歌词文本界面。</change>
+        <change>用户选择的歌词文本大小比例因子将被保存、恢复并应用于现有的和所有新诗歌内容显示。</change>
+        <change>当媒体内容获取无法访问主链接时，如果可能，将使用备用链接地址进行获取。</change>
+        <change>所有媒体单选按钮现在提供本地媒体的可用性状态。</change>
+        <change>重新定义导出按钮功能: 短按-创建所有诗歌类型的媒体记录导出文件；长按-创建导出链接,即全文件仅含链接记录接用于共享。</change>
+        <change>在媒体配置中，用户可以与其他用户&lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0070'&gt;共享&lt;/a&gt;单个媒体记录，或导出记录/链接文本文件。</change>
+        <change>用户定义媒体配置： 媒体内容可包含youtube单曲/播放列表的链接，视频/音频媒体文件链接，或音频媒体的下载网址其可包含mp3和midi格式。</change>
+        <change>Youtube 播放器现在支持单曲或播放列表。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.6.0 (06/26/2021)" versioncode="106000">
         <change>使用 IFrame Player API 添加安卓 Youtube 播放器以避免视频链接提取错误。</change>
         <change>诗歌配置播放选项，将使用诗歌内容用户界面；易于用户诗歌词同步确认。</change>
         <change>用户点击诗歌配置播放选项后，将自动开始播放。</change>
         <change>改写音频的后台服务程序，以避免安卓 8.0 在某些安卓设备上，由于 IllegalStateException 崩溃。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.5.8 (06/14/2021)" versioncode="105080">

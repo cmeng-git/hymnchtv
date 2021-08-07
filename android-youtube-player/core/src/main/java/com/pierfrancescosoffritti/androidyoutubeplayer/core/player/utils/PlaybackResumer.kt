@@ -15,6 +15,7 @@ internal class PlaybackResumer : AbstractYouTubePlayerListener() {
     private var error: PlayerConstants.PlayerError? = null
 
     private var currentVideoId: String? = null
+    private var currentVideoUrl: String? = null
     private var currentSecond: Float = 0f
 
     fun resume(youTubePlayer: YouTubePlayer) {
@@ -57,6 +58,10 @@ internal class PlaybackResumer : AbstractYouTubePlayerListener() {
 
     override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {
         currentVideoId = videoId
+    }
+
+    override fun onVideoUrl(youTubePlayer: YouTubePlayer, videoUrl: String) {
+        currentVideoUrl = videoUrl
     }
 
     fun onLifecycleResume() {

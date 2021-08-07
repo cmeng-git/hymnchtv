@@ -48,7 +48,7 @@ import timber.log.Timber;
 public class UpdateServiceImpl
 {
     // Default update link
-    private static final String[] updateLinks = {"https://atalk.sytes.net", "https://atalk.mooo.com"};
+    private static final String[] updateLinks = {"https://atalk.sytes.net"};
 
     /**
      * Apk mime type constant.

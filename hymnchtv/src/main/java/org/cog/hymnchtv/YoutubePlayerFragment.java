@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +28,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.MenuItem;
 import org.cog.hymnchtv.utils.FullScreenHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 import timber.log.Timber;
 
@@ -43,22 +43,36 @@ public class YoutubePlayerFragment extends Fragment
     private FullScreenHelper fullScreenHelper;
 
     private String mediaUrl = null;
-    private static ArrayList<String> mediaUrls = new ArrayList<>();
+    // Array may contain the youtube url links or just videoId's
+    private static List<String> mediaUrls = new ArrayList<>();
+
     static {
-        mediaUrls.add("vCKCkc8llaM");
-        mediaUrls.add("LvetJ9U_tVY");
-        mediaUrls.add("S0Q4gqBUs7c");
-        mediaUrls.add("zOa-rSM4nms");
+        mediaUrls.add("https://youtu.be/vCKCkc8llaM");
+        mediaUrls.add("https://youtu.be/LvetJ9U_tVY");
+        mediaUrls.add("https://youtu.be/S0Q4gqBUs7c");
+        mediaUrls.add("https://youtu.be/9HPiBJBCOq8");
     }
 
-    // Playback ratio of normal speed constant.
+    private String mVideoId = null;
+    // Array contains only the youtube videoId's
+    private static final List<String> mVideoIds = new ArrayList<>();
+
+    // Youtube playlist ids for testing; set usePlayList to true
+    private static final String[] playLists = {"RDMQTvg5EUgWU", "PLUh4W61bt_K5jmi1qbVACvLAPkudEmLKO"};
+    private static final String PLAYLIST = "PL";
+    private static final String SEPARATOR = ",";
+    private final boolean usePlayList = false;
+
+    // Will attempt to playback the given videoId as playlist if onError first encountered
+    private boolean onErrorOnce = true;
+
+    // Playback ratio of normal speed constants.
     private static final float rateMin = 0.6f;
-    private static float rateMax = 1.4f;
+    private static final float rateMax = 1.4f;
     private static final float rateStep = 0.1f;
     private float mSpeed = 1.0f;
 
     // private static final String[] mpSpeedValues = HymnsApp.getAppResources().getStringArray(R.array.mp_speed_value);
-
     private FragmentActivity mContext;
     private SharedPreferences mSharedPref;
 
@@ -93,8 +107,18 @@ public class YoutubePlayerFragment extends Fragment
         Bundle args = getArguments();
         if (args != null) {
             mediaUrl = args.getString(ATTR_MEDIA_URL);
+
+            // Comment out the following to test loadPlaylist_videoIds()
             mediaUrls = args.getStringArrayList(ATTR_MEDIA_URLS);
+            if (mediaUrls != null && !mediaUrls.isEmpty()) {
+                mVideoIds.clear();
+                for (int i = 0; i < mediaUrls.size(); i++) {
+                    String videoId = getVideoId(mediaUrls.get(i));
+                    mVideoIds.add(videoId);
+                }
+            }
         }
+
         initYouTubePlayerView();
         mSharedPref = mContext.getSharedPreferences(PREF_SETTINGS, 0);
         return view;
@@ -115,8 +139,22 @@ public class YoutubePlayerFragment extends Fragment
             @Override
             public void onReady(@NonNull YouTubePlayer youTubePlayer)
             {
-                String videoId = mediaUrl.substring(mediaUrl.lastIndexOf('/') + 1);
-                YouTubePlayerUtils.loadOrCueVideo(youTubePlayer, getLifecycle(), videoId, 0f);
+                if (usePlayList) {
+                    startPlaylist(youTubePlayer, playLists[0]);
+                }
+                else if (mediaUrls != null) {
+                    // comma separated strings for playlist array conversation: i.e ['vCKCkc8llaM','LvetJ9U_tVY','S0Q4gqBUs7c','9HPiBJBCOq8'];
+                    startPlaylist(youTubePlayer, TextUtils.join(SEPARATOR, mVideoIds));
+                }
+                else if (mediaUrl != null) {
+                    mVideoId = getVideoId(mediaUrl);
+                    if (mVideoId.toUpperCase().startsWith(PLAYLIST)) {
+                        startPlaylist(youTubePlayer, mVideoId);
+                    } else {
+                        onErrorOnce = true;
+                        YouTubePlayerUtils.loadOrCueVideo(youTubePlayer, getLifecycle(), mVideoId, 0f);
+                    }
+                }
 
                 addActionsToPlayer(youTubePlayer);
                 initPlaybackSpeed(youTubePlayer);
@@ -124,16 +162,29 @@ public class YoutubePlayerFragment extends Fragment
             }
 
             @Override
-            public void onError(YouTubePlayer youTubePlayer, PlayerConstants.PlayerError error)
+            public void onError(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlayerError error)
             {
+                // Error message will be shown in player view by API
                 Timber.w("Youtube url: %s, playback failed: %s", mediaUrl, error);
-                // Error message will be shown in player view
-                // HymnsApp.showToastMessage(R.string.gui_error_playback, error);
-                // playVideoUrlExt(mediaUrl);
+
+                // Try to load as playlist if onError
+                if (onErrorOnce && error.equals(PlayerConstants.PlayerError.VIDEO_CONTENT_RESTRICTION_OR_UNAVAILABLE)) {
+                    onErrorOnce = false;
+                    startPlaylist(youTubePlayer, mVideoId);
+                } else {
+                    // Use external player if playlist playback failed
+                    playVideoUrlExt(mediaUrl);
+                }
             }
 
             @Override
-            public void onPlaybackRateChange(YouTubePlayer youTubePlayer, String rate)
+            public void onVideoUrl(@NotNull YouTubePlayer youTubePlayer, @NotNull String videoUrl)
+            {
+                Timber.w("Youtube videoUrl: %s (%s)", mediaUrl, videoUrl);
+            }
+
+            @Override
+            public void onPlaybackRateChange(@NotNull YouTubePlayer youTubePlayer, @NotNull String rate)
             {
                 mSpeed = Float.parseFloat(rate);
                 Toast.makeText(mContext, mContext.getString(R.string.gui_playback_rate, rate), Toast.LENGTH_SHORT).show();
@@ -142,13 +193,88 @@ public class YoutubePlayerFragment extends Fragment
     }
 
     /**
+     * Enable the Previous & Next button and start playlist playback
+     *
+     * @param youTubePlayer instance of youtube player
+     * @param videoId video PL id or ids for playback
+     */
+    private void startPlaylist(YouTubePlayer youTubePlayer, String videoId)
+    {
+        Drawable nextActionIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_next);
+        assert nextActionIcon != null;
+
+        // Set a click listener on the "Play next video" button
+        youTubePlayerView.getPlayerUiController().setPreviousAction(nextActionIcon,
+                view -> youTubePlayer.previousVideo());
+        youTubePlayerView.getPlayerUiController().setNextAction(nextActionIcon,
+                view -> youTubePlayer.nextVideo());
+
+        if (videoId.contains(SEPARATOR)) {
+            youTubePlayer.loadPlaylist_videoIds(videoId);
+        } else {
+            youTubePlayer.loadPlaylist(videoId, 0);
+        }
+    }
+
+    /**
+     * Extract the youtube videoId from the following string formats:
+     * a. vCKCkc8llaM
+     * b. https://youtu.be/vCKCkc8llaM
+     * c. https://www.youtube.com/playlist?list=PL0KROm2A3S8HaMLBxYPF5kuEEtTYvUJox\
+     *
+     * @param url Any of the above url string
+     * @return the youtube videoId
+     */
+    private String getVideoId(String url)
+    {
+        String mVideoId = url.substring(mediaUrl.lastIndexOf('/') + 1);
+        return mVideoId.substring(mVideoId.lastIndexOf('=') + 1);
+    }
+
+    /**
+     * This method adds a new custom action to the player.
+     * Custom actions are shown next to the Play/Pause button in the middle of the player.
+     */
+    private void addActionsToPlayer(YouTubePlayer youTubePlayer)
+    {
+        Drawable rewindActionIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_rewind);
+        Drawable forwardActionIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_forward);
+
+        Drawable rateIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_speed);
+
+        assert rewindActionIcon != null;
+        assert forwardActionIcon != null;
+        assert rateIcon != null;
+
+        youTubePlayerView.getPlayerUiController().setRewindAction(rewindActionIcon,
+                view -> youTubePlayer.advanceTo(-5.0f));
+
+        youTubePlayerView.getPlayerUiController().setForwardAction(forwardActionIcon,
+                view -> youTubePlayer.advanceTo(15.0f));
+
+        youTubePlayerView.getPlayerUiController().setRateIncAction(rateIcon,
+                view -> {
+                    float tmp = mSpeed + rateStep;
+                    float rate = tmp <= rateMax ? tmp : mSpeed;
+                    youTubePlayer.setPlaybackRate(rate);
+                });
+
+        youTubePlayerView.getPlayerUiController().setRateDecAction(rateIcon,
+                view -> {
+                    float tmp = mSpeed - rateStep;
+                    float rate = tmp >= rateMin ? tmp : mSpeed;
+                    youTubePlayer.setPlaybackRate(rate);
+                });
+    }
+
+    /**
      * Shows the menu button in the player and adds an item to it.
      */
     private void initPlayerMenu()
     {
-        youTubePlayerView.getPlayerUiController()
+        Objects.requireNonNull(youTubePlayerView.getPlayerUiController()
                 .showMenuButton(true)
-                .getMenu()
+                .getMenu())
                 .addItem(new MenuItem("menu item1", R.drawable.ic_speed,
                         view -> Toast.makeText(mContext, "item1 clicked", Toast.LENGTH_SHORT).show())
                 )
@@ -179,50 +305,6 @@ public class YoutubePlayerFragment extends Fragment
     }
 
     /**
-     * This method adds a new custom action to the player.
-     * Custom actions are shown next to the Play/Pause button in the middle of the player.
-     */
-    private void addActionsToPlayer(YouTubePlayer youTubePlayer)
-    {
-        Drawable rewindActionIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_rewind);
-        Drawable fordwardActionIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_forward);
-        Drawable nextActionIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_next);
-
-        Drawable rateIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_speed);
-
-        assert rewindActionIcon != null;
-        assert fordwardActionIcon != null;
-        assert nextActionIcon != null;
-        assert rateIcon != null;
-
-        youTubePlayerView.getPlayerUiController().setRewindAction(rewindActionIcon,
-                view -> youTubePlayer.advanceTo(-5.0f));
-
-        youTubePlayerView.getPlayerUiController().setFordwardAction(fordwardActionIcon,
-                view -> youTubePlayer.advanceTo(15.0f));
-
-        // Set a click listener on the "Play next video" button
-        if (mediaUrls != null && !mediaUrls.isEmpty()) {
-            youTubePlayerView.getPlayerUiController().setNextAction(nextActionIcon,
-                    view -> YouTubePlayerUtils.loadOrCueVideo(youTubePlayer, getLifecycle(), getNextVideoId(), 0f));
-        }
-
-        youTubePlayerView.getPlayerUiController().setRateIncAction(rateIcon,
-                view -> {
-                    float tmp = mSpeed + rateStep;
-                    float rate = tmp <= rateMax ? tmp : mSpeed;
-                    youTubePlayer.setPlaybackRate(rate);
-                });
-
-        youTubePlayerView.getPlayerUiController().setRateDecAction(rateIcon,
-                view -> {
-                    float tmp = mSpeed - rateStep;
-                    float rate = tmp >= rateMin ? tmp : mSpeed;
-                    youTubePlayer.setPlaybackRate(rate);
-                });
-    }
-
-    /**
      * Initialize the Media Player playback speed to the user defined setting
      */
     public void initPlaybackSpeed(YouTubePlayer youTubePlayer)
@@ -238,20 +320,6 @@ public class YoutubePlayerFragment extends Fragment
         //            }
         //        }
         youTubePlayer.setPlaybackRate(mSpeed);
-    }
-
-    private String getNextVideoId()
-    {
-        Random random = new Random();
-        String videoUrl;
-        if (mediaUrls != null && !mediaUrls.isEmpty()) {
-            videoUrl = mediaUrls.get(random.nextInt(mediaUrls.size()));
-        }
-        else {
-            videoUrl = mediaUrl;
-        }
-        Timber.d("Get next video ID: %s", videoUrl);
-        return videoUrl.substring(videoUrl.lastIndexOf('/') + 1);
     }
 
     /**

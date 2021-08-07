@@ -82,7 +82,7 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
  * and link it to a specific hymnType and hymnNo.
  *
  * It includes the capability to import, export or auto generate the export file
- * based on all the media files saved in a specified HymnType/MeidaType sub-directory
+ * based on all the media files saved in a specified HymnType/MediaType sub-directory
  *
  * The format of the export record "," separated: hymnType, HymnNo, isFu, HymnMedia, urlLink, mediaUri
  * a. hymnType: HYMN_BB HYMN_DB, HYMN_ER, HYMN_XB
@@ -136,6 +136,7 @@ public class MediaConfig extends FragmentActivity
     private EditText tvHymnNo;
     private EditText tvMediaUri;
     private EditText tvImportFile;
+    private View mFileView;
 
     // The EditText view to be filled onActivityResult upon user selection
     private TextView mViewRequest;
@@ -196,7 +197,6 @@ public class MediaConfig extends FragmentActivity
 
     private String mHymnType = hymnTypeValue.get(0);
     private MediaType mMediaType = mediaTypeValue.get(0);
-
     private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
     @Override
@@ -243,6 +243,9 @@ public class MediaConfig extends FragmentActivity
         tvMediaUri.addTextChangedListener(new MyTextWatcher(tvMediaUri));
         tvMediaUri.setOnFocusChangeListener(focusListener);
 
+        mFileView = findViewById(R.id.mediaMissing);
+        mFileView.setVisibility(View.GONE);
+
         mViewRequest = tvMediaUri;
         cbFu = findViewById(R.id.cbFu);
         cbFu.setOnCheckedChangeListener((buttonView, isChecked) -> checkEntry());
@@ -254,7 +257,7 @@ public class MediaConfig extends FragmentActivity
             mGetContent.launch("*/*");
         });
 
-        findViewById(R.id.decodeUri).setOnClickListener(this);
+        findViewById(R.id.shareMediaUri).setOnClickListener(this);
         findViewById(R.id.decodeUri).setOnClickListener(this);
 
         cmdAdd = findViewById(R.id.button_add);
@@ -271,6 +274,7 @@ public class MediaConfig extends FragmentActivity
             if (!TextUtils.isEmpty(mediaUri)) {
                 isAutoFilled = false;
                 tvMediaUri.setText(mediaUri);
+                checkMediaAvailable(createMediaRecord());
             }
         }
 
@@ -294,7 +298,7 @@ public class MediaConfig extends FragmentActivity
         btnExport.setOnClickListener(this);
         btnExport.setOnLongClickListener(this);
 
-        findViewById(R.id.button_export_create).setOnClickListener(this);
+        findViewById(R.id.button_import_create).setOnClickListener(this);
         findViewById(R.id.button_db_records).setOnClickListener(this);
 
         mPlayerView = findViewById(R.id.player_container);
@@ -315,6 +319,10 @@ public class MediaConfig extends FragmentActivity
                 playVideoHelp();
                 break;
 
+            case R.id.shareMediaUri:
+                shareMediaRecord();
+                break;
+
             /* Decode the media uri, so it is user readable instead of %xx */
             case R.id.decodeUri:
                 uriDecode();
@@ -327,13 +335,13 @@ public class MediaConfig extends FragmentActivity
                 }
                 break;
 
-            case R.id.button_play:
-                startPlayOrActionView();
-                break;
-
             // Manual deletion must be performed by user if the user modifies the link to point to different HymnType
             case R.id.button_delete:
                 deleteMediaRecord();
+                break;
+
+            case R.id.button_play:
+                startPlayOrActionView();
                 break;
 
             case R.id.button_Exit:
@@ -360,11 +368,11 @@ public class MediaConfig extends FragmentActivity
 
             // Export the database to a text file for sharing
             case R.id.button_export:
-                generateExportFile();
+                createExportFile();
                 break;
 
-            // Auto creates the export file based on the sub-directory media files
-            case R.id.button_export_create:
+            // Auto creates a export file based on the sub-directory media files
+            case R.id.button_import_create:
                 createImportFile();
                 break;
 
@@ -380,7 +388,7 @@ public class MediaConfig extends FragmentActivity
     {
         // Export the database to a text file for sharing
         if (v.getId() == R.id.button_export) {
-            generateExportAll();
+            createExportLink();
             return true;
         }
         return false;
@@ -493,9 +501,12 @@ public class MediaConfig extends FragmentActivity
     {
         if (uriPath.contains(FileBackend.TMP)) {
             File inFile = new File(uriPath);
-            String fileName = inFile.getName();
 
-            File outFile = new File(FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true), fileName);
+            File outFile;
+            if ((outFile = createFile(inFile.getName())) == null) {
+                return null;
+            }
+
             try {
                 if (inFile.renameTo(outFile)) {
                     uriPath = outFile.getAbsolutePath();
@@ -613,29 +624,12 @@ public class MediaConfig extends FragmentActivity
      */
     private boolean updateMediaRecord()
     {
-        String hymnNo = ViewUtil.toString(tvHymnNo);
-        String uriPath = ViewUtil.toString(tvMediaUri);
-
-        boolean isUrlLink = URLUtil.isValidUrl(uriPath);
-        if (!isUrlLink && (uriPath != null) && !new File(uriPath).exists()) {
-            uriPath = null;
-        }
-
-        if ((hymnNo == null) || (uriPath == null)) {
-            HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
-            return false;
-        }
-
-        boolean isFu = cbFu.isChecked();
-        int nui = HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), isFu);
-        if (nui != -1) {
-            String filePath = null;
-            if (!isUrlLink) {
-                filePath = uriPath;
-                uriPath = null;
+        final MediaRecord mRecord = createMediaRecord();
+        if (mRecord != null) {
+            if (!checkMediaAvailable(mRecord)) {
+                return false;
             }
 
-            MediaRecord mRecord = new MediaRecord(mHymnType, nui, isFu, mMediaType, uriPath, filePath);
             if (mDB.getMediaRecord(mRecord, false)) {
                 DialogActivity.showConfirmDialog(this,
                         R.string.gui_to_be_added,
@@ -669,6 +663,57 @@ public class MediaConfig extends FragmentActivity
         return false;
     }
 
+    private boolean checkMediaAvailable(MediaRecord mRecord)
+    {
+        String mediaFile;
+        if (mRecord != null) {
+            if (!TextUtils.isEmpty(mediaFile = mRecord.getMediaFilePath())) {
+                File mFile = new File(mediaFile);
+                if (!mFile.exists()) {
+                    mFileView.setVisibility(View.VISIBLE);
+                    return false;
+                }
+            }
+        }
+        mFileView.setVisibility(View.GONE);
+        return true;
+    }
+
+    /**
+     * create the MediaRecord based on user input parameters
+     *
+     * @return return the newly created mediaRecord, null otherwise
+     */
+    private MediaRecord createMediaRecord()
+    {
+        MediaRecord mediaRecord;
+        String uriPath = ViewUtil.toString(tvMediaUri);
+
+        if ((mediaRecord = MediaRecord.toRecord(uriPath)) == null) {
+            String hymnNo = ViewUtil.toString(tvHymnNo);
+            boolean isUrlLink = URLUtil.isValidUrl(uriPath);
+            if (!isUrlLink && (uriPath != null) && !new File(uriPath).exists()) {
+                uriPath = null;
+            }
+
+            if ((hymnNo == null) || (uriPath == null)) {
+                HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
+                return null;
+            }
+            boolean isFu = cbFu.isChecked();
+            int nui = HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), isFu);
+            if (nui != -1) {
+                String filePath = null;
+                if (!isUrlLink) {
+                    filePath = uriPath;
+                    uriPath = null;
+                }
+                mediaRecord = new MediaRecord(mHymnType, nui, isFu, mMediaType, uriPath, filePath);
+            }
+        }
+        return mediaRecord;
+    }
+
     /**
      * Save the user entry to the DB media record on user confirmation
      *
@@ -680,9 +725,14 @@ public class MediaConfig extends FragmentActivity
         if (filePath != null) {
             if (filePath.contains(FileBackend.TMP)) {
                 File inFile = new File(filePath);
-                String fileName = inFile.getName();
-                String dir = mHymnType + mediaDir.get(mMediaType);
-                File outFile = new File(FileBackend.getHymnchtvStore(dir, true), fileName);
+
+                File subDir = FileBackend.getHymnchtvStore(mHymnType + mediaDir.get(mMediaType), true);
+                if (subDir == null) {
+                    HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
+                    return false;
+                }
+                File outFile = new File(subDir, inFile.getName());
+
                 try {
                     if (!inFile.renameTo(outFile)) {
                         return false;
@@ -735,12 +785,12 @@ public class MediaConfig extends FragmentActivity
                                 String filePath = mRecord.getMediaFilePath();
                                 if (filePath != null) {
                                     File mediaFile = new File(filePath);
-                                    if (mediaFile.exists()) {
-                                        mediaFile.delete();
+                                    if (mediaFile.exists() && !mediaFile.delete()) {
+                                        Timber.w(getString(R.string.gui_delete_media_failed,
+                                                mHymnType, nui));
                                     }
                                 }
                             }
-
                             int row = mDB.deleteMediaRecord(mRecord);
                             HymnsApp.showToastMessage(R.string.gui_delete_media_ok, (row != 0) ? nui : 0);
                             return true;
@@ -751,6 +801,37 @@ public class MediaConfig extends FragmentActivity
                         {
                         }
                     }, null);
+        }
+    }
+
+    /**
+     * check for any unsaved changes and alert user before the exit.
+     */
+    private void shareMediaRecord()
+    {
+        ArrayList<Uri> imageUris = new ArrayList<>();
+        String importFile = ViewUtil.toString(tvImportFile);
+
+        if (importFile != null) {
+            imageUris.add(FileBackend.getUriForFile(this, new File(importFile)));
+            ShareWith.share(this, null, imageUris);
+            return;
+        }
+
+        final MediaRecord mRecord = createMediaRecord();
+        if (mRecord != null) {
+            String mediaFile = mRecord.getMediaFilePath();
+            if (!TextUtils.isEmpty(mediaFile)) {
+                File mFile = new File(mediaFile);
+                if (mFile.exists()) {
+                    imageUris.add(FileBackend.getUriForFile(this, new File(mediaFile)));
+                }
+                else {
+                    HymnsApp.showToastMessage(R.string.gui_share_file_missing,
+                            mediaFile.substring(mediaFile.indexOf("Download")));
+                }
+            }
+            ShareWith.share(this, mRecord.toExportString(), imageUris);
         }
     }
 
@@ -855,12 +936,13 @@ public class MediaConfig extends FragmentActivity
                 return;
 
             boolean isOverWrite = cbOverwrite.isChecked();
-
             String mResult = EncodingUtils.getString(buffer2, "utf-8");
             String[] mList = mResult.split("\r\n|\n");
 
             for (String mRecord : mList) {
                 MediaRecord mediaRecord = MediaRecord.toRecord(mRecord);
+                if (mediaRecord == null)
+                    continue;
 
                 boolean isFu = mediaRecord.isFu();
                 int hymnNo = isFu ? (mediaRecord.getHymnNo() - HYMN_DB_NO_MAX) : mediaRecord.getHymnNo();
@@ -875,58 +957,21 @@ public class MediaConfig extends FragmentActivity
     }
 
     /**
-     * Export the media records in database for the current selected mHymnType and
-     * filename tagged with timeStamp e.g hymn_db-20201212_092033
+     * Export the media records in database for all the HymnType and
+     * filename tagged with timeStamp e.g hymnsAll-20201212_092033
      */
-    private void generateExportFile()
+    private void createExportFile()
     {
-        String fileName = String.format("%s-%s.txt", mHymnType,
+        String fileName = String.format("hymnsAll-%s.txt",
                 new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
 
-        File exportFile = new File(FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true), fileName);
-        try {
-            exportFile.createNewFile();
-        } catch (IOException e) {
-            Timber.w("Failed to create media export file!");
+        File exportFile;
+        if ((exportFile = createFile(fileName)) == null) {
+            return;
         }
-
-        if (exportFile.exists()) {
-            FileWriter fileWriter;
-            try {
-                fileWriter = new FileWriter(exportFile.getAbsolutePath());
-                List<MediaRecord> mediaRecords = mDB.getMediaRecords(mHymnType);
-                if (!mediaRecords.isEmpty()) {
-                    for (MediaRecord mediaRecord : mediaRecords) {
-                        String mRecord = mediaRecord.getExportString();
-                        if (mRecord != null)
-                            fileWriter.write(mRecord);
-                    }
-                    HymnsApp.showToastMessage(R.string.hymn_match, mediaRecords.size());
-                    tvImportFile.setText(exportFile.getPath());
-                    editFile(exportFile.getPath());
-                }
-                else {
-                    HymnsApp.showToastMessage(R.string.hymn_match_none);
-                }
-                fileWriter.close();
-            } catch (IOException e) {
-                Timber.e("Export media record exception: %s", e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Export the media records in database for the all the HymnType and
-     * filename tagged with timeStamp e.g hymn_all-20201212_092033
-     */
-    private void generateExportAll()
-    {
-        String fileName = String.format("hymn_all-%s.txt",
-                new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
-
-        File exportFile = new File(FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true), fileName);
         try {
-            exportFile.createNewFile();
+            if (!exportFile.createNewFile())
+                return;
         } catch (IOException e) {
             Timber.w("Failed to create media export file!");
         }
@@ -941,7 +986,59 @@ public class MediaConfig extends FragmentActivity
                     if (!mediaRecords.isEmpty()) {
                         recordSize += mediaRecords.size();
                         for (MediaRecord mediaRecord : mediaRecords) {
-                            String mRecord = mediaRecord.getExportString();
+                            String mRecord = mediaRecord.toExportString();
+                            if (mRecord != null)
+                                fileWriter.write(mRecord);
+                        }
+                    }
+                }
+                fileWriter.close();
+
+                if (recordSize != 0) {
+                    HymnsApp.showToastMessage(R.string.hymn_match, recordSize);
+                    tvImportFile.setText(exportFile.getPath());
+                    editFile(exportFile.getPath());
+                }
+                else {
+                    HymnsApp.showToastMessage(R.string.hymn_match_none);
+                }
+            } catch (IOException e) {
+                Timber.e("Export media record exception: %s", e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Export the media records in database for the current selected mHymnType and
+     * filename tagged with timeStamp e.g hymn_db-20201212_092033
+     */
+    private void createExportLink()
+    {
+        String fileName = String.format("hymnsLink-%s.txt",
+                new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
+
+        File exportFile;
+        if ((exportFile = createFile(fileName)) == null) {
+            return;
+        }
+        try {
+            if (!exportFile.createNewFile())
+                return;
+        } catch (IOException e) {
+            Timber.w("Failed to create media export file!");
+        }
+
+        if (exportFile.exists()) {
+            int recordSize = 0;
+            FileWriter fileWriter;
+            try {
+                fileWriter = new FileWriter(exportFile.getAbsolutePath());
+                for (String hymnType : hymnTypeValue) {
+                    List<MediaRecord> mediaRecords = mDB.getMediaLinks(hymnType);
+                    if (!mediaRecords.isEmpty()) {
+                        recordSize += mediaRecords.size();
+                        for (MediaRecord mediaRecord : mediaRecords) {
+                            String mRecord = mediaRecord.toExportString();
                             if (mRecord != null)
                                 fileWriter.write(mRecord);
                         }
@@ -969,7 +1066,7 @@ public class MediaConfig extends FragmentActivity
      * b. The only medias supported are in sub-dir: mHymnType + MEDIA_MEDIA
      * c. The hymnNo is extracted from the fileName (without the ext), default to "0000" if none
      * d. User must review and edit the generated text file to update Fu hymn
-     *
+     * <p>
      * Export filename tagged with timeStamp e.g hymn_db-20201212_092033
      */
     private void createImportFile()
@@ -978,14 +1075,12 @@ public class MediaConfig extends FragmentActivity
         String fileName = String.format("%s-%s.txt", mHymnType,
                 new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
 
-        File exportFile = new File(FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true), fileName);
-        try {
-            exportFile.createNewFile();
-        } catch (IOException e) {
-            Timber.w("Failed to create media export file!");
+        File importtFile;
+        if ((importtFile = createFile(fileName)) == null) {
+            return;
         }
 
-        if (exportFile.exists()) {
+        if (importtFile.exists()) {
             File srcPath = FileBackend.getHymnchtvStore(mHymnType + MEDIA_MEDIA, false);
             if ((srcPath != null) && srcPath.isDirectory()) {
                 File[] files = srcPath.listFiles();
@@ -993,7 +1088,7 @@ public class MediaConfig extends FragmentActivity
                     // Sort filename in ascending order i.e. so the export file has its hymnNo in ascending order
                     Arrays.sort(files);
                     try {
-                        FileWriter fileWriter = new FileWriter(exportFile.getAbsolutePath());
+                        FileWriter fileWriter = new FileWriter(importtFile.getAbsolutePath());
                         for (File file : files) {
 
                             // Extract the hymnNo from the fileName with ext stripped
@@ -1013,8 +1108,8 @@ public class MediaConfig extends FragmentActivity
                         HymnsApp.showToastMessage(R.string.hymn_match, files.length);
                         fileWriter.close();
 
-                        tvImportFile.setText(exportFile.getPath());
-                        editFile(exportFile.getPath());
+                        tvImportFile.setText(importtFile.getPath());
+                        editFile(importtFile.getPath());
                     } catch (IOException e) {
                         Timber.e("Create Import File exception: %s", e.getMessage());
                     }
@@ -1024,6 +1119,22 @@ public class MediaConfig extends FragmentActivity
                 }
             }
         }
+    }
+
+    /**
+     * Created a file with the give fileName in the DIR_IMPORT_EXPORT if permitted
+     *
+     * @param fileName of the created file
+     * @return File path of the new file or null if failed
+     */
+    private File createFile(String fileName)
+    {
+        File subDir = FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true);
+        if (subDir == null) {
+            HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
+            return null;
+        }
+        return TextUtils.isEmpty(fileName) ? subDir : new File(subDir, fileName);
     }
 
     /**

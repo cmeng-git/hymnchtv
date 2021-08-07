@@ -21,7 +21,7 @@ interface PlayerUiController {
     /**
      * Set custom action to the right of the Play/Pause button
      */
-    fun setFordwardAction(icon: Drawable, clickListener: View.OnClickListener?): PlayerUiController
+    fun setForwardAction(icon: Drawable, clickListener: View.OnClickListener?): PlayerUiController
     fun setPreviousAction(icon: Drawable, clickListener: View.OnClickListener?): PlayerUiController
     fun setNextAction(icon: Drawable, clickListener: View.OnClickListener?): PlayerUiController
 

@@ -42,7 +42,9 @@ import org.cog.hymnchtv.webview.WebViewFragment;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.util.*;
 
 import timber.log.Timber;
@@ -92,6 +94,7 @@ public class ContentHandler extends FragmentActivity
     private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
     private MediaContentHandler mMediaContentHandler;
 
+    private boolean isHFAvailable = false;
     private boolean isShowPlayerUi;
 
     // Hymn Type and number selected by user
@@ -102,6 +105,8 @@ public class ContentHandler extends FragmentActivity
 
     // Null if there is no corresponding English lyrics
     private Integer hymnNoEng = null;
+    private MyPagerAdapter mPagerAdapter;
+    private ViewPager2 mPager;
 
     public PopupWindow pop;
     public SharedPreferences sPreference;
@@ -127,6 +132,7 @@ public class ContentHandler extends FragmentActivity
         getWindow().setFlags(1024, 1024);
         setContentView(R.layout.content_main);
         registerForContextMenu(findViewById(R.id.linear));
+        checkHFAvailability();
 
         // Attach the media controller player UI; Reuse the fragment if found;
         // do not create/add new, otherwise playerUi setVisibility is no working
@@ -169,10 +175,10 @@ public class ContentHandler extends FragmentActivity
         }
 
         // The pager adapter, which provides the pages to the view pager widget.
-        MyPagerAdapter mPagerAdapter = new MyPagerAdapter(this, mSelect);
+        mPagerAdapter = new MyPagerAdapter(this, mSelect);
 
         // Instantiate a ViewPager2 and a PagerAdapter.
-        ViewPager2 mPager = findViewById(R.id.viewPager);
+        mPager = findViewById(R.id.viewPager);
         // FragmentStatePagerAdapter default seems to create only 2, so omit this statement, otherwise 9 items get created
         // FragmentStateAdapter default created 9, setOffscreenPageLimit has no effet
         // mPager.setOffscreenPageLimit(1);
@@ -195,6 +201,26 @@ public class ContentHandler extends FragmentActivity
     {
         super.onResume();
         showPlayerUi(isShowPlayerUi && HymnsApp.isPortrait);
+    }
+
+    /**
+     * Check to see if heavenlyfood.cn site is accessible with 3s timeout;
+     * Need to execute on new thread for network access
+     */
+    private void checkHFAvailability()
+    {
+        String host = "https://heavenlyfood.cn/";
+        new Thread()
+        {
+            public void run()
+            {
+                try {
+                    isHFAvailable = InetAddress.getByName(host).isReachable(3000);
+                } catch (IOException e) {
+                    Timber.w("URL Exception: %s", e.getMessage());
+                }
+            }
+        }.start();
     }
 
     public void showPlayerUi(boolean show)
@@ -266,6 +292,13 @@ public class ContentHandler extends FragmentActivity
                 showPlayerUi(isShowPlayerUi);
                 return true;
 
+            case R.id.lyrcsTextSizeInc:
+            case R.id.lyrcsTextSizeDec:
+                ContentView contentView = (ContentView) mPagerAdapter.mFragments.get(mPager.getCurrentItem());
+                if (contentView != null)
+                    contentView.setLyricsTextSize(item.getItemId() == R.id.lyrcsTextSizeInc);
+                return true;
+
             case R.id.lyrcsEnglish:
                 if (hymnNoEng == null) {
                     HymnsApp.showToastMessage(R.string.gui_error_english_lyrics_null, hymnNo);
@@ -324,6 +357,11 @@ public class ContentHandler extends FragmentActivity
                 if (tmp != hymnNo) {
                     hymnNo = tmp;
                     updateMediaPlayerInfo();
+
+                    ContentView contentView = (ContentView) mPagerAdapter.mFragments.get(mPager.getCurrentItem());
+                    if (contentView != null)
+                        contentView.setLyricsTextScale();
+
                 }
             }
         };
@@ -339,11 +377,8 @@ public class ContentHandler extends FragmentActivity
     {
         hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mSelect, hymnNo);
 
-        // Check to see if user defined media is available for the current selected HymnType/HymnNo
-        boolean isFu = mSelect.equals(HYMN_DB) && (hymnNo > HYMN_DB_NO_MAX);
-        MediaRecord mediaRecord = new MediaRecord(mSelect, hymnNo, isFu, MediaType.HYMN_MEDIA);
-        boolean isAvailable = mDB.getMediaRecord(mediaRecord, false);
-
+        // Check to see if all the mediaTypes are defined/available for the current user selected HymnType/HymnNo
+        boolean[] isAvailable = getHymnMediaState();
         mMediaGuiController.initHymnInfo(getHymnInfo(), isAvailable);
     }
 
@@ -503,10 +538,10 @@ public class ContentHandler extends FragmentActivity
 
     /**
      * Fetch the required playback media resources from local directory if available.
-     * Otherwise, fetch from online sites with predefined link;
+     * Otherwise, fetch from online sites with the predefined link;
      * else drop to next mediaType for playback
      *
-     * @param mediaType media Type for the playback i.e. midi, BanZhou, JianChang or MP3
+     * @param mediaType       media Type for the playback i.e. midi, BanZhou, JianChang or MP3
      * @param proceedDownLoad download from the specified dnLink if true;
      * @return array of media resource to playback. Usually only one item, two for midi resources
      */
@@ -514,31 +549,26 @@ public class ContentHandler extends FragmentActivity
     {
         List<Uri> uriList = new ArrayList<>();
         String dnLink = "";
+        String fbLink = "";
         String dir = "";
         String tmpName;
 
         /*
-         * Try to fetch the user defined media contents for all user selected media types (first priority).
-         * Proceed to other media handlers if is not handled so in getMediaUris
-         * Otherwise return the returned uriList: may contain empty list,
-         * or a filled uri list of audio links to be playback by caller
-         * Note: a remote media url link will be played via streaming using ExoPlayer without downloading the file
+         * First priority: fetch the user defined media links/contents for the selected hymnType.
+         * An media url link is played via streaming using YoutubePlayer,
+         * or ExoPlayer without downloading the file, to save local storage space.
+         *
+         * An empty uriList is returned when it has been handled/played in the above process;
+         * else media audio link or download link is returned. The media audio content can be
+         * in mp3, mid, midi format. Media video content must not be included.
+         *
+         * Proceed to other media handlers if is not handled in getMediaUris i.e. not defined in DB
          */
         if (mMediaContentHandler.getMediaUris(mSelect, hymnNo, mediaType, uriList)) {
             return uriList;
         }
 
-        /*
-         * Generate the hymn fileName (remove all punctuation marks), and the lyricsPhrase
-         * Currently use in  MP3 media fileName is: ? + hymnNo + hymnTitle + ".mp3"
-         */
-        String pattern = "[，、‘’！：；。？]";
-        String hymnTitle = getHymnInfo().split(":\\s|？|（")[1].replaceAll(pattern, "");
-        // Strip off the hymn category prefix
-        int idx = hymnTitle.lastIndexOf("－");
-        if (idx != -1) {
-            hymnTitle = hymnTitle.substring(idx + 1);
-        }
+        String hymnTitle = getHymnTitle();
         String fileName = hymnNo + hymnTitle + ".mp3";
 
         switch (mSelect) {
@@ -547,7 +577,6 @@ public class ContentHandler extends FragmentActivity
                     case HYMN_MEDIA:
                         // drop down to next level
 
-                        // https://heavenlyfood.cn/hymns/music/er/C1.mp3
                     case HYMN_BANZOU:
                         dir = mSelect + MEDIA_MIDI;
                         tmpName = "C" + hymnNo + ".mid";
@@ -555,6 +584,7 @@ public class ContentHandler extends FragmentActivity
                             return uriList;
                         }
 
+                        // https://heavenlyfood.cn/hymns/music/er/C1.mp3
                         dir = mSelect + MEDIA_BANZOU;
                         fileName = "C" + hymnNo + ".mp3";
                         dnLink = "https://heavenlyfood.cn/hymns/music/er/" + fileName;
@@ -567,8 +597,6 @@ public class ContentHandler extends FragmentActivity
                             return uriList;
                         }
 
-                        // https://heavenlyfood.cn/hymnal/CD专辑/儿童诗歌集/3主的爱/02.大山可以挪开(318).mp3 - currently no supported
-                        // https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/06爱主/C603我爱我的主耶稣.mp3
                     case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
                         fileName = "C" + fileName;
@@ -576,24 +604,30 @@ public class ContentHandler extends FragmentActivity
                             return uriList;
                         }
 
-                        String subLink = "";
-                        for (int x = 0; x < category_er.length; x++) {
-                            if (hymnNo < category_er[x]) {
-                                subLink = String.format(Locale.CHINA, "%02d%s/", (x - 1), hymnCategoryEr[x - 1]);
-                                break;
+                        if (isHFAvailable) {
+                            // https://heavenlyfood.cn/hymnal/CD专辑/儿童诗歌集/3主的爱/02.大山可以挪开(318).mp3 - currently no supported
+                            // https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/06爱主/C603我爱我的主耶稣.mp3
+                            String subLink = "";
+                            for (int x = 0; x < category_er.length; x++) {
+                                if (hymnNo < category_er[x]) {
+                                    subLink = String.format(Locale.CHINA, "%02d%s/", (x - 1), hymnCategoryEr[x - 1]);
+                                    break;
+                                }
                             }
-                        }
 
-                        // Generate the resName for link creation
-                        String resName = ER_Links.get(hymnNo);
-                        if (resName == null) {
-                            resName = fileName;
+                            // Generate the resName for link creation
+                            String resName = ER_Links.get(hymnNo);
+                            if (resName == null) {
+                                resName = fileName;
+                            }
+                            else {
+                                resName = resName + ".mp3";
+                            }
+                            dnLink = "https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/" + subLink + resName;
                         }
-                        else {
-                            resName = resName + ".mp3";
+                        else if (TextUtils.isEmpty(fbLink)) {
+                            fbLink = String.format(Locale.US, "http://www.lightinnj.org/mp3/k-mp3/C%04d.mp3", hymnNo);
                         }
-
-                        dnLink = "https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/" + subLink + resName;
                         break;
                 }
                 break;
@@ -623,21 +657,26 @@ public class ContentHandler extends FragmentActivity
                             return uriList;
                         }
 
-                        // https://heavenlyfood.cn/hymnal/诗歌/新歌颂咏/4召会生活110/X112神生命的种子.mp3
                     case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
                         fileName = "X" + fileName;
 
-                        String subLink = "";
-                        for (int x = 0; x < category_xb.length; x++) {
-                            // dnlink for xB does not use the last hymn category for fetching
-                            if (hymnNo < category_xb[x]) {
-                                subLink = String.format(Locale.CHINA, "%d%s%03d/", x, hymnCategoryXb[x - 1],
-                                        category_xb[x - 1]);
-                                break;
+                        if (isHFAvailable) {
+                            // https://heavenlyfood.cn/hymnal/诗歌/新歌颂咏/4召会生活110/X112神生命的种子.mp3
+                            String subLink = "";
+                            for (int x = 0; x < category_xb.length; x++) {
+                                // dnlink for xB does not use the last hymn category for fetching
+                                if (hymnNo < category_xb[x]) {
+                                    subLink = String.format(Locale.CHINA, "%d%s%03d/", x, hymnCategoryXb[x - 1],
+                                            category_xb[x - 1]);
+                                    break;
+                                }
                             }
+                            dnLink = "https://heavenlyfood.cn/hymnal/诗歌/新歌颂咏/" + subLink + fileName;
                         }
-                        dnLink = "https://heavenlyfood.cn/hymnal/诗歌/新歌颂咏/" + subLink + fileName;
+                        else if (TextUtils.isEmpty(fbLink)) {
+                            fbLink = String.format(Locale.US, "http://g.cgbr.org/music/x/media/%03d.mp3", hymnNo);
+                        }
                         break;
                 }
                 break;
@@ -647,7 +686,6 @@ public class ContentHandler extends FragmentActivity
                     case HYMN_MEDIA:
                         // drop down to next level
 
-                        // https://heavenlyfood.cn/hymns/music/bu/B15.mp3
                     case HYMN_BANZOU:
                         // proceed to use HYMN_BANZOU if no midi files available
                         if (HymnsApp.getFileResId(MIDI_BB + hymnNo, "raw") != 0) {
@@ -656,9 +694,16 @@ public class ContentHandler extends FragmentActivity
                             break;
                         }
 
+                        // https://heavenlyfood.cn/hymns/music/bu/B15.mp3
                         dir = mSelect + MEDIA_BANZOU;
                         fileName = "B" + hymnNo + ".mp3";
-                        dnLink = "https://heavenlyfood.cn/hymns/music/bu/" + fileName;
+
+                        if (isHFAvailable) {
+                            dnLink = "https://heavenlyfood.cn/hymns/music/bu/" + fileName;
+                        }
+                        else if (TextUtils.isEmpty(fbLink)) {
+                            fbLink = String.format(Locale.US, "https://www.hymnal.net/cn/hymn/ts/%d/f=mid", hymnNo);
+                        }
                         break;
 
                     case HYMN_JIAOCHANG:
@@ -668,34 +713,37 @@ public class ContentHandler extends FragmentActivity
                             return uriList;
                         }
 
+                    case HYMN_CHANGSHI:
                         // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B1当我们开口赞美.mp3
-                        // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B5披上喜乐.mp3
                         // https://heavenlyfood.cn/hymnal/诗歌/补充本/00赞美的话/B37赞美荣耀王.mp3
                         // https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命/B123耶稣活在我里面.mp3
                         // https://heavenlyfood.cn/hymnal/诗歌/补充本/01灵与生命/B141神在基督耶稣里成那灵.mp3
                         // https://heavenlyfood.cn/hymnal/诗歌/补充本/05教会的异象/B501基督殿城与地.mp3
                         // https://heavenlyfood.cn/hymnal/诗歌/补充本/05教会的异象/B521来这美妙住处.mp3
-                    case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
                         fileName = "B" + fileName;
 
-                        String subLink = "";
-                        for (int x = 0; x < category_bb.length; x++) {
-                            if (hymnNo < category_bb[x]) {
-                                subLink = String.format(Locale.CHINA, "%02d%s/", (x - 1), hymnCategoryBb[x - 1]);
-                                break;
+                        if (isHFAvailable) {
+                            String subLink = "";
+                            for (int x = 0; x < category_bb.length; x++) {
+                                if (hymnNo < category_bb[x]) {
+                                    subLink = String.format(Locale.CHINA, "%02d%s/", (x - 1), hymnCategoryBb[x - 1]);
+                                    break;
+                                }
                             }
+                            // Generate the resName for link creation
+                            String resName = BB_Links.get(hymnNo);
+                            if (resName == null) {
+                                resName = fileName;
+                            }
+                            else {
+                                resName = resName + ".mp3";
+                            }
+                            dnLink = "https://heavenlyfood.cn/hymnal/诗歌/补充本/" + subLink + resName;
                         }
-
-                        // Generate the resName for link creation
-                        String resName = BB_Links.get(hymnNo);
-                        if (resName == null) {
-                            resName = fileName;
+                        else if (TextUtils.isEmpty(fbLink)) {
+                            fbLink = String.format(Locale.US, "https://www.hymnal.net/cn/hymn/ts/%d/f=sing", hymnNo);
                         }
-                        else {
-                            resName = resName + ".mp3";
-                        }
-                        dnLink = "https://heavenlyfood.cn/hymnal/诗歌/补充本/" + subLink + resName;
                         break;
                 }
                 break;
@@ -705,8 +753,6 @@ public class ContentHandler extends FragmentActivity
                     case HYMN_MEDIA:
                         // drop down to next level
 
-                        // https://heavenlyfood.cn/hymns/music/da/D45.mp3
-                        // https://heavenlyfood.cn/hymns/music/da/D781.mp3
                     case HYMN_BANZOU:
                         // proceed to use HYMN_BANZOU if no midi files available
                         if (HymnsApp.getFileResId(MIDI_DB + hymnNo, "raw") != 0) {
@@ -715,62 +761,80 @@ public class ContentHandler extends FragmentActivity
                             break;
                         }
 
+                        // https://heavenlyfood.cn/hymns/music/da/D45.mp3
+                        // https://heavenlyfood.cn/hymns/music/da/D781.mp3
                         dir = mSelect + MEDIA_BANZOU;
                         fileName = "D" + hymnNo + ".mp3";
-                        dnLink = "https://heavenlyfood.cn/hymns/music/da/" + fileName;
+
+                        if (isHFAvailable) {
+                            dnLink = "https://heavenlyfood.cn/hymns/music/da/" + fileName;
+                        }
+                        else if (TextUtils.isEmpty(fbLink)) {
+                            fbLink = String.format(Locale.US, "https://www.hymnal.net/cn/hymn/ch/%d/f=mid", hymnNo);
+                        }
                         break;
 
-                    // https://heavenlyfood.cn/hymns/jiaochang/da/781.mp3;
                     case HYMN_JIAOCHANG:
+                        // https://heavenlyfood.cn/hymns/jiaochang/da/781.mp3;
+                        // https://heavenlyfood.cn/hymnal/诗歌/大本诗歌/02敬拜父006/D45父神我们称颂你.mp3
+                        // https://heavenlyfood.cn/hymnal/诗歌/大本诗歌/09经历基督367/D422主我还有谁在天上.mp3
+                        // https://heavenlyfood.cn/hymnal/诗歌/大本诗歌/30附/DF1颂赞与尊贵与荣耀归你.mp3
                         dir = mSelect + MEDIA_JIAOCHANG;
                         fileName = hymnNo + ".mp3";
+
                         dnLink = "https://heavenlyfood.cn/hymns/jiaochang/da/" + fileName;
                         break;
 
-                    // https://heavenlyfood.cn/hymnal/诗歌/大本诗歌/02敬拜父006/D45父神我们称颂你.mp3
-                    // https://heavenlyfood.cn/hymnal/诗歌/大本诗歌/09经历基督367/D422主我还有谁在天上.mp3
-                    // https://heavenlyfood.cn/hymnal/诗歌/大本诗歌/30附/DF1颂赞与尊贵与荣耀归你.mp3
                     case HYMN_CHANGSHI:
                         dir = mSelect + MEDIA_CHANGSHI;
                         fileName = "D" + fileName;
 
-                        String subLink = "";
-                        for (int x = 0; x < category_db.length; x++) {
-                            if (hymnNo < category_db[x]) {
+                        if (isHFAvailable) {
+                            String subLink = "";
+                            for (int x = 0; x < category_db.length; x++) {
+                                if (hymnNo < category_db[x]) {
+                                    if (hymnNo > HYMN_DB_NO_MAX) {
+                                        subLink = String.format(Locale.CHINA, "%02d%s/", x, hymnCategoryDb[x - 1]);
+                                    }
+                                    else {
+                                        subLink = String.format(Locale.CHINA, "%02d%s%03d/", x, hymnCategoryDb[x - 1],
+                                                category_db[x - 1]);
+                                    }
+                                    break;
+                                }
+                            }
+
+                            // Generate the resName for link creation
+                            String resName = DB_Links.get(hymnNo);
+                            if (resName == null) {
                                 if (hymnNo > HYMN_DB_NO_MAX) {
-                                    subLink = String.format(Locale.CHINA, "%02d%s/", x, hymnCategoryDb[x - 1]);
+                                    resName = "DF" + (hymnNo - HYMN_DB_NO_MAX) + lyricsPhrase;
                                 }
                                 else {
-                                    subLink = String.format(Locale.CHINA, "%02d%s%03d/", x, hymnCategoryDb[x - 1],
-                                            category_db[x - 1]);
+                                    resName = "D" + hymnNo + lyricsPhrase;
                                 }
-                                break;
                             }
+                            dnLink = "https://heavenlyfood.cn/hymnal/诗歌/大本诗歌/" + subLink + resName + ".mp3";
                         }
-
-                        // Generate the resName for link creation
-                        String resName = DB_Links.get(hymnNo);
-                        if (resName == null) {
-                            if (hymnNo > HYMN_DB_NO_MAX) {
-                                resName = "DF" + (hymnNo - HYMN_DB_NO_MAX) + lyricsPhrase;
-                            }
-                            else {
-                                resName = "D" + hymnNo + lyricsPhrase;
-                            }
+                        else if (TextUtils.isEmpty(fbLink)) {
+                            fbLink = String.format(Locale.US, "https://www.hymnal.net/cn/hymn/ch/%d/f=sing", hymnNo);
                         }
-                        dnLink = "https://heavenlyfood.cn/hymnal/诗歌/大本诗歌/" + subLink + resName + ".mp3";
                         break;
                 }
                 break;
         }
 
         if (!TextUtils.isEmpty(fileName)) {
-            Timber.d("FileName = %s%s; dnLink = %s", dir, fileName, dnLink);
             File mediaFile = new File(FileBackend.getHymnchtvStore(dir, true), fileName);
             if (mediaFile.exists()) {
                 uriList.add(Uri.fromFile(mediaFile));
             }
+            else if (!TextUtils.isEmpty(fbLink) && proceedDownLoad) {
+                Timber.d("FileName = %s%s; fbLink = %s", dir, fileName, fbLink);
+                mMediaDownloadHandler.initHttpFileDownload(fbLink, dir, fileName);
+            }
             else if (!TextUtils.isEmpty(dnLink) && proceedDownLoad) {
+                Timber.d("FileName = %s%s; dnLink = %s", dir, fileName, dnLink);
                 mMediaDownloadHandler.initHttpFileDownload(dnLink, dir, fileName);
             }
         }
@@ -780,9 +844,9 @@ public class ContentHandler extends FragmentActivity
     /**
      * Fetch and init the local media file URI path for play back if any else return false
      *
-     * @param dir the media local dir
+     * @param dir      the media local dir
      * @param fileName the media filename
-     * @param uriList the media URI list
+     * @param uriList  the media URI list
      * @return true if local media file is found else false
      */
     private boolean isExist(String dir, String fileName, List<Uri> uriList)
@@ -793,6 +857,98 @@ public class ContentHandler extends FragmentActivity
             return true;
         }
         return false;
+    }
+
+    private boolean isExist(String dir, String fileName)
+    {
+        File mediaFile = new File(FileBackend.getHymnchtvStore(dir, false), fileName);
+        return mediaFile.exists();
+    }
+
+    /**
+     * Get the local availability of the hymn media content for all mediaType
+     *
+     * @return array of media content availability for all mediaType
+     */
+    private boolean[] getHymnMediaState()
+    {
+        int i = 0;
+        String dir;
+        String hymnTitle = getHymnTitle();
+        boolean[] isAvailable = {false, false, false, false};
+
+        // Check to see if HYMN_MEDIA is available for the current selected HymnType/HymnNo
+        boolean isFu = mSelect.equals(HYMN_DB) && (hymnNo > HYMN_DB_NO_MAX);
+
+        // Get the prefix of the hymn filename
+        String tmpName = "";
+        switch (mSelect) {
+            case HYMN_ER:
+                tmpName = "C" + hymnNo;
+                break;
+            case HYMN_XB:
+                tmpName = "X" + hymnNo;
+                break;
+            case HYMN_BB:
+                isAvailable[1] = HymnsApp.getFileResId(MIDI_BB + hymnNo, "raw") != 0;
+                tmpName = "B" + hymnNo;
+                break;
+            case HYMN_DB:
+                isAvailable[1] = HymnsApp.getFileResId(MIDI_DB + hymnNo, "raw") != 0;
+                tmpName = "D" + hymnNo;
+                break;
+        }
+
+        for (MediaType mediaType : MediaType.values()) {
+            MediaRecord mediaRecord = new MediaRecord(mSelect, hymnNo, isFu, mediaType);
+            isAvailable[i++] |= mDB.getMediaRecord(mediaRecord, false);
+
+            switch (mediaType) {
+                case HYMN_MEDIA:
+                    break;
+
+                case HYMN_BANZOU:
+                    dir = mSelect + MEDIA_MIDI;
+                    if (!isAvailable[1]) {
+                        if (!(isAvailable[1] = isExist(dir, tmpName + ".mid"))) {
+                            dir = mSelect + MEDIA_BANZOU;
+                            isAvailable[1] = isExist(dir, tmpName + ".mp3");
+                        }
+                    }
+                    break;
+
+                case HYMN_JIAOCHANG:
+                    dir = mSelect + MEDIA_JIAOCHANG;
+                    if (!isAvailable[2]) {
+                        isAvailable[2] = isExist(dir, tmpName + ".mp3");
+                    }
+                    break;
+
+                case HYMN_CHANGSHI:
+                    dir = mSelect + MEDIA_CHANGSHI;
+                    if (!isAvailable[3]) {
+                        isAvailable[3] = isExist(dir, tmpName + hymnTitle + ".mp3");
+                    }
+                    break;
+            }
+        }
+        return isAvailable;
+    }
+
+    /**
+     * Generate the hymn fileName (remove all punctuation marks), and the lyricsPhrase
+     * Currently use in  MP3 media fileName is: ? + hymnNo + hymnTitle + ".mp3"
+     */
+    private String getHymnTitle()
+    {
+        String pattern = "[，、‘’！：；。？]";
+        String hymnTitle = getHymnInfo().split(":\\s|？|（")[1].replaceAll(pattern, "");
+        // Strip off the hymn category prefix
+        int idx = hymnTitle.lastIndexOf("－");
+        if (idx != -1) {
+            hymnTitle = hymnTitle.substring(idx + 1);
+        }
+        return hymnTitle;
     }
 
     /**
@@ -904,6 +1060,10 @@ public class ContentHandler extends FragmentActivity
     public void onConfigurationChanged(@NotNull Configuration newConfig)
     {
         super.onConfigurationChanged(newConfig);
+        ContentView contentView = (ContentView) mPagerAdapter.mFragments.get(mPager.getCurrentItem());
+        if (contentView != null)
+            contentView.setLyricsTextScale();
+
         if (HymnsApp.isPortrait) {
             if (mPlayerContainer.getVisibility() == View.VISIBLE) {
                 showPlayerUi(false);

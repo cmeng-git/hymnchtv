@@ -192,7 +192,9 @@ internal class LegacyYouTubePlayerView(context: Context, attrs: AttributeSet? = 
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     internal fun onStop() {
-        youTubePlayer.pause()
+        // W/cr_AwContents: Application attempted to call on a destroyed WebView
+        if (youTubePlayer.isShown)
+            youTubePlayer.pause()
         playbackResumer.onLifecycleStop()
         canPlay = false
     }

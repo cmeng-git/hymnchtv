@@ -17,15 +17,16 @@
 package org.cog.hymnchtv;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.*;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import org.cog.hymnchtv.glide.MyGlideApp;
 import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
@@ -41,6 +42,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 
 /**
  * The class displays the hymn lyrics content selected by user;
@@ -50,7 +52,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_XB;
  *
  * @author Eng Chong Meng
  */
-public class ContentView extends Fragment
+public class ContentView extends Fragment implements ZoomTextView.ZoomTextListener
 {
     public static String LYRICS_ER_SCORE = "lyrics_er_score/";
     public static String LYRICS_XB_SCORE = "lyrics_xb_score/";
@@ -70,28 +72,58 @@ public class ContentView extends Fragment
     public final static String LYRICS_TYPE = "lyricsType";
     public final static String LYRICS_INDEX = "lyricsIndex";
 
-    private View lyricsView;
+    public static final String PREF_LYRICS_SCALE_P = "LyricsScaleP";
+    public static final String PREF_LYRICS_SCALE_L = "LyricsScaleL";
+
+    private FragmentActivity mContext;
+
     private View mConvertView;
+    private View lyricsView;
+    ZoomTextView lyricsTextView;
+
     private ImageView mContentView = null;
     private Integer hymnNoEng = null;
 
+    private static float lyricsScaleP;
+    private static float lyricsScaleL;
+
+    private SharedPreferences mSharedPref;
+    private SharedPreferences.Editor mEditor;
+
     // Need this to prevent crash on rotation if there are other constructors implementation
-    // public ContentView()
-    // {
-    // }
+    // public ContentView() { }
+
+    @Override
+    public void onAttach(@NonNull @NotNull Context context)
+    {
+        super.onAttach(context);
+        mContext = (FragmentActivity) context;
+
+        mSharedPref = mContext.getSharedPreferences(PREF_SETTINGS, 0);
+        mEditor = mSharedPref.edit();
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
         mConvertView = inflater.inflate(R.layout.content_lyrics, container, false);
-        lyricsView = mConvertView.findViewById(R.id.lyricsView);
         mContentView = mConvertView.findViewById(R.id.contentView);
 
-        String lyricsType = getArguments().getString(LYRICS_TYPE);
-        int lyricsIndex = getArguments().getInt(LYRICS_INDEX);
+        lyricsView = mConvertView.findViewById(R.id.lyricsView);
+        lyricsTextView = mConvertView.findViewById(R.id.contentViewCh_txt);
+        lyricsTextView.registerZoomTextListener(this);
 
-        if (!TextUtils.isEmpty(lyricsType)) {
-            updateHymnContent(lyricsType, lyricsIndex);
+        lyricsScaleP = mSharedPref.getFloat(PREF_LYRICS_SCALE_P, 1.0f);
+        lyricsScaleL = mSharedPref.getFloat(PREF_LYRICS_SCALE_L, 1.0f);
+
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            String lyricsType = getArguments().getString(LYRICS_TYPE);
+            int lyricsIndex = getArguments().getInt(LYRICS_INDEX);
+
+            if (!TextUtils.isEmpty(lyricsType)) {
+                updateHymnContent(lyricsType, lyricsIndex);
+            }
         }
         return mConvertView;
     }
@@ -108,6 +140,19 @@ public class ContentView extends Fragment
     {
         unregisterForContextMenu(lyricsView);
         super.onPause();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onCreateContextMenu(@NotNull ContextMenu menu, @NotNull View v, ContextMenu.ContextMenuInfo menuInfo)
+    {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        mContext.getMenuInflater().inflate(R.menu.content_menu, menu);
+
+        // Hide "英文歌词" if no associated English lyrics
+        menu.findItem(R.id.lyrcsEnglish).setVisible(hymnNoEng != null);
     }
 
     /**
@@ -232,9 +277,7 @@ public class ContentView extends Fragment
      */
     private void showLyricsChText(String resFName)
     {
-        ZoomTextView lyricsTextView = mConvertView.findViewById(R.id.contentViewCh_txt);
-        lyricsTextView.setTextSize(HymnsApp.isPortrait ? 20 : 35);
-
+        setLyricsTextScale();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().getAssets().open(resFName)));
             StringBuilder lyrics = new StringBuilder();
@@ -251,15 +294,42 @@ public class ContentView extends Fragment
     }
 
     /**
-     * {@inheritDoc}
+     * Update the lyrics text view default size and the stored scale factor
+     * Also being used onConfiguration change
+     */
+    public void setLyricsTextScale()
+    {
+        if (HymnsApp.isPortrait)
+            lyricsTextView.scaleTextSize(20, lyricsScaleP);
+        else
+            lyricsTextView.scaleTextSize(35, lyricsScaleL);
+    }
+
+    /**
+     * Increase or decrease the lyrics text scale factor
+     * @param stepInc true if size increment else decrement
+     */
+    public void setLyricsTextSize(boolean stepInc)
+    {
+        lyricsTextView.onTextSizeChange(stepInc);
+    }
+
+    /**
+     * Save the user selected scale factory to preference settings
+     * @param scaleFactor scale factor
      */
     @Override
-    public void onCreateContextMenu(@NotNull ContextMenu menu, @NotNull View v, ContextMenu.ContextMenuInfo menuInfo)
+    public void updateTextScale(Float scaleFactor)
     {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        getActivity().getMenuInflater().inflate(R.menu.content_menu, menu);
-
-        // Hide "英文歌词" if no associated English lyrics
-        menu.findItem(R.id.lyrcsEnglish).setVisible(hymnNoEng != null);
+        if (HymnsApp.isPortrait) {
+            lyricsScaleP = scaleFactor;
+            mEditor.putFloat(PREF_LYRICS_SCALE_P, scaleFactor);
+        }
+        else {
+            lyricsScaleL = scaleFactor;
+            mEditor.putFloat(PREF_LYRICS_SCALE_L, scaleFactor);
+        }
+        mEditor.apply();
     }
+
 }
