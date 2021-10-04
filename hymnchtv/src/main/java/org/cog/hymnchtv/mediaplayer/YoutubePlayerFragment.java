@@ -1,15 +1,16 @@
-package org.cog.hymnchtv;
+package org.cog.hymnchtv.mediaplayer;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+import static org.cog.hymnchtv.MediaGuiController.PREF_PLAYBACK_SPEED;
+import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URL;
+import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URLS;
+
+import android.content.*;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -25,6 +26,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTube
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.MenuItem;
 
+import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.utils.FullScreenHelper;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,13 +34,11 @@ import java.util.*;
 
 import timber.log.Timber;
 
-import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
-import static org.cog.hymnchtv.MediaExoPlayerFragment.ATTR_MEDIA_URL;
-import static org.cog.hymnchtv.MediaExoPlayerFragment.ATTR_MEDIA_URLS;
-import static org.cog.hymnchtv.MediaGuiController.PREF_PLAYBACK_SPEED;
-
 public class YoutubePlayerFragment extends Fragment
 {
+    // regression to check for valid youtube link
+    public static final String URL_YOUTUBE = "http[s]*://[w.]*youtu[.]*be.*";
+
     private YouTubePlayerView youTubePlayerView;
     private FullScreenHelper fullScreenHelper;
 
@@ -67,8 +67,8 @@ public class YoutubePlayerFragment extends Fragment
     private boolean onErrorOnce = true;
 
     // Playback ratio of normal speed constants.
-    private static final float rateMin = 0.6f;
-    private static final float rateMax = 1.4f;
+    public static final float rateMin = 0.6f;
+    public static final float rateMax = 1.4f;
     private static final float rateStep = 0.1f;
     private float mSpeed = 1.0f;
 
@@ -150,12 +150,12 @@ public class YoutubePlayerFragment extends Fragment
                     mVideoId = getVideoId(mediaUrl);
                     if (mVideoId.toUpperCase().startsWith(PLAYLIST)) {
                         startPlaylist(youTubePlayer, mVideoId);
-                    } else {
+                    }
+                    else {
                         onErrorOnce = true;
                         YouTubePlayerUtils.loadOrCueVideo(youTubePlayer, getLifecycle(), mVideoId, 0f);
                     }
                 }
-
                 addActionsToPlayer(youTubePlayer);
                 initPlaybackSpeed(youTubePlayer);
                 addFullScreenListenerToPlayer();
@@ -171,7 +171,8 @@ public class YoutubePlayerFragment extends Fragment
                 if (onErrorOnce && error.equals(PlayerConstants.PlayerError.VIDEO_CONTENT_RESTRICTION_OR_UNAVAILABLE)) {
                     onErrorOnce = false;
                     startPlaylist(youTubePlayer, mVideoId);
-                } else {
+                }
+                else {
                     // Use external player if playlist playback failed
                     playVideoUrlExt(mediaUrl);
                 }
@@ -211,7 +212,8 @@ public class YoutubePlayerFragment extends Fragment
 
         if (videoId.contains(SEPARATOR)) {
             youTubePlayer.loadPlaylist_videoIds(videoId);
-        } else {
+        }
+        else {
             youTubePlayer.loadPlaylist(videoId, 0);
         }
     }
@@ -311,14 +313,6 @@ public class YoutubePlayerFragment extends Fragment
     {
         String speed = mSharedPref.getString(PREF_PLAYBACK_SPEED, "1.0");
         mSpeed = Float.parseFloat(speed);
-
-        //        for (int i = 0; i < mpSpeedValues.length; i++) {
-        //            if (mpSpeedValues[i].equals(speed)) {
-        //                 HymnsApp.showToastMessage("Set playback rate to: " + speed);
-        //                 playbackSpeed.setSelection(i);
-        //                break;
-        //            }
-        //        }
         youTubePlayer.setPlaybackRate(mSpeed);
     }
 

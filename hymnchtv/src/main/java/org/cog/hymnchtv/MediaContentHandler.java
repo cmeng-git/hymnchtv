@@ -16,9 +16,12 @@
  */
 package org.cog.hymnchtv;
 
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.Intent;
+import static org.cog.hymnchtv.MainActivity.HYMN_DB;
+import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URL;
+import static org.cog.hymnchtv.mediaplayer.YoutubePlayerFragment.URL_YOUTUBE;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
+
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -30,16 +33,13 @@ import androidx.fragment.app.Fragment;
 
 import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.mediaconfig.MediaRecord;
+import org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment;
+import org.cog.hymnchtv.mediaplayer.YoutubePlayerFragment;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 
 import java.io.File;
 import java.util.List;
-
-import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MediaExoPlayerFragment.ATTR_MEDIA_URL;
-import static org.cog.hymnchtv.MediaExoPlayerFragment.URL_YOUTUBE;
-import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 
 /**
  * The class handles the actual content source address decoding for the user selected hymn
@@ -92,7 +92,6 @@ public class MediaContentHandler
      *
      * @param mediaUrl for
      * @param uriList a url list to be populated for any unhandled link
-     *
      * @return true if given mediaUrl can be playback/a valid link; else false
      */
     private boolean getUriList(String mediaUrl, List<Uri> uriList)
@@ -104,7 +103,7 @@ public class MediaContentHandler
             // uriString is an external URL; check to ensure it is not just a download link
             if (URLUtil.isValidUrl(mediaUrl)) {
                 if ((!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio")))
-                    || mediaUrl.matches(URL_YOUTUBE)) {
+                        || mediaUrl.matches(URL_YOUTUBE)) {
                     playMediaUrl(mediaUrl);
                 }
                 else {

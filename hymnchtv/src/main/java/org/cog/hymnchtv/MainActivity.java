@@ -25,8 +25,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
+import android.os.*;
 import android.text.TextUtils;
 import android.view.*;
 import android.widget.*;
@@ -51,7 +50,6 @@ import timber.log.Timber;
 import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
 import static org.cog.hymnchtv.HymnToc.hymnTocPage;
 import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
-import static org.cog.hymnchtv.utils.ZoomTextView.MAX_SCALE_FACTOR;
 
 /**
  * MainActivity: The hymnchtv app main user interface.
@@ -122,7 +120,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     private int fontSize = FONT_SIZE_DEFAULT;
     private int fontColor = Color.BLACK;
-    private float lyricsScaleFactor = MAX_SCALE_FACTOR;
 
     private String sNumber = "";
     private String tocPage;
@@ -153,12 +150,12 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
         // allow 15 seconds wait for first launch before showing history log
         // new ChangeLog(this).getLogDialog().show();
-        runOnUiThread(() -> new Handler().postDelayed(() -> {
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
             ChangeLog cl = new ChangeLog(this);
             if (cl.isFirstRun() && !isFinishing()) {
                 cl.getLogDialog().show();
             }
-        }, 15000));
+        }, 15000);
 
         // 儿童诗歌
         btn_er.setOnClickListener(v -> onHymnButtonClicked(HYMN_ER));
@@ -461,7 +458,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     public boolean onCreateOptionsMenu(Menu menu)
     {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.main_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
 
         // if (BuildConfig.DEBUG) {
         //     menu.findItem(R.id.sn_convert).setVisible(true);
@@ -478,7 +475,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      */
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)
     {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_main, menu);
     }
 
     /**

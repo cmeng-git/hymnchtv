@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.cog.hymnchtv.service.audioservice;
+package org.cog.hymnchtv.mediaplayer;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,13 +26,13 @@ import android.text.TextUtils;
 import androidx.core.app.JobIntentService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.FileBackend;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import timber.log.Timber;
@@ -182,6 +182,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
                 String speed = intent.getType();
                 if (!TextUtils.isEmpty(speed)) {
                     playbackSpeed = Float.parseFloat(speed);
+                    setPlaybackSpeed();
                 }
                 break;
 
@@ -260,7 +261,8 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
                 mPlayer.setDataSource(this, uri);
             }
             mPlayer.prepare();
-        } catch (IOException e) {
+        } catch (IOException | IllegalStateException e) {
+            HymnsApp.showToastMessage(R.string.gui_error_media_url_invalid, uri);
             Timber.e("Media player creation error for: %s", uri.getPath());
             playerRelease(uri);
             return false;
@@ -358,7 +360,8 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
         Timber.w("start player for: %s", fileUri.getLastPathSegment());
         mPlayer = uriPlayers.get(uri);
         if (mPlayer == null) {
-            playerCreate(uri);
+            if (!playerCreate(uri))
+                return;
         }
         else if (mPlayer.isPlaying()) {
             return;
@@ -374,7 +377,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
             mPlayer.start();
             playbackState(PlaybackState.play, uri);
         } catch (Exception e) {
-            Timber.e("Playback failed");
+            Timber.e("Playback failed: %s", e.getMessage());
             playerRelease(uri);
         }
         mHandlerPlayback.removeCallbacks(playbackStatus);
@@ -407,12 +410,40 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
     }
 
     /**
+     * Setting of playback speed is only support in Android.M
+     */
+    private void setPlaybackSpeed()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            for (Map.Entry<Uri, MediaPlayer> entry : uriPlayers.entrySet()) {
+                MediaPlayer player = entry.getValue();
+                Uri uri = entry.getKey();
+                if (player == null)
+                    continue;
+
+                try {
+                    PlaybackParams playPara = player.getPlaybackParams().setSpeed(playbackSpeed);
+                    player.setPlaybackParams(playPara);
+
+                    // Update player state: play will start upon speed change if it was in pause state
+                    playbackState(PlaybackState.play, uri);
+                } catch (IllegalStateException e) {
+                    Timber.e("Playback setSpeed failed: %s", e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
      * Release the player resource and remove it from uriPlayers
      *
      * @param uri the media file uri
      */
     private void playerRelease(Uri uri)
     {
+        if (uri == null)
+            return;
+
         mPlayer = uriPlayers.get(uri);
         if (mPlayer != null) {
             mPlayer.seekTo(0);
@@ -453,13 +484,18 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      * Routine to check loop action, and ensure multiple uri playback are synchronized (within for loop delay < 10ms)
      * Note: the midi main and accompany may have a slightly different length
      *
-     * @param mp the mediaplayer that has completed current loop playback
+     * @param mp the mediaPlayer that has completed current loop playback
      */
     private void checkLoopSyncAction(MediaPlayer mp)
     {
         // Decrement and update mp player loop counter in playbackCounts
-        Integer count = playbackCounts.get(mp) - 1;
-        playbackCounts.put(mp, count);
+        Integer count = playbackCounts.get(mp);
+        if (count == null || count <= 0) {
+            playerRelease(getUriByPlayer(mp));
+            return;
+        }
+
+        playbackCounts.put(mp, --count);
         Set<MediaPlayer> mps = playbackCounts.keySet();
 
         boolean mpRestart = true;
@@ -695,6 +731,11 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
     {
         File voiceFile = null;
         File mediaDir = FileBackend.getHymnchtvStore(FileBackend.MEDIA_VOICE_SEND, true);
+        if (mediaDir == null) {
+            HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
+            return null;
+        }
+
         if (!mediaDir.exists() && !mediaDir.mkdirs()) {
             Timber.w("Fail to create Media voice directory!");
             return null;

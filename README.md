@@ -49,7 +49,6 @@
 
 ##### 该项目中使用的库源：
 * [Android Support Library](https://developer.android.com/topic/libraries/support-library/index.html)
-* [android-youtubeExtractor](https://github.com/HaarigerHarald/android-youtubeExtractor)
 * [android-youtube-player](https://github.com/PierfrancescoSoffritti/android-youtube-player)
 * [annotations-java5](https://mvnrepository.com/artifact/org.jetbrains/annotations)
 * [Apache HttpCore](https://hc.apache.org/httpcomponents-core-4.4.x/httpcore/dependency-info.html)

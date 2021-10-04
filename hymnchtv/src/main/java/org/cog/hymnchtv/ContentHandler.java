@@ -16,39 +16,6 @@
  */
 package org.cog.hymnchtv;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.PopupWindow;
-
-import androidx.fragment.app.FragmentActivity;
-import androidx.viewpager2.widget.ViewPager2;
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
-
-import org.apache.http.util.EncodingUtils;
-import org.apache.http.util.TextUtils;
-import org.cog.hymnchtv.mediaconfig.MediaRecord;
-import org.cog.hymnchtv.persistance.DatabaseBackend;
-import org.cog.hymnchtv.persistance.FileBackend;
-import org.cog.hymnchtv.utils.*;
-import org.cog.hymnchtv.webview.WebViewFragment;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
-import java.util.*;
-
-import timber.log.Timber;
-
 import static org.cog.hymnchtv.ContentView.LYRICS_BBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
@@ -68,6 +35,35 @@ import static org.cog.hymnchtv.MainActivity.PREF_MENU_SHOW;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
+
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.*;
+import android.widget.FrameLayout;
+import android.widget.PopupWindow;
+
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.widget.ViewPager2;
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
+
+import org.apache.http.util.EncodingUtils;
+import org.apache.http.util.TextUtils;
+import org.cog.hymnchtv.mediaconfig.MediaRecord;
+import org.cog.hymnchtv.persistance.DatabaseBackend;
+import org.cog.hymnchtv.persistance.FileBackend;
+import org.cog.hymnchtv.utils.*;
+import org.cog.hymnchtv.webview.WebViewFragment;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.*;
+import java.net.InetAddress;
+import java.util.*;
+
+import timber.log.Timber;
 
 /**
  * The class handles the actual content source address decoding for the user selected hymn
@@ -541,7 +537,7 @@ public class ContentHandler extends FragmentActivity
      * Otherwise, fetch from online sites with the predefined link;
      * else drop to next mediaType for playback
      *
-     * @param mediaType       media Type for the playback i.e. midi, BanZhou, JianChang or MP3
+     * @param mediaType media Type for the playback i.e. midi, BanZhou, JianChang or MP3
      * @param proceedDownLoad download from the specified dnLink if true;
      * @return array of media resource to playback. Usually only one item, two for midi resources
      */
@@ -844,9 +840,9 @@ public class ContentHandler extends FragmentActivity
     /**
      * Fetch and init the local media file URI path for play back if any else return false
      *
-     * @param dir      the media local dir
+     * @param dir the media local dir
      * @param fileName the media filename
-     * @param uriList  the media URI list
+     * @param uriList the media URI list
      * @return true if local media file is found else false
      */
     private boolean isExist(String dir, String fileName, List<Uri> uriList)

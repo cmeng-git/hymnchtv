@@ -98,9 +98,10 @@
 
             <EditText
                 android:id="@+id/repeatCount"
-                android:layout_width="wrap_content"
+                android:background="@null"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="-15dp"
+                android:layout_marginStart="-5dp"
                 android:inputType="number"
                 android:maxLines="1"
                 android:textSize="16sp" />

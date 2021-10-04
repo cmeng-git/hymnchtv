@@ -39,6 +39,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import org.apache.http.util.EncodingUtils;
 import org.cog.hymnchtv.*;
+import org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
@@ -66,13 +67,13 @@ import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
-import static org.cog.hymnchtv.MediaExoPlayerFragment.ATTR_MEDIA_URL;
-import static org.cog.hymnchtv.MediaExoPlayerFragment.ATTR_MEDIA_URLS;
-import static org.cog.hymnchtv.MediaExoPlayerFragment.URL_YOUTUBE;
+import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URL;
+import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URLS;
 import static org.cog.hymnchtv.MediaType.HYMN_BANZOU;
 import static org.cog.hymnchtv.MediaType.HYMN_CHANGSHI;
 import static org.cog.hymnchtv.MediaType.HYMN_JIAOCHANG;
 import static org.cog.hymnchtv.MediaType.HYMN_MEDIA;
+import static org.cog.hymnchtv.mediaplayer.YoutubePlayerFragment.URL_YOUTUBE;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 
 /**

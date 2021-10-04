@@ -59,6 +59,7 @@
     <string name="gui_error">错误</string>
     <string name="gui_error_hymn_config">输入错误: 未输入诗歌号码或媒体链接</string>
     <string name="gui_error_invalid">输入错误: 未按目录或输入(附)号码</string>
+    <string name="gui_error_media_url_invalid">提供的媒体网址不正确: %s</string>
     <string name="gui_error_playback">无法解码视频链接或进行播放: %1$s</string>
     <string name="gui_error_search_empty">请输入内容进行搜索</string>
     <string name="gui_error_file_not_found">（无法取得文件: %1$s）</string>

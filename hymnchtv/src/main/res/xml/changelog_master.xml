@@ -6,6 +6,14 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.6.2 (10/04/2021)" versioncode="106020">
+        <change>允许在音频媒体播放器播放中设置播放速度。</change>
+        <change>修复当用户提供不正确媒体链接进行播放时，导致应用程序崩溃。</change>
+        <change>当提供的媒体链接不适合播放时，显示用户错误讯息。</change>
+        <change>删除未使用的 youtubeExtractor 源代码。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.6.1 (08/07/2021)" versioncode="106010">
         <change>在上下文菜单中添加歌词文本大小更改选项，并简化用户歌词文本界面。</change>
         <change>用户选择的歌词文本大小比例因子将被保存、恢复并应用于现有的和所有新诗歌内容显示。</change>
@@ -15,7 +23,6 @@
         <change>在媒体配置中，用户可以与其他用户&lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0070'&gt;共享&lt;/a&gt;单个媒体记录，或导出记录/链接文本文件。</change>
         <change>用户定义媒体配置： 媒体内容可包含youtube单曲/播放列表的链接，视频/音频媒体文件链接，或音频媒体的下载网址其可包含mp3和midi格式。</change>
         <change>Youtube 播放器现在支持单曲或播放列表。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.6.0 (06/26/2021)" versioncode="106000">

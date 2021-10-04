@@ -51,7 +51,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import org.cog.hymnchtv.service.audioservice.AudioBgService;
+import org.cog.hymnchtv.mediaplayer.AudioBgService;
 import org.cog.hymnchtv.utils.ViewUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,7 +65,7 @@ import timber.log.Timber;
 
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
-import static org.cog.hymnchtv.service.audioservice.AudioBgService.PlaybackState;
+import static org.cog.hymnchtv.mediaplayer.AudioBgService.PlaybackState;
 
 /**
  * Class implements the media player UI. It provides the full media playback control
@@ -151,9 +151,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private ContentHandler mContentHandler;
 
     // Need this to prevent crash on rotation if there are other constructors implementation
-    // public MediaGuiController()
-    // {
-    // }
+    // public MediaGuiController() { }
 
     @Override
     public void onAttach(@NonNull @NotNull Context context)
@@ -597,6 +595,8 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     {
         boolean isLoop = cbPlaybackLoop.isChecked();
         edLoopCount.setVisibility(isLoop ? View.VISIBLE : View.GONE);
+        if (isLoop)
+            edLoopCount.requestFocus();
 
         String loopValue = ViewUtil.toString(edLoopCount);
         setPlaybackLoopCount(loopValue);

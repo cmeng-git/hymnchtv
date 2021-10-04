@@ -90,7 +90,6 @@
 
             <Button
                 android:id="@+id/n7"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -100,7 +99,6 @@
 
             <Button
                 android:id="@+id/n8"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -110,7 +108,6 @@
 
             <Button
                 android:id="@+id/n9"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -136,7 +133,6 @@
 
             <Button
                 android:id="@+id/n4"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -146,7 +142,6 @@
 
             <Button
                 android:id="@+id/n5"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -156,7 +151,6 @@
 
             <Button
                 android:id="@+id/n6"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -182,7 +176,6 @@
 
             <Button
                 android:id="@+id/n1"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -192,7 +185,6 @@
 
             <Button
                 android:id="@+id/n2"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -202,7 +194,6 @@
 
             <Button
                 android:id="@+id/n3"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -228,7 +219,6 @@
 
             <Button
                 android:id="@+id/n10"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -238,7 +228,6 @@
 
             <Button
                 android:id="@+id/n0"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -248,7 +237,6 @@
 
             <Button
                 android:id="@+id/n11"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"
@@ -258,7 +246,6 @@
 
             <Button
                 android:id="@+id/bs_db"
-                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="fill_parent"
                 android:layout_weight="1"

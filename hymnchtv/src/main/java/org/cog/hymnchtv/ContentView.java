@@ -149,7 +149,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     public void onCreateContextMenu(@NotNull ContextMenu menu, @NotNull View v, ContextMenu.ContextMenuInfo menuInfo)
     {
         super.onCreateContextMenu(menu, v, menuInfo);
-        mContext.getMenuInflater().inflate(R.menu.content_menu, menu);
+        mContext.getMenuInflater().inflate(R.menu.menu_content, menu);
 
         // Hide "英文歌词" if no associated English lyrics
         menu.findItem(R.id.lyrcsEnglish).setVisible(hymnNoEng != null);
