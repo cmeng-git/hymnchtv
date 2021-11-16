@@ -128,6 +128,9 @@ public class MediaRecord
      */
     public static MediaRecord toRecord(String mRecord)
     {
+        if (TextUtils.isEmpty(mRecord))
+            return null;
+
         mRecord = mRecord.trim().replaceAll("[ ]*[,\t][ ]*", ",");
         String[] recordItem = mRecord.split(",");
 

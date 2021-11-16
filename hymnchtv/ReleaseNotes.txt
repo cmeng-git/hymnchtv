@@ -1,6 +1,14 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    11/16/2021
+Version:        1.6.3 (106030)
+- Fixed crashes when user clicks share link without a valid media info entry
+- Upgrade build to support android-12(S) i.e. API-31
+
+
+=========================================================================
+Author:         cmeng
 Upload Date:    09/20/2021
 Version:        1.6.2 (106020)
 - Allow dynamic setting of playback speed in audio mediaPlayer playback

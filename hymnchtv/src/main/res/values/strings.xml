@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">诗歌本</string>
-    <string name="app_title_main">书拉密女小站-诗歌本</string>
+    <string name="app_title_main">书拉密女-诗歌本</string>
 
     <string name="gui_about">关于</string>
     <string name="gui_add">加添</string>
@@ -260,6 +260,7 @@
     <string name="permission_storage_rational">%1$s 被拒絕。诗歌本可能會出錯，直到您在 [App info | Permissions] 授予權限</string>
 
     <string name="content_about">关于本诗歌软体:
+        &lt;br/>应用程序中使用的所有媒体内容：歌词和歌曲文本等，版权归台湾福音书房所有。
         &lt;br/>首先谢谢网络上的弟兄破碎提供诗歌的源材料。此诗歌本应用程序，原版由书拉密女小站(http://shulami02.net/bbs)个人开发;
         &lt;br/>&lt;br/>近日由新作者，全程序重写改进，并添加新功能。如果有发现出错或建议，请到
         &lt;a href="https://github。com/cmeng-git/hymnchtv/issues">此网址 &lt;/a>提出意见。

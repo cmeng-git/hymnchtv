@@ -12,9 +12,7 @@ All the files are now tagged with hymn number instead of android resource runnin
 b.java
 
 * 大本诗歌 lyrics contents:<br/>
-Note: The traditional chinese hymn lyrics text contains only partial hymn titles.
-<br/>They are not used currently for context searching nor display
-<br/>Sub-directories: lyrics_db_score, lyrics_db_text, lyrics_dbs_text
+Note: The traditional Chinese hymn lyrics text contains only partial hymn titles.<br/>They are not used currently for context searching nor display<br/>Sub-directories: lyrics_db_score, lyrics_db_text, lyrics_dbs_text
 
 * 补充本 lyrics contents:<br/>
 Sub-directories: lyrics_bb_score, lyrics_bb_text, lyrics_bbs_text
@@ -52,10 +50,10 @@ mdb.java & mdbc.java
 mbb.java & mbbc.java
 
 * Sub-Directories in <b>.src/main/assets</b> is used to store the hymn lyrics text for user input search<br/>
-Note: The traditional chinese hymn lyrics contains only partial hymn titles.<br/><br/>
+Note: The traditional Chinese hymn lyrics contains only partial hymn titles.<br/><br/>
 ./db = 大本诗歌 traditional Chinese<br/>
 ./b = 补充本 traditional Chinese<br/>
 ./sdb = 大本诗歌 simplified Chinese<br/>
 ./sb = 补充本 simplified Chinese<br/>
 
-Note: If you need to build android hymnchtv.apk, please consult the original contents' authors for advice.
+Note: If you need to build android hymnchtv.apk, please consult the original contents' owner for advice: 臺灣福音書房.

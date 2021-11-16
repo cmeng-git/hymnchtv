@@ -19,6 +19,7 @@ package org.cog.hymnchtv.service.androidupdate;
 import android.app.*;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 
@@ -103,7 +104,9 @@ public class OnlineUpdateService extends IntentService
 
             Intent intent = new Intent(this.getApplicationContext(), OnlineUpdateService.class);
             intent.setAction(ACTION_UPDATE_AVAILABLE);
-            PendingIntent pending = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pending = PendingIntent.getService(this, 0, intent,
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT
+                            : PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
             nBuilder.setContentIntent(pending);
             mNotificationMgr.notify(UPDATE_AVAIL_TAG, UPDATE_AVAIL_NOTIFY_ID, nBuilder.build());
         }
@@ -115,7 +118,9 @@ public class OnlineUpdateService extends IntentService
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this.getApplicationContext(), OnlineUpdateService.class);
         intent.setAction(ACTION_AUTO_UPDATE_APP);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0,
+                intent, Build.VERSION.SDK_INT < Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT
+                        : PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(System.currentTimeMillis());
         cal.add(Calendar.SECOND, nextAlarmTime);
@@ -128,7 +133,9 @@ public class OnlineUpdateService extends IntentService
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this.getApplicationContext(), OnlineUpdateService.class);
         intent.setAction(ACTION_AUTO_UPDATE_APP);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent,
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT
+                        : PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.cancel(pendingIntent);
     }
 }
