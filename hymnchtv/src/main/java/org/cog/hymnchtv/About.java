@@ -45,13 +45,11 @@ import de.cketti.library.changelog.ChangeLog;
  */
 public class About extends FragmentActivity implements View.OnClickListener
 {
-    private static String LOG_REPORT_EMAIL = "cmeng.gm@gmail.com";
 
     public static String HYMNCHTV_HTTP_LINK = "https://cmeng-git.github.io/hymnchtv/";
 
-    private static String[][] USED_LIBRARIES = new String[][]{
+    private static final String[][] USED_LIBRARIES = new String[][]{
             new String[]{"Android Support Library", "https://developer.android.com/topic/libraries/support-library/index.html"},
-            new String[]{"android-youtubeExtractor", "https://github.com/HaarigerHarald/android-youtubeExtractor"},
             new String[]{"android-youtube-player", "https://github.com/PierfrancescoSoffritti/android-youtube-player"},
             new String[]{"annotations-java5", "https://mvnrepository.com/artifact/org.jetbrains/annotations"},
             new String[]{"Apache HttpCore", "https://hc.apache.org/httpcomponents-core-4.4.x/httpcore/dependency-info.html"},
@@ -60,6 +58,7 @@ public class About extends FragmentActivity implements View.OnClickListener
             new String[]{"ExoPlayer", "https://github.com/google/ExoPlayer"},
             new String[]{"glide", "https://github.com/bumptech/glide"},
             new String[]{"js-evaluator-for-android", "https://github.com/evgenyneu/js-evaluator-for-android"},
+            new String[]{"httpcore", "https://hc.apache.org/httpcomponents-core-ga/"},
             new String[]{"RichEditor for Android", "https://github.com/wasabeef/richeditor-android"},
             new String[]{"Timber", "https://github.com/JakeWharton/timber"},
             new String[]{"uCrop", "https://github.com/Yalantis/uCrop"}
@@ -128,6 +127,7 @@ public class About extends FragmentActivity implements View.OnClickListener
     @Override
     public void onClick(View view)
     {
+        String LOG_REPORT_EMAIL = "cmeng.gm@gmail.com";
         switch (view.getId()) {
             case R.id.ok_button:
                 finish();

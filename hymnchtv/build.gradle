@@ -14,8 +14,8 @@ android {
     defaultConfig {
         applicationId "org.cog.hymnchtv"
         // End digit - change to force update with same version number
-        versionCode 106030
-        versionName "1.6.3"
+        versionCode 106040
+        versionName "1.6.4"
 
         minSdkVersion 21
         targetSdkVersion 31
@@ -71,9 +71,9 @@ dependencies {
     implementation project(':android-youtube-player:core')
 
     implementation 'androidx.activity:activity:1.4.0'
-    implementation 'androidx.appcompat:appcompat:1.3.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
-    implementation 'androidx.fragment:fragment:1.3.6'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
+    implementation 'androidx.fragment:fragment:1.4.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
@@ -89,12 +89,12 @@ dependencies {
     implementation 'com.github.evgenyneu:js-evaluator-for-android:v5.0.0'
 
     implementation 'com.github.yalantis:ucrop:2.2.7'
-    implementation 'com.google.android.exoplayer:exoplayer:2.16.0'
+    implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
     // implementation 'com.google.android.material:material:1.4.0'
 
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'
     implementation 'com.google.android.play:core:1.10.2'
-    implementation 'com.google.android.gms:play-services-cast-framework:20.0.0'
+    implementation 'com.google.android.gms:play-services-cast-framework:21.0.0'
 
     // https://github.com/guardian/toolargetool
     // implementation 'com.gu.android:toolargetool:0.2.1'

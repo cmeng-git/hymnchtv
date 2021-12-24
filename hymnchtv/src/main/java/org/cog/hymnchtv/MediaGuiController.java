@@ -17,12 +17,7 @@
 package org.cog.hymnchtv;
 
 import android.annotation.SuppressLint;
-import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -35,16 +30,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.SeekBar;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -85,7 +71,7 @@ import static org.cog.hymnchtv.mediaplayer.AudioBgService.PlaybackState;
  */
 
 public class MediaGuiController extends Fragment implements AdapterView.OnItemSelectedListener,
-        SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener
+        SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, View.OnClickListener, View.OnLongClickListener
 {
     /**
      * The state of a player where playback is stopped
@@ -132,6 +118,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private Button mBtnBanZhou;
     private Button mBtnJiaoChang;
     private Button mBtnChangShi;
+    private ImageButton mBtnHymnSearch;
 
     private boolean isSeeking = false;
     private int positionSeek;
@@ -224,6 +211,9 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         });
 
         mPlayerAnimate = (AnimationDrawable) playbackPlay.getBackground();
+        mBtnHymnSearch = convertView.findViewById(R.id.btn_hymnSearch);
+        mBtnHymnSearch.setOnClickListener(this);
+        mBtnHymnSearch.setOnLongClickListener(this);
 
         RadioGroup hymnTypesGroup = convertView.findViewById(R.id.hymnsGroup);
         hymnTypesGroup.setOnCheckedChangeListener(this);
@@ -440,6 +430,23 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                 ((RadioButton) playerUi.findViewById(R.id.btn_changshi)).setChecked(true);
                 break;
         }
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        if (v.getId() == R.id.btn_hymnSearch) {
+            mContentHandler.initWebView(ContentHandler.UrlType.hymnYoutubeSearch);
+        }
+    }
+
+    @Override
+    public boolean onLongClick(View v)
+    {
+        if (v.getId() == R.id.btn_hymnSearch) {
+            mContentHandler.initWebView(ContentHandler.UrlType.hymnGoogleSearch);
+        }
+        return true;
     }
 
     /**

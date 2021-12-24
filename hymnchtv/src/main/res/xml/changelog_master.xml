@@ -6,10 +6,17 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.6.4 (12/24/2021)" versioncode="106040">
+        <change>在媒体播放界面中添加诗歌信息搜索功能按钮。</change>
+        <change>短按使用 youtube.com 执行诗歌信息搜索。</change>
+        <change>长按使用 google.com 执行诗歌信息搜索。</change>
+        <change>自动复制诗歌信息字符串到剪贴板，允许用户粘贴到自己定义的搜索引擎中。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.6.3 (11/16/2021)" versioncode="106030">
         <change>修复用户在没有有效媒体信息条目的情况下单击共享链接时崩溃的问题。</change>
         <change>升级构建以支持 android-12(s)，即 API-31。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.6.2 (10/04/2021)" versioncode="106020">

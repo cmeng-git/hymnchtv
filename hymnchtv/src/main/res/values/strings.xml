@@ -261,9 +261,9 @@
 
     <string name="content_about">关于本诗歌软体:
         &lt;br/>应用程序中使用的所有媒体内容：歌词和歌曲文本等，版权归台湾福音书房所有。
-        &lt;br/>首先谢谢网络上的弟兄破碎提供诗歌的源材料。此诗歌本应用程序，原版由书拉密女小站(http://shulami02.net/bbs)个人开发;
+        &lt;br/>首先谢谢网络上的弟兄破碎提供诗歌的源材料。此诗歌本应用程序，原版由&lt;a href="http://shulami02.net/bbs">书拉密女小站&lt;/a>个人开发;
         &lt;br/>&lt;br/>近日由新作者，全程序重写改进，并添加新功能。如果有发现出错或建议，请到
-        &lt;a href="https://github。com/cmeng-git/hymnchtv/issues">此网址 &lt;/a>提出意见。
+        &lt;a href="https://github。com/cmeng-git/hymnchtv/issues">此网址&lt;/a>提出意见。
         &lt;br/>&lt;br/>新增诗歌资源材料来自网络:
         &lt;br/>https://heavenlyfood.cn/
         &lt;br/>http://www.lshymn.net/

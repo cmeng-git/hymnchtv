@@ -8,9 +8,16 @@
     android:layout_alignParentBottom="true"
     android:orientation="horizontal" >
 
+    <ImageButton
+        android:id="@+id/btn_hymnSearch"
+        style="@style/ButtonTop"
+        android:layout_weight="0.5"
+        android:src="@drawable/ic_action_search" />
+
     <RadioButton
         android:id="@+id/btn_media"
         style="@style/ButtonTop"
+        android:layout_marginStart="2dp"
         android:text="@string/hymn_media_media" />
 
     <RadioButton

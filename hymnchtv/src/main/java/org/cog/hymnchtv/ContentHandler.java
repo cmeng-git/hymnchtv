@@ -36,8 +36,7 @@ import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -101,16 +100,26 @@ public class ContentHandler extends FragmentActivity
 
     // Null if there is no corresponding English lyrics
     private Integer hymnNoEng = null;
-    private MyPagerAdapter mPagerAdapter;
-    private ViewPager2 mPager;
-
-    public PopupWindow pop;
-    public SharedPreferences sPreference;
+    private String mWebUrl = null;
+    private String mHymnInfo = null;
 
     /**
      * 大本诗歌 MP3 file naming is a mess, so attempt to use lyricsPhrase; may not match all the times
      */
     private String lyricsPhrase;
+
+    public enum UrlType
+    {
+        englishLyrics,
+        hymnGoogleSearch,
+        hymnYoutubeSearch
+    }
+
+    private MyPagerAdapter mPagerAdapter;
+    private ViewPager2 mPager;
+
+    public PopupWindow pop;
+    public SharedPreferences sPreference;
 
     /**
      * The media controller used to handle the playback of the user selected hymn.
@@ -300,16 +309,7 @@ public class ContentHandler extends FragmentActivity
                     HymnsApp.showToastMessage(R.string.gui_error_english_lyrics_null, hymnNo);
                     return true;
                 }
-
-                WebViewFragment mWebFragment = (WebViewFragment) getSupportFragmentManager().findFragmentById(R.id.webView);
-                if (mWebFragment == null) {
-                    mWebFragment = new WebViewFragment();
-                }
-                else {
-                    mWebFragment.initWebView();
-                }
-                getSupportFragmentManager().beginTransaction().replace(R.id.webView, mWebFragment).commit();
-                mWebView.setVisibility(View.VISIBLE);
+                initWebView(UrlType.englishLyrics);
                 return true;
 
             case R.id.help:
@@ -375,7 +375,13 @@ public class ContentHandler extends FragmentActivity
 
         // Check to see if all the mediaTypes are defined/available for the current user selected HymnType/HymnNo
         boolean[] isAvailable = getHymnMediaState();
-        mMediaGuiController.initHymnInfo(getHymnInfo(), isAvailable);
+        mHymnInfo = getHymnInfo();
+        mMediaGuiController.initHymnInfo(mHymnInfo, isAvailable);
+
+        // Copy the hymn info to the clipboard
+        ClipboardManager cmgr = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        if (cmgr != null)
+            cmgr.setPrimaryClip(ClipData.newPlainText("Hymn Info", mHymnInfo));
     }
 
     /**
@@ -1037,6 +1043,34 @@ public class ContentHandler extends FragmentActivity
         return hymnInfo;
     }
 
+    public void initWebView(UrlType type)
+    {
+        switch (type) {
+            case englishLyrics:
+                String HymnalLink = "https://www.hymnal.net/en/hymn/h/";
+                mWebUrl = (hymnNoEng == null) ? null : HymnalLink + hymnNoEng;
+                break;
+            case hymnGoogleSearch:
+                mWebUrl = (mHymnInfo == null) ? null : "https://www.google.com/search?q="+mHymnInfo;
+                break;
+            case hymnYoutubeSearch:
+                mWebUrl = (mHymnInfo == null) ? null : "https://www.youtube.com/results?search_query=android"+mHymnInfo;
+                break;
+            default:
+                mWebUrl = null;
+        }
+
+        WebViewFragment mWebFragment = (WebViewFragment) getSupportFragmentManager().findFragmentById(R.id.webView);
+        if (mWebFragment == null) {
+            mWebFragment = new WebViewFragment();
+        }
+        else {
+            mWebFragment.initWebView();
+        }
+        getSupportFragmentManager().beginTransaction().replace(R.id.webView, mWebFragment).commit();
+        mWebView.setVisibility(View.VISIBLE);
+    }
+
     /**
      * fetch the link for the current selected hymn corresponding English lyrics
      *
@@ -1044,8 +1078,7 @@ public class ContentHandler extends FragmentActivity
      */
     public String getWebUrl()
     {
-        String HymnalLink = "https://www.hymnal.net/en/hymn/h/";
-        return (hymnNoEng == null) ? null : HymnalLink + hymnNoEng;
+        return mWebUrl;
     }
 
     /*

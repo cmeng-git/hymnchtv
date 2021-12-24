@@ -29,6 +29,7 @@ import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.*;
 
 import org.cog.hymnchtv.impl.timberlog.TimberLogImpl;
@@ -48,7 +49,7 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class HymnsApp extends Application implements LifecycleObserver
+public class HymnsApp extends Application implements LifecycleEventObserver
 {
     /**
      * Indicate if hymnchtv is in the foreground (true) or background (false)
@@ -151,20 +152,18 @@ public class HymnsApp extends Application implements LifecycleObserver
         super.onTerminate();
     }
 
-    // ========= Lifecycle implementations ======= //
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    public void onAppForegrounded()
+    // ========= LifecycleEventObserver implementations ======= //
+    @Override
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event)
     {
-        isForeground = true;
-        Timber.d("APP FOREGROUNDED");
-        startUpdateService();
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onAppBackgrounded()
-    {
-        isForeground = false;
-        Timber.d("APP BACKGROUNDED");
+        if (Lifecycle.Event.ON_START == event) {
+            isForeground = true;
+            Timber.d("APP FOREGROUNDED");
+        }
+        else if (Lifecycle.Event.ON_STOP == event) {
+            isForeground = false;
+            Timber.d("APP BACKGROUNDED");
+        }
     }
 
     /**
