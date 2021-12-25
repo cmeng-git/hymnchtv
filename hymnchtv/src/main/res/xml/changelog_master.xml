@@ -6,12 +6,17 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.6.5 (12/25/2021)" versioncode="106050">
+        <change>为了有效的网页访问，需要使用中文文本对 URL 进行编码。</change>
+        <change>使用安卓默认网页浏览器执行诗歌信息搜索；方允许选定的视频链接与应用共享。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.6.4 (12/24/2021)" versioncode="106040">
         <change>在媒体播放界面中添加诗歌信息搜索功能按钮。</change>
         <change>短按使用 youtube.com 执行诗歌信息搜索。</change>
         <change>长按使用 google.com 执行诗歌信息搜索。</change>
         <change>自动复制诗歌信息字符串到剪贴板，允许用户粘贴到自己定义的搜索引擎中。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
     </release>
 
     <release version="1.6.3 (11/16/2021)" versioncode="106030">

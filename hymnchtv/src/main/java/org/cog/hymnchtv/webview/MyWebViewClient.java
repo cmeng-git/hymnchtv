@@ -28,6 +28,7 @@ import android.webkit.*;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import org.cog.hymnchtv.About;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.utils.ViewUtil;
 
@@ -56,15 +57,18 @@ public class MyWebViewClient extends WebViewClient
         mContext = viewFragment.getContext();
     }
 
+    @Override
     public boolean shouldOverrideUrlLoading(WebView webView, String url)
     {
+        Timber.d("shouldOverrideUrlLoading for url: %s", url);
         // This is my website, so do not override; let my WebView load the page
-        if (isDomainMatch(webView, url)) {
+        if (isDomainMatch(url)) {
             viewFragment.addUrl(url);
             return false;
         }
 
         // Otherwise, the link is not for a page on my site, so launch another Activity that handle it
+        // Use android default browser for youtube.com/google.com string search; to allow link share with hymnchtv
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setData(Uri.parse(url));
@@ -80,16 +84,22 @@ public class MyWebViewClient extends WebViewClient
         return true;
     }
 
-    // public void onReceivedError(WebView view, int errorCode, String description, String failingUrl)
-    // {
-    //     view.loadUrl("file:///android_asset/movim/error.html");
-    // }
+    /**
+     * If you click on any link inside the webpage of the WebView, that page will not be loaded inside your WebView.
+     * In order to do that you need to extend your class from WebViewClient and override the method below.
+     *
+     * @param view The WebView that is initiating the callback.
+     * @param request Object containing the details of the request.
+     * @return {@code true} to cancel the current load, otherwise return {@code false}.
+     */
+    @Override
+    public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request)
+    {
+        String url = request.getUrl().toString();
+        return shouldOverrideUrlLoading(view, url);
+    }
 
-    // public void onReceivedSslError(WebView view, final SslErrorHandler handler, SslError error)
-    // {
-    //     // view.loadUrl("file:///android_asset/movim/ssl.html");
-    // }
-
+    @Override
     public void onReceivedHttpAuthRequest(final WebView view, final HttpAuthHandler handler, final String host,
             final String realm)
     {
@@ -139,28 +149,28 @@ public class MyWebViewClient extends WebViewClient
     }
 
     /**
-     * Match case inSenstitive for whole or at least last two segment of host
+     * Match non-case sensitive for whole or at least last two segment of host between:
+     * a. Hymnchtv host
+     * b. requested url host
      *
-     * @param webView the current webView
      * @param url to be loaded
-     * @return true if match
+     * @return true if match with hymnchtv host
      */
-    private boolean isDomainMatch(WebView webView, String url)
+    public boolean isDomainMatch(String url)
     {
-        String origin = Uri.parse(webView.getUrl()).getHost();
-        String aim = Uri.parse(url).getHost();
-
-        // return true if this is the first time url loading or exact match of host
-        if (TextUtils.isEmpty(origin) || origin.equalsIgnoreCase(aim))
-            return true;
-
         // return false if aim contains no host string i.e. not a url e.g. mailto:info[at]example.com
-        if (TextUtils.isEmpty(aim))
+        String aim = Uri.parse(url).getHost();
+        if (TextUtils.isEmpty(aim)) {
             return false;
+        }
+
+        String origin = Uri.parse(About.HYMNCHTV_LINK).getHost();
+        if (origin.equalsIgnoreCase(aim)) {
+            return true;
+        }
 
         String originDomain = pattern.matcher(origin).replaceAll("$1");
         String aimDomain = pattern.matcher(aim).replaceAll("$1");
-
         return originDomain.equalsIgnoreCase(aimDomain);
     }
 }

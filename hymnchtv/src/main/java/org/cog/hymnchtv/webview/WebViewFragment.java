@@ -17,13 +17,10 @@
 package org.cog.hymnchtv.webview;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.*;
@@ -68,21 +65,11 @@ public class WebViewFragment extends Fragment implements OnKeyListener
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        // init webUrl with urlStack.pop() if non-empty, else load from default in DB
-        if (urlStack.isEmpty()) {
-            webUrl = ((ContentHandler) getActivity()).getWebUrl();
-            urlStack.push(webUrl);
-        }
-        else {
-            webUrl = urlStack.pop();
-        }
-
         View contentView = inflater.inflate(R.layout.webview_main, container, false);
         progressbar = contentView.findViewById(R.id.progress);
         progressbar.setIndeterminate(true);
 
         webview = contentView.findViewById(R.id.webview);
-
         final WebSettings webSettings = webview.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
@@ -91,7 +78,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
-        webSettings.setMixedContentMode(0);
+        webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         webSettings.setAllowUniversalAccessFromFileURLs(true);
 
         ActivityResultLauncher<String> mGetContents = getFileUris();
@@ -121,8 +108,17 @@ public class WebViewFragment extends Fragment implements OnKeyListener
                 return true;
             }
         });
-
         webview.setWebViewClient(new MyWebViewClient(this));
+
+        // init webUrl with urlStack.pop() if non-empty, else load from default in DB
+        // initWebView();
+        if (urlStack.isEmpty()) {
+            webUrl = ((ContentHandler) getActivity()).getWebUrl();
+            urlStack.push(webUrl);
+        }
+        else {
+            webUrl = urlStack.pop();
+        }
         if (!TextUtils.isEmpty(webUrl))
             webview.loadUrl(webUrl);
         return contentView;
@@ -137,6 +133,28 @@ public class WebViewFragment extends Fragment implements OnKeyListener
         webview.setFocusableInTouchMode(true);
         webview.requestFocus();
         webview.setOnKeyListener(this);
+    }
+
+    /**
+     * Init webView to download a new web page if it is not the same link
+     */
+    public void initWebView()
+    {
+        urlStack.clear();
+        webUrl = ((ContentHandler) getActivity()).getWebUrl();
+        urlStack.push(webUrl);
+        webview.loadUrl(webUrl);
+    }
+
+    /**
+     * Add the own loaded url page to stack for later retrieval (goBack)
+     *
+     * @param url loaded url
+     */
+    public void addUrl(String url)
+    {
+        // urlStack.push(url);
+        isLoadFromStack = false;
     }
 
     /**
@@ -168,31 +186,6 @@ public class WebViewFragment extends Fragment implements OnKeyListener
         super.onConfigurationChanged(newConfig);
     }
 
-    /**
-     * Init webView to download a new web page if it is not the same link
-     */
-    public void initWebView()
-    {
-        String tmp = ((ContentHandler) getActivity()).getWebUrl();
-        if (webUrl == null || !webUrl.equals(tmp)) {
-            urlStack.clear();
-            webUrl = tmp;
-            urlStack.push(webUrl);
-            webview.loadUrl(webUrl);
-        }
-    }
-
-    /**
-     * Add the own loaded url page to stack for later retrieval (goBack)
-     *
-     * @param url loaded url
-     */
-    public void addUrl(String url)
-    {
-        urlStack.push(url);
-        isLoadFromStack = false;
-    }
-
     public static Bitmap getBitmapFromURL(String src)
     {
         try {
@@ -215,8 +208,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
      * @param v view
      * @param keyCode the entered key keycode
      * @param event the key Event
-     *
-     * @return true if proccess
+     * @return true if process
      */
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event)

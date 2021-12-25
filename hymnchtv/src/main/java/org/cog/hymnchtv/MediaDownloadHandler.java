@@ -160,6 +160,7 @@ public class MediaDownloadHandler extends Fragment
         try {
             // Need to encode chinese link for safe access; revert all "%3A" and "%2F" to ":" and "/" etc
             encDnLnk = URLEncoder.encode(dnLnk, "UTF-8")
+                    .replace("%23", "#")
                     .replace("%2F", "/")
                     .replace("%3A", ":")
                     .replace("%3D", "=")

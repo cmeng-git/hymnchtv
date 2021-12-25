@@ -55,11 +55,13 @@ import org.cog.hymnchtv.mediaconfig.MediaRecord;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.utils.*;
+import org.cog.hymnchtv.webview.MyWebViewClient;
 import org.cog.hymnchtv.webview.WebViewFragment;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.InetAddress;
+import java.net.URLEncoder;
 import java.util.*;
 
 import timber.log.Timber;
@@ -110,6 +112,7 @@ public class ContentHandler extends FragmentActivity
 
     public enum UrlType
     {
+        onlineHelp,
         englishLyrics,
         hymnGoogleSearch,
         hymnYoutubeSearch
@@ -313,10 +316,8 @@ public class ContentHandler extends FragmentActivity
                 return true;
 
             case R.id.help:
-                // DialogActivity.showDialog(this, R.string.help, R.string.content_help);
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(HYMNCHTV_FAQ_PLAYBACK));
-                startActivity(intent);
+                // About.hymnUrlAccess(this, HYMNCHTV_FAQ_PLAYBACK);
+                initWebView(UrlType.onlineHelp);
                 return true;
 
             case R.id.home:
@@ -1046,6 +1047,9 @@ public class ContentHandler extends FragmentActivity
     public void initWebView(UrlType type)
     {
         switch (type) {
+            case onlineHelp:
+                mWebUrl = HYMNCHTV_FAQ_PLAYBACK;
+                break;
             case englishLyrics:
                 String HymnalLink = "https://www.hymnal.net/en/hymn/h/";
                 mWebUrl = (hymnNoEng == null) ? null : HymnalLink + hymnNoEng;
@@ -1054,10 +1058,32 @@ public class ContentHandler extends FragmentActivity
                 mWebUrl = (mHymnInfo == null) ? null : "https://www.google.com/search?q="+mHymnInfo;
                 break;
             case hymnYoutubeSearch:
-                mWebUrl = (mHymnInfo == null) ? null : "https://www.youtube.com/results?search_query=android"+mHymnInfo;
+                mWebUrl = (mHymnInfo == null) ? null : "https://m.youtube.com/results?search_query="+mHymnInfo;
                 break;
             default:
                 mWebUrl = null;
+        }
+
+        if (!TextUtils.isEmpty(mWebUrl)) {
+            try {
+                // Need to encode chinese link for safe access; revert all "%3A" and "%2F" to ":" and "/" etc
+                mWebUrl = URLEncoder.encode(mWebUrl, "UTF-8")
+                        .replace("%23", "#")
+                        .replace("%2F", "/")
+                        .replace("%3A", ":")
+                        .replace("%3D", "=")
+                        .replace("%3F", "?");
+            } catch (UnsupportedEncodingException e) {
+                Timber.w("Exception in URLEncoder.encode (%s): %s", mWebUrl, e.getMessage());
+            }
+        }
+        Timber.d("Web URL link encoded: %s", mWebUrl);
+
+        // return false if aim contains no host string i.e. not a url e.g. mailto:info[at]example.com
+        String aim = Uri.parse(mWebUrl).getHost();
+        if (!TextUtils.isEmpty(aim)) {
+            About.hymnUrlAccess(this, mWebUrl);
+            return;
         }
 
         WebViewFragment mWebFragment = (WebViewFragment) getSupportFragmentManager().findFragmentById(R.id.webView);

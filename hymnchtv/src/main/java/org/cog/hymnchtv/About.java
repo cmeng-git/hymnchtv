@@ -46,7 +46,7 @@ import de.cketti.library.changelog.ChangeLog;
 public class About extends FragmentActivity implements View.OnClickListener
 {
 
-    public static String HYMNCHTV_HTTP_LINK = "https://cmeng-git.github.io/hymnchtv/";
+    public static String HYMNCHTV_LINK = "https://cmeng-git.github.io/hymnchtv/";
 
     private static final String[][] USED_LIBRARIES = new String[][]{
             new String[]{"Android Support Library", "https://developer.android.com/topic/libraries/support-library/index.html"},
@@ -156,7 +156,7 @@ public class About extends FragmentActivity implements View.OnClickListener
                 break;
             case R.id.hymnchtv_help:
             case R.id.hymnchtv_link:
-                hymnUrlAccess(this, HYMNCHTV_HTTP_LINK);
+                hymnUrlAccess(this, HYMNCHTV_LINK);
                 break;
 
             default:
@@ -168,7 +168,7 @@ public class About extends FragmentActivity implements View.OnClickListener
     public static void hymnUrlAccess(Context context, String url)
     {
         if (url == null)
-            url = HYMNCHTV_HTTP_LINK;
+            url = HYMNCHTV_LINK;
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(url));
         context.startActivity(intent);

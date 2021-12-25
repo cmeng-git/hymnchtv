@@ -1,6 +1,13 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    12/25/2021
+Version:        1.6.5 (106050)
+- Need to encode URL with Chinese text for safe access; revert all "%3A" and "%2F" to ":" and "/" etc
+- Use android default web browser for hymn info search; allowing selected video link for sharing with hymnchtv
+
+=========================================================================
+Author:         cmeng
 Upload Date:    12/24/2022
 Version:        1.6.4 (106040)
 - Add hymn info search function button in the media content playback UI
