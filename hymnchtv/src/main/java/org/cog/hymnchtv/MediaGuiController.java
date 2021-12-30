@@ -16,6 +16,10 @@
  */
 package org.cog.hymnchtv;
 
+import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
+import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+import static org.cog.hymnchtv.mediaplayer.AudioBgService.PlaybackState;
+
 import android.annotation.SuppressLint;
 import android.content.*;
 import android.content.pm.PackageManager;
@@ -26,10 +30,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
@@ -37,21 +38,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import org.cog.hymnchtv.mediaconfig.QQRecord;
 import org.cog.hymnchtv.mediaplayer.AudioBgService;
+import org.cog.hymnchtv.utils.TouchListener;
 import org.cog.hymnchtv.utils.ViewUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import timber.log.Timber;
-
-import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
-import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
-import static org.cog.hymnchtv.mediaplayer.AudioBgService.PlaybackState;
 
 /**
  * Class implements the media player UI. It provides the full media playback control
@@ -69,9 +64,8 @@ import static org.cog.hymnchtv.mediaplayer.AudioBgService.PlaybackState;
  *
  * @author Eng Chong Meng
  */
-
 public class MediaGuiController extends Fragment implements AdapterView.OnItemSelectedListener,
-        SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, View.OnClickListener, View.OnLongClickListener
+        SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, View.OnLongClickListener
 {
     /**
      * The state of a player where playback is stopped
@@ -118,11 +112,11 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private Button mBtnBanZhou;
     private Button mBtnJiaoChang;
     private Button mBtnChangShi;
-    private ImageButton mBtnHymnSearch;
 
+    private final boolean isMediaAudio = true;
+    private boolean isJiaoChangAvailable = false;
     private boolean isSeeking = false;
     private int positionSeek;
-    private final boolean isMediaAudio = true;
 
     private MediaType mMediaType;
     private SharedPreferences mSharedPref;
@@ -147,6 +141,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         mContentHandler = (ContentHandler) context;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
     {
@@ -211,15 +206,17 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         });
 
         mPlayerAnimate = (AnimationDrawable) playbackPlay.getBackground();
-        mBtnHymnSearch = convertView.findViewById(R.id.btn_hymnSearch);
-        mBtnHymnSearch.setOnClickListener(this);
-        mBtnHymnSearch.setOnLongClickListener(this);
+        ImageButton mBtnHymnSearch = convertView.findViewById(R.id.btn_hymnSearch);
+        mBtnHymnSearch.setOnTouchListener(touchListener);
 
         RadioGroup hymnTypesGroup = convertView.findViewById(R.id.hymnsGroup);
         hymnTypesGroup.setOnCheckedChangeListener(this);
         mBtnMedia = convertView.findViewById(R.id.btn_media);
+        mBtnMedia.setOnLongClickListener(this);
+
         mBtnBanZhou = convertView.findViewById(R.id.btn_banzhou);
         mBtnJiaoChang = convertView.findViewById(R.id.btn_jiaochang);
+        // mBtnJiaoChang.setOnTouchListener(touchListener); too messy so disabled it
         mBtnChangShi = convertView.findViewById(R.id.btn_changshi);
         return convertView;
     }
@@ -337,6 +334,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
      */
     public void initHymnInfo(String info, boolean[] isAvailable)
     {
+        isJiaoChangAvailable = isAvailable[2];
         if (STATE_STOP == playerState) {
             hymnInfo.setText(info);
             mBtnMedia.setTextColor(isAvailable[0] ? Color.BLACK : Color.GRAY);
@@ -433,21 +431,59 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     }
 
     @Override
-    public void onClick(View v)
-    {
-        if (v.getId() == R.id.btn_hymnSearch) {
-            mContentHandler.initWebView(ContentHandler.UrlType.hymnYoutubeSearch);
-        }
-    }
-
-    @Override
     public boolean onLongClick(View v)
     {
-        if (v.getId() == R.id.btn_hymnSearch) {
-            mContentHandler.initWebView(ContentHandler.UrlType.hymnGoogleSearch);
+        if (v.getId() == R.id.btn_media) {
+            mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
         }
         return true;
     }
+
+    /**
+     * TouchListener to support singleTap, doubleTap and longPress for the view for site visit
+     */
+    TouchListener touchListener = new TouchListener(mContentHandler)
+    {
+        @Override
+        public boolean onSingleTap(View v)
+        {
+            switch (v.getId()) {
+                case R.id.btn_hymnSearch:
+                    QQRecord qqRecord = new QQRecord(mContentHandler.mSelect, mContentHandler.hymnNo);
+                    String url = mContentHandler.mDB.getQQHymnUrl(qqRecord);
+                    mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch, url);
+                    break;
+
+                case R.id.btn_jiaochang:
+                    if (!mContentHandler.isHFAvailable && !isJiaoChangAvailable)
+                        mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
+                    else
+                        mBtnJiaoChang.performClick();
+                    break;
+            }
+            return true;
+        }
+
+        @Override
+        public void onLongPress(View v)
+        {
+            switch (v.getId()) {
+                case R.id.btn_hymnSearch:
+                case R.id.btn_jiaochang:
+                    mContentHandler.initWebView(ContentHandler.UrlType.hymnYoutubeSearch);
+                    break;
+            }
+        }
+
+        @Override
+        public boolean onDoubleTap(View v)
+        {
+            if (v.getId() == R.id.btn_hymnSearch) {
+                mContentHandler.initWebView(ContentHandler.UrlType.hymnGoogleSearch);
+            }
+            return true;
+        }
+    };
 
     /**
      * Initialize the broadcast receiver for the media player (uri).

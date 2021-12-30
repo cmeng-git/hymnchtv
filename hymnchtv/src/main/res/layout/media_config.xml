@@ -263,16 +263,23 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
+            <Button
+                android:id="@+id/button_QQ"
+                style="@style/ButtonTop"
+                android:textSize="20sp"
+               android:layout_weight="0.5"
+                android:text="@string/gui_db_import_QQ" />
+
             <CheckBox
                 android:id="@+id/recordOverwrite"
                 style="@style/ButtonTop"
-                android:layout_weight="2"
+                android:layout_weight="1.5"
+                android:layout_marginStart="4dp"
                 android:text="@string/gui_db_overwrite" />
 
             <Button
                 android:id="@+id/button_import"
                 style="@style/ButtonTop"
-                android:layout_marginStart="4dp"
                 android:text="@string/gui_db_import" />
         </LinearLayout>
 

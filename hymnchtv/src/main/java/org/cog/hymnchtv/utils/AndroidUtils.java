@@ -31,6 +31,8 @@ import androidx.core.app.NotificationCompat;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import timber.log.Timber;
@@ -312,7 +314,21 @@ public class AndroidUtils
                 buf.append(value).append(fields[i]);
             }
         }
-
         return buf.toString().trim();
+    }
+
+    public static String UrlEncode(String url) throws UnsupportedEncodingException
+    {
+        // Need to encode chinese link for safe access; revert all "%3A" and "%2F" to ":" and "/" etc
+        String encDnLnk = URLEncoder.encode(url, "UTF-8")
+                .replace("%23", "#")
+                .replace("%26", "&")
+                .replace("%2F", "/")
+                .replace("%3A", ":")
+                .replace("%3B", ";")
+                .replace("%3D", "=")
+                .replace("%3F", "?");
+        // Timber.d("Download URL link encoded: %s", encDnLnk);
+        return encDnLnk;
     }
 }

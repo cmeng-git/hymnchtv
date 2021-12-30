@@ -16,6 +16,10 @@
  */
 package org.cog.hymnchtv;
 
+import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
+import static org.cog.hymnchtv.HymnToc.hymnTocPage;
+import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -38,6 +42,7 @@ import org.cog.hymnchtv.hymnhistory.HistoryRecord;
 import org.cog.hymnchtv.logutils.LogUploadServiceImpl;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.persistance.*;
+import org.cog.hymnchtv.persistance.migrations.MigrationTo3;
 import org.cog.hymnchtv.utils.*;
 
 import java.io.File;
@@ -46,10 +51,6 @@ import java.util.List;
 
 import de.cketti.library.changelog.ChangeLog;
 import timber.log.Timber;
-
-import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
-import static org.cog.hymnchtv.HymnToc.hymnTocPage;
-import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
 
 /**
  * MainActivity: The hymnchtv app main user interface.
@@ -72,6 +73,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     public static final String HYMN_XB = "hymn_xb";
     public static final String HYMN_BB = "hymn_bb";
     public static final String HYMN_DB = "hymn_db";
+    public static final String HYMN_QQ = "hymn_qq";
 
     public static final String PREF_MENU_SHOW = "MenuShow";
     public static final String PREF_SETTINGS = "Settings";
@@ -148,14 +150,17 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         PermissionUtils.requestPermission(this, 1001,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE, false);
 
-        // allow 15 seconds wait for first launch before showing history log
-        // new ChangeLog(this).getLogDialog().show();
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            ChangeLog cl = new ChangeLog(this);
-            if (cl.isFirstRun() && !isFinishing()) {
-                cl.getLogDialog().show();
-            }
-        }, 15000);
+        // allow 15 seconds for first launch login to complete before showing history log if the activity is still active
+        ChangeLog cl = new ChangeLog(this);
+        if (cl.isFirstRun()) {
+            // Create hymn_qq for v1.7.0 release only
+            MigrationTo3.createHymnQQTable(DatabaseBackend.getInstance(this).getWritableDatabase());
+            runOnUiThread(() -> new Handler().postDelayed(() -> {
+                if (!isFinishing()) {
+                    cl.getLogDialog().show();
+                }
+            }, 15000));
+        }
 
         // 儿童诗歌
         btn_er.setOnClickListener(v -> onHymnButtonClicked(HYMN_ER));
@@ -746,7 +751,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             showContent(sRecord.getHymnType(), sRecord.getHymnNo());
         });
 
-        // Long click to delete hymn selection entry history on user confirmation
+        // LongPress to delete hymn selection entry history on user confirmation
         mHistoryListView.setOnItemLongClickListener((adapterView, view, position, l) -> {
             HistoryRecord sRecord = historyRecords.get(position);
 

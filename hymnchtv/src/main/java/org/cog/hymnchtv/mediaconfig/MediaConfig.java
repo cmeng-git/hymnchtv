@@ -16,44 +16,6 @@
  */
 package org.cog.hymnchtv.mediaconfig;
 
-import android.annotation.SuppressLint;
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.View;
-import android.webkit.URLUtil;
-import android.widget.*;
-
-import androidx.activity.result.ActivityResultCaller;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.fragment.app.FragmentActivity;
-
-import org.apache.http.util.EncodingUtils;
-import org.cog.hymnchtv.*;
-import org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment;
-import org.cog.hymnchtv.persistance.DatabaseBackend;
-import org.cog.hymnchtv.persistance.FileBackend;
-import org.cog.hymnchtv.persistance.FilePathHelper;
-import org.cog.hymnchtv.utils.DialogActivity;
-import org.cog.hymnchtv.utils.HymnNoValidate;
-import org.cog.hymnchtv.utils.ViewUtil;
-
-import java.io.*;
-import java.net.URLDecoder;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import timber.log.Timber;
-
 import static org.cog.hymnchtv.ContentHandler.MEDIA_BANZOU;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_CHANGSHI;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_JIAOCHANG;
@@ -67,14 +29,44 @@ import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
-import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URL;
-import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URLS;
 import static org.cog.hymnchtv.MediaType.HYMN_BANZOU;
 import static org.cog.hymnchtv.MediaType.HYMN_CHANGSHI;
 import static org.cog.hymnchtv.MediaType.HYMN_JIAOCHANG;
 import static org.cog.hymnchtv.MediaType.HYMN_MEDIA;
+import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URL;
+import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URLS;
 import static org.cog.hymnchtv.mediaplayer.YoutubePlayerFragment.URL_YOUTUBE;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
+
+import android.annotation.SuppressLint;
+import android.content.*;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.os.Bundle;
+import android.text.*;
+import android.view.KeyEvent;
+import android.view.View;
+import android.webkit.URLUtil;
+import android.widget.*;
+
+import androidx.activity.result.ActivityResultCaller;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.fragment.app.FragmentActivity;
+
+import org.apache.http.util.EncodingUtils;
+import org.cog.hymnchtv.*;
+import org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment;
+import org.cog.hymnchtv.persistance.*;
+import org.cog.hymnchtv.utils.*;
+
+import java.io.*;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+import timber.log.Timber;
 
 /**
  * The class allows user to add own media content, either via:
@@ -111,6 +103,8 @@ public class MediaConfig extends FragmentActivity
     public static final String HYMN_NO = "hymnNo";
     public static final String HYMN_FU = "isFu"; // set to 1 if fu else 0
 
+    public static final String HYMN_TITLE = "hymnTitle";  // see MEDIA_xxx
+    public static final String HYMN_TYPE = "hymnType";  // see MEDIA_xxx
     public static final String MEDIA_TYPE = "mediaType";  // see MEDIA_xxx
     public static final String MEDIA_URI = "mediaUri";    // set to null if none
     public static final String MEDIA_FILE_PATH = "mediaFilePath"; // set to null if none
@@ -149,7 +143,7 @@ public class MediaConfig extends FragmentActivity
     private View mPlayerView;
 
     // DB based media record list view and last selected view
-    private ListView mrListView;
+    private ListView mListView;
 
     public static List<String> hymnTypeEntry = new ArrayList<>();
 
@@ -275,13 +269,13 @@ public class MediaConfig extends FragmentActivity
             if (!TextUtils.isEmpty(mediaUri)) {
                 isAutoFilled = false;
                 tvMediaUri.setText(mediaUri);
-                checkMediaAvailable(createMediaRecord());
+                // checkMediaAvailable(createMediaRecord());
             }
         }
 
         // ======== database Media Record ==========
-        mrListView = findViewById(R.id.mrListView);
-        mrListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+        mListView = findViewById(R.id.mrListView);
+        mListView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
         tvImportFile = findViewById(R.id.importFile);
         cbOverwrite = findViewById(R.id.recordOverwrite);
@@ -295,6 +289,11 @@ public class MediaConfig extends FragmentActivity
         findViewById(R.id.editFile).setOnClickListener(this);
 
         findViewById(R.id.button_import).setOnClickListener(this);
+
+        Button btnQQ = findViewById(R.id.button_QQ);
+        btnQQ.setOnClickListener(this);
+        btnQQ.setOnLongClickListener(this);
+
         Button btnExport = findViewById(R.id.button_export);
         btnExport.setOnClickListener(this);
         btnExport.setOnLongClickListener(this);
@@ -330,9 +329,14 @@ public class MediaConfig extends FragmentActivity
                 break;
 
             case R.id.button_add:
-                if (updateMediaRecord()) {
+                String uriPath = ViewUtil.toString(tvMediaUri);
+                if (uriPath != null && uriPath.contains("://mp.weixin.qq.com")) {
+                    if (updateQQRecord()) {
+                        HymnsApp.showToastMessage(R.string.gui_add_to_db);
+                    }
+                }
+                else if (updateMediaRecord()) {
                     HymnsApp.showToastMessage(R.string.gui_add_to_db);
-                    // getActivity().getSupportFragmentManager().popBackStack();
                 }
                 break;
 
@@ -346,12 +350,13 @@ public class MediaConfig extends FragmentActivity
                 break;
 
             case R.id.button_Exit:
-                if (mrListView.getVisibility() == View.GONE) {
+                if (mListView.getVisibility() == View.GONE) {
                     checkUnsavedChanges();
                 }
                 else {
                     setTitle(R.string.gui_media_config);
-                    mrListView.setVisibility(View.GONE);
+                    mListView.setTag("MediaRecord");
+                    mListView.setVisibility(View.GONE);
                 }
                 break;
 
@@ -365,6 +370,10 @@ public class MediaConfig extends FragmentActivity
             // Import to the DB database
             case R.id.button_import:
                 importMediaRecords();
+                break;
+
+            case R.id.button_QQ:
+                downloadQQRecord();
                 break;
 
             // Export the database to a text file for sharing
@@ -387,10 +396,15 @@ public class MediaConfig extends FragmentActivity
     @Override
     public boolean onLongClick(View v)
     {
-        // Export the database to a text file for sharing
-        if (v.getId() == R.id.button_export) {
-            createExportLink();
-            return true;
+        switch (v.getId()) {
+            // Export the database to a text file for sharing
+            case R.id.button_export:
+                createExportLink();
+                return true;
+
+            case R.id.button_QQ:
+                showQQRecords();
+                return true;
         }
         return false;
     }
@@ -525,8 +539,10 @@ public class MediaConfig extends FragmentActivity
     {
         if (parent == hymnTypeSpinner) {
             mHymnType = hymnTypeValue.get(position);
-            if (mrListView.getVisibility() == View.VISIBLE) {
-                showMediaRecords();
+            if (mListView.getVisibility() == View.VISIBLE) {
+                if (mListView.getTag().equals("MediaRecord")) {
+                    showMediaRecords();
+                }
             }
         }
         else if (parent == mediaTypeSpinner) {
@@ -617,6 +633,8 @@ public class MediaConfig extends FragmentActivity
             finish();
         }
     }
+
+    // ================= Media Record Handlers ================
 
     /**
      * Update user entry to the DB media record, get user confirmation if there is an existing record present
@@ -758,6 +776,9 @@ public class MediaConfig extends FragmentActivity
      */
     private void deleteMediaRecord()
     {
+        if (mListView.getTag().equals("QQRecord"))
+            return;
+
         String hymnNo = ViewUtil.toString(tvHymnNo);
         if (hymnNo == null) {
             HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
@@ -834,6 +855,110 @@ public class MediaConfig extends FragmentActivity
             }
             ShareWith.share(this, mRecord.toExportString(), imageUris);
         }
+    }
+
+    // ================= QQ Record Handlers ================
+
+    /**
+     * Update user QQ entry to the DB media record, get user confirmation if there is an existing record present
+     *
+     * @return true if update is successful
+     */
+    private boolean updateQQRecord()
+    {
+        final QQRecord qqRecord = createQQRecord();
+        if (qqRecord != null) {
+            if (mDB.getQQRecord(qqRecord, false)) {
+                DialogActivity.showConfirmDialog(this,
+                        R.string.gui_to_be_added,
+                        R.string.gui_db_overwrite_media,
+                        R.string.gui_overwrite, new DialogActivity.DialogListener()
+                        {
+                            public boolean onConfirmClicked(DialogActivity dialog)
+                            {
+                                return saveQQRecord(qqRecord);
+                            }
+
+                            public void onDialogCancelled(DialogActivity dialog)
+                            {
+                            }
+                        });
+            }
+            else {
+                return saveQQRecord(qqRecord);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * create the QQRecord based on user input parameters
+     *
+     * @return return the newly created QQRecord, null otherwise
+     */
+    private QQRecord createQQRecord()
+    {
+        QQRecord qqRecord = null;
+        String uriPath = ViewUtil.toString(tvMediaUri);
+
+        String hymnNo = ViewUtil.toString(tvHymnNo);
+        boolean isUrlLink = URLUtil.isValidUrl(uriPath);
+        if (!isUrlLink && (uriPath != null) && !new File(uriPath).exists()) {
+            uriPath = null;
+        }
+
+        if ((hymnNo == null) || (uriPath == null)) {
+            HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
+            return null;
+        }
+        boolean isFu = cbFu.isChecked();
+        int nui = HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), isFu);
+        if (nui != -1) {
+            String filePath = null;
+            if (!isUrlLink) {
+                filePath = uriPath;
+                uriPath = null;
+            }
+            qqRecord = new QQRecord(mHymnType, nui, null, uriPath, filePath);
+        }
+        return qqRecord;
+    }
+
+    /**
+     * Save the user entry to the DB qqRecord on user confirmation
+     *
+     * @return true is successfully
+     */
+    private boolean saveQQRecord(QQRecord qqRecord)
+    {
+        String filePath = qqRecord.getMediaFilePath();
+        if (filePath != null) {
+            if (filePath.contains(FileBackend.TMP)) {
+                File inFile = new File(filePath);
+
+                File subDir = FileBackend.getHymnchtvStore(mHymnType + mediaDir.get(mMediaType), true);
+                if (subDir == null) {
+                    HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
+                    return false;
+                }
+                File outFile = new File(subDir, inFile.getName());
+
+                try {
+                    if (!inFile.renameTo(outFile)) {
+                        return false;
+                    }
+                    filePath = outFile.getAbsolutePath();
+
+                    qqRecord.setFilePath(filePath);
+                    qqRecord.setMediaUri(null);
+                } catch (Exception e) {
+                    HymnsApp.showToastMessage(e.getMessage());
+                    return false;
+                }
+            }
+        }
+        mDB.storeQQRecord(qqRecord);
+        return true;
     }
 
     /**
@@ -918,6 +1043,28 @@ public class MediaConfig extends FragmentActivity
     }
 
     // =============================== MediaRecord Database Handler ============================
+
+    /**
+     * Wait for user confirmation before proceed with QQ links download
+     */
+    private void downloadQQRecord()
+    {
+        DialogActivity.showConfirmDialog(this,
+                R.string.gui_qq_download,
+                R.string.gui_qq_download_proceed,
+                R.string.gui_download, new DialogActivity.DialogListener()
+                {
+                    public boolean onConfirmClicked(DialogActivity dialog)
+                    {
+                        QQRecord.fetchQQLinks(MediaConfig.this);
+                        return true;
+                    }
+
+                    public void onDialogCancelled(DialogActivity dialog)
+                    {
+                    }
+                });
+    }
 
     /**
      * Import the media records into the database based on import file info
@@ -1159,15 +1306,16 @@ public class MediaConfig extends FragmentActivity
         }
 
         /* Display the search result to the user */
-        SimpleListAdapter adapter = new SimpleListAdapter(this, data, R.layout.media_records_list, new String[]{"match"},
-                new int[]{R.id.item_record});
+        SimpleListAdapter mediaAdapter = new SimpleListAdapter(this, data, R.layout.media_records_list,
+                new String[]{"match"}, new int[]{R.id.item_record});
 
-        mrListView.setAdapter(adapter);
-        mrListView.setVisibility(View.VISIBLE);
+        mListView.setAdapter(mediaAdapter);
+        mListView.setTag("MediaRecord");
+        mListView.setVisibility(View.VISIBLE);
 
         // Update the media Record Editor info.
-        mrListView.setOnItemClickListener((adapterView, view, pos, id) -> {
-            adapter.setSelectItem(pos, view);
+        mListView.setOnItemClickListener((adapterView, view, pos, id) -> {
+            mediaAdapter.setSelectItem(pos, view);
 
             if (isAutoFilled) {
                 Map<String, String> item_db = data.get(pos);
@@ -1178,6 +1326,7 @@ public class MediaConfig extends FragmentActivity
                     for (int i = 0; i < hymnTypeValue.size(); i++) {
                         if (hymnTypeValue.get(i).equals(items[0])) {
                             hymnTypeSpinner.setSelection(i);
+                            break;
                         }
                     }
                     mediaTypeSpinner.setSelection(Enum.valueOf(MediaType.class, items[2]).getValue());
@@ -1199,6 +1348,101 @@ public class MediaConfig extends FragmentActivity
                     tvMediaUri.setText(mediaPath);
                 }
             }
+        });
+
+        // Clear any previously set ClickListeners in different mListView setup
+        mListView.setOnItemLongClickListener(null);
+
+    }
+
+    /**
+     * Show all the DB media records in the DB based on user selected HymnType and MediaType
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    public void showQQRecords()
+    {
+        List<QQRecord> qqRecords = mDB.getQQRecords();
+        if (qqRecords.isEmpty()) {
+            HymnsApp.showToastMessage(R.string.hymn_match_none);
+            return;
+        }
+        setTitle(getString(R.string.hymn_match, qqRecords.size()));
+
+        final List<Map<String, String>> data = new ArrayList<>();
+        for (QQRecord qqRecord : qqRecords) {
+            Map<String, String> item_db = new HashMap<>();
+            item_db.put("match", qqRecord.toString());
+            data.add(item_db);
+        }
+
+        /* Display the search result to the user */
+        SimpleListAdapter qqAdapter = new SimpleListAdapter(this, data, R.layout.media_records_list,
+                new String[]{"match"}, new int[]{R.id.item_record});
+
+        mListView.setAdapter(qqAdapter);
+        mListView.setTag("QQRecord");
+        mListView.setVisibility(View.VISIBLE);
+
+        // Update the media Record Editor info.
+        mListView.setOnItemClickListener((adapterView, view, pos, id) -> {
+            qqAdapter.setSelectItem(pos, view);
+
+            if (isAutoFilled) {
+                String qqEntry = data.get(pos).get("match");
+                QQRecord qqRecord = QQRecord.toRecord(qqEntry);
+                if (qqRecord != null) {
+                    String hymnType = qqRecord.getHymnType();
+                    for (int i = 0; i < hymnTypeValue.size(); i++) {
+                        if (hymnTypeValue.get(i).equals(hymnType)) {
+                            hymnTypeSpinner.setSelection(i);
+                            break;
+                        }
+                    }
+                    // mediaTypeSpinner.setSelection(Enum.valueOf(MediaType.class, items[2]).getValue());
+                    int hymnNo = qqRecord.getHymnNo();
+                    if (hymnType.equals(HYMN_DB) && hymnNo > HYMN_DB_NO_MAX) {
+                        cbFu.setChecked(true);
+                    }
+                    tvHymnNo.setText(Integer.toString(hymnNo));
+
+                    // force focus to tvHymnNo so isAutoFilled cannot be accidentally cleared
+                    tvHymnNo.requestFocus();
+
+                    String mediaPath = qqRecord.getMediaUri();
+                    if (!TextUtils.isEmpty(qqRecord.getMediaFilePath())) {
+                        mediaPath = qqRecord.getMediaFilePath().replace(MediaRecord.DOWNLOAD_DIR, MediaRecord.DOWNLOAD_FP);
+                    }
+                    tvMediaUri.setText(mediaPath);
+                }
+            }
+        });
+
+        // LongPress to delete hymn selection entry history on user confirmation
+        mListView.setOnItemLongClickListener((adapterView, view, pos, l) -> {
+            String qqEntry = data.get(pos).get("match");
+            QQRecord qqRecord = QQRecord.toRecord(qqEntry);
+
+            DialogActivity.showConfirmDialog(this,
+                    R.string.gui_delete,
+                    R.string.gui_qq_record_delete,
+                    R.string.gui_delete, new DialogActivity.DialogListener()
+                    {
+                        public boolean onConfirmClicked(DialogActivity dialog)
+                        {
+                            int count = mDB.deleteQQRecord(qqRecord);
+                            HymnsApp.showToastMessage(R.string.gui_delete_media_ok, (count != 0) ? qqRecord.getHymnNo() : 0);
+                            if (count == 1) {
+                                data.remove(pos);
+                                qqAdapter.notifyDataSetChanged();
+                            }
+                            return true;
+                        }
+
+                        public void onDialogCancelled(DialogActivity dialog)
+                        {
+                        }
+                    }, qqEntry);
+            return true;
         });
     }
 

@@ -6,6 +6,13 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.7.0 (12/31/2021)" versioncode="107000">
+        <change>全面实现 1.7.1 中的所有功能，但使用单独的 hymn_qq 数据库。</change>
+        <change>v1.7.1 将恢复使用与 v1.6.4 相同的数据库结构。</change>
+        <change>Source v1.7.0 签入仅供参考，但未发布应用程序。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;</change>
+    </release>
+
     <release version="1.6.5 (12/25/2021)" versioncode="106050">
         <change>为了有效的网页访问，需要使用中文文本对 URL 进行编码。</change>
         <change>使用安卓默认网页浏览器执行诗歌信息搜索；方允许选定的视频链接与应用共享。</change>

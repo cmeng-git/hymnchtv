@@ -17,6 +17,7 @@
 package org.cog.hymnchtv.webview;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,6 +31,7 @@ import android.widget.ProgressBar;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import org.cog.hymnchtv.*;
@@ -45,6 +47,7 @@ import timber.log.Timber;
 
 /**
  * The class displays the content accessed via given web link
+ * https://developer.android.com/guide/webapps/webview
  *
  * @author Eng Chong Meng
  */
@@ -60,6 +63,14 @@ public class WebViewFragment extends Fragment implements OnKeyListener
 
     private String webUrl = null;
     private ValueCallback<Uri[]> mUploadMessageArray;
+    private ContentHandler mContentHandler;
+
+    @Override
+    public void onAttach(@NonNull Context context)
+    {
+        super.onAttach(context);
+        mContentHandler = (ContentHandler) context;
+    }
 
     @SuppressLint("JavascriptInterface")
     @Override
@@ -74,6 +85,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
 
+        // https://developer.android.com/guide/webapps/webview#BindingJavaScript
         webview.addJavascriptInterface(HymnsApp.getGlobalContext(), "Android");
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
@@ -108,12 +120,11 @@ public class WebViewFragment extends Fragment implements OnKeyListener
                 return true;
             }
         });
-        webview.setWebViewClient(new MyWebViewClient(this));
 
-        // init webUrl with urlStack.pop() if non-empty, else load from default in DB
-        // initWebView();
+        // https://developer.android.com/guide/webapps/webview#HandlingNavigation
+        webview.setWebViewClient(new MyWebViewClient(this));
         if (urlStack.isEmpty()) {
-            webUrl = ((ContentHandler) getActivity()).getWebUrl();
+            webUrl = mContentHandler.getWebUrl();
             urlStack.push(webUrl);
         }
         else {
@@ -136,24 +147,29 @@ public class WebViewFragment extends Fragment implements OnKeyListener
     }
 
     /**
-     * Init webView to download a new web page if it is not the same link
+     * Hymnchtv reuses the webView fragment. Keep if they are the same.
+     * Init webView to download a new web page if it is not the same as last accessed page
      */
     public void initWebView()
     {
-        urlStack.clear();
-        webUrl = ((ContentHandler) getActivity()).getWebUrl();
-        urlStack.push(webUrl);
-        webview.loadUrl(webUrl);
+        String tmp = mContentHandler.getWebUrl();
+        if (webUrl == null || !webUrl.equals(tmp)) {
+            urlStack.clear();
+            webUrl = tmp;
+            urlStack.push(webUrl);
+            webview.loadUrl(webUrl);
+        }
     }
 
     /**
-     * Add the own loaded url page to stack for later retrieval (goBack)
+     * Push the last loaded/user clicked url page to the urlStack for later retrieval in onCreateView(),
+     * allow same web page to be shown when user slides and returns to the webView
      *
-     * @param url loaded url
+     * @param url loaded/user clicked url
      */
-    public void addUrl(String url)
+    public void addLastUrl(String url)
     {
-        // urlStack.push(url);
+        urlStack.push(url);
         isLoadFromStack = false;
     }
 
@@ -222,6 +238,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
 
             if (keyCode == KeyEvent.KEYCODE_BACK) {
                 if (!isLoadFromStack && webview.canGoBack()) {
+                    // Remove the last saved/displayed url push in addLastUrl, so an actual previous page is shown
                     if (!urlStack.isEmpty())
                         urlStack.pop();
                     webview.goBack();

@@ -96,8 +96,8 @@ public class HymnsApp extends Application implements LifecycleEventObserver
 
         // Trigger the hymnchtv database upgrade or creation if none exist
         DatabaseBackend.getInstance(this);
-        // Recreate HistoryRecord due to change in column name
-        // MigrationTo2.createHymnHistoryTable(DatabaseBackend.getInstance(this).getWritableDatabase());
+        // Recreate hymmQQ Database
+        // MigrationTo3.createHymnQQTable(DatabaseBackend.getInstance(this).getWritableDatabase());
 
         // Do this after WebView(this).destroy(); Set up contextWrapper to use hymnchtv user selected Language
         mInstance = this;

@@ -159,13 +159,7 @@ public class MediaDownloadHandler extends Fragment
         String encDnLnk = dnLnk;
         try {
             // Need to encode chinese link for safe access; revert all "%3A" and "%2F" to ":" and "/" etc
-            encDnLnk = URLEncoder.encode(dnLnk, "UTF-8")
-                    .replace("%23", "#")
-                    .replace("%2F", "/")
-                    .replace("%3A", ":")
-                    .replace("%3D", "=")
-                    .replace("%3F", "?");
-            Timber.d("Download URL link encoded: %s", encDnLnk);
+            encDnLnk = AndroidUtils.UrlEncode(dnLnk);
         } catch (UnsupportedEncodingException e) {
             Timber.w("Exception in URLEncoder.encode (%s): %s", fileName, e.getMessage());
         }

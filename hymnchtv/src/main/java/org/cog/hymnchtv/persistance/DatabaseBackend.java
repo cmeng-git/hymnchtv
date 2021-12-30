@@ -16,35 +16,43 @@
  */
 package org.cog.hymnchtv.persistance;
 
+import static org.cog.hymnchtv.MainActivity.HYMN_BB;
+import static org.cog.hymnchtv.MainActivity.HYMN_DB;
+import static org.cog.hymnchtv.MainActivity.HYMN_ER;
+import static org.cog.hymnchtv.MainActivity.HYMN_QQ;
+import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.hymnhistory.HistoryRecord.TIME_STAMP;
+
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.TextUtils;
 
 import org.cog.hymnchtv.*;
 import org.cog.hymnchtv.hymnhistory.HistoryRecord;
-import org.cog.hymnchtv.mediaconfig.MediaConfig;
-import org.cog.hymnchtv.mediaconfig.MediaRecord;
+import org.cog.hymnchtv.mediaconfig.*;
 import org.cog.hymnchtv.persistance.migrations.Migrations;
 import org.cog.hymnchtv.persistance.migrations.MigrationsHelper;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import timber.log.Timber;
-
-import static org.cog.hymnchtv.MainActivity.HYMN_BB;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MainActivity.HYMN_ER;
-import static org.cog.hymnchtv.MainActivity.HYMN_XB;
-import static org.cog.hymnchtv.hymnhistory.HistoryRecord.TIME_STAMP;
 
 /**
  * The <tt>DatabaseBackend</tt> uses SQLite to store all the hymnchtv application data in the database "dbHymnApp.db"
  *
  * @author Eng Chong Meng
  */
+@SuppressLint("Range")
 public class DatabaseBackend extends SQLiteOpenHelper
 {
     /**
@@ -110,6 +118,15 @@ public class DatabaseBackend extends SQLiteOpenHelper
             + MediaConfig.HYMN_NO + ", " + MediaConfig.HYMN_FU + ", " + MediaConfig.MEDIA_TYPE
             + ") ON CONFLICT REPLACE);";
 
+    public static String CREATE_HYMN_QQ_LINK = "CREATE TABLE " + HYMN_QQ + " ("
+            + MediaConfig.HYMN_TYPE + " TEXT, "
+            + MediaConfig.HYMN_NO + " INTEGER, "
+            + MediaConfig.HYMN_TITLE + " TEXT, "
+            + MediaConfig.MEDIA_URI + " TEXT, "
+            + MediaConfig.MEDIA_FILE_PATH + " TEXT,  UNIQUE("
+            + MediaConfig.HYMN_TYPE + ", " + MediaConfig.HYMN_NO
+            + ") ON CONFLICT REPLACE);";
+
     // Recent message table
     public static String CREATE_HYMN_HISTORY = "CREATE TABLE " + HistoryRecord.TABLE_NAME + " ("
             + HistoryRecord.HYMN_TYPE + " TEXT, "
@@ -141,10 +158,26 @@ public class DatabaseBackend extends SQLiteOpenHelper
         db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_XB));
         db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_ER));
 
+        db.execSQL(CREATE_HYMN_QQ_LINK);
         db.execSQL(CREATE_HYMN_HISTORY);
 
         // Perform the first data migration to SQLite database
         initDatabase(db);
+    }
+
+    /**
+     * Initialize, migrate and fill the database from old data implementation
+     */
+    private void initDatabase(SQLiteDatabase db)
+    {
+        Timber.i("### Starting Database migration! ###");
+        db.beginTransaction();
+        try {
+            db.setTransactionSuccessful();
+            Timber.i("### Completed SQLite DataBase migration successfully! ###");
+        } finally {
+            db.endTransaction();
+        }
     }
 
     /**
@@ -171,26 +204,10 @@ public class DatabaseBackend extends SQLiteOpenHelper
     }
 
     /**
-     * Initialize, migrate and fill the database from old data implementation
-     */
-    private void initDatabase(SQLiteDatabase db)
-    {
-        Timber.i("### Starting Database migration! ###");
-        db.beginTransaction();
-        try {
-            db.setTransactionSuccessful();
-            Timber.i("### Completed SQLite DataBase migration successfully! ###");
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-
-    /**
      * Check if mRecord exist in DB and update with the DB result if update if true
      *
      * @param mRecord Media record to check for
-     * @param update  Update mRecord if true, else just return the status; i.e just to check if exist in DB
+     * @param update Update mRecord if true, else just return the status; i.e just to check if exist in DB
      * @return mRecord present status, and mRecord is updated if update is true;
      */
     public boolean getMediaRecord(MediaRecord mRecord, boolean update)
@@ -284,6 +301,183 @@ public class DatabaseBackend extends SQLiteOpenHelper
         }
         cursor.close();
         return mediaRecords;
+    }
+
+    /**
+     * Save the given JSONObject to the database table hymn_QQ if contains valid info, else abort.
+     * The title info must resolve to have:
+     * a. valid hymnType
+     * b. valid hymnNo
+     *
+     * Valid JSONObject:
+     * {
+     * title: 'D1但愿荣耀归于圣父',
+     * item_show_type: '0',
+     * url: 'http://mp.weixin.qq.com/s?__biz=MzUwOTc2ODcxNA==&amp;amp;mid=2247486824&amp;amp;idx=5&amp;amp;sn=97d137a5a4ddb1b0b778087ac84770b7
+     * &amp;amp;chksm=f90c680dce7be11b4a3445af8dbe636b5a3d921ce910427609684bff2e5d95d0cda0696af419&amp;amp;scene=21#wechat_redirect',
+     * subject_name: '诗歌操练学习',
+     * link_type: 'LINK_TYPE_MP_APPMSG',
+     * }
+     *
+     * @param jsonRecord an instance of JSONObject
+     * + MediaConfig.HYMN_NO + " INTEGER, "
+     * + MediaConfig.HYMN_TITLE + " TEXT, "
+     * + MediaConfig.HYMN_TYPE + " TEXT, "
+     * + MediaConfig.MEDIA_URI + " TEXT, "
+     * + MediaConfig.MEDIA_FILE_PATH + " TEXT,  UNIQUE("
+     */
+    public void storeQQJObject(JSONObject jsonRecord)
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        Pattern pattern = Pattern.compile("[DBCX](\\d+)");
+        ContentValues values = new ContentValues();
+        try {
+            String title = jsonRecord.getString(QQRecord.QQ_TITLE);
+            String hymnType = QQRecord.qqHymn2Type.get(title.substring(0, 1));
+            if (TextUtils.isEmpty(hymnType)) {
+                Timber.w("### Invalid QQ record HymnTitle: %s", title);
+                return;
+            }
+
+            Matcher matcher = pattern.matcher(title);
+            if (matcher.find()) {
+                String noStr = matcher.group(1);
+                if (TextUtils.isEmpty(noStr)) {
+                    Timber.w("### Invalid QQ record HymnNo: %s", noStr);
+                    return;
+                }
+                values.put(MediaConfig.HYMN_TYPE, hymnType);
+                values.put(MediaConfig.HYMN_NO, noStr);
+            }
+
+            values.put(MediaConfig.HYMN_TITLE, title);
+            values.put(MediaConfig.MEDIA_URI, jsonRecord.getString(QQRecord.QQ_URL));
+
+            long row = db.insert(HYMN_QQ, null, values);
+            if (row == -1) {
+                Timber.e("### Error in creating QQ record for: %s", title);
+            }
+        } catch (JSONException e) {
+            Timber.e("### Error in creating QQ record with json exception: %s", e.getMessage());
+        }
+    }
+
+    public void storeQQRecord(QQRecord qqRecord)
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(MediaConfig.HYMN_TYPE, qqRecord.getHymnType());
+        values.put(MediaConfig.HYMN_NO, qqRecord.getHymnNo());
+        values.put(MediaConfig.HYMN_TITLE, qqRecord.getHymnTitle());
+        values.put(MediaConfig.MEDIA_URI, qqRecord.getMediaUri());
+        values.put(MediaConfig.MEDIA_FILE_PATH, qqRecord.getMediaFilePath());
+
+        long row = db.insert(HYMN_QQ, null, values);
+        if (row == -1) {
+            Timber.e("### Error in creating QQ record for: %s", qqRecord);
+        }
+    }
+
+    /**
+     * Check if mRecord exist in DB and update with the DB result if update if true
+     *
+     * @param qqRecord Media record to check for
+     * @param update Update mRecord if true, else just return the status; i.e just to check if exist in DB
+     * @return mRecord present status, and mRecord is updated if update is true;
+     */
+    public boolean getQQRecord(QQRecord qqRecord, boolean update)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        boolean hasRecord = false;
+
+        String[] columns = {MediaConfig.HYMN_TITLE, MediaConfig.MEDIA_URI, MediaConfig.MEDIA_FILE_PATH};
+        String[] args = {qqRecord.getHymnType(), Integer.toString(qqRecord.getHymnNo())};
+
+        Cursor cursor = db.query(HYMN_QQ, columns,
+                MediaConfig.HYMN_TYPE + "=? AND " + MediaConfig.HYMN_NO + "=?",
+                args, null, null, null);
+
+        while (cursor.moveToNext()) {
+            if (TextUtils.isEmpty(qqRecord.getHymnTitle()) && !TextUtils.isEmpty(cursor.getString(0)))
+                qqRecord.setHymnTitle(cursor.getString(0));
+            if (update) {
+                qqRecord.setMediaUri(cursor.getString(1));
+                qqRecord.setFilePath(cursor.getString(2));
+            }
+            hasRecord = true;
+        }
+        cursor.close();
+        return hasRecord;
+    }
+
+    /**
+     * Delete the given QQRecord in the database table hymn_qq
+     *
+     * @param qqRecord an instance of HistoryRecord
+     */
+    public int deleteQQRecord(QQRecord qqRecord)
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        String[] args = {qqRecord.getHymnType(), Integer.toString(qqRecord.getHymnNo())};
+
+        return db.delete(HYMN_QQ, MediaConfig.HYMN_TYPE + "=? AND "
+                + MediaConfig.HYMN_NO + "=?", args);
+    }
+
+    /**
+     * Get the media records which contain valid links
+     *
+     * @param qqRecord one of the MediaConfig.hymnTypeValue
+     * @return List of mediaRecords for the given hymnType
+     */
+    public String getQQHymnUrl(QQRecord qqRecord)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String url = null;
+        String[] args = {qqRecord.getHymnType(), Integer.toString(qqRecord.getHymnNo())};
+
+        Cursor cursor = db.query(HYMN_QQ, null,
+                MediaConfig.HYMN_TYPE + "=? AND " + MediaConfig.HYMN_NO + "=?",
+                args, null, null, null);
+        while (cursor.moveToNext()) {
+            url = cursor.getString(cursor.getColumnIndex(MediaConfig.MEDIA_URI));
+            url = url.replace("http:", "https:");
+            qqRecord = new QQRecord(
+                    cursor.getString(cursor.getColumnIndex(MediaConfig.HYMN_TYPE)),
+                    cursor.getInt(cursor.getColumnIndex(MediaConfig.HYMN_NO)),
+                    cursor.getString(cursor.getColumnIndex(MediaConfig.HYMN_TITLE)),
+                    url,
+                    cursor.getString(cursor.getColumnIndex(MediaConfig.MEDIA_FILE_PATH)));
+
+        }
+        cursor.close();
+        return url;
+    }
+
+    /**
+     * Get the qq records from the hymn_qq table in ascending order
+     *
+     * @return List of QQRecord's from hymn_qq table
+     */
+    public List<QQRecord> getQQRecords()
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<QQRecord> qqRecords = new ArrayList<>();
+        String ORDER_ASC = MediaConfig.HYMN_TYPE + ", " + MediaConfig.HYMN_NO + " ASC";
+
+        Cursor cursor = db.query(HYMN_QQ, null, null, null, null, null, ORDER_ASC);
+        while (cursor.moveToNext()) {
+            QQRecord mediaRecord = new QQRecord(
+                    cursor.getString(cursor.getColumnIndex(MediaConfig.HYMN_TYPE)),
+                    cursor.getInt(cursor.getColumnIndex(MediaConfig.HYMN_NO)),
+                    cursor.getString(cursor.getColumnIndex(MediaConfig.HYMN_TITLE)),
+                    cursor.getString(cursor.getColumnIndex(MediaConfig.MEDIA_URI)),
+                    cursor.getString(cursor.getColumnIndex(MediaConfig.MEDIA_FILE_PATH)));
+            qqRecords.add(mediaRecord);
+        }
+        cursor.close();
+        return qqRecords;
     }
 
     /**

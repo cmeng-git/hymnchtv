@@ -1,18 +1,41 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    12/25/2021
-Version:        1.6.5 (106050)
-- Need to encode URL with Chinese text for safe access; revert all "%3A" and "%2F" to ":" and "/" etc
+Upload Date:    01/xx/2022
+Version:        1.7.1 (107010)
+- Add TouchListener class to support SingleTap, DoubleTap and LongPress
+- Update and redefine hymn info search function button in the media content playback UI to support:
+  * singleTap to perform hymn info search via qq.com (main page if none found)
+  * longPress to perform hymn info search via youtube.com
+  * DoubleTap to perform hymn info search via google.com
+- LongPress on 'MediaButton' to show QQ-info main page
+
+- Add QQ function button in MediaConfig UI
+  * singleTap to build QQ-info DB; on confirmation by user
+  * longPress to show the all records in QQ-info DB in ListView
+  * longPress an item in ListView to delete record
+- Allow link-share from QQ-info hymn link into hymnchtv database for later retrieval
+
 - Use android default web browser for hymn info search; allowing selected video link for sharing with hymnchtv
+
+- Revert SebViewClient#isDomainMatch() to its previous correct implementation
+- Revert English Lyrics view to use WebView for avoid reload if use access the same hymnNo.
+
+=========================================================================
+Author:         cmeng
+Upload Date:    12/31/2021
+Version:        1.7.0 (107000)
+- Full implementation of all the features as in 1.7.1, but using a separate hymn_qq database.
+- Hymnchtv v1.7.1 will revert to use the same database structure as in v1.6.4
+- Source v1.7.0 check in for future reference only, but no public app released
 
 =========================================================================
 Author:         cmeng
 Upload Date:    12/24/2022
 Version:        1.6.4 (106040)
 - Add hymn info search function button in the media content playback UI
-  * short press to perform hymn info search via youtube.com
-  * long click to perform hymn info search via google.com
+  * single click to perform hymn info search via youtube.com
+  * long press to perform hymn info search via google.com
 - Auto copy hymnInfo string to clipboard, allowing user to paste into own defined search engine.
 - Replace deprecated LifecycleObserver with LifecycleEventObserver in hymnchtv
 

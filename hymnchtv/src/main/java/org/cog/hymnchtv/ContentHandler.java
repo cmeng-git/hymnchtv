@@ -55,13 +55,11 @@ import org.cog.hymnchtv.mediaconfig.MediaRecord;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.utils.*;
-import org.cog.hymnchtv.webview.MyWebViewClient;
 import org.cog.hymnchtv.webview.WebViewFragment;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.URLEncoder;
 import java.util.*;
 
 import timber.log.Timber;
@@ -74,6 +72,7 @@ import timber.log.Timber;
 public class ContentHandler extends FragmentActivity
 {
     public static String HYMNCHTV_FAQ_PLAYBACK = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0050";
+    public static String HYMNCHTV_QQ_MAIN = "https://mp.weixin.qq.com/s/kgqBH0C_zgDaBnxbvC9wew";
 
     // sub-directory for various media type
     public static String MEDIA_MEDIA = "/media_media/";
@@ -88,16 +87,16 @@ public class ContentHandler extends FragmentActivity
     public static final String MIDI_DB = "dm";
     public static final String MIDI_DBC = "dmc";
 
-    private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
+    public final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
     private MediaContentHandler mMediaContentHandler;
 
-    private boolean isHFAvailable = false;
+    public boolean isHFAvailable = false;
     private boolean isShowPlayerUi;
 
     // Hymn Type and number selected by user
     private boolean mAutoPlay = false;
-    private String mSelect;
-    private int hymnNo;
+    public String mSelect;
+    public int hymnNo;
     private int hymnIdx = -1;
 
     // Null if there is no corresponding English lyrics
@@ -115,7 +114,8 @@ public class ContentHandler extends FragmentActivity
         onlineHelp,
         englishLyrics,
         hymnGoogleSearch,
-        hymnYoutubeSearch
+        hymnYoutubeSearch,
+        hymnQqSearch
     }
 
     private MyPagerAdapter mPagerAdapter;
@@ -1044,7 +1044,16 @@ public class ContentHandler extends FragmentActivity
         return hymnInfo;
     }
 
-    public void initWebView(UrlType type)
+    /**
+     * Use android default browser for all web url access except for 'englishLyrics', avoid reload webPage for
+     * englishLyrics if use access to the same english hymn no.
+     *
+     * WebView UI is not user friendly, and offers limited share links for youtube.com/google.com string search.
+     * i.e. The webView does not offer all the share app, and excluded hymnchtv for user selection.
+     *
+     * @param type UrlType enum type
+     */
+    public void initWebView(UrlType type, String... url)
     {
         switch (type) {
             case onlineHelp:
@@ -1055,37 +1064,31 @@ public class ContentHandler extends FragmentActivity
                 mWebUrl = (hymnNoEng == null) ? null : HymnalLink + hymnNoEng;
                 break;
             case hymnGoogleSearch:
-                mWebUrl = (mHymnInfo == null) ? null : "https://www.google.com/search?q="+mHymnInfo;
+                mWebUrl = (mHymnInfo == null) ? null : "https://www.google.com/search?q=" + mHymnInfo;
                 break;
             case hymnYoutubeSearch:
-                mWebUrl = (mHymnInfo == null) ? null : "https://m.youtube.com/results?search_query="+mHymnInfo;
+                mWebUrl = (mHymnInfo == null) ? null : "https://m.youtube.com/results?search_query=" + mHymnInfo;
+                break;
+            case hymnQqSearch:
+                mWebUrl = ((url.length < 1) || (url[0] == null)) ? HYMNCHTV_QQ_MAIN : url[0];
                 break;
             default:
                 mWebUrl = null;
         }
 
-        if (!TextUtils.isEmpty(mWebUrl)) {
-            try {
-                // Need to encode chinese link for safe access; revert all "%3A" and "%2F" to ":" and "/" etc
-                mWebUrl = URLEncoder.encode(mWebUrl, "UTF-8")
-                        .replace("%23", "#")
-                        .replace("%2F", "/")
-                        .replace("%3A", ":")
-                        .replace("%3D", "=")
-                        .replace("%3F", "?");
-            } catch (UnsupportedEncodingException e) {
-                Timber.w("Exception in URLEncoder.encode (%s): %s", mWebUrl, e.getMessage());
-            }
+        // Timber.d("Web URL link: %s", mWebUrl);
+        if (mWebUrl == null) {
+            HymnsApp.showToastMessage(R.string.gui_error_media_url_invalid, mWebUrl);
+            return;
         }
-        Timber.d("Web URL link encoded: %s", mWebUrl);
 
-        // return false if aim contains no host string i.e. not a url e.g. mailto:info[at]example.com
-        String aim = Uri.parse(mWebUrl).getHost();
-        if (!TextUtils.isEmpty(aim)) {
+        // Proceed to use android default browser if it is not englishLyrics access
+        if (UrlType.englishLyrics != type) {
             About.hymnUrlAccess(this, mWebUrl);
             return;
         }
 
+        // Not actually being used in current implementation
         WebViewFragment mWebFragment = (WebViewFragment) getSupportFragmentManager().findFragmentById(R.id.webView);
         if (mWebFragment == null) {
             mWebFragment = new WebViewFragment();

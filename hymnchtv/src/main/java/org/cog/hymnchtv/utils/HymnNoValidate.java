@@ -182,7 +182,7 @@ public class HymnNoValidate
                         HymnsApp.showToastMessage(R.string.hymn_info_db_range_fu);
                         isValid = false;
                     } else {
-                        // Fu hymbNo continues from HYMN_DB_NO_MAX
+                        // Fu hymnNo continues from HYMN_DB_NO_MAX
                         hymnNo += HYMN_DB_NO_MAX;
                     }
                 }
