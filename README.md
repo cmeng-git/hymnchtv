@@ -5,12 +5,9 @@
     <a href="https://cmeng-git.github.io/hymnchtv">
         <img src="./art/hymnchtv.png" alt="hymnchtv">
     </a>
-    &nbsp;
     <a href="https://play.google.com/store/apps/details?id=org.cog.hymnchtv&hl=zh-CN">
         <img src="./art/google_play.png" alt="Google PlayStore">
     </a>
-    &nbsp;
-    &nbsp;
     <a href="https://www.youtube.com/watch?v=D8FKFfcUxPw">
         <img src="./art/youtube.png" alt="YouTube">
     </a>
@@ -77,17 +74,39 @@
 ## 文献资料
 * [书拉密女-诗歌本](https://cmeng-git.github.io/hymnchtv)
 * [历史记录](https://github.com/cmeng-git/hymnchtv/blob/master/hymnchtv/ReleaseNotes.txt)
-* 因为有版权的诗歌的源材料，请查看[内容](https://github.com/cmeng-git/hymnchtv/blob/master/documentation/content.md)
+* 诗歌本源材版权：[台湾福音书房](https://www.twgbr.org.tw/)
+* 由于该应用程序需要版权源材料才能编译，请参阅[内容](https://github.com/cmeng-git/hymnchtv/blob/master/documentation/readme.md)
 
 ## 反馈和贡献
 如果您发现错误，希望使用新功能或有其他问题，请到 [此网址](https://github。com/cmeng-git/hymnchtv/issues) 提出意见。
 
+## 书拉密女-诗歌本构建说明：
+### Build Process
+The hymnchtv project is built based on Android Studio (Arctic Fox) running on Ubuntu 20.04.<br/>
+The project uses android bundled assets, due to its final apk file size exceed android apk size limit.<br/>
+The final built apps is packaged as multiple "split" APKs.<br/>
+Please refer to [bundletool](https://developer.android.com/studio/command-line/bundletool) for more info on apks bundle and local testing:
+
+#### For Play Asset Delivery Local Testing on android device
+* Download the bundletool.jar from [bundletool](https://developer.android.com/studio/command-line/bundletool) 
+* First build the buddle .aab via menu: Build | Build Bundle(s) / APK(s) | Build Bundle(s); Then issue the following on android studio Terminal window:
+  $ java -jar ../bundletool.jar build-apks --bundle=./hymnchtv/build/outputs/bundle/debug/hymnchtv-debug.aab --output=./hymnchtv/build/outputs/apk/debug/hymnchtv-debug.apks --overwrite --local-testing<br/>
+  $ java -jar ../bundletool.jar install-apks --apks=./hymnchtv/build/outputs/apk/debug/hymnchtv-debug.apks --adb=/usr/bin/adb --device-id=520077315b2b947f<br/>
+* Note: The above generated apks can also be installed with an android apks installer e.g. apkmody (XAPKS Installer)
+
+#### Build single "monolithic" APK For normal android Package installer
+* see https://www.py4u.net/discuss/617357
+* First create single universal apks using bundletool option flag: --mode=universal as indicates below
+* Zip extras the universal.apk
+* The universal.apk file can then be installed with a normal android package installer
+
+$ java -jar ../bundletool.jar build-apks --bundle=./hymnchtv/build/outputs/bundle/debug/hymnchtv-debug.aab --output=./hymnchtv/build/outputs/apk/debug/hymnchtv-debug.apks --overwrite --local-testing --mode=universal
+
 许可证
 -------
-
-     hymnchtv: COG hymns' lyrics viewer and player client
+    hymnchtv: COG hymns' lyrics viewer and player client
      
-     Copyright 2020 Eng Chong Meng    
+    Copyright 2020 Eng Chong Meng    
         
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

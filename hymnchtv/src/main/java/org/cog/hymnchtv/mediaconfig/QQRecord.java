@@ -21,13 +21,11 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 
-import android.os.*;
 import android.text.TextUtils;
 
 import org.cog.hymnchtv.*;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.utils.SocketConnection;
-import org.jetbrains.annotations.NotNull;
 import org.json.*;
 
 import java.io.IOException;
@@ -38,16 +36,17 @@ import java.util.regex.Pattern;
 import timber.log.Timber;
 
 /**
- * The class provide handlers for the QQ info record
- * @see MediaConfig for the format of the QQ record
+ * The class provide handlers for the QQ JSONObject record;
  *
  * @author Eng Chong Meng
  */
-public class QQRecord
+public class QQRecord extends MediaRecord
 {
+     //  Map defines the QQ links for HymnType access
     public static final List<String> qqHymnType
             = Arrays.asList("【大本诗歌D】", "【䃼充本诗歌B】", "【儿童诗歌C】", "【新歌颂咏X】");
 
+    // Map use to translate QQ_TITLE prefix to hymnType
     public static final Map<String, String> qqHymn2Type = new HashMap<>();
 
     static {
@@ -57,141 +56,15 @@ public class QQRecord
         qqHymn2Type.put("X", HYMN_XB);
     }
 
-    // QQ JSONObject key values
+    // QQ JSONObject key values for MediaRecord creation and saving
     public static final String QQ_TITLE = "title";
     public static final String QQ_URL = "url";
-    public static final String QQ_SUBJECT = "subject_name";
+    private static int mCount = 0;
 
-    public static final String DOWNLOAD_FP = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-    public static final String DOWNLOAD_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getName();
-
-    private final String mHymnType;
-    private final int mHymnNo;
-    private String mHymnTitle;
-    private String mMediaUri;
-    private String mFilePath;
-
+    // Create a specific MediaRecord for web url fetch
     public QQRecord(String hymnType, int hymnNo)
     {
-        this(hymnType, hymnNo, null, null, null);
-    }
-
-    public QQRecord(String hymnType, int hymnNo, String title, String mediaUri, String filePath)
-    {
-        mHymnType = hymnType;
-        mHymnNo = hymnNo;
-        mHymnTitle = title;
-        mMediaUri = mediaUri;
-        mFilePath = filePath;
-    }
-
-    public void setMediaUri(String mediaUri)
-    {
-        mMediaUri = mediaUri;
-    }
-
-    public void setFilePath(String filePath)
-    {
-        mFilePath = filePath;
-    }
-
-    public void setHymnTitle(String title)
-    {
-        mHymnTitle = title;
-    }
-
-    public String getHymnType()
-    {
-        return mHymnType;
-    }
-
-    public int getHymnNo()
-    {
-        return mHymnNo;
-    }
-
-    public String getHymnTitle()
-    {
-        return mHymnTitle;
-    }
-
-    public String getMediaUri()
-    {
-        if (TextUtils.isEmpty(mMediaUri) || "null".equalsIgnoreCase(mMediaUri))
-            return null;
-
-        return mMediaUri;
-    }
-
-    public String getMediaFilePath()
-    {
-        if (TextUtils.isEmpty(mFilePath) || "null".equalsIgnoreCase(mFilePath))
-            return null;
-
-        return mFilePath;
-    }
-
-    /**
-     * Convert the give string which containing full parameters for conversion to QQRecord
-     *
-     * @param qqString the exported string or ListView string
-     * @return the converted QQRecord, or null for invalid qqRecord string
-     */
-    public static QQRecord toRecord(String qqString)
-    {
-        if (TextUtils.isEmpty(qqString))
-            return null;
-
-        // Try to split assuming ListView item string
-        String[] recordItem = qqString.split(":[# ]|\\nuri: |\\nfp: |[ ]*[,\\t][ ]*");
-
-        // must has all the 5 parameters for the QQRecord
-        if (recordItem.length < 5)
-            return null;
-
-        return new QQRecord(recordItem[0],
-                Integer.parseInt(recordItem[1]),
-                recordItem[2],
-                recordItem[3],
-                recordItem[4]);
-    }
-
-    /**
-     * Convert the media records in the database to an exportable string
-     *
-     * @return QQRecord string for database export
-     */
-    public String toExportString()
-    {
-        String qqRecord = null;
-        if (getMediaFilePath() != null) {
-            qqRecord = String.format(Locale.CHINA, "%s,%d,%s,%s,%s\r\n",
-                    mHymnType, mHymnNo, mHymnTitle, null, mFilePath);
-        }
-        else if (getMediaUri() != null) {
-            qqRecord = String.format(Locale.CHINA, "%s,%d,%s,%s,%s\r\n",
-                    mHymnType, mHymnNo, mHymnTitle, mMediaUri, null);
-        }
-        return qqRecord;
-    }
-
-    /**
-     * Convert the database QQRecord info to user-friendly display list record.
-     *
-     * @return QQRecord in user readable String
-     */
-    public @NotNull String toString()
-    {
-        // Decode the uri link for friendly user UI
-        String uriLink = getMediaUri();
-        String filePath = getMediaFilePath();
-        if (filePath != null) {
-            filePath = filePath.replace(DOWNLOAD_FP, DOWNLOAD_DIR);
-        }
-
-        String hymnNo = String.format(Locale.CHINA, "%04d", mHymnNo);
-        return String.format(Locale.CHINA, "%s:#%s: %s\nuri: %s\nfp: %s",
-                    mHymnType, hymnNo, mHymnTitle, uriLink, filePath);
+        super(hymnType, hymnNo, isFu(hymnType, hymnNo), MediaType.HYMN_URL, null, null);
     }
 
     /**
@@ -219,6 +92,7 @@ public class QQRecord
                 try {
                     JSONArray jsonArray = fetchJsonArray(ContentHandler.HYMNCHTV_QQ_MAIN);
                     if (jsonArray != null) {
+                        mCount = 0;
                         for (int i = 0; i < jsonArray.length(); i++) {
                             JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                             Timber.d("QQ HymnType (%s): %s", i, jsonObject);
@@ -239,9 +113,8 @@ public class QQRecord
                     HymnsApp.showToastMessage(R.string.gui_qq_download_failed);
                     return;
                 }
-
-                HymnsApp.showToastMessage(R.string.gui_qq_download_completed);
-                new Handler(Looper.getMainLooper()).post(mediaConfig::showQQRecords);
+                Timber.d(HymnsApp.getResString(R.string.gui_qq_download_completed, mCount));
+                HymnsApp.showToastMessage(R.string.gui_qq_download_completed, mCount);
             }
         }.start();
     }
@@ -310,18 +183,73 @@ public class QQRecord
      */
     private static void saveQQRecord(String url)
     {
-        DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
         try {
             JSONArray jsonArray = fetchJsonArray(url);
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                     // Timber.d("QQ Hymn Record (%s): %s", i, jsonObject);
-                    mDB.storeQQJObject(jsonObject);
+                    storeQQJObject(jsonObject);
                 }
             }
         } catch (JSONException e) {
             Timber.e("URL get source exception: %s", e.getMessage());
+        }
+    }
+
+    /**
+     * Save the given JSONObject to the database table hymnType, if contains valid info, else abort.
+     * The JSONObject 'title' info must resolve to have:
+     * a. valid hymnType
+     * b. valid hymnNo
+     *
+     * Valid QQ JSONObject:
+     * {
+     * title: 'D1但愿荣耀归于圣父',
+     * item_show_type: '0',
+     * url: 'http://mp.weixin.qq.com/s?__biz=MzUwOTc2ODcxNA==&amp;amp;mid=2247486824&amp;amp;idx=5&amp;amp;sn=97d137a5a4ddb1b0b778087ac84770b7
+     * &amp;amp;chksm=f90c680dce7be11b4a3445af8dbe636b5a3d921ce910427609684bff2e5d95d0cda0696af419&amp;amp;scene=21#wechat_redirect',
+     * subject_name: '诗歌操练学习',
+     * link_type: 'LINK_TYPE_MP_APPMSG',
+     * }
+     */
+    private static void storeQQJObject(JSONObject jsonRecord)
+    {
+        final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
+        Pattern pattern = Pattern.compile("[DBCX](\\d+)");
+
+        try {
+            String title = jsonRecord.getString(QQ_TITLE);
+            String hymnType = qqHymn2Type.get(title.substring(0, 1));
+            if (TextUtils.isEmpty(hymnType)) {
+                Timber.w("### Invalid QQ record HymnTitle: %s", title);
+                return;
+            }
+
+            Matcher matcher = pattern.matcher(title);
+            int hymnNo = -1;
+            if (matcher.find()) {
+                String noStr = matcher.group(1);
+                if (TextUtils.isEmpty(noStr)) {
+                    Timber.w("### Invalid QQ record HymnNo: %s", noStr);
+                    return;
+                }
+                else {
+                    hymnNo = Integer.parseInt(noStr);
+                }
+            }
+
+            QQRecord mRecord = new QQRecord(hymnType, hymnNo);
+            mRecord.setMediaUri(jsonRecord.getString(QQRecord.QQ_URL));
+
+            long row = mDB.storeMediaRecord(mRecord);
+            if (row < 0) {
+                Timber.e("### Error in creating QQ record for: %s", title);
+            } else {
+                mCount++;
+            }
+        } catch (JSONException e) {
+            Timber.e("### Error in creating QQ record with json exception: %s", e.getMessage());
         }
     }
 
@@ -335,7 +263,7 @@ public class QQRecord
     {
         // Standard enclosing pattern for link info used on the QQ sites
         Pattern pattern = Pattern.compile("var jumpInfo = (\\[.*?]);");
-        // android does not allow cleartextTraffic access
+        // android does not allow cleartextTraffic access; must force to secure link
         url = url.replace("http:", "https:");
 
         try {

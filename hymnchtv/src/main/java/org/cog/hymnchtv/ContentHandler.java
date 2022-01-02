@@ -902,7 +902,10 @@ public class ContentHandler extends FragmentActivity
                 break;
         }
 
-        for (MediaType mediaType : MediaType.values()) {
+        // iterate only the first 4 values of the mediaTypes only
+        MediaType[] mediaTypes = MediaType.values();
+        for (i = 0; i< mediaTypes.length-1; i++) {
+            MediaType mediaType = mediaTypes[i];
             MediaRecord mediaRecord = new MediaRecord(mSelect, hymnNo, isFu, mediaType);
             isAvailable[i++] |= mDB.getMediaRecord(mediaRecord, false);
 

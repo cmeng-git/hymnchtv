@@ -449,8 +449,8 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         {
             switch (v.getId()) {
                 case R.id.btn_hymnSearch:
-                    QQRecord qqRecord = new QQRecord(mContentHandler.mSelect, mContentHandler.hymnNo);
-                    String url = mContentHandler.mDB.getQQHymnUrl(qqRecord);
+                    QQRecord mRecord = new QQRecord(mContentHandler.mSelect, mContentHandler.hymnNo);
+                    String url = mContentHandler.mDB.getHymnUrl(mRecord);
                     mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch, url);
                     break;
 

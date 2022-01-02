@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name">诗歌本</string>
     <string name="app_title_main">书拉密女-诗歌本</string>
 
@@ -27,7 +27,7 @@
     <string name="gui_db_overwrite_media">是否覆盖数据库中的现有媒体记录？</string>
     <string name="gui_delete">删除</string>
     <string name="gui_delete_history">删除诗歌历史记录: %1$s？</string>
-    <string name="gui_delete_media">删除诗歌媒体记录#%1$d？</string>
+    <string name="gui_delete_media">删除诗歌媒体记录？&lt;br/>%1$s#%2$04d: %3$s</string>
     <string name="gui_delete_media_failed">无法删除媒体记录: %1$s#%2$d。</string>
     <string name="gui_delete_media_ok">成功删除媒体记录#%1$d。</string>
     <string name="gui_exit">退出</string>
@@ -43,7 +43,7 @@
     <string name="gui_lyrics_text_size_limits">已达到文本最小或最大的限制值。</string>
     <string name="gui_media_content_remove">从手机中删除媒体内容（如果有）</string>
     <string name="gui_media_config">用户定义媒体设置</string>
-    <string name="gui_media_file_not_found">找不到要链接到的实际媒体内容！ 请将副本保存到所需位置。</string>
+    <string name="gui_media_file_not_found">找不到要链接到的实际媒体内容！请将副本保存到所需位置。</string>
     <string name="gui_media_link">媒体链接</string>
     <string name="gui_media_content">媒体内容</string>
     <string name="gui_media_type">媒体类型</string>
@@ -51,7 +51,7 @@
 
     <!-- Message for QQ links update -->
     <string name="gui_qq_download">QQ-诗歌链接下载</string>
-    <string name="gui_qq_download_completed">QQ-诗歌链接下载完成！</string>
+    <string name="gui_qq_download_completed">QQ-诗歌链接：%1$s 下载完成！</string>
     <string name="gui_qq_download_failed">QQ-诗歌链接下载失败！</string>
     <string name="gui_qq_download_in_progress">QQ%1$s链接下载中…</string>
     <string name="gui_qq_download_proceed">继续QQ链接下载？过程需要一些时间。</string>
@@ -91,30 +91,32 @@
     <string name="hymn_info_sp_none">您选择的项目，没有附歌</string>
 
     <!-- Update checker -->
+    <string name="gui_app_apk_invalid">下载文件无效或版本不正确</string>
+    <string name="gui_apk_install_failed">应用程序安装时发生错误：(%1$s) %2$s</string>
+    <string name="gui_apk_install_completed">应用程序安装成功！</string>
+    <string name="gui_app_install_ready">已下载更新，并准备进行安装。</string>
+    <string name="gui_app_version_invalid">下载的文件包含不匹配的版本代码：实际 = %s (%s)</string>
     <string name="gui_app_new_available">有新的软件版本: %1$s</string>
+    <string name="gui_app_update">升级</string>
+    <string name="gui_app_update_check">更新</string>
+    <string name="gui_app_update_install">应用程序更新</string>
+    <string name="gui_app_update_none">没有应用程序新版本</string>
+    <string name="gui_app_version_current">您当前安装版本编号和代码：\n(%1$s-%2$s) 是最新的</string>
+    <string name="gui_app_version_new_available">可下载新%1$s编号和代码：\n(%2$s-%3$s)</string>
+    <string name="gui_app_uninstall">您的版本 v1.2.0 需要先卸载再更新。\n然后从下载目录手动安装:\n%1$s</string>
+
     <string name="gui_download">下载</string>
     <string name="gui_download_completed">下载完成</string>
-    <string name="gui_download_failed">无法下载新更新！</string>
-    <string name="gui_downloaded_install">已下载更新，并准备进行安装。</string>
+    <string name="gui_download_failed">无法下载新程序版本！请退出应用程序并重试。</string>
+    <string name="gui_download_in_progress">正在下载更新。</string>
 
     <string name="gui_download_remaining_time">剩余时间: %1$s</string>
     <string name="gui_download_speed">下载速度: %1$s/sec (%2$s)</string>
     <string name="gui_download_timeout_timer">下载无响应超时倒数: %1$02d秒</string>
     <string name="gui_download_wait">请稍候，文件下载已在进行中。</string>
+    <string name="gui_in_progress">进行中</string>
 
     <string name="gui_setLyricsScale">设置歌词文字最大比例因子为: %.2f</string>
-
-    <string name="gui_downloaded_uninstall">您的版本 v1.2.0 需要先卸载再更新。
-    \n然后从下载目录手动安装:\n%1$s</string>
-    <string name="gui_download_in_progress">正在下载更新。</string>
-    <string name="gui_in_progress">进行中</string>
-    <string name="gui_update">升级</string>
-    <string name="gui_update_check">检查更新</string>
-    <string name="gui_update_install">安装更新</string>
-    <string name="gui_update_none">没有新版本</string>
-    <string name="gui_update_invalid">下载文件无效或版本不正确</string>
-    <string name="gui_version_current">您当前安装的版本：\n(%1$s-%2$s) 是最新的</string>
-    <string name="gui_version_new_available">可下载%1$s的新发行版本\n(%2$s-%3$s)</string>
 
     <string name="gui_file_ACCESS_NO_PERMISSION">您没有足够的权限保存或打开文件。请检查您的读取权限，然后重试</string>
     <string name="gui_file_DOES_NOT_EXIST">找不到指定的文件。已删除或移动了该文件</string>
@@ -290,4 +292,5 @@
         &lt;br/>\u25AA 长按播放按钮后，可再次从头开始播放。
         &lt;br/>\u25AA 将手机置于横向模式以显示更大字幕。</string>
 
+    <string name="activity_install_apk_session_api">Content/Packages/Install Apk using Session API</string>
 </resources>

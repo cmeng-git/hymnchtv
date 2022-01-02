@@ -33,6 +33,7 @@ import static org.cog.hymnchtv.MediaType.HYMN_BANZOU;
 import static org.cog.hymnchtv.MediaType.HYMN_CHANGSHI;
 import static org.cog.hymnchtv.MediaType.HYMN_JIAOCHANG;
 import static org.cog.hymnchtv.MediaType.HYMN_MEDIA;
+import static org.cog.hymnchtv.MediaType.HYMN_URL;
 import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URL;
 import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URLS;
 import static org.cog.hymnchtv.mediaplayer.YoutubePlayerFragment.URL_YOUTUBE;
@@ -99,12 +100,10 @@ public class MediaConfig extends FragmentActivity
         videoUrls.add("https:/cmeng-git.github.io/hymnchtv/video/mediaconfig_02.mp4");
     }
 
-    // public static final String TABLE_NAME = "hymn_db"; // use as database name
     public static final String HYMN_NO = "hymnNo";
     public static final String HYMN_FU = "isFu"; // set to 1 if fu else 0
 
-    public static final String HYMN_TITLE = "hymnTitle";  // see MEDIA_xxx
-    public static final String HYMN_TYPE = "hymnType";  // see MEDIA_xxx
+    public static final String HYMN_TYPE = "hymnType";    // see HYMN_xxx: use for DB table name
     public static final String MEDIA_TYPE = "mediaType";  // see MEDIA_xxx
     public static final String MEDIA_URI = "mediaUri";    // set to null if none
     public static final String MEDIA_FILE_PATH = "mediaFilePath"; // set to null if none
@@ -170,6 +169,7 @@ public class MediaConfig extends FragmentActivity
         mediaTypeEntry.add("伴奏");
         mediaTypeEntry.add("教唱");
         mediaTypeEntry.add("唱诗");
+        mediaTypeEntry.add("网页链接");
     }
 
     public static List<MediaType> mediaTypeValue = new ArrayList<>();
@@ -179,6 +179,7 @@ public class MediaConfig extends FragmentActivity
         mediaTypeValue.add(HYMN_BANZOU);
         mediaTypeValue.add(HYMN_JIAOCHANG);
         mediaTypeValue.add(HYMN_CHANGSHI);
+        mediaTypeValue.add(HYMN_URL);
     }
 
     public static Map<MediaType, String> mediaDir = new HashMap<>();
@@ -269,7 +270,13 @@ public class MediaConfig extends FragmentActivity
             if (!TextUtils.isEmpty(mediaUri)) {
                 isAutoFilled = false;
                 tvMediaUri.setText(mediaUri);
-                // checkMediaAvailable(createMediaRecord());
+                if (mediaUri.contains("mp.weixin.qq.com")) {
+                    mediaTypeSpinner.setSelection(4);
+                }
+                else if (mediaUri.contains("youtube.com")
+                        || mediaUri.contains("hymnal.net")) {
+                    mediaTypeSpinner.setSelection(0);
+                }
             }
         }
 
@@ -287,12 +294,10 @@ public class MediaConfig extends FragmentActivity
         });
 
         findViewById(R.id.editFile).setOnClickListener(this);
-
         findViewById(R.id.button_import).setOnClickListener(this);
 
         Button btnQQ = findViewById(R.id.button_QQ);
         btnQQ.setOnClickListener(this);
-        btnQQ.setOnLongClickListener(this);
 
         Button btnExport = findViewById(R.id.button_export);
         btnExport.setOnClickListener(this);
@@ -329,13 +334,7 @@ public class MediaConfig extends FragmentActivity
                 break;
 
             case R.id.button_add:
-                String uriPath = ViewUtil.toString(tvMediaUri);
-                if (uriPath != null && uriPath.contains("://mp.weixin.qq.com")) {
-                    if (updateQQRecord()) {
-                        HymnsApp.showToastMessage(R.string.gui_add_to_db);
-                    }
-                }
-                else if (updateMediaRecord()) {
+                if (updateMediaRecord()) {
                     HymnsApp.showToastMessage(R.string.gui_add_to_db);
                 }
                 break;
@@ -355,7 +354,6 @@ public class MediaConfig extends FragmentActivity
                 }
                 else {
                     setTitle(R.string.gui_media_config);
-                    mListView.setTag("MediaRecord");
                     mListView.setVisibility(View.GONE);
                 }
                 break;
@@ -396,15 +394,10 @@ public class MediaConfig extends FragmentActivity
     @Override
     public boolean onLongClick(View v)
     {
-        switch (v.getId()) {
-            // Export the database to a text file for sharing
-            case R.id.button_export:
-                createExportLink();
-                return true;
-
-            case R.id.button_QQ:
-                showQQRecords();
-                return true;
+        // Export the database to a text file for sharing
+        if (v.getId() == R.id.button_export) {
+            createExportLink();
+            return true;
         }
         return false;
     }
@@ -540,9 +533,7 @@ public class MediaConfig extends FragmentActivity
         if (parent == hymnTypeSpinner) {
             mHymnType = hymnTypeValue.get(position);
             if (mListView.getVisibility() == View.VISIBLE) {
-                if (mListView.getTag().equals("MediaRecord")) {
-                    showMediaRecords();
-                }
+                showMediaRecords();
             }
         }
         else if (parent == mediaTypeSpinner) {
@@ -776,9 +767,6 @@ public class MediaConfig extends FragmentActivity
      */
     private void deleteMediaRecord()
     {
-        if (mListView.getTag().equals("QQRecord"))
-            return;
-
         String hymnNo = ViewUtil.toString(tvHymnNo);
         if (hymnNo == null) {
             HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
@@ -789,7 +777,8 @@ public class MediaConfig extends FragmentActivity
         int nui = HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), isFu);
         if (nui != -1) {
             Bundle args = new Bundle();
-            args.putString(MediaRecordDeleteFragment.ARG_MESSAGE, getString(R.string.gui_delete_media, nui));
+            args.putString(MediaRecordDeleteFragment.ARG_MESSAGE,
+                    getString(R.string.gui_delete_media, mHymnType, nui, mMediaType));
             String title = getString(R.string.gui_delete);
 
             // Displays the media record and content delete dialog and waits for user confirmation
@@ -855,110 +844,6 @@ public class MediaConfig extends FragmentActivity
             }
             ShareWith.share(this, mRecord.toExportString(), imageUris);
         }
-    }
-
-    // ================= QQ Record Handlers ================
-
-    /**
-     * Update user QQ entry to the DB media record, get user confirmation if there is an existing record present
-     *
-     * @return true if update is successful
-     */
-    private boolean updateQQRecord()
-    {
-        final QQRecord qqRecord = createQQRecord();
-        if (qqRecord != null) {
-            if (mDB.getQQRecord(qqRecord, false)) {
-                DialogActivity.showConfirmDialog(this,
-                        R.string.gui_to_be_added,
-                        R.string.gui_db_overwrite_media,
-                        R.string.gui_overwrite, new DialogActivity.DialogListener()
-                        {
-                            public boolean onConfirmClicked(DialogActivity dialog)
-                            {
-                                return saveQQRecord(qqRecord);
-                            }
-
-                            public void onDialogCancelled(DialogActivity dialog)
-                            {
-                            }
-                        });
-            }
-            else {
-                return saveQQRecord(qqRecord);
-            }
-        }
-        return false;
-    }
-
-    /**
-     * create the QQRecord based on user input parameters
-     *
-     * @return return the newly created QQRecord, null otherwise
-     */
-    private QQRecord createQQRecord()
-    {
-        QQRecord qqRecord = null;
-        String uriPath = ViewUtil.toString(tvMediaUri);
-
-        String hymnNo = ViewUtil.toString(tvHymnNo);
-        boolean isUrlLink = URLUtil.isValidUrl(uriPath);
-        if (!isUrlLink && (uriPath != null) && !new File(uriPath).exists()) {
-            uriPath = null;
-        }
-
-        if ((hymnNo == null) || (uriPath == null)) {
-            HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
-            return null;
-        }
-        boolean isFu = cbFu.isChecked();
-        int nui = HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), isFu);
-        if (nui != -1) {
-            String filePath = null;
-            if (!isUrlLink) {
-                filePath = uriPath;
-                uriPath = null;
-            }
-            qqRecord = new QQRecord(mHymnType, nui, null, uriPath, filePath);
-        }
-        return qqRecord;
-    }
-
-    /**
-     * Save the user entry to the DB qqRecord on user confirmation
-     *
-     * @return true is successfully
-     */
-    private boolean saveQQRecord(QQRecord qqRecord)
-    {
-        String filePath = qqRecord.getMediaFilePath();
-        if (filePath != null) {
-            if (filePath.contains(FileBackend.TMP)) {
-                File inFile = new File(filePath);
-
-                File subDir = FileBackend.getHymnchtvStore(mHymnType + mediaDir.get(mMediaType), true);
-                if (subDir == null) {
-                    HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
-                    return false;
-                }
-                File outFile = new File(subDir, inFile.getName());
-
-                try {
-                    if (!inFile.renameTo(outFile)) {
-                        return false;
-                    }
-                    filePath = outFile.getAbsolutePath();
-
-                    qqRecord.setFilePath(filePath);
-                    qqRecord.setMediaUri(null);
-                } catch (Exception e) {
-                    HymnsApp.showToastMessage(e.getMessage());
-                    return false;
-                }
-            }
-        }
-        mDB.storeQQRecord(qqRecord);
-        return true;
     }
 
     /**
@@ -1286,7 +1171,7 @@ public class MediaConfig extends FragmentActivity
     }
 
     /**
-     * Show all the DB media records in the DB based on user selected HymnType and MediaType
+     * Show all the DB media records in the DB based on user selected HymnType
      */
     @SuppressLint("ClickableViewAccessibility")
     private void showMediaRecords()
@@ -1310,7 +1195,6 @@ public class MediaConfig extends FragmentActivity
                 new String[]{"match"}, new int[]{R.id.item_record});
 
         mListView.setAdapter(mediaAdapter);
-        mListView.setTag("MediaRecord");
         mListView.setVisibility(View.VISIBLE);
 
         // Update the media Record Editor info.
@@ -1318,131 +1202,32 @@ public class MediaConfig extends FragmentActivity
             mediaAdapter.setSelectItem(pos, view);
 
             if (isAutoFilled) {
-                Map<String, String> item_db = data.get(pos);
-                String mRecord = item_db.get("match");
-                if (!TextUtils.isEmpty(mRecord)) {
-                    String[] items = mRecord.split("#|:[^/]\\s*\n*");
-
-                    for (int i = 0; i < hymnTypeValue.size(); i++) {
-                        if (hymnTypeValue.get(i).equals(items[0])) {
-                            hymnTypeSpinner.setSelection(i);
-                            break;
-                        }
-                    }
-                    mediaTypeSpinner.setSelection(Enum.valueOf(MediaType.class, items[2]).getValue());
-
-                    String hymnNo = items[1];
-                    if (hymnNo.startsWith("附")) {
-                        hymnNo = hymnNo.substring(1);
-                        cbFu.setChecked(true);
-                    }
-                    tvHymnNo.setText(hymnNo);
-
-                    // force focus to tvHymnNo so isAutoFilled cannot be accidentally cleared
-                    tvHymnNo.requestFocus();
-
-                    String mediaPath = items[4];
-                    if (MediaRecord.FILEPATH.equals(items[3])) {
-                        mediaPath = mediaPath.replace(MediaRecord.DOWNLOAD_DIR, MediaRecord.DOWNLOAD_FP);
-                    }
-                    tvMediaUri.setText(mediaPath);
-                }
-            }
-        });
-
-        // Clear any previously set ClickListeners in different mListView setup
-        mListView.setOnItemLongClickListener(null);
-
-    }
-
-    /**
-     * Show all the DB media records in the DB based on user selected HymnType and MediaType
-     */
-    @SuppressLint("ClickableViewAccessibility")
-    public void showQQRecords()
-    {
-        List<QQRecord> qqRecords = mDB.getQQRecords();
-        if (qqRecords.isEmpty()) {
-            HymnsApp.showToastMessage(R.string.hymn_match_none);
-            return;
-        }
-        setTitle(getString(R.string.hymn_match, qqRecords.size()));
-
-        final List<Map<String, String>> data = new ArrayList<>();
-        for (QQRecord qqRecord : qqRecords) {
-            Map<String, String> item_db = new HashMap<>();
-            item_db.put("match", qqRecord.toString());
-            data.add(item_db);
-        }
-
-        /* Display the search result to the user */
-        SimpleListAdapter qqAdapter = new SimpleListAdapter(this, data, R.layout.media_records_list,
-                new String[]{"match"}, new int[]{R.id.item_record});
-
-        mListView.setAdapter(qqAdapter);
-        mListView.setTag("QQRecord");
-        mListView.setVisibility(View.VISIBLE);
-
-        // Update the media Record Editor info.
-        mListView.setOnItemClickListener((adapterView, view, pos, id) -> {
-            qqAdapter.setSelectItem(pos, view);
-
-            if (isAutoFilled) {
                 String qqEntry = data.get(pos).get("match");
-                QQRecord qqRecord = QQRecord.toRecord(qqEntry);
-                if (qqRecord != null) {
-                    String hymnType = qqRecord.getHymnType();
+                MediaRecord mRecord = MediaRecord.toRecord(qqEntry);
+                if (mRecord != null) {
+                    String hymnType = mRecord.getHymnType();
                     for (int i = 0; i < hymnTypeValue.size(); i++) {
                         if (hymnTypeValue.get(i).equals(hymnType)) {
                             hymnTypeSpinner.setSelection(i);
                             break;
                         }
                     }
-                    // mediaTypeSpinner.setSelection(Enum.valueOf(MediaType.class, items[2]).getValue());
-                    int hymnNo = qqRecord.getHymnNo();
-                    if (hymnType.equals(HYMN_DB) && hymnNo > HYMN_DB_NO_MAX) {
-                        cbFu.setChecked(true);
-                    }
+                    mediaTypeSpinner.setSelection(mRecord.getMediaType().getValue());
+                    cbFu.setChecked(mRecord.isFu());
+
+                    int hymnNo = mRecord.getHymnNo();
                     tvHymnNo.setText(Integer.toString(hymnNo));
 
                     // force focus to tvHymnNo so isAutoFilled cannot be accidentally cleared
                     tvHymnNo.requestFocus();
 
-                    String mediaPath = qqRecord.getMediaUri();
-                    if (!TextUtils.isEmpty(qqRecord.getMediaFilePath())) {
-                        mediaPath = qqRecord.getMediaFilePath().replace(MediaRecord.DOWNLOAD_DIR, MediaRecord.DOWNLOAD_FP);
+                    String mediaPath = mRecord.getMediaUri();
+                    if (!TextUtils.isEmpty(mRecord.getMediaFilePath())) {
+                        mediaPath = mRecord.getMediaFilePath().replace(MediaRecord.DOWNLOAD_DIR, MediaRecord.DOWNLOAD_FP);
                     }
                     tvMediaUri.setText(mediaPath);
                 }
             }
-        });
-
-        // LongPress to delete hymn selection entry history on user confirmation
-        mListView.setOnItemLongClickListener((adapterView, view, pos, l) -> {
-            String qqEntry = data.get(pos).get("match");
-            QQRecord qqRecord = QQRecord.toRecord(qqEntry);
-
-            DialogActivity.showConfirmDialog(this,
-                    R.string.gui_delete,
-                    R.string.gui_qq_record_delete,
-                    R.string.gui_delete, new DialogActivity.DialogListener()
-                    {
-                        public boolean onConfirmClicked(DialogActivity dialog)
-                        {
-                            int count = mDB.deleteQQRecord(qqRecord);
-                            HymnsApp.showToastMessage(R.string.gui_delete_media_ok, (count != 0) ? qqRecord.getHymnNo() : 0);
-                            if (count == 1) {
-                                data.remove(pos);
-                                qqAdapter.notifyDataSetChanged();
-                            }
-                            return true;
-                        }
-
-                        public void onDialogCancelled(DialogActivity dialog)
-                        {
-                        }
-                    }, qqEntry);
-            return true;
         });
     }
 

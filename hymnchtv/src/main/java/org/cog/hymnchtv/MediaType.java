@@ -30,7 +30,8 @@ public enum MediaType
     HYMN_MEDIA(0),
     HYMN_BANZOU(1),
     HYMN_JIAOCHANG(2),
-    HYMN_CHANGSHI(3);
+    HYMN_CHANGSHI(3),
+    HYMN_URL(4);
 
     private final int value;
     private static final Map<Integer, MediaType> map = new HashMap<>();
@@ -53,7 +54,7 @@ public enum MediaType
         return value;
     }
 
-    String mediaDir[] = {"_midi/%s.mid", "_ac/%s.mp3", "_ln/%s.mp3", "_mp3/%s.mp3"};
+    String mediaDir[] = {"_midi/%s.mid", "_ac/%s.mp3", "_ln/%s.mp3", "_mp3/%s.mp3", ""};
 
     public String getSubDir(MediaType mType) {
         return mediaDir[mType.getValue()];

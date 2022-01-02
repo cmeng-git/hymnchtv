@@ -34,7 +34,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="20dp"
+                    android:paddingStart="20dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -103,21 +103,22 @@
         <Button
             android:id="@+id/submit_logs"
             style="@style/Button"
-            android:layout_marginStart="2dp"
+            android:layout_marginStart="1dp"
             android:text="@string/gui_SEND_LOGS" />
 
         <Button
             android:id="@+id/check_new_version"
             style="@style/Button"
-            android:layout_marginStart="2dp"
-            android:text="@string/gui_update_check"
-            android:visibility="gone" />
+            android:layout_weight="0.6"
+            android:layout_marginStart="1dp"
+            android:text="@string/gui_app_update_check"
+            android:visibility="visible" />
 
         <Button
             android:id="@+id/ok_button"
             style="@style/Button"
-            android:layout_height="match_parent"
-            android:layout_marginStart="2dp"
+            android:layout_weight="0.6"
+            android:layout_marginStart="1dp"
             android:text="@string/gui_ok" />
     </LinearLayout>
 

@@ -14,8 +14,8 @@ android {
     defaultConfig {
         applicationId "org.cog.hymnchtv"
         // End digit - change to force update with same version number
-        versionCode 107000
-        versionName "1.7.0"
+        versionCode 107011
+        versionName "1.7.1"
 
         minSdkVersion 21
         targetSdkVersion 31

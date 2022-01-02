@@ -18,6 +18,7 @@ package org.cog.hymnchtv;
 
 import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
 import static org.cog.hymnchtv.HymnToc.hymnTocPage;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
 
 import android.Manifest;
@@ -29,20 +30,21 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.*;
+import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.*;
 import android.widget.*;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
 import org.cog.hymnchtv.hymnhistory.HistoryRecord;
 import org.cog.hymnchtv.logutils.LogUploadServiceImpl;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.persistance.*;
-import org.cog.hymnchtv.persistance.migrations.MigrationTo3;
 import org.cog.hymnchtv.utils.*;
 
 import java.io.File;
@@ -73,7 +75,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     public static final String HYMN_XB = "hymn_xb";
     public static final String HYMN_BB = "hymn_bb";
     public static final String HYMN_DB = "hymn_db";
-    public static final String HYMN_QQ = "hymn_qq";
 
     public static final String PREF_MENU_SHOW = "MenuShow";
     public static final String PREF_SETTINGS = "Settings";
@@ -154,7 +155,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         ChangeLog cl = new ChangeLog(this);
         if (cl.isFirstRun()) {
             // Create hymn_qq for v1.7.0 release only
-            MigrationTo3.createHymnQQTable(DatabaseBackend.getInstance(this).getWritableDatabase());
+            // MigrationTo3.createHymnQQTable(DatabaseBackend.getInstance(this).getWritableDatabase());
             runOnUiThread(() -> new Handler().postDelayed(() -> {
                 if (!isFinishing()) {
                     cl.getLogDialog().show();
@@ -253,7 +254,6 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         final String type = intent.getType();
 
         String mediaLink = null;
-
         if (Intent.ACTION_SEND.equals(action) && (type != null)) {
             if ("text/plain".equals(type)) {
                 mediaLink = intent.getStringExtra(Intent.EXTRA_TEXT);
@@ -364,7 +364,11 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             if (TextUtils.isEmpty(sNumber)) {
                 sNumber = "0";
             }
+
             int hymnNo = Integer.parseInt(sNumber);
+            if (isFu) {
+                hymnNo += HYMN_DB_NO_MAX;
+            }
 
             int nui = HymnNoValidate.validateHymnNo(hymnType, hymnNo, isFu);
             if (nui != -1) {
@@ -460,7 +464,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * @param menu the menu container
      * @return true always
      */
-    public boolean onCreateOptionsMenu(Menu menu)
+    public boolean onCreateOptionsMenu(@NonNull Menu menu)
     {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_main, menu);

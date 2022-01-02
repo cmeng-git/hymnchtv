@@ -26,7 +26,7 @@ public class Migrations
             case 1:
                 MigrationTo2.createHymnHistoryTable(db);
             case 2:
-                MigrationTo3.createHymnQQTable(db);
+                // MigrationTo3.createHymnQQTable(db);
         }
     }
 }

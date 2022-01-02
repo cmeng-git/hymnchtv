@@ -11,31 +11,36 @@
     <ImageButton
         android:id="@+id/btn_hymnSearch"
         style="@style/ButtonTop"
+        android:textSize="20sp"
         android:layout_weight="0.5"
         android:src="@drawable/ic_action_search" />
 
     <RadioButton
         android:id="@+id/btn_media"
         style="@style/ButtonTop"
-        android:layout_marginStart="2dp"
+        android:textSize="20sp"
+        android:layout_marginStart="1dp"
         android:text="@string/hymn_media_media" />
 
     <RadioButton
         android:id="@+id/btn_banzhou"
         style="@style/ButtonTop"
+        android:textSize="20sp"
         android:checked="true"
-        android:layout_marginStart="2dp"
+        android:layout_marginStart="1dp"
         android:text="@string/hymn_media_banzou" />
 
     <RadioButton
         android:id="@+id/btn_jiaochang"
         style="@style/ButtonTop"
-        android:layout_marginStart="2dp"
+        android:textSize="20sp"
+        android:layout_marginStart="1dp"
         android:text="@string/hymn_media_jiaochang" />
 
     <RadioButton
         android:id="@+id/btn_changshi"
         style="@style/ButtonTop"
-        android:layout_marginStart="2dp"
+        android:textSize="20sp"
+        android:layout_marginStart="1dp"
         android:text="@string/hymn_media_changshi" />
 </RadioGroup>

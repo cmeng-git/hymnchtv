@@ -16,6 +16,11 @@
  */
 package org.cog.hymnchtv.utils;
 
+import static org.cog.hymnchtv.MainActivity.HYMN_BB;
+import static org.cog.hymnchtv.MainActivity.HYMN_DB;
+import static org.cog.hymnchtv.MainActivity.HYMN_ER;
+import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+
 import android.util.Range;
 
 import org.cog.hymnchtv.HymnsApp;
@@ -25,11 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import timber.log.Timber;
-
-import static org.cog.hymnchtv.MainActivity.HYMN_BB;
-import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.MainActivity.HYMN_ER;
-import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 
 /**
  * Check the hymnNo is valid for a given hymnType.
@@ -46,6 +46,7 @@ public class HymnNoValidate
 
     // FuGe pass-in index is HYMN_DB_NO_MAX + fu Number
     public static final int HYMN_DB_NO_TMAX = 786;
+    // Max index use by PageAdapter
     public static final int HYMN_DB_INDEX_MAX = 786;
 
     /* Maximum HymnNo/HymnIndex (excluding multiPage i.e. a,b,c,d,e): 補充本 */
@@ -177,16 +178,11 @@ public class HymnNoValidate
                 break;
 
             case HYMN_DB:
-                if (isFu) {
-                    if (hymnNo < 1 || hymnNo > HYMN_DBS_NO_MAX) {
-                        HymnsApp.showToastMessage(R.string.hymn_info_db_range_fu);
-                        isValid = false;
-                    } else {
-                        // Fu hymnNo continues from HYMN_DB_NO_MAX
-                        hymnNo += HYMN_DB_NO_MAX;
-                    }
+                // Fu hymnNo continues from HYMN_DB_NO_MAX
+                if (isFu && hymnNo <= HYMN_DBS_NO_MAX) {
+                    hymnNo += HYMN_DB_NO_MAX;
                 }
-                else if (hymnNo > HYMN_DB_NO_MAX) {
+                if (hymnNo > HYMN_DB_NO_TMAX) {
                     HymnsApp.showToastMessage(R.string.hymn_info_db_max, HYMN_DB_NO_MAX);
                     isValid = false;
                 }

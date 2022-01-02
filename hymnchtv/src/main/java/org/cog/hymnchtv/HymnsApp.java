@@ -96,8 +96,6 @@ public class HymnsApp extends Application implements LifecycleEventObserver
 
         // Trigger the hymnchtv database upgrade or creation if none exist
         DatabaseBackend.getInstance(this);
-        // Recreate hymmQQ Database
-        // MigrationTo3.createHymnQQTable(DatabaseBackend.getInstance(this).getWritableDatabase());
 
         // Do this after WebView(this).destroy(); Set up contextWrapper to use hymnchtv user selected Language
         mInstance = this;
@@ -158,6 +156,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver
     {
         if (Lifecycle.Event.ON_START == event) {
             isForeground = true;
+            startUpdateService();
             Timber.d("APP FOREGROUNDED");
         }
         else if (Lifecycle.Event.ON_STOP == event) {
@@ -172,8 +171,9 @@ public class HymnsApp extends Application implements LifecycleEventObserver
      */
     private static void startUpdateService()
     {
-        // Perform software version update check on first launch
-        if (BuildConfig.DEBUG && !isUpdateServerStarted) {
+        // Perform software version update check on first launch for both release and debug version
+        // if (BuildConfig.DEBUG && !isUpdateServerStarted) {
+        if (!isUpdateServerStarted) {
             ActivityManager manager = (ActivityManager) mInstance.getSystemService(Context.ACTIVITY_SERVICE);
             List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = manager.getRunningAppProcesses();
             if (runningAppProcesses != null) {

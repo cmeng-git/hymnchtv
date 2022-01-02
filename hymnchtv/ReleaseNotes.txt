@@ -1,7 +1,7 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    01/xx/2022
+Upload Date:    01/01/2022
 Version:        1.7.1 (107010)
 - Add TouchListener class to support SingleTap, DoubleTap and LongPress
 - Update and redefine hymn info search function button in the media content playback UI to support:
@@ -12,13 +12,11 @@ Version:        1.7.1 (107010)
 
 - Add QQ function button in MediaConfig UI
   * singleTap to build QQ-info DB; on confirmation by user
-  * longPress to show the all records in QQ-info DB in ListView
-  * longPress an item in ListView to delete record
 - Allow link-share from QQ-info hymn link into hymnchtv database for later retrieval
 
 - Use android default web browser for hymn info search; allowing selected video link for sharing with hymnchtv
-
-- Revert SebViewClient#isDomainMatch() to its previous correct implementation
+- Fix and allow hymnchtv update via standard android package installation
+- Revert WebViewClient#isDomainMatch() to its previous correct implementation
 - Revert English Lyrics view to use WebView for avoid reload if use access the same hymnNo.
 
 =========================================================================
@@ -26,6 +24,11 @@ Author:         cmeng
 Upload Date:    12/31/2021
 Version:        1.7.0 (107000)
 - Full implementation of all the features as in 1.7.1, but using a separate hymn_qq database.
+- Add QQ function button in MediaConfig UI
+  * singleTap to build QQ-info DB; on confirmation by user
+  * longPress to show the all records in QQ-info DB in ListView
+  * longPress an item in ListView to delete record
+
 - Hymnchtv v1.7.1 will revert to use the same database structure as in v1.6.4
 - Source v1.7.0 check in for future reference only, but no public app released
 
