@@ -23,6 +23,7 @@ import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -100,6 +101,7 @@ public class PermissionUtils
             return dialog;
         }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState)
         {
@@ -112,7 +114,7 @@ public class PermissionUtils
         }
 
         @Override
-        public void onDismiss(DialogInterface dialog)
+        public void onDismiss(@NonNull DialogInterface dialog)
         {
             super.onDismiss(dialog);
             HymnsApp.showToastMessage(R.string.permission_storage_required);
@@ -153,6 +155,7 @@ public class PermissionUtils
             return dialog;
         }
 
+        @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState)
         {
@@ -173,7 +176,7 @@ public class PermissionUtils
         }
 
         @Override
-        public void onDismiss(DialogInterface dialog)
+        public void onDismiss(@NonNull DialogInterface dialog)
         {
             super.onDismiss(dialog);
             HymnsApp.showToastMessage(R.string.permission_storage_required);

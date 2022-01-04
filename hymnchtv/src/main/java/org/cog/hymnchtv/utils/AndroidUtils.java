@@ -62,50 +62,6 @@ public class AndroidUtils
     private static String lastNotificationText = null;
 
     /**
-     * Shows an alert dialog for the given context and a title given by <tt>titleId</tt> and
-     * message given by <tt>messageId</tt>.
-     *
-     * @param context the android <tt>Context</tt>
-     * @param titleId the title identifier in the resources
-     * @param messageId the message identifier in the resources
-     */
-    public static void showAlertDialog(Context context, final int titleId, final int messageId, final Object... arg)
-    {
-        String title = context.getResources().getString(titleId);
-        String msg = context.getResources().getString(messageId, arg);
-        showAlertDialog(context, title, msg);
-    }
-
-    /**
-     * Shows an alert dialog for the given context and a title given by <tt>titleId</tt> and
-     * message given by <tt>messageId</tt>.
-     *
-     * @param context the android <tt>Context</tt>
-     * @param title the title identifier in the resources
-     * @param message the message identifier in the resources
-     * @param button the confirm button string identifier
-     * @param listener the <tt>DialogInterface.DialogListener</tt> to attach to the confirm button
-     */
-    public static void showAlertConfirmDialog(Context context, final String title,
-            final String message, final String button, final DialogActivity.DialogListener listener)
-    {
-        DialogActivity.showConfirmDialog(context, title, message, button, listener);
-    }
-
-    /**
-     * Shows an alert dialog for the given context and a title given by <tt>titleId</tt> and
-     * message given by <tt>messageId</tt>.
-     *
-     * @param context the android <tt>Context</tt>
-     * @param title the title of the message
-     * @param message the message
-     */
-    public static void showAlertDialog(final Context context, final String title, final String message)
-    {
-        DialogActivity.showDialog(context, title, message);
-    }
-
-    /**
      * Clears the general notification.
      *
      * @param appContext the <tt>Context</tt> that will be used to create new activity from notification

@@ -93,6 +93,7 @@ Please refer to [bundletool](https://developer.android.com/studio/command-line/b
   $ java -jar ../bundletool.jar build-apks --bundle=./hymnchtv/build/outputs/bundle/debug/hymnchtv-debug.aab --output=./hymnchtv/build/outputs/apk/debug/hymnchtv-debug.apks --overwrite --local-testing<br/>
   $ java -jar ../bundletool.jar install-apks --apks=./hymnchtv/build/outputs/apk/debug/hymnchtv-debug.apks --adb=/usr/bin/adb --device-id=520077315b2b947f<br/>
 * Note: The above generated apks can also be installed with an android apks installer e.g. apkmody (XAPKS Installer)
+* See ./apks.install.sh
 
 #### Build single "monolithic" APK For normal android Package installer
 * see https://www.py4u.net/discuss/617357
@@ -101,6 +102,7 @@ Please refer to [bundletool](https://developer.android.com/studio/command-line/b
 * The universal.apk file can then be installed with a normal android package installer
 
 $ java -jar ../bundletool.jar build-apks --bundle=./hymnchtv/build/outputs/bundle/debug/hymnchtv-debug.aab --output=./hymnchtv/build/outputs/apk/debug/hymnchtv-debug.apks --overwrite --local-testing --mode=universal
+* See ./apk.create.sh
 
 许可证
 -------

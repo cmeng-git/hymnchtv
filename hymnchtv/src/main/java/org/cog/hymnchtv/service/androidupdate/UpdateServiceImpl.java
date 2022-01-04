@@ -28,9 +28,7 @@ import android.os.Build;
 import android.os.Environment;
 
 import org.cog.hymnchtv.*;
-import org.cog.hymnchtv.persistance.FilePathHelper;
-import org.cog.hymnchtv.persistance.PermissionUtils;
-import org.cog.hymnchtv.utils.AndroidUtils;
+import org.cog.hymnchtv.persistance.*;
 import org.cog.hymnchtv.utils.DialogActivity;
 
 import java.io.*;
@@ -71,6 +69,8 @@ public class UpdateServiceImpl
     private String latestVersion;
     private long latestVersionCode;
 
+    private boolean mIsLatest = false;
+
     /* DownloadManager Broadcast Receiver Handler */
     private DownloadReceiver downloadReceiver = null;
 
@@ -101,50 +101,26 @@ public class UpdateServiceImpl
     }
 
     /**
-     * Checks for updates.
+     * Checks for updates and take necessary action.
      *
      * @param notifyAboutNewestVersion <tt>true</tt> if the user is to be notified if they have the
      * newest version already; otherwise, <tt>false</tt>
      */
     public void checkForUpdates(boolean notifyAboutNewestVersion)
     {
-        boolean isLatest = isLatestVersion();
+        // cmeng: reverse the logic to !isLatestVersion() for testing
+        mIsLatest = isLatestVersion();
         Timber.i("Is latest: %s\nCurrent version: %s\nLatest version: %s\nDownload link: %s",
-                isLatest, currentVersion, latestVersion, downloadLink);
+                mIsLatest, currentVersion, latestVersion, downloadLink);
 
-        // cmeng: reverse the logic for !isLast for testing
-        if (!isLatest && (downloadLink != null)) {
-            // Check old or scheduled downloads
-            List<Long> previousDownloads = getOldDownloads();
-            if (previousDownloads.size() > 0) {
-                long lastDownload = previousDownloads.get(previousDownloads.size() - 1);
+        if (!mIsLatest && (downloadLink != null)) {
+            if (checkLastDLFileAction() < DownloadManager.ERROR_UNKNOWN)
+                return;
 
-                int lastJobStatus = checkDownloadStatus(lastDownload);
-                if (lastJobStatus == DownloadManager.STATUS_SUCCESSFUL) {
-                    DownloadManager downloadManager = HymnsApp.getDownloadManager();
-                    Uri fileUri = downloadManager.getUriForDownloadedFile(lastDownload);
-                    File apkFile = new File(FilePathHelper.getFilePath(HymnsApp.getGlobalContext(), fileUri));
-
-                    // Ask the user if he wants to install the valid apk when found
-                    if (isValidApkVersion(apkFile, latestVersionCode)) {
-                        askInstallDownloadedApk(fileUri);
-                        return;
-                    }
-                }
-                else if (lastJobStatus != DownloadManager.STATUS_FAILED) {
-                    // Download is in progress or scheduled for retry
-                    AndroidUtils.showAlertDialog(HymnsApp.getGlobalContext(),
-                            HymnsApp.getResString(R.string.gui_in_progress),
-                            HymnsApp.getResString(R.string.gui_download_in_progress));
-                    return;
-                }
-            }
-
-            AndroidUtils.showAlertConfirmDialog(HymnsApp.getGlobalContext(),
-                    HymnsApp.getResString(R.string.gui_app_update_install),
-                    HymnsApp.getResString(R.string.gui_app_version_new_available,
-                            HymnsApp.getResString(R.string.app_name), latestVersion, latestVersionCode),
-                    HymnsApp.getResString(R.string.gui_download),
+            DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
+                    R.string.gui_app_update_install,
+                    R.string.gui_app_version_new_available,
+                    R.string.gui_download,
                     new DialogActivity.DialogListener()
                     {
                         @Override
@@ -161,16 +137,74 @@ public class UpdateServiceImpl
                         public void onDialogCancelled(DialogActivity dialog)
                         {
                         }
-                    }
+                    }, HymnsApp.getResString(R.string.app_name), latestVersion, latestVersionCode
             );
         }
         else if (notifyAboutNewestVersion) {
             // Notify that running version is up to date
-            AndroidUtils.showAlertDialog(HymnsApp.getGlobalContext(),
-                    HymnsApp.getResString(R.string.gui_app_update_none),
-                    HymnsApp.getResString(R.string.gui_app_version_current,
-                            currentVersion, Long.toString(currentVersionCode)));
+            DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
+                    R.string.gui_app_update_none,
+                    R.string.gui_app_version_current,
+                    R.string.gui_download_again,
+                    new DialogActivity.DialogListener()
+                    {
+                        @Override
+                        public boolean onConfirmClicked(DialogActivity dialog)
+                        {
+                            if (PermissionUtils.isPermissionGranted(HymnsApp.getGlobalContext(),
+                                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                if (checkLastDLFileAction() >= DownloadManager.ERROR_UNKNOWN)
+                                    downloadApk();
+                            }
+                            return true;
+                        }
+
+                        @Override
+                        public void onDialogCancelled(DialogActivity dialog)
+                        {
+                        }
+                    }, currentVersion, currentVersionCode
+            );
         }
+    }
+
+    /**
+     * Check for any existing downloaded file and take appropriate action;
+     *
+     * @return Last DownloadManager status; default to DownloadManager.ERROR_UNKNOWN if status unknown
+     */
+    private int checkLastDLFileAction()
+    {
+        // Check old or scheduled downloads
+        int lastJobStatus = DownloadManager.ERROR_UNKNOWN;
+
+        List<Long> previousDownloads = getOldDownloads();
+        if (previousDownloads.size() > 0) {
+            long lastDownload = previousDownloads.get(previousDownloads.size() - 1);
+
+            lastJobStatus = checkDownloadStatus(lastDownload);
+            if (lastJobStatus == DownloadManager.STATUS_SUCCESSFUL) {
+                DownloadManager downloadManager = HymnsApp.getDownloadManager();
+                Uri fileUri = downloadManager.getUriForDownloadedFile(lastDownload);
+
+                // Ask the user if he wants to install the valid apk when found
+                if (isValidApkVersion(fileUri, latestVersionCode)) {
+                    askInstallDownloadedApk(fileUri);
+                }
+            }
+            else if (lastJobStatus != DownloadManager.STATUS_FAILED) {
+                // Download is in progress or scheduled for retry
+                DialogActivity.showDialog(HymnsApp.getGlobalContext(),
+                        R.string.gui_in_progress,
+                        R.string.gui_download_in_progress);
+            }
+            else {
+                // Download is in progress or scheduled for retry
+                DialogActivity.showDialog(HymnsApp.getGlobalContext(),
+                        R.string.gui_app_update_install, R.string.gui_download_failed);
+            }
+        }
+        return lastJobStatus;
     }
 
     /**
@@ -183,7 +217,7 @@ public class UpdateServiceImpl
         DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
                 R.string.gui_download_completed,
                 R.string.gui_app_install_ready,
-                R.string.gui_app_update,
+                mIsLatest ? R.string.gui_app_reinstall : R.string.gui_app_update,
                 new DialogActivity.DialogListener()
                 {
                     @Override
@@ -205,7 +239,7 @@ public class UpdateServiceImpl
                             intent = new Intent(Intent.ACTION_VIEW);
                         }
 
-                        intent.setData(fileUri);
+                        intent.setDataAndType(fileUri, APK_MIME_TYPE);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                         context.startActivity(intent);
@@ -216,7 +250,7 @@ public class UpdateServiceImpl
                     public void onDialogCancelled(DialogActivity dialog)
                     {
                     }
-                });
+                }, latestVersion);
     }
 
     /**
@@ -258,7 +292,8 @@ public class UpdateServiceImpl
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
         request.setMimeType(APK_MIME_TYPE);
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+        File dnFile = new File(FileBackend.getHymnchtvStore(FileBackend.TMP, true), fileName);
+        request.setDestinationUri(Uri.fromFile(dnFile));
 
         DownloadManager downloadManager = HymnsApp.getDownloadManager();
         long jobId = downloadManager.enqueue(request);
@@ -270,30 +305,8 @@ public class UpdateServiceImpl
         @Override
         public void onReceive(Context context, Intent intent)
         {
-            List<Long> previousDownloads = getOldDownloads();
-            if (previousDownloads.size() > 0) {
-                long lastDownload = previousDownloads.get(previousDownloads.size() - 1);
-
-                int lastJobStatus = checkDownloadStatus(lastDownload);
-                if (lastJobStatus == DownloadManager.STATUS_SUCCESSFUL) {
-                    DownloadManager downloadManager = HymnsApp.getDownloadManager();
-                    Uri fileUri = downloadManager.getUriForDownloadedFile(lastDownload);
-                    File apkFile = new File(FilePathHelper.getFilePath(HymnsApp.getGlobalContext(), fileUri));
-
-                    // Ask the user if he wants to install if available and valid apk is found
-                    if (isValidApkVersion(apkFile, latestVersionCode)) {
-                        askInstallDownloadedApk(fileUri);
-                        return;
-                    }
-                }
-                else if (lastJobStatus == DownloadManager.STATUS_FAILED) {
-                    // Download is in progress or scheduled for retry
-                    AndroidUtils.showAlertDialog(HymnsApp.getGlobalContext(),
-                            HymnsApp.getResString(R.string.gui_app_update_install),
-                            HymnsApp.getResString(R.string.gui_download_failed));
-                    return;
-                }
-            }
+            if (checkLastDLFileAction() < DownloadManager.ERROR_UNKNOWN)
+                return;
 
             // unregistered downloadReceiver
             if (downloadReceiver != null) {
@@ -352,14 +365,15 @@ public class UpdateServiceImpl
     /**
      * Validate the downloaded apk file for correct versionCode and its apk name
      *
-     * @param apkFile apk File
+     * @param fileUri apk Uri
      * @param versionCode use the given versionCode to check against the apk versionCode
      * @return true if apkFile has the specified versionCode
      */
-    private boolean isValidApkVersion(File apkFile, long versionCode)
+    private boolean isValidApkVersion(Uri fileUri, long versionCode)
     {
         // Default to valid as getPackageArchiveInfo() always return null; but sometimes OK
         boolean isValid = true;
+        File apkFile = new File(FilePathHelper.getFilePath(HymnsApp.getGlobalContext(), fileUri));
 
         if (apkFile.exists()) {
             // Get downloaded apk actual versionCode and check its versionCode validity

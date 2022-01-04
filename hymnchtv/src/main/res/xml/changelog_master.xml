@@ -6,7 +6,7 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="1.7.1 (01/01/2022)" versioncode="107011">
+    <release version="1.7.1 (01/04/2022)" versioncode="107012">
         <change>重新定义媒体内容播放界面中的诗歌信息搜索按钮功能以支持：</change>
         <change>单击通过 qq.com 执行诗歌信息搜索（如果没有找到，自动转到QQ主页）。</change>
         <change>长按通过 youtube.com 执行诗歌信息搜索。</change>
@@ -16,6 +16,7 @@
         <change>用户定义媒体设置中添加QQ功能按钮: 经用户确认，单击建立QQ信息数据库。</change>
         <change>使用安卓默认网页浏览器进行诗歌信息搜索；以允许选定的视频链接与书拉密女-诗歌本共享。</change>
         <change>修复并允许通过标准 android 包安装加以更新书拉密女-诗歌本。</change>
+        <change>允许下载并安装/重新安装，新版本或相同版本的应用程序包。</change>
         <change>添加 TouchListener.java 以支持单击、双击和长按。</change>
         <change>恢复使用与 v1.6.4 相同的数据库结构。</change>
         <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>

@@ -1,8 +1,8 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    01/01/2022
-Version:        1.7.1 (107010)
+Upload Date:    01/04/2022
+Version:        1.7.1 (107012)
 - Add TouchListener class to support SingleTap, DoubleTap and LongPress
 - Update and redefine hymn info search function button in the media content playback UI to support:
   * singleTap to perform hymn info search via qq.com (main page if none found)
@@ -14,10 +14,15 @@ Version:        1.7.1 (107010)
   * singleTap to build QQ-info DB; on confirmation by user
 - Allow link-share from QQ-info hymn link into hymnchtv database for later retrieval
 
-- Use android default web browser for hymn info search; allowing selected video link for sharing with hymnchtv
 - Fix and allow hymnchtv update via standard android package installation
+- Allow download and install/reinstall the apk for the new or same version
+- Change downloaded apk path to ./hymnchtv/tmp to auto create new apk filename if exist; else FilePathHelper#getFilePathWithCreate() will keep old apk file if exit
+- Further improvement: Change FilePathHelper#getRealPath to use MediaStore.MediaColumns.DATA to retrieve filePath
+
+- Use android default web browser for hymn info search; allowing selected video link for sharing with hymnchtv
 - Revert WebViewClient#isDomainMatch() to its previous correct implementation
 - Revert English Lyrics view to use WebView for avoid reload if use access the same hymnNo.
+- Bug fix errors found in app version code 107010
 
 =========================================================================
 Author:         cmeng

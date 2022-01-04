@@ -20,27 +20,29 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageInstaller;
-import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.utils.AndroidUtils;
+import org.cog.hymnchtv.utils.DialogActivity;
 
 import java.io.*;
-import java.nio.file.*;
-import java.util.Optional;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.*;
 
 /**
  * Demonstration of package installation and uninstallation using the package installer Session API.
  *
  * see https://developer.android.com/reference/android/content/pm/PackageInstaller
+ *
+ * see https://www.py4u.net/discuss/617357
+ * https://platinmods.com/threads/how-to-turn-a-split-apk-into-a-normal-non-split-apk.76683/
+ * https://www.andnixsh.com/2020/06/sap-split-apks-packer-by-kirlif-windows.html
  */
 public class InstallApkSessionApi extends FragmentActivity
 {
@@ -119,7 +121,7 @@ public class InstallApkSessionApi extends FragmentActivity
                     break;
 
                 case PackageInstaller.STATUS_SUCCESS:
-                    AndroidUtils.showAlertDialog(this, R.string.gui_app_update_install, R.string.gui_apk_install_completed);
+                    DialogActivity.showDialog(this, R.string.gui_app_update_install, R.string.gui_apk_install_completed);
                     break;
 
                 case PackageInstaller.STATUS_FAILURE:
@@ -129,7 +131,7 @@ public class InstallApkSessionApi extends FragmentActivity
                 case PackageInstaller.STATUS_FAILURE_INCOMPATIBLE:
                 case PackageInstaller.STATUS_FAILURE_INVALID:
                 case PackageInstaller.STATUS_FAILURE_STORAGE:
-                    AndroidUtils.showAlertDialog(this, R.string.gui_app_update_install,
+                    DialogActivity.showDialog(this, R.string.gui_app_update_install,
                             R.string.gui_apk_install_failed, status, message);
                     break;
                 default:
@@ -138,4 +140,140 @@ public class InstallApkSessionApi extends FragmentActivity
             }
         }
     }
+
+    // If you have root, you can use this code.
+    // installApk("/split-apks/");
+    public void installApk(String apkFolderPath)
+    {
+        PackageInstaller packageInstaller = getPackageManager().getPackageInstaller();
+        HashMap<String, Long> nameSizeMap = new HashMap<>();
+        long totalSize = 0;
+
+        File folder = new File(Environment.getExternalStorageDirectory().getPath() + apkFolderPath);
+        File[] listOfFiles = folder.listFiles();
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                System.out.println("File " + listOfFiles[i].getName());
+                nameSizeMap.put(listOfFiles[i].getName(), listOfFiles[i].length());
+                totalSize += listOfFiles[i].length();
+            }
+        }
+        String su = "/system/xbin/su";
+        final String[] pm_install_create = new String[]{su, "-c", "pm", "install-create", "-S", Long.toString(totalSize)};
+        execute(null, pm_install_create);
+
+        List<PackageInstaller.SessionInfo> sessions = packageInstaller.getAllSessions();
+        int sessId = sessions.get(0).getSessionId();
+        String sessionId = Integer.toString(sessId);
+
+        for (Map.Entry<String, Long> entry : nameSizeMap.entrySet()) {
+            String[] pm_install_write = new String[]{su, "-c", "pm", "install-write", "-S", Long.toString(entry.getValue()), sessionId, entry.getKey(), Environment.getExternalStorageDirectory().getPath() + apkFolderPath + entry.getKey()};
+            execute(null, pm_install_write);
+        }
+        String[] pm_install_commit = new String[]{su, "-c", "pm", "install-commit", sessionId};
+        execute(null, pm_install_commit);
+
+    }
+
+    public String execute(Map<String, String> environmentVars, String[] cmd)
+    {
+        boolean DEBUG = true;
+        if (DEBUG)
+            Log.d("log", "command is " + Arrays.toString(cmd));
+        try {
+            Process process = Runtime.getRuntime().exec(cmd);
+            if (DEBUG)
+                Log.d("log", "process is " + process);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            if (DEBUG)
+                Log.d("log", "bufferreader is " + reader);
+
+            if (DEBUG)
+                Log.d("log", "readline " + reader.readLine());
+            StringBuffer output = new StringBuffer();
+
+            char[] buffer = new char[4096];
+            int read;
+
+            while ((read = reader.read(buffer)) > 0) {
+                output.append(buffer, 0, read);
+            }
+            reader.close();
+            process.waitFor();
+            if (DEBUG)
+                Log.d("log", output.toString());
+
+            return output.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /*
+       Foo.installApk(context,fullPathToSplitApksFolder)
+
+       AsyncTask.execute {
+           Foo.installApk(this@MainActivity,"/storage/emulated/0/Download/split")
+       }
+
+    @WorkerThread
+    @JvmStatic
+    fun installApk(context:Context, apkFolderPath:String)
+    {
+        val packageInstaller = context.packageManager.packageInstaller
+        val nameSizeMap = HashMap < File, Long>()
+        var totalSize:Long = 0
+        val folder = File(apkFolderPath)
+        val listOfFiles = folder.listFiles().filter {
+        it.isFile && it.name.endsWith(".apk")
+    }
+        for (file in listOfFiles) {
+            Log.d("AppLog", "File " + file.name)
+            nameSizeMap[file] = file.length()
+            totalSize += file.length()
+        }
+        val su = "su"
+        val pmInstallCreate = arrayOf(su, "-c", "pm", "install-create", "-S", totalSize.toString())
+        execute(pmInstallCreate)
+        val sessions = packageInstaller.allSessions
+        val sessionId = Integer.toString(sessions[0].sessionId)
+        for ((file, value) in nameSizeMap){
+        val pmInstallWrite = arrayOf(su, "-c", "pm", "install-write", "-S", value.toString(), sessionId, file.name, file.absolutePath)
+        execute(pmInstallWrite)
+    }
+        val pmInstallCommit = arrayOf(su, "-c", "pm", "install-commit", sessionId)
+        execute(pmInstallCommit)
+    }
+
+    @WorkerThread
+    @JvmStatic
+    private fun execute(cmd:Array<String>):String?
+    {
+        Log.d("AppLog", "command is " + Arrays.toString(cmd))
+        try {
+            val process = Runtime.getRuntime().exec(cmd)
+            Log.d("AppLog", "process is $process")
+            val reader = BufferedReader(InputStreamReader(process.inputStream))
+            Log.d("AppLog", "bufferreader is $reader")
+            Log.d("AppLog", "readline " + reader.readLine())
+            val output = StringBuilder()
+            val buffer = CharArray(4096)
+            var read:Int
+            while (true) {
+                read = reader.read(buffer)
+                if (read <= 0)
+                    break output.append(buffer, 0, read)
+            }
+            reader.close()
+            process.waitFor()
+            Log.d("AppLog", output.toString())
+            return output.toString()
+        } catch (e:Exception){
+        e.printStackTrace()
+    }
+        return null
+    }
+    */
 }

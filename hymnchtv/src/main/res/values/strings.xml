@@ -48,13 +48,14 @@
     <string name="gui_media_content">媒体内容</string>
     <string name="gui_media_type">媒体类型</string>
     <string name="gui_ok">确认</string>
+    <string name="gui_return">返回</string>
 
     <!-- Message for QQ links update -->
     <string name="gui_qq_download">QQ-诗歌链接下载</string>
     <string name="gui_qq_download_completed">QQ-诗歌链接：%1$s 下载完成！</string>
     <string name="gui_qq_download_failed">QQ-诗歌链接下载失败！</string>
     <string name="gui_qq_download_in_progress">QQ%1$s链接下载中…</string>
-    <string name="gui_qq_download_proceed">继续QQ链接下载？过程需要一些时间。</string>
+    <string name="gui_qq_download_proceed">执行QQ链接下载？过程需要一些时间。</string>
     <string name="gui_qq_download_starting">QQ-诗歌链接下载开始…</string>
     <string name="gui_qq_record_delete">删除QQ-媒体链接记录:\n%1$s?</string>
 
@@ -94,9 +95,10 @@
     <string name="gui_app_apk_invalid">下载文件无效或版本不正确</string>
     <string name="gui_apk_install_failed">应用程序安装时发生错误：(%1$s) %2$s</string>
     <string name="gui_apk_install_completed">应用程序安装成功！</string>
-    <string name="gui_app_install_ready">已下载更新，并准备进行安装。</string>
+    <string name="gui_app_install_ready">已下载应用程序包 (%s)，并准备进行安装。</string>
     <string name="gui_app_version_invalid">下载的文件包含不匹配的版本代码：实际 = %s (%s)</string>
     <string name="gui_app_new_available">有新的软件版本: %1$s</string>
+    <string name="gui_app_reinstall">重新安装</string>
     <string name="gui_app_update">升级</string>
     <string name="gui_app_update_check">更新</string>
     <string name="gui_app_update_install">应用程序更新</string>
@@ -106,6 +108,7 @@
     <string name="gui_app_uninstall">您的版本 v1.2.0 需要先卸载再更新。\n然后从下载目录手动安装:\n%1$s</string>
 
     <string name="gui_download">下载</string>
+    <string name="gui_download_again">重新下载</string>
     <string name="gui_download_completed">下载完成</string>
     <string name="gui_download_failed">无法下载新程序版本！请退出应用程序并重试。</string>
     <string name="gui_download_in_progress">正在下载更新。</string>
@@ -261,7 +264,7 @@
     /* ChangeLog parameters */
     <string name="changelog_full_title">应用程序变更历史</string>
     <string name="changelog_title">应用程序新加功能</string>
-    <string name="changelog_ok_button">确定</string>
+    <string name="changelog_ok_button">确认</string>
     <string name="changelog_show_full">更多…</string>
 
     <!-- Android Notification Channels -->

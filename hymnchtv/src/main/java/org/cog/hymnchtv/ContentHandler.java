@@ -902,12 +902,15 @@ public class ContentHandler extends FragmentActivity
                 break;
         }
 
-        // iterate only the first 4 values of the mediaTypes only
+        // iterate only the first 4 values of the mediaTypes as there is only four mediaType buttons
         MediaType[] mediaTypes = MediaType.values();
-        for (i = 0; i< mediaTypes.length-1; i++) {
+        for (i = 0; i < mediaTypes.length - 1; i++) {
             MediaType mediaType = mediaTypes[i];
             MediaRecord mediaRecord = new MediaRecord(mSelect, hymnNo, isFu, mediaType);
-            isAvailable[i++] |= mDB.getMediaRecord(mediaRecord, false);
+
+            // Skip to next if state is already evaluated to true
+            if ((isAvailable[i] |= mDB.getMediaRecord(mediaRecord, false)))
+                continue;
 
             switch (mediaType) {
                 case HYMN_MEDIA:
@@ -915,26 +918,20 @@ public class ContentHandler extends FragmentActivity
 
                 case HYMN_BANZOU:
                     dir = mSelect + MEDIA_MIDI;
-                    if (!isAvailable[1]) {
-                        if (!(isAvailable[1] = isExist(dir, tmpName + ".mid"))) {
-                            dir = mSelect + MEDIA_BANZOU;
-                            isAvailable[1] = isExist(dir, tmpName + ".mp3");
-                        }
+                    if (!(isAvailable[1] = isExist(dir, tmpName + ".mid"))) {
+                        dir = mSelect + MEDIA_BANZOU;
+                        isAvailable[1] = isExist(dir, tmpName + ".mp3");
                     }
                     break;
 
                 case HYMN_JIAOCHANG:
                     dir = mSelect + MEDIA_JIAOCHANG;
-                    if (!isAvailable[2]) {
-                        isAvailable[2] = isExist(dir, tmpName + ".mp3");
-                    }
+                    isAvailable[2] = isExist(dir, tmpName + ".mp3");
                     break;
 
                 case HYMN_CHANGSHI:
                     dir = mSelect + MEDIA_CHANGSHI;
-                    if (!isAvailable[3]) {
-                        isAvailable[3] = isExist(dir, tmpName + hymnTitle + ".mp3");
-                    }
+                    isAvailable[3] = isExist(dir, tmpName + hymnTitle + ".mp3");
                     break;
             }
         }

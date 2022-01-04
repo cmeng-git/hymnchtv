@@ -346,11 +346,10 @@ public class HymnsApp extends Application implements LifecycleEventObserver
         showToastMessage(mInstance.getString(id, arg));
     }
 
-    public static void showGenericError(final int id, final Object... arg)
+    public static void showDialogError(final int id, final Object... arg)
     {
         new Handler(Looper.getMainLooper()).post(() -> {
-            String msg = mInstance.getString(id, arg);
-            DialogActivity.showDialog(mInstance, mInstance.getString(R.string.gui_error), msg);
+            DialogActivity.showDialog(mInstance, R.string.gui_error, id, arg);
         });
     }
 }
