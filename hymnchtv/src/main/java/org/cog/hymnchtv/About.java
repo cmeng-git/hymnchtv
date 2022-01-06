@@ -43,7 +43,7 @@ import de.cketti.library.changelog.ChangeLog;
  *
  * @author Eng Chong Meng
  */
-public class About extends FragmentActivity implements View.OnClickListener
+public class About extends FragmentActivity implements View.OnClickListener, View.OnLongClickListener
 {
 
     public static String HYMNCHTV_LINK = "https://cmeng-git.github.io/hymnchtv/";
@@ -97,7 +97,10 @@ public class About extends FragmentActivity implements View.OnClickListener
             copyRight.setText(Html.fromHtml(getString(R.string.gui_copyright)));
         }
 
-        findViewById(R.id.history_log).setOnClickListener(this);
+        Button btn_HistoryLog = findViewById(R.id.history_log);
+        btn_HistoryLog.setOnClickListener(this);
+        btn_HistoryLog.setOnLongClickListener(this);
+
         findViewById(R.id.submit_logs).setOnClickListener(this);
         findViewById(R.id.ok_button).setOnClickListener(this);
 
@@ -134,14 +137,7 @@ public class About extends FragmentActivity implements View.OnClickListener
                 break;
 
             case R.id.check_new_version:
-                new Thread()
-                {
-                    @Override
-                    public void run()
-                    {
-                        UpdateServiceImpl.getInstance().checkForUpdates(true);
-                    }
-                }.start();
+                checkUpdate();
                 break;
 
             case R.id.submit_logs:
@@ -163,6 +159,31 @@ public class About extends FragmentActivity implements View.OnClickListener
                 finish();
                 break;
         }
+    }
+
+    @Override
+    public boolean onLongClick(View view)
+    {
+        if (view.getId() == R.id.history_log) {
+            checkUpdate();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check app new update availability
+     */
+    private void checkUpdate()
+    {
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                UpdateServiceImpl.getInstance().checkForUpdates(true);
+            }
+        }.start();
     }
 
     public static void hymnUrlAccess(Context context, String url)

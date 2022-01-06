@@ -8,6 +8,7 @@
     <string name="gui_add_renew">添加/更新</string>
     <string name="gui_overwrite">覆盖</string>
     <string name="gui_add_to_db">已经添加并保存到数据库！</string>
+    <string name="gui_add_to_db_failed">媒体记录保存失败！</string>
     <string name="gui_app_libraries">诗歌本程序使用以下第三方库： %1$s</string>
     <!-- Message to display while video is buffering. -->
     <string name="gui_buffering">正在缓冲&#8230;</string>
@@ -23,7 +24,7 @@
     <string name="gui_db_import_file">数据库导入文件</string>
     <string name="gui_db_file_missing">请提供媒体内容真实路径！</string>
     <string name="gui_db_list">数库列项</string>
-    <string name="gui_db_overwrite">覆盖现有记录</string>
+    <string name="gui_db_overwrite">覆盖现有</string>
     <string name="gui_db_overwrite_media">是否覆盖数据库中的现有媒体记录？</string>
     <string name="gui_delete">删除</string>
     <string name="gui_delete_history">删除诗歌历史记录: %1$s？</string>

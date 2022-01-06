@@ -107,22 +107,6 @@
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@android:style/Theme.Holo.Dialog.MinWidth" />
 
-        <activity
-            android:name=".service.androidupdate.InstallApkSessionApi"
-            android:label="@string/activity_install_apk_session_api"
-            android:launchMode="singleTop"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.SAMPLE_CODE" />
-            </intent-filter>
-            <intent-filter>
-                <action
-                    android:name="com.example.android.apis.content.SESSION_API_PACKAGE_INSTALLED"
-                    android:exported="true" />
-            </intent-filter>
-        </activity>
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.files"

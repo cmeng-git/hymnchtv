@@ -1,6 +1,14 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    01/06/2022
+Version:        1.7.1 (107013)
+- Fix media record saving will failed if the destination directory contains the same file name
+- Ensure MediaConfig#updateMediaRecord() always provide user with an update status message
+- add support mediaConfig UI to support in landscape mode
+
+=========================================================================
+Author:         cmeng
 Upload Date:    01/04/2022
 Version:        1.7.1 (107012)
 - Add TouchListener class to support SingleTap, DoubleTap and LongPress

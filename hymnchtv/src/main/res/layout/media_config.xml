@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/background_dark"
     android:clickable="true"
     android:focusable="true"
@@ -10,13 +10,13 @@
 
     <FrameLayout
         android:id="@+id/player_container"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:orientation="vertical" />
+        android:orientation="vertical"
+        android:visibility="gone" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -40,7 +40,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="4dp"
         android:orientation="horizontal">
@@ -69,7 +69,7 @@
         android:textColor="@color/textColorWhite" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="0dp"
         android:orientation="horizontal">
@@ -93,7 +93,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
@@ -198,13 +198,13 @@
     <ListView
         android:id="@+id/mrListView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginTop="10dp"
         android:background="@color/color_bg_share"
         android:visibility="gone" />
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:background="@color/color_bg_share"
@@ -214,7 +214,7 @@
         android:padding="10dp">
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
@@ -266,20 +266,20 @@
             <Button
                 android:id="@+id/button_QQ"
                 style="@style/ButtonTop"
-                android:textSize="20sp"
-               android:layout_weight="0.5"
+                android:layout_weight="0.7"
                 android:text="@string/gui_db_import_QQ" />
 
             <CheckBox
                 android:id="@+id/recordOverwrite"
                 style="@style/ButtonTop"
-                android:layout_weight="1.5"
                 android:layout_marginStart="4dp"
+                android:layout_weight="1.3"
                 android:text="@string/gui_db_overwrite" />
 
             <Button
                 android:id="@+id/button_import"
                 style="@style/ButtonTop"
+                android:layout_marginStart="4dp"
                 android:text="@string/gui_db_import" />
         </LinearLayout>
 

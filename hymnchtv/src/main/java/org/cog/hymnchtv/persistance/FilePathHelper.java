@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
@@ -266,18 +267,34 @@ public class FilePathHelper
         return "com.google.android.apps.photos.content".equals(uriAuthority);
     }
 
-    /* Return uri represented document file real local path.*/
+    /* Return uri represented document file real local path.
+     * see https://developer.android.com/reference/android/provider/MediaStore.MediaColumns#DATA
+     * see https://developer.android.com/reference/android/provider/MediaStore.MediaColumns#DOCUMENT_ID
+     */
     @SuppressLint("Recycle")
     private static String getRealPath(ContentResolver contentResolver, Uri uri, String whereClause)
             throws Exception
     {
         String filePath = "";
+        boolean hasApiQ = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q;
+        String[] projection = new String[]{MediaStore.MediaColumns.DATA};
+        if (hasApiQ)
+            projection = new String[]{MediaStore.MediaColumns.DATA, MediaStore.MediaColumns.DOCUMENT_ID};
+
         // Query the uri with condition.
-        Cursor cursor = contentResolver.query(uri, new String[] {MediaStore.MediaColumns.DATA}, whereClause, null, null);
+        Cursor cursor = contentResolver.query(uri, projection, whereClause, null, null);
         if (cursor != null) {
             // Get column value which is the uri related file path.
             if (cursor.moveToFirst()) {
                 filePath = cursor.getString(0);
+
+                // Not safe to do undocumented process
+//                if (TextUtils.isEmpty(filePath) && hasApiQ) {
+//                    // raw:/storage/emulated/0/Download/hymnchtv/hymn_bb/media_media/B1开口赞美.mp4
+//                    filePath = cursor.getString(1);
+//                    if (!TextUtils.isEmpty(filePath))
+//                        filePath = filePath.substring(filePath.indexOf(":") + 1);
+//                }
             }
             cursor.close();
         }

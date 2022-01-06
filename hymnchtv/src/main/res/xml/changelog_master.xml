@@ -6,7 +6,7 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="1.7.1 (01/04/2022)" versioncode="107012">
+    <release version="1.7.1 (01/06/2022)" versioncode="107013">
         <change>重新定义媒体内容播放界面中的诗歌信息搜索按钮功能以支持：</change>
         <change>单击通过 qq.com 执行诗歌信息搜索（如果没有找到，自动转到QQ主页）。</change>
         <change>长按通过 youtube.com 执行诗歌信息搜索。</change>
@@ -14,6 +14,8 @@
         <change>或粘贴到用户选择互联网浏览器进行搜索。</change>
         <change>长按“媒体键”将显示QQ信息主页。</change>
         <change>用户定义媒体设置中添加QQ功能按钮: 经用户确认，单击建立QQ信息数据库。</change>
+        <change>添加支持用户定义媒体设置 UI 以支持横向模式。</change>
+        <change>确保用户定义媒体设置中添加新记录始终为用户提供更新状态消息。</change>
         <change>使用安卓默认网页浏览器进行诗歌信息搜索；以允许选定的视频链接与书拉密女-诗歌本共享。</change>
         <change>修复并允许通过标准 android 包安装加以更新书拉密女-诗歌本。</change>
         <change>允许下载并安装/重新安装，新版本或相同版本的应用程序包。</change>

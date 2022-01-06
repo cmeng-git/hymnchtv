@@ -335,7 +335,7 @@ public class MediaConfig extends FragmentActivity
 
             case R.id.button_add:
                 if (updateMediaRecord()) {
-                    HymnsApp.showToastMessage(R.string.gui_add_to_db);
+                    Timber.d("Record saved successful: %s", tvMediaUri.getText());
                 }
                 break;
 
@@ -732,6 +732,8 @@ public class MediaConfig extends FragmentActivity
     private boolean saveMediaRecord(MediaRecord mRecord)
     {
         String filePath = mRecord.getMediaFilePath();
+        boolean isSuccess = true;
+
         if (filePath != null) {
             if (filePath.contains(FileBackend.TMP)) {
                 File inFile = new File(filePath);
@@ -739,26 +741,35 @@ public class MediaConfig extends FragmentActivity
                 File subDir = FileBackend.getHymnchtvStore(mHymnType + mediaDir.get(mMediaType), true);
                 if (subDir == null) {
                     HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
-                    return false;
+                    isSuccess = false;
                 }
                 File outFile = new File(subDir, inFile.getName());
 
                 try {
-                    if (!inFile.renameTo(outFile)) {
-                        return false;
+                    // return false if inFile rename failed && outFile does not exist
+                    if (!inFile.renameTo(outFile) && !outFile.exists()) {
+                        HymnsApp.showToastMessage(R.string.gui_add_to_db_failed);
+                        isSuccess = false;
                     }
-                    filePath = outFile.getAbsolutePath();
 
+                    filePath = outFile.getAbsolutePath();
                     mRecord.setFilePath(filePath);
                     mRecord.setMediaUri(null);
                 } catch (Exception e) {
                     HymnsApp.showToastMessage(e.getMessage());
-                    return false;
+                    isSuccess = false;
                 }
             }
         }
-        mDB.storeMediaRecord(mRecord);
-        return true;
+
+        if (isSuccess) {
+            mDB.storeMediaRecord(mRecord);
+            HymnsApp.showToastMessage(R.string.gui_add_to_db);
+        }
+        else {
+            HymnsApp.showToastMessage(R.string.gui_add_to_db_failed);
+        }
+        return isSuccess;
     }
 
     /**

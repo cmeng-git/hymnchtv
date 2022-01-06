@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_dark"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingEnd="10dp"
+        android:orientation="vertical"
+        tools:ignore="RtlSymmetry">
+
+        <FrameLayout
+            android:id="@+id/player_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/MediumFont"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_weight="2"
+                android:text="@string/gui_hymn_type"
+                android:textColor="@color/textColorWhite" />
+
+            <TextView
+                style="@style/MediumFont"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:text="@string/gui_hymn_no"
+                android:textColor="@color/textColorWhite" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/hymnType"
+                style="@style/SpinnerView"
+                android:layout_width="0dp"
+                android:layout_weight="2" />
+
+            <EditText
+                android:id="@+id/hymnNo"
+                style="@style/EntryTextView"
+                android:layout_width="0dp"
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:inputType="number" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/MediumFont"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:text="@string/gui_media_type"
+            android:textColor="@color/textColorWhite" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="0dp"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/mediaType"
+                style="@style/SpinnerView"
+                android:layout_width="0dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="2" />
+
+            <CheckBox
+                android:id="@+id/cbFu"
+                style="@style/ButtonTop"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:text="@string/hymn_fu" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/MediumFont"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:layout_weight="1"
+                android:text="@string/gui_media_link"
+                android:textColor="@color/textColorWhite" />
+
+            <ImageButton
+                android:id="@+id/help_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:src="@drawable/ic_help" />
+
+            <ImageButton
+                android:id="@+id/shareMediaUri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:src="@drawable/ic_share" />
+
+            <ImageButton
+                android:id="@+id/decodeUri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:src="@drawable/ic_uri_decode" />
+
+            <ImageButton
+                android:id="@+id/browseMediaUri"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_folder" />
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/mediaUri"
+            style="@style/EntryTextView"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="8dp"
+            android:inputType="textUri"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/linkDecoded"
+            style="@style/EntryTextView"
+            android:layout_width="match_parent"
+            android:layout_marginBottom="8dp"
+            android:focusable="false"
+            android:inputType="none"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:textColor="@color/grey500"
+            android:textSize="18sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/mediaMissing"
+            style="@style/EntryTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="@string/gui_media_file_not_found"
+            android:textColor="@color/red" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button_Exit"
+                style="@style/ButtonTop"
+                android:text="@string/gui_exit" />
+
+            <Button
+                android:id="@+id/button_play"
+                style="@style/ButtonTop"
+                android:layout_marginStart="4dp"
+                android:text="@string/play" />
+
+            <Button
+                android:id="@+id/button_delete"
+                style="@style/ButtonTop"
+                android:layout_marginStart="4dp"
+                android:text="@string/gui_delete" />
+
+            <Button
+                android:id="@+id/button_add"
+                style="@style/ButtonTop"
+                android:layout_marginStart="4dp"
+                android:text="@string/gui_add" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical" >
+
+        <ListView
+            android:id="@+id/mrListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@color/color_bg_share"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/MediumFont"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_weight="1"
+                    android:text="@string/gui_db_import_file"
+                    android:textColor="@color/textColorWhite" />
+
+                <ImageButton
+                    android:id="@+id/help_video"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/ic_help_video" />
+
+                <ImageButton
+                    android:id="@+id/editFile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    android:src="@drawable/ic_edit" />
+
+                <ImageButton
+                    android:id="@+id/browseImportFile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_folder" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/importFile"
+                style="@style/EntryTextView"
+                android:layout_width="match_parent"
+                android:layout_marginBottom="8dp"
+                android:inputType="textUri"
+                android:scrollHorizontally="true"
+                android:singleLine="true"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button_QQ"
+                    style="@style/ButtonTop"
+                    android:layout_weight="0.7"
+                    android:text="@string/gui_db_import_QQ" />
+
+                <CheckBox
+                    android:id="@+id/recordOverwrite"
+                    style="@style/ButtonTop"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1.3"
+                    android:text="@string/gui_db_overwrite" />
+
+                <Button
+                    android:id="@+id/button_import"
+                    style="@style/ButtonTop"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/gui_db_import" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button_db_records"
+                    style="@style/ButtonTop"
+                    android:text="@string/gui_db_list" />
+
+                <Button
+                    android:id="@+id/button_import_create"
+                    style="@style/ButtonTop"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/gui_db_import_create" />
+
+                <Button
+                    android:id="@+id/button_export"
+                    style="@style/ButtonTop"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/gui_db_export" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
