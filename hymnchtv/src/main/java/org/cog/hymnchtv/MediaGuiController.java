@@ -445,7 +445,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     TouchListener touchListener = new TouchListener(mContentHandler)
     {
         @Override
-        public boolean onSingleTap(View v)
+        public boolean onSingleTap(View v, int idx)
         {
             switch (v.getId()) {
                 case R.id.btn_hymnSearch:
@@ -465,7 +465,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         }
 
         @Override
-        public void onLongPress(View v)
+        public void onLongPress(View v, int idx)
         {
             switch (v.getId()) {
                 case R.id.btn_hymnSearch:
@@ -476,7 +476,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         }
 
         @Override
-        public boolean onDoubleTap(View v)
+        public boolean onDoubleTap(View v, int idx)
         {
             if (v.getId() == R.id.btn_hymnSearch) {
                 mContentHandler.initWebView(ContentHandler.UrlType.hymnGoogleSearch);

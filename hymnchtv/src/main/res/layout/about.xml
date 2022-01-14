@@ -111,8 +111,7 @@
             style="@style/Button"
             android:layout_weight="0.6"
             android:layout_marginStart="1dp"
-            android:text="@string/gui_app_update_check"
-            android:visibility="visible" />
+            android:text="@string/gui_app_update_check" />
 
         <Button
             android:id="@+id/ok_button"

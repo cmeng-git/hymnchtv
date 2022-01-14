@@ -17,9 +17,6 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven {
-            url 'https://dl.bintray.com/google/exoplayer/'
-        }
 
         // Git project library as local library project (ucrop) - see https://jitpack.io/docs/
         maven { url 'https://jitpack.io' }

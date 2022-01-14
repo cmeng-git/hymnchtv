@@ -13,7 +13,7 @@
         style="@style/ButtonTop"
         android:textSize="20sp"
         android:layout_weight="0.5"
-        android:src="@drawable/ic_action_search" />
+        android:src="@drawable/ic_search" />
 
     <RadioButton
         android:id="@+id/btn_media"

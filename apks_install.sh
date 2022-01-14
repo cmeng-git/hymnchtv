@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+# set -x
 
 echo "### Generate and install hymnchtv-debug.apks to the device ###"
 

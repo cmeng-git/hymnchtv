@@ -108,6 +108,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     private Spinner tocSpinner;
     private EditText tv_Search;
+    private MySwipeListAdapter<HistoryRecord> mHistoryAdapter;
     private ListView mHistoryListView;
     private TextView mTocSpinnerItem;
     private TextView mEntry;
@@ -736,40 +737,73 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         setFontColor(fontColor, false);
     }
 
+    private void showHymn(HistoryRecord sRecord)
+    {
+        mEntry.setHint(R.string.hint_hymn_number_enter);
+        mHistoryListView.setVisibility(View.GONE);
+
+        isFu = sRecord.isFu();
+        sNumber = sRecord.getHymnNoFu();
+        mEntry.setText(sNumber);
+        showContent(sRecord.getHymnType(), sRecord.getHymnNo());
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     private void initHistoryList()
     {
         List<HistoryRecord> historyRecords = mDB.getHistoryRecords();
-        ArrayAdapter<?> historyAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, historyRecords);
-        historyAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
-        mHistoryListView.setAdapter(historyAdapter);
+        mHistoryAdapter = new MySwipeListAdapter<HistoryRecord>(this, historyRecords)
+        {
+            @Override
+            public void remove(@NonNull HistoryRecord sRecord)
+            {
+                int count = mDB.deleteHymnHistory(sRecord);
+                if (count == 1) {
+                    super.remove(sRecord);
+                }
+            }
 
-        // short click to enter and show user selected lyrics
-        mHistoryListView.setOnItemClickListener((adapterView, view, position, l) -> {
-            mEntry.setHint(R.string.hint_hymn_number_enter);
-            mHistoryListView.setVisibility(View.GONE);
+            @Override
+            public void open(@NonNull HistoryRecord sRecord)
+            {
+                showHymn(sRecord);
+            }
+        };
+        mHistoryListView.setAdapter(mHistoryAdapter);
+        mHistoryListView.setOnTouchListener(touchListener);
+    }
 
-            HistoryRecord sRecord = historyRecords.get(position);
-            isFu = sRecord.isFu();
-            sNumber = sRecord.getHymnNoFu();
-            mEntry.setText(sNumber);
-            showContent(sRecord.getHymnType(), sRecord.getHymnNo());
-        });
+    /**
+     * TouchListener to support singleTap, doubleTap and longPress for the view for site visit
+     */
+    TouchListener touchListener = new TouchListener(HymnsApp.getGlobalContext())
+    {
+        @Override
+        public boolean onSingleTap(View v, int pos)
+        {
+            HistoryRecord sRecord = (HistoryRecord) ((ListView) v).getItemAtPosition(pos);
+            if (sRecord != null) {
+                showHymn(sRecord);
+            }
+            return true;
+        }
 
-        // LongPress to delete hymn selection entry history on user confirmation
-        mHistoryListView.setOnItemLongClickListener((adapterView, view, position, l) -> {
-            HistoryRecord sRecord = historyRecords.get(position);
+        @Override
+        public void onLongPress(View v, int pos)
+        {
+            HistoryRecord sRecord = (HistoryRecord) ((ListView) v).getItemAtPosition(pos);
+            if (sRecord == null)
+                return;
 
-            DialogActivity.showConfirmDialog(this,
+            DialogActivity.showConfirmDialog(MainActivity.this,
                     R.string.gui_delete,
                     R.string.gui_delete_history,
                     R.string.gui_delete, new DialogActivity.DialogListener()
                     {
                         public boolean onConfirmClicked(DialogActivity dialog)
                         {
-                            int count = mDB.deleteHymnHistory(sRecord);
-                            if (count == 1)
-                                historyRecords.remove(position);
-                            historyAdapter.notifyDataSetChanged();
+                            mHistoryAdapter.setSelectState(pos, false);
+                            mHistoryAdapter.remove(sRecord);
                             return true;
                         }
 
@@ -777,9 +811,43 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                         {
                         }
                     }, sRecord.toString());
+
+        }
+
+        @Override
+        public boolean onSwipeRight(View v, int idx)
+        {
+            mHistoryAdapter.setSelectState(idx, false);
+            int pos = idx - ((ListView) v).getFirstVisiblePosition();
+            return showActionButton(pos, false);
+        }
+
+        @Override
+        public boolean onSwipeLeft(View v, int idx)
+        {
+            mHistoryAdapter.setSelectState(idx, true);
+            int pos = idx - ((ListView) v).getFirstVisiblePosition();
+            return showActionButton(pos, true);
+        }
+
+        /**
+         * Toggle between primary and alt view layout pending on action and current state
+         *
+         * @param pos the actual ListView item view location on display; no the same as HistoryRecord index
+         * @param show true is to reveal the alt layout
+         * @return true always
+         */
+        private boolean showActionButton(int pos, boolean show)
+        {
+            ViewSwitcher child = (ViewSwitcher) mHistoryListView.getChildAt(pos);
+            if (child != null) {
+                if ((child.getDisplayedChild() == 0) == show) {
+                    child.showNext();
+                }
+            }
             return true;
-        });
-    }
+        }
+    };
 
     /**
      * Init the main UI wallpaper with one of the predefined image in drawable or user own if bgResId == -1

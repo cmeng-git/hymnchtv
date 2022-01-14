@@ -1,16 +1,20 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    01/06/2022
-Version:        1.7.1 (107013)
-- Fix media record saving will failed if the destination directory contains the same file name
+Upload Date:    01/14/2022
+Version:        1.7.2 (107020)
+- Add swipe left/right on hymn history list to reveal/hide open and delete action buttons
+- Fix media record saving failed if the destination directory contains the same file name
 - Ensure MediaConfig#updateMediaRecord() always provide user with an update status message
 - add support mediaConfig UI to support in landscape mode
+- Change TouchListener class to implement default actions; can be override by user
+- Upgrade build to support android API-32
+- remove invalid maven {url 'https://dl.bintray.com/google/exoplayer/'} in build.gradle
 
 =========================================================================
 Author:         cmeng
-Upload Date:    01/04/2022
-Version:        1.7.1 (107012)
+Upload Date:    01/06/2022
+Version:        1.7.1 (107013)
 - Add TouchListener class to support SingleTap, DoubleTap and LongPress
 - Update and redefine hymn info search function button in the media content playback UI to support:
   * singleTap to perform hymn info search via qq.com (main page if none found)

@@ -108,6 +108,8 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
         if (BuildConfig.DEBUG) {
             btn_chkNewVersion.setVisibility(View.VISIBLE);
             btn_chkNewVersion.setOnClickListener(this);
+        } else {
+            btn_chkNewVersion.setVisibility(View.GONE);
         }
 
         // View btn_submitLogs = findViewById(R.id.submit_logs);
