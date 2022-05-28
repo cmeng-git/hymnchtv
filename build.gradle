@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.10"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -21,9 +21,16 @@ allprojects {
         // Git project library as local library project (ucrop) - see https://jitpack.io/docs/
         maven { url 'https://jitpack.io' }
 
-        // https://github.com/guardian/toolargetool
-        // maven { url 'https://dl.bintray.com/guardian/android' }
     }
+}
+
+project.ext {
+    preDexLibs = !project.hasProperty('disablePreDex')
+    testCoverage = project.hasProperty('testCoverage')
+
+    minSdk = 21
+    compileSdk = 32
+    buildTools = '32.0.0'
 }
 
 task clean(type: Delete) {

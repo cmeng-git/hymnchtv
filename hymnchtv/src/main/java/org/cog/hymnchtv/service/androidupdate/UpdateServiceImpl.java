@@ -54,7 +54,7 @@ public class UpdateServiceImpl
      */
     private static final String APK_MIME_TYPE = "application/vnd.android.package-archive";
 
-    // path are case-sensitive
+    // path is case-sensitive
     private static final String filePath = "/releases/hymnchtv/versionupdate.properties";
 
     /**

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "### Generate single monolithic hymnchtv-debug.apk ###"
+echo "### Generate single monolithic hymnchtv-debug.apk for remote installation ###"
 
 java -jar ../bundletool.jar build-apks --bundle=./hymnchtv/build/outputs/bundle/debug/hymnchtv-debug.aab --output=./hymnchtv/build/outputs/apk/debug/hymnchtv-debug2.apks --overwrite --local-testing --mode=universal
 

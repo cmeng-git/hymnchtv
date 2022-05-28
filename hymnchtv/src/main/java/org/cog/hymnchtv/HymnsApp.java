@@ -157,11 +157,9 @@ public class HymnsApp extends Application implements LifecycleEventObserver
         if (Lifecycle.Event.ON_START == event) {
             isForeground = true;
             startUpdateService();
-            Timber.d("APP FOREGROUNDED");
         }
         else if (Lifecycle.Event.ON_STOP == event) {
             isForeground = false;
-            Timber.d("APP BACKGROUNDED");
         }
     }
 

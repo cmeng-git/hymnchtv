@@ -1,6 +1,16 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    05/28/2022
+Version:        1.7.3 (107030)
+- Fix MediaConfig#createAutoImportFile failed to generate media import file; must createNewFile() if not exist
+- MediaConfig#createAutoImportFile now uses user selected HymnType and MediaType as source directory/files for import file generation.
+- Update deprecated LifecycleObserver with LifecycleEventObserver in android-youtube-player
+- Update deprecated ConnectivityManager in android-youtube-player
+- Use NetworkCallBack in place of deprecated Broadcast Receiver in android-youtube-player
+
+=========================================================================
+Author:         cmeng
 Upload Date:    01/14/2022
 Version:        1.7.2 (107020)
 - Add swipe left/right on hymn history list to reveal/hide open and delete action buttons

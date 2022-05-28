@@ -53,6 +53,7 @@ public class MySwipeListAdapter<T> extends ArrayAdapter<T>
             convertView = mInflater.inflate(R.layout.row_list, parent, false);
 
             viewHolder = new ViewHolder();
+
             viewHolder.viewSwitcher = convertView.findViewById(R.id.list_switcher);
             viewHolder.viewSwitcher.setInAnimation(AnimationUtils.loadAnimation(mContext, R.anim.slide_in_right));
             viewHolder.viewSwitcher.setOutAnimation(AnimationUtils.loadAnimation(mContext, android.R.anim.slide_out_right));
@@ -81,6 +82,7 @@ public class MySwipeListAdapter<T> extends ArrayAdapter<T>
                 mSelectStates.remove(position);
                 remove(item);
             });
+
             viewHolder.openItem.setOnClickListener(v -> {
                 mSelectStates.clear();
                 open(item);

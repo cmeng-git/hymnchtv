@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation ExtraTranslation">
     <string name="app_name">诗歌本</string>
     <string name="app_title_main">书拉密女-诗歌本</string>
 
@@ -19,6 +19,7 @@
         &lt;br/>All rights reserved.</string>
     <string name="gui_db_export">数库导出</string>
     <string name="gui_db_import">数库导入</string>
+    <string name="gui_db_import_record">数库导入共 %1$d 首诗歌</string>
     <string name="gui_db_import_QQ">QQ&#x2B07;</string>
     <string name="gui_db_import_create">自建导入</string>
     <string name="gui_db_import_file">数据库导入文件</string>
@@ -72,22 +73,22 @@
     <string name="gui_error">错误</string>
     <string name="gui_error_hymn_config">输入错误: 未输入诗歌号码或媒体链接</string>
     <string name="gui_error_invalid">输入错误: 未按目录或输入(附)号码</string>
-    <string name="gui_error_media_url_invalid">提供的媒体网址不正确: %s</string>
+    <string name="gui_error_media_url_invalid">提供的媒体网址不正确: %1$s</string>
     <string name="gui_error_playback">无法解码视频链接或进行播放: %1$s</string>
     <string name="gui_error_search_empty">请输入内容进行搜索</string>
     <string name="gui_error_file_not_found">（无法取得文件: %1$s）</string>
     <string name="gui_error_english_lyrics_null">对不起！当诗歌 \'%1$d\' 首没有英文歌词</string>
 
-    <string name="hymn_info_er_max">儿童诗歌只有%1$d首</string>
-    <string name="hymn_info_er_range_over">儿童诗歌没有: %1$s~%2$s</string>
+    <string name="hymn_info_er_max">儿童诗歌只有%1$d（%2$d）首</string>
+    <string name="hymn_info_er_range_over">儿童诗歌没有: %1$s~%2$s（%3$s）</string>
 
-    <string name="hymn_info_bb_max">补充本诗歌只有%1$d首</string>
-    <string name="hymn_info_bb_range_over">补充本诗歌没有: %1$s~%2$s</string>
+    <string name="hymn_info_bb_max">补充本诗歌只有%1$d（%2$d）首</string>
+    <string name="hymn_info_bb_range_over">补充本诗歌没有: %1$s~%2$s（%3$s）</string>
 
-    <string name="hymn_info_db_max">大本诗歌只有%1$d首，和附歌6首</string>
+    <string name="hymn_info_db_max">大本诗歌只有%1$d（%2$d）首，和附歌6首</string>
     <string name="hymn_info_db_range_fu">大本诗歌附歌只有1~6首</string>
 
-    <string name="hymn_info_xb_max">新歌颂咏只有%1$d首"</string>
+    <string name="hymn_info_xb_max">新歌颂咏只有%1$d（%2$d）首"</string>
 
     <string name="hymn_info_media_none">对不起！此项目前没有播放文件</string>
     <string name="hymn_info_sp_none">您选择的项目，没有附歌</string>
@@ -96,8 +97,8 @@
     <string name="gui_app_apk_invalid">下载文件无效或版本不正确</string>
     <string name="gui_apk_install_failed">应用程序安装时发生错误：(%1$s) %2$s</string>
     <string name="gui_apk_install_completed">应用程序安装成功！</string>
-    <string name="gui_app_install_ready">已下载应用程序包 (%s)，并准备进行安装。</string>
-    <string name="gui_app_version_invalid">下载的文件包含不匹配的版本代码：实际 = %s (%s)</string>
+    <string name="gui_app_install_ready">已下载应用程序包 (%1$s)，并准备进行安装。</string>
+    <string name="gui_app_version_invalid">下载的文件包含不匹配的版本代码：实际 = %1$s (%2$s)</string>
     <string name="gui_app_new_available">有新的软件版本: %1$s</string>
     <string name="gui_app_reinstall">重新安装</string>
     <string name="gui_app_update">升级</string>
@@ -190,6 +191,7 @@
     <string name="hymn_number">第几首</string>
 
     <string name="hymn_match">共有匹配 %1$d 首诗歌</string>
+    <string name="hymn_match_auto_create">%1$s/%2$s：共有匹配 %3$d 首诗歌</string>
     <string name="hymn_match_er">儿童诗歌: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_xb">新歌颂咏: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_bb">補充本诗歌: 第 %1$d 首：\n%2$s</string>

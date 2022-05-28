@@ -6,13 +6,19 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.7.3 (05/28/2022)" versioncode="107030">
+        <change>修复自建数据库导入文件生成失败。</change>
+        <change>自建导入文件创建将引用，用户选择的'诗歌类别'和'媒体类型'选项作为源目录及其中的文件。</change>
+        <change>更新安卓不推荐使用的功能。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+    </release>
+
     <release version="1.7.2 (01/14/2022)" versioncode="107020">
         <change>在诗歌历史列表上添加向左/右滑动以显示/隐藏，打开和删除操作按钮。</change>
         <change>修复如果目标目录包含相同的文件名，媒体记录保存失败。</change>
         <change>确保用户定义媒体设置中添加新记录始终为用户提供更新状态消息。</change>
         <change>添加支持用户定义媒体设置 UI 以支持横向模式。</change>
         <change>升级构建以支持安卓 API-32。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
     </release>
 
     <release version="1.7.1 (01/06/2022)" versioncode="107013">

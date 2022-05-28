@@ -116,7 +116,7 @@ public class HymnNoValidate
                 }
 
                 if (hymnNo > HYMN_ER_NO_MAX) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_er_max, HYMN_ER_NO_MAX);
+                    HymnsApp.showToastMessage(R.string.hymn_info_er_max, HYMN_ER_NO_MAX, hymnNo);
                     isValid = false;
                 }
                 else if (hymnNo < 1) {
@@ -126,7 +126,7 @@ public class HymnNoValidate
                 else {
                     for (Range<Integer> rangeX : rangeErInvalid) {
                         if (rangeX.contains(hymnNo)) {
-                            HymnsApp.showToastMessage(R.string.hymn_info_er_range_over, rangeX.getLower(), rangeX.getUpper());
+                            HymnsApp.showToastMessage(R.string.hymn_info_er_range_over, rangeX.getLower(), rangeX.getUpper(), hymnNo);
                             isValid = false;
                             break;
                         }
@@ -142,7 +142,7 @@ public class HymnNoValidate
                 }
 
                 if (hymnNo > HYMN_XB_NO_MAX) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_xb_max, HYMN_XB_NO_MAX);
+                    HymnsApp.showToastMessage(R.string.hymn_info_xb_max, HYMN_XB_NO_MAX, hymnNo);
                     isValid = false;
                 }
                 else if (hymnNo < 1) {
@@ -159,7 +159,7 @@ public class HymnNoValidate
                 }
 
                 if (hymnNo > HYMN_BB_NO_MAX) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_bb_max, HYMN_BB_NO_MAX);
+                    HymnsApp.showToastMessage(R.string.hymn_info_bb_max, HYMN_BB_NO_MAX, hymnNo);
                     isValid = false;
                 }
                 else if (hymnNo < 1) {
@@ -169,7 +169,7 @@ public class HymnNoValidate
                 else {
                     for (Range<Integer> rangeX : rangeBbInvalid) {
                         if (rangeX.contains(hymnNo)) {
-                            HymnsApp.showToastMessage(R.string.hymn_info_bb_range_over, rangeX.getLower(), rangeX.getUpper());
+                            HymnsApp.showToastMessage(R.string.hymn_info_bb_range_over, rangeX.getLower(), rangeX.getUpper(), hymnNo);
                             isValid = false;
                             break;
                         }
@@ -183,7 +183,7 @@ public class HymnNoValidate
                     hymnNo += HYMN_DB_NO_MAX;
                 }
                 if (hymnNo > HYMN_DB_NO_TMAX) {
-                    HymnsApp.showToastMessage(R.string.hymn_info_db_max, HYMN_DB_NO_MAX);
+                    HymnsApp.showToastMessage(R.string.hymn_info_db_max, HYMN_DB_NO_MAX, hymnNo);
                     isValid = false;
                 }
                 else if (hymnNo < 1) {
