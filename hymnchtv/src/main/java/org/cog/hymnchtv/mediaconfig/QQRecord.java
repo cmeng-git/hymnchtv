@@ -246,6 +246,7 @@ public class QQRecord extends MediaRecord
             if (row < 0) {
                 Timber.e("### Error in creating QQ record for: %s", title);
             } else {
+                // Timber.d("### Saved QQ record: %s", mRecord);
                 mCount++;
             }
         } catch (JSONException e) {
@@ -254,7 +255,8 @@ public class QQRecord extends MediaRecord
     }
 
     /**
-     * Extra and phrase all the links info into JSONArray
+     * Extra and phrase all the links info into JSONArray; must remove any comment text string i.e. // 后台给的数据被encode了两次
+     * url: 'http://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&amp;amp;mid=2247492597&amp;amp;idx=1&amp;amp;sn=85ee7042de79cbe'.html(false).html(false), // 后台给的数据被encode了两次subject_name: '诗歌操练学唱'
      *
      * @param url the remote url containing the required link info
      * @return JSON Array of the extracted info or null if none found
@@ -273,7 +275,9 @@ public class QQRecord extends MediaRecord
                 String strJson = matcher.group(1);
                 if (!TextUtils.isEmpty(strJson)) {
                     // Cleanup all the stray info before JSONArray conversation; do not change ",\\}"
-                    strJson = strJson.replaceAll("\\.html\\(false\\)", "").replaceAll(",\\}", "\\}");
+                    strJson = strJson.replaceAll("\\.html\\(false\\)", "")
+                            .replaceAll(",\\}", "\\}")  // \\ is not a redundant: 'LINK_TYPE_MP_APPMSG',}]
+                            .replaceAll(" //.*?subject", "subject"); // remove comment string
                     return new JSONArray(strJson);
                 }
             }

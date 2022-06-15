@@ -14,8 +14,8 @@ android {
     defaultConfig {
         applicationId "org.cog.hymnchtv"
         // End digit - change to force update with same version number
-        versionCode 107030
-        versionName "1.7.3"
+        versionCode 107040
+        versionName "1.7.4"
 
         minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.compileSdk
@@ -71,7 +71,7 @@ dependencies {
     implementation project(':android-youtube-player:core')
 
     implementation 'androidx.activity:activity:1.4.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.fragment:fragment:1.4.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'

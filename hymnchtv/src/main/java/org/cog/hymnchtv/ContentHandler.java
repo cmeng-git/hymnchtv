@@ -73,6 +73,7 @@ public class ContentHandler extends FragmentActivity
 {
     public static String HYMNCHTV_FAQ_PLAYBACK = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0050";
     public static String HYMNCHTV_QQ_MAIN = "https://mp.weixin.qq.com/s/kgqBH0C_zgDaBnxbvC9wew";
+    public static String HYMNCHTV_NOTION = "https://plume-click-f56.notion.site/fb415473f9314610bbd6592ba647cdd4";
 
     // sub-directory for various media type
     public static String MEDIA_MEDIA = "/media_media/";
@@ -115,6 +116,7 @@ public class ContentHandler extends FragmentActivity
         englishLyrics,
         hymnGoogleSearch,
         hymnYoutubeSearch,
+        hymnNotionSearch,
         hymnQqSearch
     }
 
@@ -1068,6 +1070,9 @@ public class ContentHandler extends FragmentActivity
                 break;
             case hymnYoutubeSearch:
                 mWebUrl = (mHymnInfo == null) ? null : "https://m.youtube.com/results?search_query=" + mHymnInfo;
+                break;
+            case hymnNotionSearch:
+                mWebUrl = ((url.length < 1) || (url[0] == null)) ? HYMNCHTV_NOTION : url[0];
                 break;
             case hymnQqSearch:
                 mWebUrl = ((url.length < 1) || (url[0] == null)) ? HYMNCHTV_QQ_MAIN : url[0];

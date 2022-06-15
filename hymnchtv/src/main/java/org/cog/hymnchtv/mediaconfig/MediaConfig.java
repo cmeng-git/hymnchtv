@@ -305,7 +305,7 @@ public class MediaConfig extends FragmentActivity
             if (!TextUtils.isEmpty(mediaUri)) {
                 isAutoFilled = false;
                 tvMediaUri.setText(mediaUri);
-                if (mediaUri.contains("mp.weixin.qq.com")) {
+                if (mediaUri.contains(".notion.site") || mediaUri.contains("mp.weixin.qq.com")) {
                     mediaTypeSpinner.setSelection(4);
                 }
                 else if (mediaUri.contains("youtube.com")
@@ -853,6 +853,7 @@ public class MediaConfig extends FragmentActivity
                             }
                             int row = mDB.deleteMediaRecord(mRecord);
                             HymnsApp.showToastMessage(R.string.gui_delete_media_ok, (row != 0) ? nui : 0);
+                            checkEntry();
                             return true;
                         }
 

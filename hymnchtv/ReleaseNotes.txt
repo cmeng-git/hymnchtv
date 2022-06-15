@@ -1,6 +1,19 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    06/15/2022
+Version:        1.7.4 (107040)
+- Replace partial inaccessible QQ web url with the new Notion web url in content search
+- All QQ media url links for HYMN_DB will be ignored and default to main Notion web url
+- Allow store of notion or qq url to other media type storage location;
+  Proceed to show Notion web url if mediaLink contains notion or qq on playback button click
+- Long press media button to access to the Notion web url
+- Long press changShi button to access to the QQ web url
+- Update media url link field upon successful deletion of the mediaRecord
+- Fix QQ record fetch/creation error: Must remove comment sub string before submit for JSONArray(str) conversation
+
+=========================================================================
+Author:         cmeng
 Upload Date:    05/28/2022
 Version:        1.7.3 (107030)
 - Fix MediaConfig#createAutoImportFile failed to generate media import file; must createNewFile() if not exist

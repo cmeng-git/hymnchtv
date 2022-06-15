@@ -16,12 +16,18 @@
  */
 package org.cog.hymnchtv;
 
+import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.mediaplayer.AudioBgService.PlaybackState;
 
 import android.annotation.SuppressLint;
-import android.content.*;
+import android.content.ActivityNotFoundException;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Color;
@@ -30,8 +36,21 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.view.*;
-import android.widget.*;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -44,7 +63,11 @@ import org.cog.hymnchtv.utils.TouchListener;
 import org.cog.hymnchtv.utils.ViewUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import timber.log.Timber;
 
@@ -218,6 +241,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         mBtnJiaoChang = convertView.findViewById(R.id.btn_jiaochang);
         // mBtnJiaoChang.setOnTouchListener(touchListener); too messy so disabled it
         mBtnChangShi = convertView.findViewById(R.id.btn_changshi);
+        mBtnChangShi.setOnLongClickListener(this);
         return convertView;
     }
 
@@ -361,8 +385,16 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         }
 
         for (Uri uri : mediaHymns) {
-            mUri = uri;
-            playStart();
+            String url = uri.toString();
+            if (url.contains(".notion.site") || (url.contains("mp.weixin.qq.com") && !HYMN_DB.equals(mContentHandler.mSelect))) {
+                mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch, url);
+            }
+            else if (url.contains("mp.weixin.qq.com")) {
+                mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch);
+            } else {
+                mUri = uri;
+                playStart();
+            }
         }
         edLoopCount.clearFocus();
     }
@@ -433,10 +465,16 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     @Override
     public boolean onLongClick(View v)
     {
-        if (v.getId() == R.id.btn_media) {
-            mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
+        switch (v.getId()) {
+            case R.id.btn_media:
+                mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch);
+                return true;
+
+            case R.id.btn_changshi:
+                mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
+                return true;
         }
-        return true;
+        return false;
     }
 
     /**
@@ -451,7 +489,12 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                 case R.id.btn_hymnSearch:
                     QQRecord mRecord = new QQRecord(mContentHandler.mSelect, mContentHandler.hymnNo);
                     String url = mContentHandler.mDB.getHymnUrl(mRecord);
-                    mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch, url);
+                    if (url == null || url.contains(".notion.site") || !HYMN_DB.equals(mContentHandler.mSelect)) {
+                        mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch, url);
+                    }
+                    else {
+                        mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch);
+                    }
                     break;
 
                 case R.id.btn_jiaochang:
