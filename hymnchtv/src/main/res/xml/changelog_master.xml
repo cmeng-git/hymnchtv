@@ -6,6 +6,13 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.7.5 (07/03/2022)" versioncode="107050">
+        <change>长按“数库导入”按钮将预取内存 'notion' 媒体网址链接导入数据库。请选择“覆盖现有”选项来替换数据库旧'网页链接'记录。</change>
+        <change>短按 'NQ' 按钮，开始 'notion' 媒体网址链接获取并保存到数据库。</change>
+        <change>长按 'NQ' 按钮，开始 'QQ' 媒体网址链接获取并保存到数据库。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+    </release>
+
     <release version="1.7.4 (06/15/2022)" versioncode="107040">
         <change>在内容搜索中，将访问的 QQ 网址替换为新的 Notion 网址。</change>
         <change>大本诗歌的所有 QQ 媒体网址链接，将被忽略并默认为 Notion 主页。</change>
@@ -14,7 +21,6 @@
         <change>长按唱诗按钮将访问 QQ 网址。</change>
         <change>成功删除媒体记录后，更新媒体链接字段。</change>
         <change>修复 QQ 记录获取/创建错误；必须在提交 JSONArray 之前删除评论字符串。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
     </release>
 
     <release version="1.7.3 (05/28/2022)" versioncode="107030">

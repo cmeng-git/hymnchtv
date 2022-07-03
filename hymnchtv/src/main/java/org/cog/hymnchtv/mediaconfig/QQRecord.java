@@ -23,25 +23,33 @@ import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 
 import android.text.TextUtils;
 
-import org.cog.hymnchtv.*;
+import org.cog.hymnchtv.ContentHandler;
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MediaType;
+import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
-import org.cog.hymnchtv.utils.SocketConnection;
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
 /**
- * The class provide handlers for the QQ JSONObject record;
+ * The class provide handlers for the QQ JSONObject record scraping;
  *
  * @author Eng Chong Meng
  */
 public class QQRecord extends MediaRecord
 {
+    public static final String QQ = "QQ";
      //  Map defines the QQ links for HymnType access
     public static final List<String> qqHymnType
             = Arrays.asList("【大本诗歌D】", "【䃼充本诗歌B】", "【儿童诗歌C】", "【新歌颂咏X】");
@@ -68,7 +76,7 @@ public class QQRecord extends MediaRecord
     }
 
     /**
-     * Start the QQ links extractions at QQ main page on new thread; All network access must not be on UI thread.
+     * Start the links extractions at QQ main page on new thread; All network access must not be on UI thread.
      * Fetch links only for the hymnType specified in qqHymn2Type[].
      * Need to clean up the title before the next stage fetch
      *
@@ -84,13 +92,13 @@ public class QQRecord extends MediaRecord
      */
     public static void fetchQQLinks(final MediaConfig mediaConfig)
     {
-        HymnsApp.showToastMessage(R.string.gui_qq_download_starting);
+        HymnsApp.showToastMessage(R.string.gui_nq_download_starting, QQ);
         new Thread()
         {
             public void run()
             {
                 try {
-                    JSONArray jsonArray = fetchJsonArray(ContentHandler.HYMNCHTV_QQ_MAIN);
+                    JSONArray jsonArray = fetchJsonArray("诗歌（合辑）", ContentHandler.HYMNCHTV_QQ_MAIN);
                     if (jsonArray != null) {
                         mCount = 0;
                         for (int i = 0; i < jsonArray.length(); i++) {
@@ -110,18 +118,18 @@ public class QQRecord extends MediaRecord
                     }
                 } catch (JSONException e) {
                     Timber.e("URL get source exception: %s", e.getMessage());
-                    HymnsApp.showToastMessage(R.string.gui_qq_download_failed);
+                    HymnsApp.showToastMessage(R.string.gui_nq_download_failed, QQ);
                     return;
                 }
-                Timber.d(HymnsApp.getResString(R.string.gui_qq_download_completed, mCount));
-                HymnsApp.showToastMessage(R.string.gui_qq_download_completed, mCount);
+                Timber.d(HymnsApp.getResString(R.string.gui_nq_download_completed, QQ, mCount));
+                HymnsApp.showToastMessage(R.string.gui_nq_download_completed, QQ, mCount);
             }
         }.start();
     }
 
     /**
      * Extract the hymnType Range and proceed all the hymn records in the range
-     * Proceed to hymn records for【新歌颂咏】as it contains not range value
+     * Proceed to hymn records for【新歌颂咏】as it contains no range value
      *
      * 【大本诗歌】001一100首
      * 【大本诗歌】101一200首
@@ -141,22 +149,22 @@ public class QQRecord extends MediaRecord
      */
     private static void getQQHymnType(String prefix, String url)
     {
-        HymnsApp.showToastMessage(R.string.gui_qq_download_in_progress, prefix);
+        HymnsApp.showToastMessage(R.string.gui_nq_download_in_progress, prefix);
         //【新歌颂咏】does not have hymnRange; so proceed to saveQQRecord
         if (prefix.contains("新歌颂咏")) {
-            saveQQRecord(url);
+            saveQQRecord(prefix, url);
             return;
         }
 
         try {
-            JSONArray jsonArray = fetchJsonArray(url);
+            JSONArray jsonArray = fetchJsonArray(prefix, url);
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                     Timber.d("QQ HymnType Range (%s): %s", i, jsonObject);
                     String hymnRange = jsonObject.getString(QQ_TITLE);
                     if (hymnRange.startsWith(prefix)) {
-                        saveQQRecord(jsonObject.getString(QQ_URL));
+                        saveQQRecord(jsonObject.getString(QQ_TITLE), jsonObject.getString(QQ_URL));
                     }
                 }
             }
@@ -179,12 +187,13 @@ public class QQRecord extends MediaRecord
      * C006朵朵小花含笑
      * X016小排聚会不可不去
      *
+     * @param prefix the title of the url link
      * @param url the QQ required site url
      */
-    private static void saveQQRecord(String url)
+    private static void saveQQRecord(String prefix, String url)
     {
         try {
-            JSONArray jsonArray = fetchJsonArray(url);
+            JSONArray jsonArray = fetchJsonArray(prefix, url);
             if (jsonArray != null) {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject jsonObject = (JSONObject) jsonArray.get(i);
@@ -258,10 +267,11 @@ public class QQRecord extends MediaRecord
      * Extra and phrase all the links info into JSONArray; must remove any comment text string i.e. // 后台给的数据被encode了两次
      * url: 'http://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&amp;amp;mid=2247492597&amp;amp;idx=1&amp;amp;sn=85ee7042de79cbe'.html(false).html(false), // 后台给的数据被encode了两次subject_name: '诗歌操练学唱'
      *
+     * @param title the title of the url link
      * @param url the remote url containing the required link info
      * @return JSON Array of the extracted info or null if none found
      */
-    private static JSONArray fetchJsonArray(String url)
+    private static JSONArray fetchJsonArray(String title, String url)
     {
         // Standard enclosing pattern for link info used on the QQ sites
         Pattern pattern = Pattern.compile("var jumpInfo = (\\[.*?]);");
@@ -269,7 +279,10 @@ public class QQRecord extends MediaRecord
         url = url.replace("http:", "https:");
 
         try {
-            String urlSource = SocketConnection.getURLSource(url);
+            String urlSource = WebScraper.getURLSource(url);
+            if (TextUtils.isEmpty(urlSource))
+                return null;
+
             Matcher matcher = pattern.matcher(urlSource);
             if (matcher.find()) {
                 String strJson = matcher.group(1);
@@ -283,6 +296,7 @@ public class QQRecord extends MediaRecord
             }
         } catch (IOException | JSONException e) {
             Timber.e("URL JsonArray Exception: %s", e.getMessage());
+            HymnsApp.showToastMessage(R.string.gui_nq_download_failed, title);
         }
         return null;
     }

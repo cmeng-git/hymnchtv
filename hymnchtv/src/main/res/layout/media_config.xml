@@ -264,10 +264,10 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/button_QQ"
+                android:id="@+id/button_NQ"
                 style="@style/ButtonTop"
                 android:layout_weight="0.7"
-                android:text="@string/gui_db_import_QQ" />
+                android:text="@string/gui_db_import_NQ" />
 
             <CheckBox
                 android:id="@+id/recordOverwrite"

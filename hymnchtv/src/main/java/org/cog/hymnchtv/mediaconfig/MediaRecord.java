@@ -115,6 +115,11 @@ public class MediaRecord
         return mFilePath;
     }
 
+    /**
+     * 附 hymn number must always greater than HYMN_DB_NO_MAX in DB database.
+     *
+     * @return 附x or the actual hymno
+     */
     public String getHymnNoFu()
     {
         String hymnNo = String.format(Locale.CHINA, "%04d", mHymnNo);

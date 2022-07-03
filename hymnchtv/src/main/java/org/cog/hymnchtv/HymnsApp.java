@@ -16,21 +16,32 @@
  */
 package org.cog.hymnchtv;
 
-import android.app.*;
-import android.content.*;
+import android.app.ActivityManager;
+import android.app.Application;
+import android.app.DownloadManager;
+import android.app.NotificationManager;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.*;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.PowerManager;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.*;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 
 import org.cog.hymnchtv.impl.timberlog.TimberLogImpl;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
@@ -327,10 +338,15 @@ public class HymnsApp extends Application implements LifecycleEventObserver
      *
      * @param message the string message to display.
      */
+    private static Toast toast = null;
     public static void showToastMessage(final String message)
     {
-        new Handler(Looper.getMainLooper()).post(()
-                -> Toast.makeText(getGlobalContext(), message, Toast.LENGTH_LONG).show());
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (toast != null)
+                toast.cancel();
+            toast = Toast.makeText(getGlobalContext(), message, Toast.LENGTH_LONG);
+            toast.show();
+        });
     }
 
     public static void showToastMessage(int id)

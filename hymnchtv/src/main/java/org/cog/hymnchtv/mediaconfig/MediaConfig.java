@@ -80,6 +80,7 @@ import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNoValidate;
 import org.cog.hymnchtv.utils.TimberLog;
+import org.cog.hymnchtv.utils.TouchListener;
 import org.cog.hymnchtv.utils.ViewUtil;
 
 import java.io.File;
@@ -230,6 +231,7 @@ public class MediaConfig extends FragmentActivity
 
     private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -330,9 +332,12 @@ public class MediaConfig extends FragmentActivity
 
         findViewById(R.id.editFile).setOnClickListener(this);
         findViewById(R.id.button_import).setOnClickListener(this);
+        findViewById(R.id.button_import).setOnLongClickListener(this);
 
-        Button btnQQ = findViewById(R.id.button_QQ);
-        btnQQ.setOnClickListener(this);
+        Button btnNQ = findViewById(R.id.button_NQ);
+        // btnNQ.setOnClickListener(this);
+        // btnNQ.setOnLongClickListener(this);
+        btnNQ.setOnTouchListener(touchListener);
 
         Button btnExport = findViewById(R.id.button_export);
         btnExport.setOnClickListener(this);
@@ -403,11 +408,11 @@ public class MediaConfig extends FragmentActivity
             // Import to the DB database
             case R.id.button_import:
                 Timber.d("import Media Records");
-                importMediaRecords();
+                importMediaRecords(null);
                 break;
 
-            case R.id.button_QQ:
-                downloadQQRecord();
+            case R.id.button_NQ:
+                downloadNQRecord(1);
                 break;
 
             // Export the database to a text file for sharing
@@ -431,12 +436,58 @@ public class MediaConfig extends FragmentActivity
     public boolean onLongClick(View v)
     {
         // Export the database to a text file for sharing
-        if (v.getId() == R.id.button_export) {
-            createExportLink();
-            return true;
+        switch (v.getId()) {
+            // Import to the DB database
+            case R.id.button_import:
+                Timber.d("import Media Records");
+                importMediaRecords("notion_url_import.txt");
+                return true;
+
+            case R.id.button_NQ:
+                downloadNQRecord(0);
+                return true;
+
+            case R.id.button_db_records:
+                createExportLink();
+                return true;
         }
         return false;
     }
+
+
+    /**
+     * TouchListener to support singleTap, doubleTap and longPress for the view for site visit
+     */
+    TouchListener touchListener = new TouchListener(HymnsApp.getGlobalContext())
+    {
+        @Override
+        public boolean onSingleTap(View v, int idx)
+        {
+            if (v.getId() == R.id.button_NQ) {
+                downloadNQRecord(1);
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void onLongPress(View v, int idx)
+        {
+            if (v.getId() == R.id.button_NQ) {
+                downloadNQRecord(0);
+            }
+        }
+
+        @Override
+        public boolean onDoubleTap(View v, int idx)
+        {
+            if (v.getId() == R.id.button_NQ) {
+                downloadNQRecord(2);
+                return true;
+            }
+            return false;
+        }
+    };
 
     /**
      * This is activated by user; or automatic from mediaController when the downloaded uri is completed
@@ -981,45 +1032,62 @@ public class MediaConfig extends FragmentActivity
 
     /**
      * Wait for user confirmation before proceed with QQ links download
+     *
+     * @param mode flag for either Notion (1 / 2) or QQ (0) site hymn link records fetch
      */
-    private void downloadQQRecord()
+    private void downloadNQRecord(final int mode)
     {
         DialogActivity.showConfirmDialog(this,
-                R.string.gui_qq_download,
-                R.string.gui_qq_download_proceed,
+                R.string.gui_nq_download,
+                R.string.gui_nq_download_proceed,
                 R.string.gui_download, new DialogActivity.DialogListener()
                 {
                     public boolean onConfirmClicked(DialogActivity dialog)
                     {
-                        QQRecord.fetchQQLinks(MediaConfig.this);
+                        if (mode == 0) {
+                            QQRecord.fetchQQLinks(MediaConfig.this);
+                        }
+                        else if (mode == 1) {
+                            NotionRecord.fetchNotionLinks(MediaConfig.this);
+                        }
+                        else if (mode == 2) {
+                            NotionRecordScrape.fetchNotionLinks(MediaConfig.this);
+                        }
                         return true;
                     }
 
                     public void onDialogCancelled(DialogActivity dialog)
                     {
                     }
-                });
+                }, (mode != 0) ? "Notion" : "QQ");
     }
 
     /**
      * Import the media records into the database based on import file info
      */
-    private void importMediaRecords()
+    private void importMediaRecords(String assetFile)
     {
         String importFile = ViewUtil.toString(tvImportFile);
-        if (importFile == null) {
+        if (importFile == null && assetFile == null) {
             HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
             return;
         }
 
         int record = 0;
+        InputStream in2;
         try {
-            InputStream in2 = new FileInputStream(importFile);
+            if (importFile != null) {
+                in2 = new FileInputStream(importFile);
+            }
+            else {
+                in2 = HymnsApp.getGlobalContext().getResources().getAssets().open(assetFile);
+            }
+
             byte[] buffer2 = new byte[in2.available()];
             if (in2.read(buffer2) == -1)
                 return;
 
-            boolean isOverWrite = cbOverwrite.isChecked();
+            boolean isOverWrite = cbOverwrite.isChecked(); //|| (assetFile != null);
             String mResult = EncodingUtils.getString(buffer2, "utf-8");
             String[] mList = mResult.split("\r\n|\n");
 
@@ -1181,7 +1249,8 @@ public class MediaConfig extends FragmentActivity
                 else {
                     HymnsApp.showToastMessage(R.string.hymn_match_none);
                 }
-            } else {
+            }
+            else {
                 HymnsApp.showToastMessage(R.string.hymn_match_none);
             }
         }

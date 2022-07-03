@@ -73,7 +73,8 @@ public class ContentHandler extends FragmentActivity
 {
     public static String HYMNCHTV_FAQ_PLAYBACK = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0050";
     public static String HYMNCHTV_QQ_MAIN = "https://mp.weixin.qq.com/s/kgqBH0C_zgDaBnxbvC9wew";
-    public static String HYMNCHTV_NOTION = "https://plume-click-f56.notion.site/fb415473f9314610bbd6592ba647cdd4";
+    public static String NOTION_SITE = "https://plume-click-f56.notion.site";
+    public static String HYMNCHTV_NOTION = NOTION_SITE + "/fb415473f9314610bbd6592ba647cdd4";
 
     // sub-directory for various media type
     public static String MEDIA_MEDIA = "/media_media/";
