@@ -6,7 +6,7 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="1.7.5 (07/03/2022)" versioncode="107050">
+    <release version="1.7.5 (07/03/2022)" versioncode="107051">
         <change>长按“数库导入”按钮将预取内存 'notion' 媒体网址链接导入数据库。请选择“覆盖现有”选项来替换数据库旧'网页链接'记录。</change>
         <change>短按 'NQ' 按钮，开始 'notion' 媒体网址链接获取并保存到数据库。</change>
         <change>长按 'NQ' 按钮，开始 'QQ' 媒体网址链接获取并保存到数据库。</change>

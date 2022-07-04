@@ -1073,6 +1073,7 @@ public class MediaConfig extends FragmentActivity
             return;
         }
 
+        HymnsApp.showToastMessage(R.string.gui_db_import_start);
         int record = 0;
         InputStream in2;
         try {

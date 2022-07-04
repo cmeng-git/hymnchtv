@@ -19,10 +19,11 @@
         &lt;br/>All rights reserved.</string>
     <string name="gui_db_export">数库导出</string>
     <string name="gui_db_import">数库导入</string>
-    <string name="gui_db_import_record">数库导入共 %1$d 首诗歌</string>
-    <string name="gui_db_import_NQ">NQ&#x2B07;</string>
     <string name="gui_db_import_create">自建导入</string>
     <string name="gui_db_import_file">数据库导入文件</string>
+    <string name="gui_db_import_record">数库导入共 %1$d 首诗歌</string>
+    <string name="gui_db_import_start">开始将网页链接内容导入数据库媒体记录…</string>
+    <string name="gui_db_import_NQ">NQ&#x2B07;</string>
     <string name="gui_db_file_missing">请提供媒体内容真实路径！</string>
     <string name="gui_db_list">数库列项</string>
     <string name="gui_db_overwrite">覆盖现有</string>

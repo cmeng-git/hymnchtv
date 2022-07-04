@@ -2,7 +2,7 @@ Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
 Upload Date:    07/03/2022
-Version:        1.7.5 (107050)
+Version:        1.7.5 (107051)
 - Long press '数库导入' button to import the pre-fetch notion url records from asset file notion_url_import.txt
 - Short press 'NQ' for notion url retrieval using webView scrapping; not 100% as WebView#onPageFinished() call when only 70% completed.
 - Long press 'NQ' for QQ url retrieval.

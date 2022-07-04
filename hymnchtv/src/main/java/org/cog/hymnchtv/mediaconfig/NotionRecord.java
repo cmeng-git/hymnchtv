@@ -402,7 +402,8 @@ public class NotionRecord extends MediaRecord
                             valueCallback.onReceiveValue(null);
                         }
                     }, 1500);
-                } else {
+                }
+                else {
                     Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
                 }
             }
