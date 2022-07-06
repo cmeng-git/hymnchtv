@@ -75,6 +75,8 @@ public class NotionRecord extends MediaRecord
     public static final String NQ_TITLE = "title";
     public static final String NQ_URL = "url";
 
+    private static Map<WebView, JSONObject> webList = new HashMap<>();
+
     private static int mCount = 0;
     private static Context mContext;
 
@@ -118,7 +120,7 @@ public class NotionRecord extends MediaRecord
                         // Proceed only for the hymnType specified in nqHymn2Type[]
                         String title = jsonObject.getString(NQ_TITLE);
                         if (nqHymnType.contains(title)) {
-                            getNQHymnType(title, jsonObject.getString(NQ_URL));
+                            getNQHymnType(jsonObject);
                         }
                     }
                 }
@@ -127,6 +129,24 @@ public class NotionRecord extends MediaRecord
                 HymnsApp.showToastMessage(R.string.gui_nq_download_failed, NOTION);
             }
         });
+
+        // Check after 10 minutes to see if it has completed loading.
+        new Handler().postDelayed(() -> {
+            if (!webList.isEmpty()) {
+                Timber.d("Restart the incomplete web scraping sites: %s", webList.size());
+                for (Map.Entry<WebView, JSONObject> webSet : webList.entrySet()) {
+                    try {
+                        saveNQRecord(webSet.getValue(), webSet.getKey());
+                    } catch (JSONException e) {
+                        Timber.e("JSONException in final state: %s", webSet.getValue());
+                    }
+                }
+            }
+            else {
+                Timber.d(HymnsApp.getResString(R.string.gui_nq_download_completed, NOTION, mCount));
+                HymnsApp.showToastMessage(R.string.gui_nq_download_completed, NOTION, mCount);
+            }
+        }, 600000);
     }
 
     /**
@@ -146,15 +166,18 @@ public class NotionRecord extends MediaRecord
      * 追求与长进┈┈401一470首
      * 圣灵的同在┈201一212首
      *
-     * @param title as Prefix to get the valid Hymn Range links
-     * @param url the Notion required site url
+     * @param jsonObj: containing title as Prefix to get the valid Hymn Range links,
+     * and url the Notion required site url
      */
-    private static void getNQHymnType(String title, String url)
+    private static void getNQHymnType(JSONObject jsonObj) throws JSONException
     {
+        String title = jsonObj.getString(NQ_TITLE);
+        String url = jsonObj.getString(NQ_URL);
+
         HymnsApp.showToastMessage(R.string.gui_nq_download_in_progress, title);
         //【新歌颂咏】does not have hymnRange; so proceed to saveNQRecord
         if (title.contains("新歌颂咏")) {
-            saveNQRecord(title, url);
+            saveNQRecord(jsonObj, null);
             return;
         }
 
@@ -168,7 +191,7 @@ public class NotionRecord extends MediaRecord
                         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                         Timber.d("Notion HymnType Range (%s): %s", i, jsonObject);
                         String hymnRange = jsonObject.getString(NQ_TITLE);
-                        saveNQRecord(jsonObject.getString(NQ_TITLE), jsonObject.getString(NQ_URL));
+                        saveNQRecord(jsonObject, null);
                     }
                 }
             } catch (JSONException e) {
@@ -190,24 +213,33 @@ public class NotionRecord extends MediaRecord
      * C006朵朵小花含笑
      * X016小排聚会不可不去
      *
-     * @param title the title of the url link
-     * @param url the Notion required site url
+     * @param jsonObj: containing title as Prefix to get the valid Hymn Range links,
+     * and url the Notion required site url
+     * @param wView: Create new if pass in webView is null
      */
-    private static void saveNQRecord(String title, String url)
+    private static void saveNQRecord(JSONObject jsonObj, final WebView wView) throws JSONException
     {
-        final WebView webView = initWebView();
+        String title = jsonObj.getString(NQ_TITLE);
+        String url = jsonObj.getString(NQ_URL);
+
+        final WebView webView = (wView == null) ? initWebView() : wView;
+        if (wView == null) {
+            webList.put(webView, jsonObj);
+        }
+
         getURLSource(webView, url, data -> {
             try {
                 JSONArray jsonArray = fetchJsonArray(data);
                 if (jsonArray != null && jsonArray.length() != 0) {
+                    webList.remove(webView);
                     webView.destroy();
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                         storeNQJObject(jsonObject);
-                        // Timber.d("Notion Hymn Record saved (%s): %s", mCount, jsonObject);
+                        Timber.d("Notion Hymn Record saved (%s): %s", mCount, jsonObject);
                     }
                     Timber.d(HymnsApp.getResString(R.string.gui_nq_download_completed, title, mCount));
-                    // HymnsApp.showToastMessage(R.string.gui_nq_download_completed, title, mCount);
+                    HymnsApp.showToastMessage(R.string.gui_nq_download_completed, title, mCount);
                 }
             } catch (JSONException e) {
                 Timber.e("URL get source exception: %s", e.getMessage());
@@ -332,58 +364,10 @@ public class NotionRecord extends MediaRecord
         webView.loadUrl(urlToLoad);
         webView.setWebViewClient(new WebViewClient()
         {
-//            @Override
-//            public boolean shouldOverrideUrlLoading(WebView view, String urlNewString) {
-//                Timber.d("shouldOverrideUrlLoading: %s", urlNewString);
-//                return true;
-//            }
-
             @Override
             public void onPageFinished(WebView view, String url)
             {
                 super.onPageFinished(view, url);
-                // Timber.d("On Page Finished: %s: %s", webView.getProgress(), url);
-//                if (view.getProgress() == 100) {
-//                    new Handler().postDelayed(() -> {
-//                        try {
-//                            webView.evaluateJavascript("document.documentElement.outerHTML", data -> {
-//                                if (data.contains("notion-page-content")) {
-//                                    valueCallback.onReceiveValue(data);
-//                                }
-//                                else {
-//                                    try {
-//                                        Thread.sleep(1500);
-//                                        webView.evaluateJavascript("document.documentElement.outerHTML", data2 -> {
-//                                            if (data2.contains("notion-page-content")) {
-//                                                valueCallback.onReceiveValue(data2);
-//                                            }
-//                                            else {
-//                                                try {
-//                                                    Thread.sleep(1500);
-//                                                    webView.evaluateJavascript("document.documentElement.outerHTML", data3 -> {
-//                                                        if (data2.contains("notion-page-content")) {
-//                                                            valueCallback.onReceiveValue(data3);
-//                                                        }
-//                                                        else {
-//                                                            Timber.w("Web scrapping failed: %s", urlToLoad);
-//                                                        }
-//                                                    });
-//                                                } catch (InterruptedException e) {
-//                                                    e.printStackTrace();
-//                                                }
-//                                            }
-//                                        });
-//                                    } catch (InterruptedException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                            });
-//                        } catch (RuntimeException e) {
-//                            // valueCallback.onReceiveValue(null);
-//                            Timber.w("EvaluateJavascript exception: %s", e.getMessage());
-//                        }
-//                    }, 1500);
-//                }
                 // Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
                 if (webView.getProgress() == 100) {
                     // Must give some time for js to populate the dynamic page content; else not working
@@ -403,9 +387,9 @@ public class NotionRecord extends MediaRecord
                         }
                     }, 1500);
                 }
-                else {
-                    Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
-                }
+//                else {
+//                    Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
+//                }
             }
         });
     }
@@ -414,8 +398,7 @@ public class NotionRecord extends MediaRecord
     {
         final String htmlContent = StringEscapeUtils.unescapeJava(content)
                 .trim()
-                .replaceAll(" {2}", " ")
-                .replaceAll("\\u003C", "<")
+                .replaceAll("  ", " ")
                 .replaceAll("\\n", "")
                 .replaceAll("\\\\\"", "\"");
         return htmlContent;

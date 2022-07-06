@@ -289,7 +289,7 @@ public class QQRecord extends MediaRecord
                 if (!TextUtils.isEmpty(strJson)) {
                     // Cleanup all the stray info before JSONArray conversation; do not change ",\\}"
                     strJson = strJson.replaceAll("\\.html\\(false\\)", "")
-                            .replaceAll(",\\}", "\\}")  // \\ is not a redundant: 'LINK_TYPE_MP_APPMSG',}]
+                            .replaceAll(", {0,5}\\}", "\\}")  // \\ is not a redundant: 'LINK_TYPE_MP_APPMSG',}]
                             .replaceAll(" //.*?subject", "subject"); // remove comment string
                     return new JSONArray(strJson);
                 }

@@ -1,10 +1,20 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    07/03/2022
-Version:        1.7.5 (107051)
+Upload Date:    07/05/2022
+Version:        1.7.5 (107052)
 - Long press '数库导入' button to import the pre-fetch notion url records from asset file notion_url_import.txt
-- Short press 'NQ' for notion url retrieval using webView scrapping; not 100% as WebView#onPageFinished() call when only 70% completed.
+- Short press 'NQ' for notion url retrieval using webView scrapping;
+  * On Note-10; full fetch completed successfully after ~4 minutes on WiFi and ~ 7 minutes on mobile
+  2022-07-05 09:18:20.855 9463-9463/org.cog.hymnchtv I/chromium: [INFO:CONSOLE(1)] "2022-07-05T01:18:20.852Z [info] FeatureFlagTransactionQueue: preferInMemory [object Object]", source: https://plume-click-f56.notion.site/629-533e8a3d60f7c9cb0688.js (1)
+  2022-07-05 09:22:17.061 9463-9463/org.cog.hymnchtv D/(NotionRecord.java:240)#lambda$saveNQRecord$3: 附录 1-6-诗歌链接：1745 下载完成！
+  * on Mobile Network:
+  2022-07-05 10:13:55.020 15124-15124/org.cog.hymnchtv I/chromium: [INFO:CONSOLE(1)] "2022-07-05T02:13:55.017Z [info] FeatureFlagTransactionQueue: preferInMemory [object Object]", source: https://plume-click-f56.notion.site/629-533e8a3d60f7c9cb0688.js (1)
+  2022-07-05 10:20:33.194 15124-15124/org.cog.hymnchtv D/(NotionRecord.java:241)#lambda$saveNQRecord$3: 追求与长进(401一470)-诗歌链接：1775 下载完成！
+  2022-07-05 10:23:18.786 15124-15124/org.cog.hymnchtv D/(NotionRecord.java:146)#lambda$fetchNotionLinks$1: Notion-诗歌链接：1775 下载完成！
+  * Both AVD XL API31 and J6 crashes after webView preloaded with initial url's
+  A/chromium: [FATAL:crashpad_client_linux.cc(667)] Render process (20523)'s crash wasn't handled by all associated  webviews, triggering application crash.
+- Proceed to restart uncompleted Notion hymn url's fetch if any, after 10 minutes post delay wait.
 - Long press 'NQ' for QQ url retrieval.
 - Double click 'NQ' for Notion url retrieval via scrapingAnt; only 10,000 records for free account using x-api-key
 

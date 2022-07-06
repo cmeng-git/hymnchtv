@@ -16,6 +16,9 @@
  */
 package org.cog.hymnchtv.mediaconfig;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +63,19 @@ public class WebScraper
             }
             return stringBuilder.toString();
         }
+    }
+
+    public static String getURLSourceSoup(String url) throws IOException
+    {
+        Document document = Jsoup.connect(url).get();
+        String content = document.outerHtml();
+
+        String htmlContent = content.trim()
+                .replaceAll("\\n", "")
+                .replaceAll(" {2,10}", " ")
+                .replaceAll("> {1,10}<", "><")
+                .replaceAll(", {0,5}\\}", "\\}");
+        return htmlContent;
     }
 
     /**
@@ -109,7 +125,7 @@ public class WebScraper
             content = Objects.requireNonNull(response.body()).string();
 
             content = content.trim()
-                    .replaceAll(" {2}", " ")
+                    .replaceAll("  ", " ")
                     .replaceAll("\\\\n", "")
                     .replaceAll("\\\\\"", "\"");
             // final Gson gson = new Gson();
