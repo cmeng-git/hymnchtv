@@ -6,12 +6,24 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="1.7.6 (10/12/2022)" versioncode="107060">
+        <change>将“搜索”按钮操作更改为：</change>
+        <change>－单击通过 youtube.com 执行诗歌信息搜索。</change>
+        <change>－ 长按通过 google.com 执行诗歌信息搜索。</change>
+        <change>清除数据库中的所有 QQ/NOTION 网址记录并删除“搜索”按钮访问支持。</change>
+        <change>将 QQ 网址记录保存为“教唱“类型，以便通过“教唱“按钮访问。</change>
+        <change>长按“教唱“按钮将访问 QQ 主网址。</change>
+        <change>在新安装时，从资产文件中导入预取的 QQ 网址记录。</change>
+        <change>在链接共享上自动填入“诗歌类别“、“诗歌编号“、“媒体类型“和“附歌“信息。</change>
+        <change>将历史记录数增加到 200 条。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+    </release>
+
     <release version="1.7.5 (07/05/2022)" versioncode="107052">
         <change>长按“数库导入”按钮将预取内存 'notion' 媒体网址链接导入数据库。请选择“覆盖现有”选项来替换数据库旧'网页链接'记录。</change>
         <change>短按 'NQ' 按钮，开始 'Notion' 媒体网址链接获取并保存到数据库。</change>
         <change>在延迟等待 10 分钟后，将继续重新启动获取，如果有未完成的 'Notion' 媒体网址链接。</change>
         <change>长按 'NQ' 按钮，开始 'QQ' 媒体网址链接获取并保存到数据库。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
     </release>
 
     <release version="1.7.4 (06/15/2022)" versioncode="107040">

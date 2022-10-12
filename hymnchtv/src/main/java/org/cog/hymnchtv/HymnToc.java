@@ -43,9 +43,9 @@ import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_TOC;
 import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
-import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
+import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_NUMBER;
+import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_TYPE;
 import static org.cog.hymnchtv.MainActivity.ATTR_PAGE;
-import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
@@ -137,7 +137,7 @@ public class HymnToc extends FragmentActivity
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        String hymnType = getIntent().getExtras().getString(ATTR_SELECT);
+        String hymnType = getIntent().getExtras().getString(ATTR_HYMN_TYPE);
         if (TextUtils.isEmpty((hymnType)))
             return;
         String tocPage = getIntent().getExtras().getString(ATTR_PAGE);
@@ -198,8 +198,8 @@ public class HymnToc extends FragmentActivity
 
         Intent intent = new Intent(this, ContentHandler.class);
         Bundle bundle = new Bundle();
-        bundle.putString(ATTR_SELECT, hymnType);
-        bundle.putInt(ATTR_NUMBER, hymnNo);
+        bundle.putString(ATTR_HYMN_TYPE, hymnType);
+        bundle.putInt(ATTR_HYMN_NUMBER, hymnNo);
         intent.putExtras(bundle);
         startActivity(intent);
     }

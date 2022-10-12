@@ -19,22 +19,33 @@ package org.cog.hymnchtv.service.androidupdate;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 
-import org.cog.hymnchtv.*;
-import org.cog.hymnchtv.persistance.*;
+import org.cog.hymnchtv.BuildConfig;
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.R;
+import org.cog.hymnchtv.persistance.FileBackend;
+import org.cog.hymnchtv.persistance.FilePathHelper;
+import org.cog.hymnchtv.persistance.PermissionUtils;
 import org.cog.hymnchtv.utils.DialogActivity;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 import timber.log.Timber;
 
@@ -47,7 +58,7 @@ import timber.log.Timber;
 public class UpdateServiceImpl
 {
     // Default update link
-    private static final String[] updateLinks = {"https://atalk.sytes.net"};
+    private static final String[] updateLinks = {"https://github.com/cmeng-git/hymnchtv", "https://atalk.sytes.net"};
 
     /**
      * Apk mime type constant.

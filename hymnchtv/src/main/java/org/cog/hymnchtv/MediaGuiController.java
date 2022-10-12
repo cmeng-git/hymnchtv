@@ -41,7 +41,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -57,9 +56,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import org.cog.hymnchtv.mediaconfig.QQRecord;
 import org.cog.hymnchtv.mediaplayer.AudioBgService;
-import org.cog.hymnchtv.utils.TouchListener;
 import org.cog.hymnchtv.utils.ViewUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -88,7 +85,7 @@ import timber.log.Timber;
  * @author Eng Chong Meng
  */
 public class MediaGuiController extends Fragment implements AdapterView.OnItemSelectedListener,
-        SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, View.OnLongClickListener
+        SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, View.OnClickListener, View.OnLongClickListener
 {
     /**
      * The state of a player where playback is stopped
@@ -131,10 +128,12 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private Spinner playbackSpeed;
     private CheckBox cbPlaybackLoop;
     private EditText edLoopCount;
-    private Button mBtnMedia;
-    private Button mBtnBanZhou;
-    private Button mBtnJiaoChang;
-    private Button mBtnChangShi;
+
+    private RadioGroup mHymnTypesGroup;
+    private RadioButton mBtnMedia;
+    private RadioButton mBtnBanZhou;
+    private RadioButton mBtnJiaoChang;
+    private RadioButton mBtnChangShi;
 
     private final boolean isMediaAudio = true;
     private boolean isJiaoChangAvailable = false;
@@ -175,7 +174,6 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         hymnInfo.setMovementMethod(new ScrollingMovementMethod());
         hymnInfo.setHorizontallyScrolling(true);
 
-        playbackPlay = convertView.findViewById(R.id.playback_play);
         playbackPosition = convertView.findViewById(R.id.playback_position);
         playbackDuration = convertView.findViewById(R.id.playback_duration);
         playbackSeekBar = convertView.findViewById(R.id.playback_seekbar);
@@ -221,25 +219,24 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         // set to viewHolder default state
         playbackSeekBar.setOnSeekBarChangeListener(this);
 
-        // playbackPlay.setOnClickListener(this);
-        playbackPlay.setOnClickListener(view -> startPlay());
-        playbackPlay.setOnLongClickListener(view -> {
-            stopPlay();
-            return true;
-        });
+        playbackPlay = convertView.findViewById(R.id.playback_play);
+        playbackPlay.setOnClickListener(this);
+        playbackPlay.setOnLongClickListener(this);
 
         mPlayerAnimate = (AnimationDrawable) playbackPlay.getBackground();
         ImageButton mBtnHymnSearch = convertView.findViewById(R.id.btn_hymnSearch);
-        mBtnHymnSearch.setOnTouchListener(touchListener);
+        // mBtnHymnSearch.setOnTouchListener(touchListener);
+        mBtnHymnSearch.setOnClickListener(this);
+        mBtnHymnSearch.setOnLongClickListener(this);
 
-        RadioGroup hymnTypesGroup = convertView.findViewById(R.id.hymnsGroup);
-        hymnTypesGroup.setOnCheckedChangeListener(this);
+        mHymnTypesGroup = convertView.findViewById(R.id.hymnsGroup);
         mBtnMedia = convertView.findViewById(R.id.btn_media);
         mBtnMedia.setOnLongClickListener(this);
 
         mBtnBanZhou = convertView.findViewById(R.id.btn_banzhou);
         mBtnJiaoChang = convertView.findViewById(R.id.btn_jiaochang);
-        // mBtnJiaoChang.setOnTouchListener(touchListener); too messy so disabled it
+        mBtnJiaoChang.setOnLongClickListener(this);
+
         mBtnChangShi = convertView.findViewById(R.id.btn_changshi);
         mBtnChangShi.setOnLongClickListener(this);
         return convertView;
@@ -269,7 +266,10 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
 
         int mediaType = mSharedPref.getInt(PREF_MEDIA_HYMN, MediaType.HYMN_BANZOU.getValue());
         mMediaType = MediaType.valueOf(mediaType);
+
+        // enable OnCheckedChangeListener only after checkRadioButton()
         checkRadioButton(mMediaType);
+        mHymnTypesGroup.setOnCheckedChangeListener(this);
 
         // Init user selected playback speed
         initPlaybackSpeed();
@@ -386,12 +386,13 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
 
         for (Uri uri : mediaHymns) {
             String url = uri.toString();
-            if (url.contains(".notion.site") || (url.contains("mp.weixin.qq.com") && !HYMN_DB.equals(mContentHandler.mSelect))) {
+            if (url.contains(".notion.site") || (url.contains("mp.weixin.qq.com") && !HYMN_DB.equals(mContentHandler.mHymnType))) {
                 mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch, url);
             }
             else if (url.contains("mp.weixin.qq.com")) {
                 mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch);
-            } else {
+            }
+            else {
                 mUri = uri;
                 playStart();
             }
@@ -419,12 +420,17 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     {
         RadioButton rb = group.findViewById(checkedId);
         if (null != rb) {
+            // Must clear mediaHymns on Radio button change; else last fetched media will be used for playback
+            mediaHymns.clear();
             switch (checkedId) {
                 case R.id.btn_media:
                     mMediaType = MediaType.HYMN_MEDIA;
                     break;
                 case R.id.btn_jiaochang:
                     mMediaType = MediaType.HYMN_JIAOCHANG;
+                     if (!isJiaoChangAvailable) {
+                         mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
+                     }
                     break;
                 case R.id.btn_banzhou:
                     mMediaType = MediaType.HYMN_BANZOU;
@@ -445,19 +451,33 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     {
         switch (mediaType) {
             case HYMN_MEDIA:
-                ((RadioButton) playerUi.findViewById(R.id.btn_media)).setChecked(true);
-                break;
-
-            case HYMN_JIAOCHANG:
-                ((RadioButton) playerUi.findViewById(R.id.btn_jiaochang)).setChecked(true);
+                mBtnMedia.setChecked(true);
                 break;
 
             case HYMN_BANZOU:
-                ((RadioButton) playerUi.findViewById(R.id.btn_banzhou)).setChecked(true);
+                mBtnBanZhou.setChecked(true);
+                break;
+
+            case HYMN_JIAOCHANG:
+                mBtnJiaoChang.setChecked(true);
                 break;
 
             case HYMN_CHANGSHI:
-                ((RadioButton) playerUi.findViewById(R.id.btn_changshi)).setChecked(true);
+                mBtnChangShi.setChecked(true);
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        switch (v.getId()) {
+            case R.id.playback_play:
+                startPlay();
+                break;
+
+            case R.id.btn_hymnSearch:
+                mContentHandler.initWebView(ContentHandler.UrlType.hymnYoutubeSearch);
                 break;
         }
     }
@@ -466,67 +486,76 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     public boolean onLongClick(View v)
     {
         switch (v.getId()) {
+            case R.id.playback_play:
+                stopPlay();
+                return true;
+
+            case R.id.btn_hymnSearch:
+                mContentHandler.initWebView(ContentHandler.UrlType.hymnGoogleSearch);
+                return true;
+
+            case R.id.btn_jiaochang:
+                mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
+                return true;
+
             case R.id.btn_media:
                 mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch);
                 return true;
 
-            case R.id.btn_changshi:
-                mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
-                return true;
         }
         return false;
     }
 
-    /**
-     * TouchListener to support singleTap, doubleTap and longPress for the view for site visit
-     */
-    TouchListener touchListener = new TouchListener(mContentHandler)
-    {
-        @Override
-        public boolean onSingleTap(View v, int idx)
-        {
-            switch (v.getId()) {
-                case R.id.btn_hymnSearch:
-                    QQRecord mRecord = new QQRecord(mContentHandler.mSelect, mContentHandler.hymnNo);
-                    String url = mContentHandler.mDB.getHymnUrl(mRecord);
-                    if (url == null || url.contains(".notion.site") || !HYMN_DB.equals(mContentHandler.mSelect)) {
-                        mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch, url);
-                    }
-                    else {
-                        mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch);
-                    }
-                    break;
-
-                case R.id.btn_jiaochang:
-                    if (!mContentHandler.isHFAvailable && !isJiaoChangAvailable)
-                        mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
-                    else
-                        mBtnJiaoChang.performClick();
-                    break;
-            }
-            return true;
-        }
-
-        @Override
-        public void onLongPress(View v, int idx)
-        {
-            switch (v.getId()) {
-                case R.id.btn_hymnSearch:
-                case R.id.btn_jiaochang:
-                    mContentHandler.initWebView(ContentHandler.UrlType.hymnYoutubeSearch);
-                    break;
-            }
-        }
-
-        @Override
-        public boolean onDoubleTap(View v, int idx)
-        {
-            if (v.getId() == R.id.btn_hymnSearch) {
-                mContentHandler.initWebView(ContentHandler.UrlType.hymnGoogleSearch);
-            }
-            return true;
-        }
-    };
+//    /**
+//     * TouchListener to support singleTap, doubleTap and longPress for the view for site visit
+//     */
+//    TouchListener touchListener = new TouchListener(mContentHandler)
+//    {
+//        @Override
+//        public boolean onSingleTap(View v, int idx)
+//        {
+//            switch (v.getId()) {
+//                case R.id.btn_hymnSearch:
+//                    QQRecord mRecord = new QQRecord(mContentHandler.mSelect, mContentHandler.hymnNo);
+//                    String url = mContentHandler.mDB.getHymnUrl(mRecord);
+//                    if (url == null || url.contains(".notion.site") || !HYMN_DB.equals(mContentHandler.mSelect)) {
+//                        mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch, url);
+//                    }
+//                    else {
+//                        mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch);
+//                    }
+//                    break;
+//
+//                case R.id.btn_jiaochang:
+//                    if (!mContentHandler.isHFAvailable && !isJiaoChangAvailable)
+//                        mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
+//                    else
+//                        mBtnJiaoChang.performClick();
+//                    break;
+//            }
+//            return true;
+//        }
+//
+//        @Override
+//        public void onLongPress(View v, int idx)
+//        {
+//            switch (v.getId()) {
+//                case R.id.btn_hymnSearch:
+//                case R.id.btn_jiaochang:
+//                    mContentHandler.initWebView(ContentHandler.UrlType.hymnYoutubeSearch);
+//                    break;
+//            }
+//        }
+//
+//        @Override
+//        public boolean onDoubleTap(View v, int idx)
+//        {
+//            if (v.getId() == R.id.btn_hymnSearch) {
+//                mContentHandler.initWebView(ContentHandler.UrlType.hymnGoogleSearch);
+//            }
+//            return true;
+//        }
+//    };
 
     /**
      * Initialize the broadcast receiver for the media player (uri).

@@ -196,7 +196,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      */
     public boolean getMediaRecord(MediaRecord mRecord, boolean update)
     {
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = getReadableDatabase();
         boolean hasRecord = false;
 
         String[] columns = {MediaConfig.MEDIA_URI, MediaConfig.MEDIA_FILE_PATH};

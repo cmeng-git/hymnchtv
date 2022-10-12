@@ -21,8 +21,9 @@ import static org.cog.hymnchtv.ContentHandler.MEDIA_CHANGSHI;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_JIAOCHANG;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_MEDIA;
 import static org.cog.hymnchtv.MainActivity.ATTR_AUTO_PLAY;
-import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
-import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
+import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_NUMBER;
+import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_TYPE;
+import static org.cog.hymnchtv.MainActivity.ATTR_MEDIA_URI;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
@@ -33,7 +34,6 @@ import static org.cog.hymnchtv.MediaType.HYMN_BANZOU;
 import static org.cog.hymnchtv.MediaType.HYMN_CHANGSHI;
 import static org.cog.hymnchtv.MediaType.HYMN_JIAOCHANG;
 import static org.cog.hymnchtv.MediaType.HYMN_MEDIA;
-import static org.cog.hymnchtv.MediaType.HYMN_URL;
 import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URL;
 import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URLS;
 import static org.cog.hymnchtv.mediaplayer.YoutubePlayerFragment.URL_YOUTUBE;
@@ -80,7 +80,6 @@ import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNoValidate;
 import org.cog.hymnchtv.utils.TimberLog;
-import org.cog.hymnchtv.utils.TouchListener;
 import org.cog.hymnchtv.utils.ViewUtil;
 
 import java.io.File;
@@ -143,8 +142,6 @@ public class MediaConfig extends FragmentActivity
     // The default directory when import_export files are being saved
     public static final String DIR_IMPORT_EXPORT = "import_export/";
 
-    public static final String ATTR_MEDIA_URI = "attr_media_uri";
-
     /* Flag indicates if there were any uncommitted changes that should be saved on-exit */
     private boolean hasChanges = false;
 
@@ -201,7 +198,6 @@ public class MediaConfig extends FragmentActivity
         mediaTypeEntry.add("伴奏");
         mediaTypeEntry.add("教唱");
         mediaTypeEntry.add("唱诗");
-        mediaTypeEntry.add("网页链接");
     }
 
     public static List<MediaType> mediaTypeValue = new ArrayList<>();
@@ -211,7 +207,6 @@ public class MediaConfig extends FragmentActivity
         mediaTypeValue.add(HYMN_BANZOU);
         mediaTypeValue.add(HYMN_JIAOCHANG);
         mediaTypeValue.add(HYMN_CHANGSHI);
-        mediaTypeValue.add(HYMN_URL);
     }
 
     public static Map<MediaType, String> mediaDir = new HashMap<>();
@@ -307,13 +302,19 @@ public class MediaConfig extends FragmentActivity
             if (!TextUtils.isEmpty(mediaUri)) {
                 isAutoFilled = false;
                 tvMediaUri.setText(mediaUri);
-                if (mediaUri.contains(".notion.site") || mediaUri.contains("mp.weixin.qq.com")) {
-                    mediaTypeSpinner.setSelection(4);
+                if (mediaUri.contains("mp.weixin.qq.com") || mediaUri.contains(".notion.site")) {
+                    mediaTypeSpinner.setSelection(2);
                 }
                 else if (mediaUri.contains("youtube.com")
                         || mediaUri.contains("hymnal.net")) {
                     mediaTypeSpinner.setSelection(0);
                 }
+
+                String hymnType = bundle.getString(ATTR_HYMN_TYPE);
+                int hymnNo = bundle.getInt(ATTR_HYMN_NUMBER);
+                cbFu.setChecked(MediaRecord.isFu(hymnType, hymnNo));
+                setHymnTypeSpinner(hymnType);
+                tvHymnNo.setText(String.valueOf(hymnNo));
             }
         }
 
@@ -335,9 +336,9 @@ public class MediaConfig extends FragmentActivity
         findViewById(R.id.button_import).setOnLongClickListener(this);
 
         Button btnNQ = findViewById(R.id.button_NQ);
-        // btnNQ.setOnClickListener(this);
-        // btnNQ.setOnLongClickListener(this);
-        btnNQ.setOnTouchListener(touchListener);
+        btnNQ.setOnClickListener(this);
+        btnNQ.setOnLongClickListener(this);
+        // btnNQ.setOnTouchListener(touchListener);
 
         Button btnExport = findViewById(R.id.button_export);
         btnExport.setOnClickListener(this);
@@ -412,7 +413,7 @@ public class MediaConfig extends FragmentActivity
                 break;
 
             case R.id.button_NQ:
-                downloadNQRecord(1);
+                downloadNQRecord(0);
                 break;
 
             // Export the database to a text file for sharing
@@ -435,59 +436,57 @@ public class MediaConfig extends FragmentActivity
     @Override
     public boolean onLongClick(View v)
     {
-        // Export the database to a text file for sharing
         switch (v.getId()) {
-            // Import to the DB database
             case R.id.button_import:
-                Timber.d("import Media Records");
-                importMediaRecords("notion_url_import.txt");
+                Timber.d("import Media Records from qq_url_import.txt");
+                importMediaRecords("qq_url_import.txt");
                 return true;
 
             case R.id.button_NQ:
-                downloadNQRecord(0);
+                downloadNQRecord(1);
                 return true;
 
             case R.id.button_db_records:
+                // Generate an text import file for all URL link from database for sharing
                 createExportLink();
                 return true;
         }
         return false;
     }
 
-
-    /**
-     * TouchListener to support singleTap, doubleTap and longPress for the view for site visit
-     */
-    TouchListener touchListener = new TouchListener(HymnsApp.getGlobalContext())
-    {
-        @Override
-        public boolean onSingleTap(View v, int idx)
-        {
-            if (v.getId() == R.id.button_NQ) {
-                downloadNQRecord(1);
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public void onLongPress(View v, int idx)
-        {
-            if (v.getId() == R.id.button_NQ) {
-                downloadNQRecord(0);
-            }
-        }
-
-        @Override
-        public boolean onDoubleTap(View v, int idx)
-        {
-            if (v.getId() == R.id.button_NQ) {
-                downloadNQRecord(2);
-                return true;
-            }
-            return false;
-        }
-    };
+//    /**
+//     * TouchListener to support singleTap, doubleTap and longPress for the view for site visit
+//     */
+//    TouchListener touchListener = new TouchListener(HymnsApp.getGlobalContext())
+//    {
+//        @Override
+//        public boolean onSingleTap(View v, int idx)
+//        {
+//            if (v.getId() == R.id.button_NQ) {
+//                downloadNQRecord(1);
+//                return true;
+//            }
+//            return false;
+//        }
+//
+//        @Override
+//        public void onLongPress(View v, int idx)
+//        {
+//            if (v.getId() == R.id.button_NQ) {
+//                downloadNQRecord(0);
+//            }
+//        }
+//
+//        @Override
+//        public boolean onDoubleTap(View v, int idx)
+//        {
+//            if (v.getId() == R.id.button_NQ) {
+//                downloadNQRecord(2);
+//                return true;
+//            }
+//            return false;
+//        }
+//    };
 
     /**
      * This is activated by user; or automatic from mediaController when the downloaded uri is completed
@@ -546,8 +545,8 @@ public class MediaConfig extends FragmentActivity
     {
         Intent intent = new Intent(this, ContentHandler.class);
         Bundle bundle = new Bundle();
-        bundle.putString(ATTR_SELECT, hymnType);
-        bundle.putInt(ATTR_NUMBER, hymnNo);
+        bundle.putString(ATTR_HYMN_TYPE, hymnType);
+        bundle.putInt(ATTR_HYMN_NUMBER, hymnNo);
         bundle.putBoolean(ATTR_AUTO_PLAY, true);
 
         intent.putExtras(bundle);
@@ -1342,6 +1341,16 @@ public class MediaConfig extends FragmentActivity
                 }
             }
         });
+    }
+
+    private void setHymnTypeSpinner(String hymnType)
+    {
+        for (int i = 0; i < hymnTypeValue.size(); i++) {
+            if (hymnTypeValue.get(i).equals(hymnType)) {
+                hymnTypeSpinner.setSelection(i);
+                break;
+            }
+        }
     }
 
     public boolean onKeyDown(int keyCode, KeyEvent event)

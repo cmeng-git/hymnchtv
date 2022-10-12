@@ -16,7 +16,6 @@
  */
 package org.cog.hymnchtv.mediaconfig;
 
-import static org.cog.hymnchtv.ContentHandler.NOTION_SITE;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
@@ -74,7 +73,7 @@ public class NotionRecordScrape extends MediaRecord
     // Create a specific MediaRecord for the web url fetch
     public NotionRecordScrape(String hymnType, int hymnNo)
     {
-        super(hymnType, hymnNo, isFu(hymnType, hymnNo), MediaType.HYMN_URL, null, null);
+        super(hymnType, hymnNo, isFu(hymnType, hymnNo), MediaType.HYMN_JIAOCHANG, null, null);
     }
 
     /**
@@ -100,7 +99,7 @@ public class NotionRecordScrape extends MediaRecord
             public void run()
             {
                 try {
-                    JSONArray jsonArray = fetchJsonArray("诗歌（合辑）", ContentHandler.HYMNCHTV_NOTION);
+                    JSONArray jsonArray = fetchJsonArray("诗歌（合辑）", NotionRecord.HYMNCHTV_NOTION);
                     if (jsonArray != null) {
                         mCount = 0;
                         for (int i = 0; i < jsonArray.length(); i++) {
@@ -294,7 +293,7 @@ public class NotionRecordScrape extends MediaRecord
                             try {
                                 JSONObject jobject = new JSONObject()
                                         .put(NQ_TITLE, strHymnTitle)
-                                        .put(NQ_URL, NOTION_SITE + strLink);
+                                        .put(NQ_URL, NotionRecord.NOTION_SITE + strLink);
                                 jsonArray.put(jobject);
                             } catch (JSONException e) {
                                 Timber.w("Jason Exception: %s", e.getMessage());

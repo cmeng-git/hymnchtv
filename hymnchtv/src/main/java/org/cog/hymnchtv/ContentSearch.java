@@ -39,9 +39,9 @@ import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_DB_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
-import static org.cog.hymnchtv.MainActivity.ATTR_NUMBER;
+import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_NUMBER;
+import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_TYPE;
 import static org.cog.hymnchtv.MainActivity.ATTR_SEARCH;
-import static org.cog.hymnchtv.MainActivity.ATTR_SELECT;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
@@ -317,8 +317,8 @@ public class ContentSearch extends FragmentActivity
 
             Intent intent = new Intent(this, ContentHandler.class);
             Bundle bundle = new Bundle();
-            bundle.putInt(ATTR_NUMBER, hymnNo);
-            bundle.putString(ATTR_SELECT, mHmynNoType.get(hymnNo));
+            bundle.putInt(ATTR_HYMN_NUMBER, hymnNo);
+            bundle.putString(ATTR_HYMN_TYPE, mHmynNoType.get(hymnNo));
             intent.putExtras(bundle);
             startActivity(intent);
         });

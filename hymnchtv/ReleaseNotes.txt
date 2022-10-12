@@ -1,6 +1,25 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    10/12/2022
+Version:        1.7.6 (107060)
+- Change hymnchtv "Search" button operations to:
+  * single click to perform hymn info search via youtube.com
+  * long press to perform hymn info search via google.com
+  * double click - remove
+- Purge all the QQ/NOTION HYMN_URL records in database and disable access via "Search" button
+- Save QQ records as HYMN_JIAOCHANG mediaType for access via JiaoChang button
+- Long press JiaoChang button to access to QQ main page
+- Import pre-fetched QQ url record from assets file "qq_url_import.txt", on new installation
+- Auto fill hymnType, hymnNo, mediaType and Fu when share via hymnContent UI
+- Increase the NUMBER_OF_RECORDS_IN_HISTORY to 200
+- Change QQRecord url fetch via web-scrapping implementation
+- Disable Notion download support; the site no further exist (long Press to access, will failed with site access error").
+- Must clear MediaGuiController#mediaHymns on Radio button changed; else last fetched media will be used for playback
+- Add additional check to extract a valid youtubeId for various possible format in YoutubePlayerFragment#getVideoId
+
+=========================================================================
+Author:         cmeng
 Upload Date:    07/05/2022
 Version:        1.7.5 (107052)
 - Long press '数库导入' button to import the pre-fetch notion url records from asset file notion_url_import.txt

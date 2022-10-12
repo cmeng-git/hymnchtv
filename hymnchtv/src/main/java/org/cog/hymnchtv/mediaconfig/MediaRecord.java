@@ -132,8 +132,8 @@ public class MediaRecord
     /**
      * Convert the give string which containing full parameters for conversion to MediaRecord
      *
-     * // ListView item for HYMN_URL and HYMN_MEDIA
-     * hymn_db:#0001: HYMN_URL\n
+     * // ListView item for HYMN_JIAOCHANG and HYMN_MEDIA
+     * hymn_db:#0001: HYMN_JIAOCHANG\n
      * uri: http://mp.weixin.qq.com/s?__biz=MzUwOTc2ODcxNA==&amp;amp;mid=2247486824&amp;amp;idx=5&amp;amp;sn=97d137a5a4ddb1b0b778087ac84770b7&amp;amp;chksm=f90c680dce7be11b4a3445af8dbe636b5a3d921ce910427609684bff2e5d95d0cda0696af419&amp;amp;scene=21#wechat_redirect\n
      * fp: null
      *
@@ -214,7 +214,7 @@ public class MediaRecord
         if (uriLink != null) {
             try {
                 uriLink = URLDecoder.decode(uriLink, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
+            } catch (UnsupportedEncodingException | IllegalArgumentException e) {
                 Timber.w("Exception in url decode %s: %s", uriLink, e.getMessage());
             }
         }

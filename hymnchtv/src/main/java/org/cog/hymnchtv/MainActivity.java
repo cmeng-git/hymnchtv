@@ -33,8 +33,21 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.view.*;
-import android.widget.*;
+import android.view.ContextMenu;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
@@ -44,8 +57,16 @@ import androidx.fragment.app.FragmentActivity;
 import org.cog.hymnchtv.hymnhistory.HistoryRecord;
 import org.cog.hymnchtv.logutils.LogUploadServiceImpl;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
-import org.cog.hymnchtv.persistance.*;
-import org.cog.hymnchtv.utils.*;
+import org.cog.hymnchtv.persistance.DatabaseBackend;
+import org.cog.hymnchtv.persistance.FileBackend;
+import org.cog.hymnchtv.persistance.FilePathHelper;
+import org.cog.hymnchtv.persistance.PermissionUtils;
+import org.cog.hymnchtv.persistance.migrations.MigrationUrlRecord;
+import org.cog.hymnchtv.utils.DialogActivity;
+import org.cog.hymnchtv.utils.HymnNoValidate;
+import org.cog.hymnchtv.utils.MySwipeListAdapter;
+import org.cog.hymnchtv.utils.TouchListener;
+import org.cog.hymnchtv.utils.WallPaperUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -65,8 +86,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     public static String HYMNCHTV_FAQ = "https://cmeng-git.github.io/hymnchtv/faq.html";
     private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
-    public static final String ATTR_SELECT = "select";
-    public static final String ATTR_NUMBER = "number";
+    public static final String ATTR_HYMN_TYPE = "hymn_type";
+    public static final String ATTR_HYMN_NUMBER = "hymn_number";
+    public static final String ATTR_MEDIA_URI = "media_uri";
+
     public static final String ATTR_SEARCH = "search";
     public static final String ATTR_PAGE = "page";
     public static final String ATTR_AUTO_PLAY = "autoPlay";
@@ -85,6 +108,9 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     public static final String PREF_MEDIA_HYMN = "MediaHymn";
     private static final int FONT_SIZE_DEFAULT = 35;
+
+    private static String mHymnType = HYMN_DB;
+    private static int mHymnNo = -1;
 
     private Button btn_n0;
     private Button btn_n1;
@@ -155,13 +181,15 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         // allow 15 seconds for first launch login to complete before showing history log if the activity is still active
         ChangeLog cl = new ChangeLog(this);
         if (cl.isFirstRun()) {
-            // Create hymn_qq for v1.7.0 release only
-            // MigrationTo3.createHymnQQTable(DatabaseBackend.getInstance(this).getWritableDatabase());
             runOnUiThread(() -> new Handler().postDelayed(() -> {
                 if (!isFinishing()) {
                     cl.getLogDialog().show();
                 }
             }, 15000));
+
+            // Purge and relocate all qq records; access via jiaoChang button for >= v1.7.6 release
+            MigrationUrlRecord.purgeHymnUrl(mDB.getWritableDatabase());
+            MigrationUrlRecord.importQQRecords(mDB);
         }
 
         // 儿童诗歌
@@ -271,7 +299,9 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         if (mediaLink != null) {
             intent = new Intent(this, MediaConfig.class);
             Bundle bundle = new Bundle();
-            bundle.putString(MediaConfig.ATTR_MEDIA_URI, mediaLink);
+            bundle.putString(ATTR_MEDIA_URI, mediaLink);
+            bundle.putString(ATTR_HYMN_TYPE, mHymnType);
+            bundle.putInt(ATTR_HYMN_NUMBER, mHymnNo);
             intent.putExtras(bundle);
             startActivity(intent);
         }
@@ -373,6 +403,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
             int nui = HymnNoValidate.validateHymnNo(hymnType, hymnNo, isFu);
             if (nui != -1) {
+                mHymnType = hymnType;
+                mHymnNo = hymnNo;
                 showContent(hymnType, nui);
             }
             // Only clear the user entry hymnNo if user entry is Fu and HymnType is not HYMN_DB
@@ -404,8 +436,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
         Intent intent = new Intent(this, ContentHandler.class);
         Bundle bundle = new Bundle();
-        bundle.putString(ATTR_SELECT, hymnType);
-        bundle.putInt(ATTR_NUMBER, hymnNo);
+        bundle.putString(ATTR_HYMN_TYPE, hymnType);
+        bundle.putInt(ATTR_HYMN_NUMBER, hymnNo);
         bundle.putBoolean(ATTR_AUTO_PLAY, false);
 
         intent.putExtras(bundle);
@@ -427,7 +459,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
         Intent intent = new Intent(this, HymnToc.class);
         Bundle bundle = new Bundle();
-        bundle.putString(ATTR_SELECT, hymnType);
+        bundle.putString(ATTR_HYMN_TYPE, hymnType);
         bundle.putString(ATTR_PAGE, tocPage);
         intent.putExtras(bundle);
         startActivity(intent);
@@ -872,7 +904,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     /**
      * Set the font size of the buttons' labels
      *
-     * @param size button lable font size
+     * @param size button label font size
      * @param update true to update the preference settings
      */
     private void setFontSize(int size, boolean update)
@@ -954,6 +986,18 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         mEditor.putInt(PREF_BACKGROUND, bgMode);
         mEditor.apply();
         background.setBackgroundResource(resid);
+    }
+
+    /**
+     * Update both the hymnType and hymnNo for share auto-fill
+     *
+     * @param hymnType Update HymnType as given
+     * @param hymnNo Update HymnNo as given
+     */
+    public static void setHymnTypeNo(String hymnType, int hymnNo)
+    {
+        mHymnType = hymnType;
+        mHymnNo = hymnNo;
     }
 
     /**

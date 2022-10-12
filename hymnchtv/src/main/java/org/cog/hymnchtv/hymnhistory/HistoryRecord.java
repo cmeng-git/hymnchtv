@@ -55,7 +55,7 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
  */
 public class HistoryRecord
 {
-    public static final int NUMBER_OF_RECORDS_IN_HISTORY = 50;
+    public static final int NUMBER_OF_RECORDS_IN_HISTORY = 200;
 
     public static final String TABLE_NAME = "hymnHistory";
     public static final String HYMN_TYPE = "hymnType";

@@ -54,13 +54,13 @@
     <string name="gui_return">返回</string>
 
     <!-- Message for Notion / QQ links update -->
-    <string name="gui_nq_download">NQ-诗歌链接下载</string>
-    <string name="gui_nq_download_completed">%1$s-诗歌链接：%2$s 下载完成！</string>
-    <string name="gui_nq_download_failed">%1$s-诗歌链接下载失败！</string>
-    <string name="gui_nq_download_in_progress">%1$s-链接下载中…</string>
+    <string name="gui_nq_download">NQ－诗歌链接下载</string>
+    <string name="gui_nq_download_completed">%1$s－诗歌链接：%2$s 下载完成！</string>
+    <string name="gui_nq_download_failed">%1$s－诗歌链接下载失败！</string>
+    <string name="gui_nq_download_in_progress">%1$s－链接下载中…</string>
     <string name="gui_nq_download_proceed">执行 %1$s 诗歌链接下载？过程需要一些时间。进程将在后台进行，您可以继续使用应用程序。</string>
-    <string name="gui_nq_download_starting">%1$s-诗歌链接下载开始…</string>
-    <string name="gui_nq_record_delete">删除NQ-媒体链接记录:\n%1$s?</string>
+    <string name="gui_nq_download_starting">%1$s－诗歌链接下载开始…</string>
+    <string name="gui_nq_record_delete">删除NQ－媒体链接记录:\n%1$s?</string>
 
     <!-- Message to display when video is finished playing. -->
     <string name="gui_playback_completed">播放结束</string>
