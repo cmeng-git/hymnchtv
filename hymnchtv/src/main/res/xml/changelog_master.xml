@@ -6,7 +6,7 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="1.7.6 (10/12/2022)" versioncode="107060">
+    <release version="1.7.6 (10/14/2022)" versioncode="107061">
         <change>将“搜索”按钮操作更改为：</change>
         <change>－单击通过 youtube.com 执行诗歌信息搜索。</change>
         <change>－ 长按通过 google.com 执行诗歌信息搜索。</change>
@@ -15,6 +15,8 @@
         <change>长按“教唱“按钮将访问 QQ 主网址。</change>
         <change>在新安装时，从资产文件中导入预取的 QQ 网址记录。</change>
         <change>在链接共享上自动填入“诗歌类别“、“诗歌编号“、“媒体类型“和“附歌“信息。</change>
+        <change>在链接共享上：删除记录后更新列表视图并保留视图项位置。</change>
+        <change>在音频播放时，重置 ExoPlayer 背景图像的视图尺寸。</change>
         <change>将历史记录数增加到 200 条。</change>
         <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
     </release>

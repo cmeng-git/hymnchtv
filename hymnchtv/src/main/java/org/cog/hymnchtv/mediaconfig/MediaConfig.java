@@ -147,6 +147,7 @@ public class MediaConfig extends FragmentActivity
 
     // Flag indicates the content is auto filled and may be overwritten when user changes the hymnNo ect.
     private boolean isAutoFilled = true;
+    private int mVisibleItem = 0;
 
     private Spinner hymnTypeSpinner;
     private Spinner mediaTypeSpinner;
@@ -428,7 +429,7 @@ public class MediaConfig extends FragmentActivity
 
             // Show the DB content for all user defined media link
             case R.id.button_db_records:
-                showMediaRecords();
+                showMediaRecords(-1);
                 break;
         }
     }
@@ -620,7 +621,7 @@ public class MediaConfig extends FragmentActivity
             mHymnType = hymnTypeValue.get(position);
             sHymnType = hymnTypeEntry.get(position);
             if (mListView.getVisibility() == View.VISIBLE) {
-                showMediaRecords();
+                showMediaRecords(-1);
             }
         }
         else if (parent == mediaTypeSpinner) {
@@ -901,8 +902,10 @@ public class MediaConfig extends FragmentActivity
                                     }
                                 }
                             }
+
                             int row = mDB.deleteMediaRecord(mRecord);
                             HymnsApp.showToastMessage(R.string.gui_delete_media_ok, (row != 0) ? nui : 0);
+                            showMediaRecords(mVisibleItem);
                             checkEntry();
                             return true;
                         }
@@ -1286,7 +1289,7 @@ public class MediaConfig extends FragmentActivity
      * Show all the DB media records in the DB based on user selected HymnType
      */
     @SuppressLint("ClickableViewAccessibility")
-    private void showMediaRecords()
+    private void showMediaRecords(int scrollPos)
     {
         List<MediaRecord> mediaRecords = mDB.getMediaRecords(mHymnType);
         if (mediaRecords.isEmpty()) {
@@ -1308,9 +1311,13 @@ public class MediaConfig extends FragmentActivity
 
         mListView.setAdapter(mediaAdapter);
         mListView.setVisibility(View.VISIBLE);
+        if (scrollPos != -1) {
+            mListView.setSelection(scrollPos);
+        }
 
         // Update the media Record Editor info.
         mListView.setOnItemClickListener((adapterView, view, pos, id) -> {
+            mVisibleItem = mListView.getFirstVisiblePosition();
             mediaAdapter.setSelectItem(pos, view);
 
             if (isAutoFilled) {
@@ -1328,7 +1335,7 @@ public class MediaConfig extends FragmentActivity
                     cbFu.setChecked(mRecord.isFu());
 
                     int hymnNo = mRecord.getHymnNo();
-                    tvHymnNo.setText(Integer.toString(hymnNo));
+                    tvHymnNo.setText(String.valueOf(hymnNo));
 
                     // force focus to tvHymnNo so isAutoFilled cannot be accidentally cleared
                     tvHymnNo.requestFocus();

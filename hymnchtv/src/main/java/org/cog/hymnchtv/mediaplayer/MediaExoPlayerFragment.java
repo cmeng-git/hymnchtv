@@ -26,7 +26,9 @@ import android.content.*;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.*;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -37,6 +39,7 @@ import androidx.fragment.app.FragmentActivity;
 import com.google.android.exoplayer2.*;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.video.VideoSize;
 
 import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.HymnsApp;
@@ -74,7 +77,7 @@ public class MediaExoPlayerFragment extends Fragment
     private FragmentActivity mContext;
     private SharedPreferences mSharedPref;
 
-    private SimpleExoPlayer mSimpleExoPlayer = null;
+    private ExoPlayer mExoPlayer = null;
     private StyledPlayerView mPlayerView;
     private PlaybackStateListener playbackStateListener;
 
@@ -83,9 +86,9 @@ public class MediaExoPlayerFragment extends Fragment
      */
     public static MediaExoPlayerFragment getInstance(Bundle args)
     {
-        MediaExoPlayerFragment mExoPlayer = new MediaExoPlayerFragment();
-        mExoPlayer.setArguments(args);
-        return mExoPlayer;
+        MediaExoPlayerFragment exoPlayerFragment = new MediaExoPlayerFragment();
+        exoPlayerFragment.setArguments(args);
+        return exoPlayerFragment;
     }
 
     @Override
@@ -147,10 +150,10 @@ public class MediaExoPlayerFragment extends Fragment
 
     public void initializePlayer()
     {
-        if (mSimpleExoPlayer == null) {
-            mSimpleExoPlayer = new SimpleExoPlayer.Builder(mContext).build();
-            mSimpleExoPlayer.addListener(playbackStateListener);
-            mPlayerView.setPlayer(mSimpleExoPlayer);
+        if (mExoPlayer == null) {
+            mExoPlayer = new ExoPlayer.Builder(mContext).build();
+            mExoPlayer.addListener(playbackStateListener);
+            mPlayerView.setPlayer(mExoPlayer);
         }
 
         if ((mediaUrls == null) || mediaUrls.isEmpty()) {
@@ -172,8 +175,8 @@ public class MediaExoPlayerFragment extends Fragment
      */
     public void releasePlayer()
     {
-        if (mSimpleExoPlayer != null) {
-            mSpeed = mSimpleExoPlayer.getPlaybackParameters().speed;
+        if (mExoPlayer != null) {
+            mSpeed = mExoPlayer.getPlaybackParameters().speed;
 
             // Audio media player speed is (0.4 >= mSpeed <= 1.4)
             SharedPreferences.Editor mEditor = mSharedPref.edit();
@@ -183,10 +186,10 @@ public class MediaExoPlayerFragment extends Fragment
                 mEditor.apply();
             }
 
-            mSimpleExoPlayer.setPlayWhenReady(false);
-            mSimpleExoPlayer.removeListener(playbackStateListener);
-            mSimpleExoPlayer.release();
-            mSimpleExoPlayer = null;
+            mExoPlayer.setPlayWhenReady(false);
+            mExoPlayer.removeListener(playbackStateListener);
+            mExoPlayer.release();
+            mExoPlayer = null;
         }
     }
 
@@ -200,11 +203,11 @@ public class MediaExoPlayerFragment extends Fragment
         if (mediaItem != null) {
             String speed = mSharedPref.getString(PREF_PLAYBACK_SPEED, "1.0");
             mSpeed = Float.parseFloat(speed);
-
             setPlaybackSpeed(mSpeed);
-            mSimpleExoPlayer.setMediaItem(mediaItem, 0);
-            mSimpleExoPlayer.setPlayWhenReady(true);
-            mSimpleExoPlayer.prepare();
+
+            mExoPlayer.setMediaItem(mediaItem, 0);
+            mExoPlayer.setPlayWhenReady(true);
+            mExoPlayer.prepare();
         }
     }
 
@@ -223,9 +226,9 @@ public class MediaExoPlayerFragment extends Fragment
             mSpeed = Float.parseFloat(speed);
             setPlaybackSpeed(mSpeed);
 
-            mSimpleExoPlayer.setMediaItems(mediaItems);
-            mSimpleExoPlayer.setPlayWhenReady(true);
-            mSimpleExoPlayer.prepare();
+            mExoPlayer.setMediaItems(mediaItems);
+            mExoPlayer.setPlayWhenReady(true);
+            mExoPlayer.prepare();
         }
     }
 
@@ -252,8 +255,8 @@ public class MediaExoPlayerFragment extends Fragment
     private void setPlaybackSpeed(float speed)
     {
         PlaybackParameters playbackParameters = new PlaybackParameters(speed, 1.0f);
-        if (mSimpleExoPlayer != null) {
-            mSimpleExoPlayer.setPlaybackParameters(playbackParameters);
+        if (mExoPlayer != null) {
+            mExoPlayer.setPlaybackParameters(playbackParameters);
         }
     }
 
@@ -306,8 +309,12 @@ public class MediaExoPlayerFragment extends Fragment
                     HymnsApp.showToastMessage(R.string.gui_playback_completed);
                     break;
 
-                case ExoPlayer.STATE_BUFFERING:
                 case ExoPlayer.STATE_READY:
+                    if (VideoSize.UNKNOWN.equals(mExoPlayer.getVideoSize())) {
+                        float vHeight = 0.62f * HymnsApp.screenWidth;
+                        mPlayerView.setLayoutParams(new LinearLayout.LayoutParams(HymnsApp.screenWidth, (int) vHeight));
+                    }
+                case ExoPlayer.STATE_BUFFERING:
                 default:
                     break;
             }

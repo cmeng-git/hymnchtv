@@ -1,6 +1,13 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    10/14/2022
+Version:        1.7.6 (107061)
+- MediaConfig: Update listview and keep view item position after a record is deleted..
+- Reset ExoPlayer view height to 0.6 * screenWidth with a background image while in audio playback.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    10/12/2022
 Version:        1.7.6 (107060)
 - Change hymnchtv "Search" button operations to:

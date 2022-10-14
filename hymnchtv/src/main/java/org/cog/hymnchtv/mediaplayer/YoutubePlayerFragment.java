@@ -229,7 +229,7 @@ public class YoutubePlayerFragment extends Fragment
      * a. vCKCkc8llaM
      * b. https://youtu.be/vCKCkc8llaM
      * c. https://youtube.com/watch?v=14VrDQSnfzI&feature=share
-     * d. https://www.youtube.com/playlist?list=PL0KROm2A3S8HaMLBxYPF5kuEEtTYvUJox\mVideoId
+     * d. https://www.youtube.com/playlist?list=PL0KROm2A3S8HaMLBxYPF5kuEEtTYvUJox\
      *
      * @param url Any of the above url string
      * @return the youtube videoId
