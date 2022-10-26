@@ -48,12 +48,11 @@ import timber.log.Timber;
 
 /**
  * The class provide handlers for the QQ JSONObject record scraping;
- * QQ-诗歌链接：466 下载完成！
+ * 【补充本诗歌】召会的生活(801一880)－诗歌链接：506 下载完成！
  *
  * @author Eng Chong Meng
  */
-public class QQRecord extends MediaRecord
-{
+public class QQRecord extends MediaRecord {
     public static String HYMNCHTV_QQ_MAIN = "https://mp.weixin.qq.com/s/kgqBH0C_zgDaBnxbvC9wew";
     public static final String QQ = "QQ";
     //  Map defines the QQ categories for HymnType links access; must have exact match
@@ -75,13 +74,11 @@ public class QQRecord extends MediaRecord
     public static final String QQ_TITLE = "title";
     public static final String QQ_URL = "url";
 
-    private static final Map<WebView, JSONObject> webList = new HashMap<>();
     private static int mCount = 0;
     private static Context mContext;
 
     // Create a specific MediaRecord for web url fetch
-    public QQRecord(String hymnType, int hymnNo)
-    {
+    public QQRecord(String hymnType, int hymnNo) {
         super(hymnType, hymnNo, isFu(hymnType, hymnNo), MediaType.HYMN_JIAOCHANG, null, null);
     }
 
@@ -100,8 +97,7 @@ public class QQRecord extends MediaRecord
      * 【擘饼专辑诗歌】
      * 【诗歌音频合辑】
      */
-    public static void fetchQQLinks(final MediaConfig mediaConfig)
-    {
+    public static void fetchQQLinks(final MediaConfig mediaConfig) {
         String mTitle = "诗歌（合辑）";
         mContext = mediaConfig;
         HymnsApp.showToastMessage(R.string.gui_nq_download_starting, QQ);
@@ -129,24 +125,6 @@ public class QQRecord extends MediaRecord
                 HymnsApp.showToastMessage(R.string.gui_nq_download_failed, mTitle);
             }
         });
-
-        // Check after 2 minutes to see if it has completed loading; disable attempt for QQ.
-//        new Handler().postDelayed(() -> {
-//            if (!webList.isEmpty()) {
-//                Timber.d("Restart the incomplete web scraping sites: %s", webList.size());
-//                for (Map.Entry<WebView, JSONObject> webSet : webList.entrySet()) {
-//                    try {
-//                        saveQQRecord(webSet.getValue(), webSet.getKey());
-//                    } catch (JSONException e) {
-//                        Timber.e("JSONException in final state: %s", webSet.getValue());
-//                    }
-//                }
-//            }
-//            else {
-//                Timber.d(HymnsApp.getResString(R.string.gui_nq_download_completed, QQ, mCount));
-//                HymnsApp.showToastMessage(R.string.gui_nq_download_completed, QQ, mCount);
-//            }
-//        }, 120000);
     }
 
     /**
@@ -169,8 +147,7 @@ public class QQRecord extends MediaRecord
      * @param jsonObj: containing title as Prefix to get the valid Hymn Range links,
      * and url the Notion required site url
      */
-    private static void getQQHymnType(JSONObject jsonObj) throws JSONException
-    {
+    private static void getQQHymnType(JSONObject jsonObj) throws JSONException {
         // Must strip off tailing alphabet before checking hymnRange
         String title = jsonObj.getString(QQ_TITLE).replaceAll("[DBCX]", "");
         String url = jsonObj.getString(QQ_URL);
@@ -178,10 +155,11 @@ public class QQRecord extends MediaRecord
         HymnsApp.showToastMessage(R.string.gui_nq_download_in_progress, title);
         //【新歌颂咏】does not have hymnRange; so proceed to saveQQRecord
         if (title.contains("新歌颂咏")) {
-            saveQQRecord(jsonObj, null);
+            saveQQRecord(jsonObj);
             return;
         }
 
+        Pattern pattern = Pattern.compile(".+?(\\d+一\\d+)");
         final WebView webView = initWebView();
         getURLSource(webView, title, url, data -> {
             webView.destroy();
@@ -190,10 +168,10 @@ public class QQRecord extends MediaRecord
                 if (jsonArray != null && jsonArray.length() != 0) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-                        Timber.d("QQ HymnType Range (%s): %s", i, jsonObject);
                         String hymnRange = jsonObject.getString(QQ_TITLE);
-                        if (hymnRange.startsWith(title)) {
-                            saveQQRecord(jsonObject, null);
+                        if (pattern.matcher(hymnRange).find()) {
+                            Timber.d("QQ HymnType Range (%s): %s", i, jsonObject);
+                            saveQQRecord(jsonObject);
                         }
                     }
                 }
@@ -219,64 +197,15 @@ public class QQRecord extends MediaRecord
      *
      * @param jsonObj: containing title as Prefix to get the valid Hymn Range links, and url the Notion required site url
      */
-    private static void saveQQRecord(JSONObject jsonObj) throws JSONException
-    {
+    private static void saveQQRecord(JSONObject jsonObj) throws JSONException {
         String title = jsonObj.getString(QQ_TITLE);
         String url = jsonObj.getString(QQ_URL);
 
         final WebView webView = initWebView();
         getURLSource(webView, title, url, data -> {
             try {
-                JSONArray jsonArray = fetchJsonArray(title, data);
+                JSONArray jsonArray = createJsonArray(title, data);
                 if (jsonArray != null && jsonArray.length() != 0) {
-                    webList.remove(webView);
-                    webView.destroy();
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject = (JSONObject) jsonArray.get(i);
-                        storeQQJObject(jsonObject);
-                        Timber.d("QQ Hymn Record saved (%s): %s", mCount, jsonObject);
-                    }
-                    Timber.d(HymnsApp.getResString(R.string.gui_nq_download_completed, title, mCount));
-                    HymnsApp.showToastMessage(R.string.gui_nq_download_completed, title, mCount);
-                }
-            } catch (JSONException e) {
-                Timber.e("URL get source exception: %s", e.getMessage());
-            }
-        });
-    }
-
-    /**
-     * Save all the QQ hymn links in the DB, if it passes the valid check in mDB.storeQQRecord()
-     *
-     * D33父神阿你在羔羊里
-     * D34荣耀归于父神
-     *
-     * 附录 - 经历神
-     * D785(附5)何大神迹！何深奥秘
-     * D786(附6)神,你生命所施拯救
-     *
-     * B23羔羊是配
-     * C006朵朵小花含笑
-     * X016小排聚会不可不去
-     *
-     * @param jsonObj: containing title as Prefix to get the valid Hymn Range links, and url the Notion required site url
-     * @param wView: Create new if pass in webView is null
-     */
-    private static void saveQQRecord(JSONObject jsonObj, final WebView wView) throws JSONException
-    {
-        String title = jsonObj.getString(QQ_TITLE);
-        String url = jsonObj.getString(QQ_URL);
-
-        final WebView webView = (wView == null) ? initWebView() : wView;
-        if (wView == null) {
-            webList.put(webView, jsonObj);
-        }
-
-        getURLSource(webView, title, url, data -> {
-            try {
-                JSONArray jsonArray = createJsonArray(data);
-                if (jsonArray != null && jsonArray.length() != 0) {
-                    webList.remove(webView);
                     webView.destroy();
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
@@ -307,8 +236,7 @@ public class QQRecord extends MediaRecord
      * link_type: 'LINK_TYPE_MP_APPMSG',
      * }
      */
-    private static void storeQQJObject(JSONObject jsonRecord)
-    {
+    private static void storeQQJObject(JSONObject jsonRecord) {
         final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
         Pattern pattern = Pattern.compile("[DBCX](\\d+)");
 
@@ -321,14 +249,13 @@ public class QQRecord extends MediaRecord
             }
 
             Matcher matcher = pattern.matcher(title);
-            int hymnNo = -1;
+            int hymnNo;
             if (matcher.find()) {
                 String noStr = matcher.group(1);
                 if (TextUtils.isEmpty(noStr)) {
                     Timber.w("### Invalid QQ record HymnNo: %s", noStr);
                     return;
-                }
-                else {
+                } else {
                     hymnNo = Integer.parseInt(noStr);
                 }
 
@@ -337,13 +264,12 @@ public class QQRecord extends MediaRecord
                 long row = mDB.storeMediaRecord(mRecord);
                 if (row < 0) {
                     Timber.e("### Error in creating QQ record for: %s", title);
-                }
-                else {
+                } else {
+                    if ((mCount % 10) == 0)
+                        Timber.d("QQ Hymn Record saved (%s): %s", mCount, jsonRecord);
                     mCount++;
-                    // Timber.d("QQ Hymn Record saved (%s): %s", mCount, jsonRecord);
                 }
-            }
-            else {
+            } else {
                 Timber.w("### Invalid QQ record HymnTitle: %s", jsonRecord);
             }
         } catch (JSONException e) {
@@ -357,11 +283,10 @@ public class QQRecord extends MediaRecord
      * @param htmlRaw the remote raw content containing the required link info
      * @return JSON Array of the extracted info or null if none found
      */
-    private static JSONArray createJsonArray(String htmlRaw)
-    {
+    private static JSONArray createJsonArray(String title, String htmlRaw) {
         // <strong>B755跟随榜样</strong>
         // <strong><span style="font-size: 16px;">B759在复活里聚集</span></strong>
-        Pattern pattern = Pattern.compile("<a target=\"_blank\" href=\"(.*?)\".*?data-itemshowtype=\"0\" tab=\"innerlink\" data-linktype=\"2\" hasload=\"1\".+?<strong.*?>(.+?)</strong>");
+        Pattern pattern = Pattern.compile("<a target=\"_blank\" href=\"(.*?)\".*?data-itemshowtype=\"0\" tab=\"innerlink\".+?<strong.*?>(.+?)</strong>");
         if (TextUtils.isEmpty(htmlRaw))
             return null;
 
@@ -375,7 +300,8 @@ public class QQRecord extends MediaRecord
             if (!TextUtils.isEmpty(mediaTitle) && !TextUtils.isEmpty(mediaUrl)) {
                 JSONObject jsonBody = new JSONObject();
                 try {
-                    jsonBody.put(QQ_TITLE, mediaTitle.replaceAll("<span style=\"font-size: 16px;\">", ""));
+                    // Strip any <span> element in the mediaTitle
+                    jsonBody.put(QQ_TITLE, mediaTitle.replaceAll("<span style=\".+?\">", ""));
                     jsonBody.put(QQ_URL, mediaUrl);
                     jsonArray.put(jsonBody);
                 } catch (JSONException e) {
@@ -383,6 +309,10 @@ public class QQRecord extends MediaRecord
                 }
             }
         }
+        if (jsonArray.length() == 0) {
+            Timber.d(HymnsApp.getResString(R.string.gui_nq_download_failed, title));
+        }
+
         return jsonArray;
     }
 
@@ -393,8 +323,7 @@ public class QQRecord extends MediaRecord
      * @param htmlRaw the remote raw content containing the required link info
      * @return JSON Array of the extracted info or null if none found
      */
-    private static JSONArray fetchJsonArray(String title, String htmlRaw)
-    {
+    private static JSONArray fetchJsonArray(String title, String htmlRaw) {
         // Standard enclosing pattern for link info used on the QQ sites
         Pattern pattern = Pattern.compile("var jumpInfo = (\\[.*?]);");
         try {
@@ -423,8 +352,7 @@ public class QQRecord extends MediaRecord
      * @param jsonStr JSONArray in string format
      * @return cleanup Json string
      */
-    private static String toJsonString(String jsonStr)
-    {
+    private static String toJsonString(String jsonStr) {
         return StringEscapeUtils.unescapeJava(jsonStr)
                 .replaceAll("[\n|  ]", "")
                 .replaceAll("\\.html\\(false\\)", "")
@@ -434,24 +362,19 @@ public class QQRecord extends MediaRecord
                 .replaceAll("http:", "https:");
     }
 
-    private static WebView initWebView()
-    {
+    private static WebView initWebView() {
         WebView webView = new WebView(mContext);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        // webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         return webView;
     }
 
-    public static void getURLSource(final WebView webView, String title, String urlToLoad, final ValueCallback<String> valueCallback)
-    {
+    public static void getURLSource(final WebView webView, String title, String urlToLoad, final ValueCallback<String> valueCallback) {
         // Timber.d("URl to load: %s", urlToLoad);
         webView.loadUrl(urlToLoad);
-        webView.setWebViewClient(new WebViewClient()
-        {
+        webView.setWebViewClient(new WebViewClient() {
             @Override
-            public void onPageFinished(WebView view, String url)
-            {
+            public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 // Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
                 if (webView.getProgress() == 100) {
@@ -462,8 +385,7 @@ public class QQRecord extends MediaRecord
                                 // webView.evaluateJavascript("document.documentElement.outerHTML", valueCallback);
                                 if (data.contains("rich_media_content")) {
                                     valueCallback.onReceiveValue(data);
-                                }
-                                else {
+                                } else {
                                     Timber.w("Web scrapping failed: %s", title);
                                     HymnsApp.showToastMessage(R.string.gui_nq_download_failed, title);
                                 }
@@ -471,7 +393,7 @@ public class QQRecord extends MediaRecord
                         } catch (RuntimeException e) {
                             valueCallback.onReceiveValue(null);
                         }
-                    }, 1500);
+                    }, 1000);
                 }
             }
         });

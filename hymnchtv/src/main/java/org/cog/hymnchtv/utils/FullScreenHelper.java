@@ -12,11 +12,11 @@ import androidx.fragment.app.FragmentActivity;
  */
 public class FullScreenHelper
 {
-    private FragmentActivity context;
-    private View[] views;
+    private final FragmentActivity context;
+    private final View[] views;
 
     /**
-     * @param context
+     * @param context FragmentActivity
      * @param views to hide/show
      */
     public FullScreenHelper(FragmentActivity context, View... views)

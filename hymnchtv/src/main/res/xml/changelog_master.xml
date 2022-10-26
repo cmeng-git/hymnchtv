@@ -6,6 +6,19 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="2.0.0 (10/26/2022)" versioncode="200000">
+        <change>在内容搜索开始之前自动将繁体中文翻译为简体文本。</change>
+        <change>在中文歌词显示中支持中文简体到繁体（香港繁体，台湾正体，或台湾常用词汇）转换。</change>
+        <change>支持可用英文歌词显示，或通过网络链接访问。</change>
+        <change>所有显示歌词的用户操作都将保存在历史记录中，其包括搜索、目录和媒体配置内容播放。</change>
+        <change>在媒体配置中删除记录后，更新列表内容并防止软键盘自动显示。</change>
+        <change>修复用户使用 Home 键退出后，歌词内容显示不正确的问题。</change>
+        <change>在音频媒体播放时，将播放器视图高度限制为 0.6 * 屏幕宽度。</change>
+        <change>在新安装时，从资产文件中导入预取的媒体网址记录。</change>
+        <change>压缩所有诗歌乐谱文件以生成单个应用程序，并将其从 192MB 减少到 90MB。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+    </release>
+
     <release version="1.7.6 (10/14/2022)" versioncode="107061">
         <change>将“搜索”按钮操作更改为：</change>
         <change>－单击通过 youtube.com 执行诗歌信息搜索。</change>
@@ -18,7 +31,6 @@
         <change>在链接共享上：删除记录后更新列表视图并保留视图项位置。</change>
         <change>在音频播放时，重置 ExoPlayer 背景图像的视图尺寸。</change>
         <change>将历史记录数增加到 200 条。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
     </release>
 
     <release version="1.7.5 (07/05/2022)" versioncode="107052">

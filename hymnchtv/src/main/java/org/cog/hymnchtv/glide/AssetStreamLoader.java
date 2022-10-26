@@ -34,14 +34,14 @@ import java.io.InputStream;
 public final class AssetStreamLoader implements ModelLoader<AssetFile, InputStream>
 {
     @Override
-    public LoadData<InputStream> buildLoadData(AssetFile model, int width, int height, Options options)
+    public LoadData<InputStream> buildLoadData(AssetFile model, int width, int height, @NonNull Options options)
     {
         Key diskCacheKey = new ObjectKey(model.getPath());
         return new LoadData<>(diskCacheKey, new AssetDataFetcher(model));
     }
 
     @Override
-    public boolean handles(AssetFile model)
+    public boolean handles(@NonNull AssetFile model)
     {
         return true;
     }

@@ -20,9 +20,10 @@ import android.content.Context;
 import android.net.Uri;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+
 import com.bumptech.glide.*;
 import com.bumptech.glide.annotation.GlideModule;
-import com.bumptech.glide.load.engine.cache.LruResourceCache;
 import com.bumptech.glide.module.AppGlideModule;
 
 import org.cog.hymnchtv.HymnsApp;
@@ -45,7 +46,7 @@ public class MyGlideApp extends AppGlideModule
 //    }
 
     @Override
-    public void registerComponents(Context context, Glide glide, Registry registry)
+    public void registerComponents(@NonNull Context context, @NonNull Glide glide, Registry registry)
     {
         registry.append(AssetFile.class, InputStream.class, new AssetStreamLoader.Factory());
     }
@@ -62,7 +63,7 @@ public class MyGlideApp extends AppGlideModule
         GlideApp.with(ctx)
                 .load(resId)
                 .override(HymnsApp.screenWidth, HymnsApp.screenHeight)
-                .error(R.drawable.phrase)
+                .error(R.drawable.bg_image)
                 .into(imageView);
     }
 
@@ -71,7 +72,7 @@ public class MyGlideApp extends AppGlideModule
         GlideApp.with(ctx)
                 .load(uri)
                 .override(HymnsApp.screenWidth, HymnsApp.screenHeight)
-                .error(R.drawable.phrase)
+                .error(R.drawable.bg_image)
                 .into(imageView);
     }
 
@@ -80,7 +81,7 @@ public class MyGlideApp extends AppGlideModule
         GlideApp.with(ctx)
                 .load(new AssetFile(ctx, path))
                 .override(HymnsApp.screenWidth, HymnsApp.screenHeight)
-                .error(R.drawable.phrase)
+                .error(R.drawable.bg_image)
                 .into(imageView);
     }
 }

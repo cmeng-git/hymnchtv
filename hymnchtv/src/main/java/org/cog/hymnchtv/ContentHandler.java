@@ -69,6 +69,12 @@ import timber.log.Timber;
 /**
  * The class handles the actual content source address decoding for the user selected hymn
  *
+ * The MainActivity (parent) must use SingleTask instead of SingleInstance.
+ * SingleTask will call ContentHandler#onDestroy() when launch by user.
+ * Otherwise ContentHandler#onDestroy() will not get call when user exits via HOME button.
+ * New hymnchtv launch via MainActivity will skip this.onCreate(), and all user selections
+ * are ignored; hence previous lyrics being displayed instead.
+ *
  * @author Eng Chong Meng
  */
 public class ContentHandler extends FragmentActivity
@@ -97,11 +103,11 @@ public class ContentHandler extends FragmentActivity
     // Hymn Type and number selected by user
     private boolean mAutoPlay = false;
     public String mHymnType;
-    public int mHymnNo;
+    private int mHymnNo;
     private int hymnIdx = -1;
 
     // Null if there is no corresponding English lyrics
-    private Integer hymnNoEng = null;
+    private Integer mHymnNoEng = null;
     private String mWebUrl = null;
     private String mHymnInfo = null;
 
@@ -171,7 +177,7 @@ public class ContentHandler extends FragmentActivity
         Bundle bundle = getIntent().getExtras();
         mHymnType = bundle.getString(ATTR_HYMN_TYPE);
         mHymnNo = bundle.getInt(ATTR_HYMN_NUMBER);
-        hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mHymnType, mHymnNo);
+        mHymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mHymnType, mHymnNo);
         mAutoPlay = bundle.getBoolean(ATTR_AUTO_PLAY, false);
 
         switch (mHymnType) {
@@ -310,11 +316,15 @@ public class ContentHandler extends FragmentActivity
                 return true;
 
             case R.id.lyrcsEnglish:
-                if (hymnNoEng == null) {
+                if (mHymnNoEng == null) {
                     HymnsApp.showToastMessage(R.string.gui_error_english_lyrics_null, mHymnNo);
                     return true;
                 }
                 initWebView(UrlType.englishLyrics);
+                return true;
+
+            case R.id.lyrcsEnglishDelete:
+                mDB.deleteLyricsEng(mHymnNoEng);
                 return true;
 
             case R.id.help:
@@ -376,7 +386,7 @@ public class ContentHandler extends FragmentActivity
     {
         // Update both mHymnType and mHymnNo for share auto-fill
         MainActivity.setHymnTypeNo(mHymnType, mHymnNo);
-        hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mHymnType, mHymnNo);
+        mHymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mHymnType, mHymnNo);
 
         // Check to see if all the mediaTypes are defined/available for the current user selected HymnType/HymnNo
         boolean[] isAvailable = getHymnMediaState();
@@ -879,7 +889,6 @@ public class ContentHandler extends FragmentActivity
      */
     private boolean[] getHymnMediaState()
     {
-        int i = 0;
         String dir;
         String hymnTitle = getHymnTitle();
         boolean[] isAvailable = {false, false, false, false};
@@ -908,7 +917,7 @@ public class ContentHandler extends FragmentActivity
 
         // iterate only the first 4 values of the mediaTypes as there is only four mediaType buttons
         MediaType[] mediaTypes = MediaType.values();
-        for (i = 0; i < mediaTypes.length - 1; i++) {
+        for (int i = 0; i < mediaTypes.length - 1; i++) {
             MediaType mediaType = mediaTypes[i];
             MediaRecord mediaRecord = new MediaRecord(mHymnType, mHymnNo, isFu, mediaType);
 
@@ -1048,6 +1057,10 @@ public class ContentHandler extends FragmentActivity
         return hymnInfo;
     }
 
+    public Integer getHymnNoEng() {
+        return mHymnNoEng;
+    }
+
     /**
      * Use android default browser for all web url access except for 'englishLyrics', avoid reload webPage for
      * englishLyrics if use access to the same english hymn no.
@@ -1065,7 +1078,7 @@ public class ContentHandler extends FragmentActivity
                 break;
             case englishLyrics:
                 String HymnalLink = "https://www.hymnal.net/en/hymn/h/";
-                mWebUrl = (hymnNoEng == null) ? null : HymnalLink + hymnNoEng;
+                mWebUrl = (mHymnNoEng == null) ? null : HymnalLink + mHymnNoEng;
                 break;
             case hymnGoogleSearch:
                 mWebUrl = (mHymnInfo == null) ? null : "https://www.google.com/search?q=" + mHymnInfo;

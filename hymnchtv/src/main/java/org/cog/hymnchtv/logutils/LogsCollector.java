@@ -187,7 +187,7 @@ public class LogsCollector
      * @param filterStartsWith a prefix for the files, can be null if no prefix check should be made.
      * @param out the output archive stream.
      */
-    private static void addCrashFilesToArchive(File files[], String filterStartsWith, ZipOutputStream out)
+    private static void addCrashFilesToArchive(File[] files, String filterStartsWith, ZipOutputStream out)
     {
         // no files to add
         if (files == null)

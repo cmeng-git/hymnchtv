@@ -16,31 +16,10 @@
  */
 package org.cog.hymnchtv;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-
-import androidx.fragment.app.FragmentActivity;
-
-import org.apache.http.util.EncodingUtils;
-import org.apache.http.util.TextUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-
-import timber.log.Timber;
-
 import static org.cog.hymnchtv.ContentView.LYRICS_BBS_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_BB_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_DB_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
-import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_NUMBER;
-import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_TYPE;
 import static org.cog.hymnchtv.MainActivity.ATTR_SEARCH;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
@@ -53,6 +32,26 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
+
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+
+import androidx.fragment.app.FragmentActivity;
+
+import org.apache.http.util.EncodingUtils;
+import org.apache.http.util.TextUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import timber.log.Timber;
 
 /**
  * ContentSearch: search and display the matched results based on uer input text string.
@@ -70,9 +69,6 @@ public class ContentSearch extends FragmentActivity
     /* Length of matched text to display*/
     private static final int RESULT_MAX_LENGTH = 64;
 
-    // Traditional Chinese text files in LYRICS_DB_TEXT, range max per 100 (partial hymn list) i.e. partial only
-    private static final int[] rangeMaxBB = {28, 138, 248, 330, 430, 534, 619, 753, 850, 916, 1006};
-
     /* running matching count number */
     private int mCount = 0;
 
@@ -81,7 +77,6 @@ public class ContentSearch extends FragmentActivity
 
     /* Map array of hymnNo to hymnType pairs that contain the matched text */
     private final Map<Integer, String> mHmynNoType = new LinkedHashMap<>();
-
 
     /**
      * Iterate all the defined hymn categories to search for user defined search string.
@@ -212,78 +207,6 @@ public class ContentSearch extends FragmentActivity
                 hymnNo++;
             }
         }
-
-        // Continue searching causes hymntv to hang due to GC; so block further searching in Traditional Chinese
-        // Background concurrent copying GC freed 31304(10MB) AllocSpace objects, 0(0B) LOS objects, 49% free, 16MB/33MB, paused 43us total 316.862ms
-        boolean searchTraditional = false;
-
-        // === Continue the search with the Traditional Chinese for any miss out items in 大本詩歌 and 補充本詩歌 === //
-        // 大本詩歌: Traditional Chinese text entry search in LYRICS_DB_TEXT
-        if (searchTraditional && mCount < HYMN_COUNT_MAX) {
-            hymnNo = 1;
-            while (hymnNo <= HYMN_DB_NO_TMAX) {
-                fname = LYRICS_DB_TEXT + hymnNo + ".txt";
-                result = getMatchResult(fname, searchString);
-                if (result != null) {
-                    // Skip if it is already found in simplified Chinese search
-                    if (HYMN_DB.equals(mHmynNoType.get(hymnNo))) {
-                        continue;
-                    }
-                    mHymnNo[mCount] = hymnNo;
-                    mHmynNoType.put(hymnNo, HYMN_DB);
-
-                    Map<String, Object> item_db = new HashMap<>();
-                    if (hymnNo > HYMN_DB_NO_MAX) {
-                        temp = hymnNo - HYMN_DB_NO_MAX;
-                        item_db.put("match", getString(R.string.hymn_match_db_sp, temp, result));
-                    }
-                    else {
-                        item_db.put("match", getString(R.string.hymn_match_db, hymnNo, result));
-                    }
-                    data.add(item_db);
-
-                    mCount++;
-                    if (mCount >= HYMN_COUNT_MAX) {
-                        break;
-                    }
-                }
-                hymnNo++;
-            }
-        }
-
-        // 補充本詩歌: Traditional Chinese text entry search in LYRICS_BB_TEXT
-        if (searchTraditional && mCount < HYMN_COUNT_MAX) {
-            hymnNo = 1;
-            while (hymnNo <= HYMN_BB_NO_MAX) {
-                for (int rx = 0; rx < rangeMaxBB.length; rx++) {
-                    if (hymnNo == rangeMaxBB[rx]) {
-                        hymnNo = 100 * (rx + 1) + 1;
-                        break;
-                    }
-                }
-
-                fname = LYRICS_BB_TEXT + hymnNo + ".txt";
-                result = getMatchResult(fname, searchString);
-                if (result != null) {
-                    // Skip if it is already found in simplified Chinese search
-                    if (HYMN_BB.equals(mHmynNoType.get(hymnNo))) {
-                        continue;
-                    }
-                    mHymnNo[mCount] = hymnNo;
-                    mHmynNoType.put(hymnNo, HYMN_BB);
-
-                    Map<String, Object> item_bb = new HashMap<>();
-                    item_bb.put("match", getString(R.string.hymn_match_bb, hymnNo, result));
-                    data.add(item_bb);
-
-                    mCount++;
-                    if (mCount >= HYMN_COUNT_MAX) {
-                        break;
-                    }
-                }
-                hymnNo++;
-            }
-        }
         showResult(data);
     }
 
@@ -314,13 +237,8 @@ public class ContentSearch extends FragmentActivity
         // Show the lyrics of the user picked hymnNo.
         listView.setOnItemClickListener((adapterView, view, pos, id) -> {
             int hymnNo = mHymnNo[pos];
-
-            Intent intent = new Intent(this, ContentHandler.class);
-            Bundle bundle = new Bundle();
-            bundle.putInt(ATTR_HYMN_NUMBER, hymnNo);
-            bundle.putString(ATTR_HYMN_TYPE, mHmynNoType.get(hymnNo));
-            intent.putExtras(bundle);
-            startActivity(intent);
+            String hymnType = mHmynNoType.get(hymnNo);
+            MainActivity.showContent(this, hymnType, hymnNo, false);
         });
     }
 
@@ -335,20 +253,18 @@ public class ContentSearch extends FragmentActivity
     private String getMatchResult(String fName, String sString)
     {
         byte[] buffer;
-        String result = null;
-
         try {
             InputStream inStream = getResources().getAssets().open(fName);
             buffer = new byte[inStream.available()];
             if (inStream.read(buffer) == 0) {
-                return result;
+                return null;
             }
         } catch (IOException e) {
             Timber.w("Content search error: %s", e.getMessage());
-            return result;
+            return null;
         }
 
-        result = EncodingUtils.getString(buffer, "utf-8");
+        String result = EncodingUtils.getString(buffer, "utf-8");
         result = result.substring(4);
 
         int matchIdx = result.indexOf(sString);

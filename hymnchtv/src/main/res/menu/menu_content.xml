@@ -26,6 +26,10 @@
         android:title="@string/gui_lyrics_english" />
 
     <item
+        android:id="@+id/lyrcsEnglishDelete"
+        android:title="@string/gui_lyrics_english_delete" />
+
+    <item
         android:id="@+id/help"
         android:title="@string/help" />
 

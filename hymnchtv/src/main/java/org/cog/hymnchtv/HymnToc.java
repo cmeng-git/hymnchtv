@@ -16,24 +16,6 @@
  */
 package org.cog.hymnchtv;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Range;
-import android.view.KeyEvent;
-import android.widget.ExpandableListAdapter;
-import android.widget.ExpandableListView;
-
-import androidx.fragment.app.FragmentActivity;
-
-import org.apache.http.util.EncodingUtils;
-import org.apache.http.util.TextUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.*;
-
-import timber.log.Timber;
-
 import static org.cog.hymnchtv.ContentHandler.category_bb;
 import static org.cog.hymnchtv.ContentHandler.category_db;
 import static org.cog.hymnchtv.ContentHandler.category_er;
@@ -43,7 +25,6 @@ import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_TOC;
 import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
-import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_TYPE;
 import static org.cog.hymnchtv.MainActivity.ATTR_PAGE;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
@@ -57,6 +38,28 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
+
+import android.os.Bundle;
+import android.util.Range;
+import android.view.KeyEvent;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
+
+import androidx.fragment.app.FragmentActivity;
+
+import org.apache.http.util.EncodingUtils;
+import org.apache.http.util.TextUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+
+import timber.log.Timber;
 
 /**
  * HymnToc: Generate the hymn Toc for the user selected hymnType and Toc Type.
@@ -117,15 +120,14 @@ public class HymnToc extends FragmentActivity
     public static final String TOC_DB = "toc_db";
 
     // The text files use to generate the various toc type for display and selection
-    private static String STROKE_FILE = "_stroke.txt";
-    private static String PINYIN_FILE = "_pinyin.txt";
-    private static String ENGLISH_FILE = "_eng2ch.txt";
+    private static final String STROKE_FILE = "_stroke.txt";
+    private static final String PINYIN_FILE = "_pinyin.txt";
+    private static final String ENGLISH_FILE = "_eng2ch.txt";
 
     // The treeView arrays for display
     private HashMap<String, List<String>> tocListDetail = new LinkedHashMap<>();
 
     private ExpandableListView expandableListView;
-    private ExpandableListAdapter expandableListAdapter;
     private List<String> tocListCategory;
 
     /**
@@ -157,7 +159,7 @@ public class HymnToc extends FragmentActivity
     {
         tocListDetail = getHymnToc(hymnType, tocPage);
         tocListCategory = new ArrayList<>(tocListDetail.keySet());
-        expandableListAdapter = new HymnTocExpandableListAdapter(this, tocListCategory, tocListDetail);
+        ExpandableListAdapter expandableListAdapter = new HymnTocExpandableListAdapter(this, tocListCategory, tocListDetail);
         expandableListView.setAdapter(expandableListAdapter);
 
 //        expandableListView.setOnGroupExpandListener(groupPosition ->
@@ -168,7 +170,7 @@ public class HymnToc extends FragmentActivity
 
         expandableListView.setOnChildClickListener((parent, v, groupPosition, childPosition, id) -> {
             String hymnCategory = tocListCategory.get(groupPosition);
-            String hymnTitle = tocListDetail.get(tocListCategory.get(groupPosition)).get(childPosition);
+            String hymnTitle = tocListDetail.get(hymnCategory).get(childPosition);
 
             if (!TextUtils.isEmpty(hymnTitle)) {
                 onHymnTitleClick(hymnType, hymnTitle);
@@ -187,7 +189,6 @@ public class HymnToc extends FragmentActivity
     private void onHymnTitleClick(String hymnType, String hymnTitle)
     {
         int hymnNo;
-
         int idx = hymnTitle.lastIndexOf("#");
         if (idx != -1) {
             hymnNo = Integer.parseInt(hymnTitle.substring(idx + 1));
@@ -195,13 +196,7 @@ public class HymnToc extends FragmentActivity
         else {
             hymnNo = Integer.parseInt(hymnTitle.split(":")[0]);
         }
-
-        Intent intent = new Intent(this, ContentHandler.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(ATTR_HYMN_TYPE, hymnType);
-        bundle.putInt(ATTR_HYMN_NUMBER, hymnNo);
-        intent.putExtras(bundle);
-        startActivity(intent);
+        MainActivity.showContent(this, hymnType, hymnNo, false);
     }
 
     /**

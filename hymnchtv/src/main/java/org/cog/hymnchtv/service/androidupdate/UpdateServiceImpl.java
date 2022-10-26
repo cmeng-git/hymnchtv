@@ -57,16 +57,16 @@ import timber.log.Timber;
  */
 public class UpdateServiceImpl
 {
-    // Default update link
-    private static final String[] updateLinks = {"https://github.com/cmeng-git/hymnchtv", "https://atalk.sytes.net"};
+    // Default update link; path is case-sensitive.
+    private static final String[] updateLinks = {
+            "https://raw.githubusercontent.com/cmeng-git/hymnchtv/master/hymnchtv/release/versionupdate.properties",
+            "https://atalk.sytes.net/releases/hymnchtv/versionupdate.properties"
+    };
 
     /**
      * Apk mime type constant.
      */
     private static final String APK_MIME_TYPE = "application/vnd.android.package-archive";
-
-    // path is case-sensitive
-    private static final String filePath = "/releases/hymnchtv/versionupdate.properties";
 
     /**
      * Current installed version string / version Code
@@ -432,14 +432,14 @@ public class UpdateServiceImpl
         currentVersion = versionService.getCurrentVersionName();
         currentVersionCode = versionService.getCurrentVersionCode();
 
+        String aLinkPrefix = updateLinks[0];
         if (updateLinks.length == 0) {
             Timber.d("Updates are disabled, emulates latest version.");
         }
         else {
             for (String aLink : updateLinks) {
-                String urlStr = aLink.trim() + filePath;
                 try {
-                    URL mUrl = new URL(urlStr);
+                    URL mUrl = new URL(aLink);
                     HttpURLConnection httpConnection = (HttpURLConnection) mUrl.openConnection();
                     httpConnection.setRequestMethod("GET");
                     httpConnection.setRequestProperty("Content-length", "0");
@@ -454,6 +454,7 @@ public class UpdateServiceImpl
                         InputStream in = httpConnection.getInputStream();
                         mProperties = new Properties();
                         mProperties.load(in);
+                        aLinkPrefix = aLink.substring(0, aLink.lastIndexOf("/") + 1);
                         break;
                     }
                 } catch (IOException e) {
@@ -469,6 +470,9 @@ public class UpdateServiceImpl
                 }
                 else {
                     downloadLink = mProperties.getProperty("download_link");
+                }
+                if (!downloadLink.startsWith("https:")) {
+                    downloadLink = aLinkPrefix + downloadLink;
                 }
                 // return true is current running application is already the latest
                 return (currentVersionCode >= latestVersionCode);

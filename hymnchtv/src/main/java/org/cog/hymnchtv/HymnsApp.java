@@ -19,7 +19,6 @@ package org.cog.hymnchtv;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.app.DownloadManager;
-import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -27,12 +26,10 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.PowerManager;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Toast;
@@ -48,7 +45,6 @@ import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
 import org.cog.hymnchtv.service.androidupdate.OnlineUpdateService;
 import org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl;
-import org.cog.hymnchtv.utils.DialogActivity;
 
 import java.util.List;
 
@@ -68,6 +64,10 @@ public class HymnsApp extends Application implements LifecycleEventObserver
     public static boolean isForeground = false;
 
     private static boolean isUpdateServerStarted = false;
+
+    // Use the clear current toast state so new one can be shown immediately
+    private static Toast toast = null;
+
     /**
      * Static instance holder.
      */
@@ -209,36 +209,6 @@ public class HymnsApp extends Application implements LifecycleEventObserver
     }
 
     /**
-     * Retrieves <tt>AudioManager</tt> instance using application context.
-     *
-     * @return <tt>AudioManager</tt> service instance.
-     */
-    public static AudioManager getAudioManager()
-    {
-        return (AudioManager) getGlobalContext().getSystemService(Context.AUDIO_SERVICE);
-    }
-
-    /**
-     * Retrieves <tt>PowerManager</tt> instance using application context.
-     *
-     * @return <tt>PowerManager</tt> service instance.
-     */
-    public static PowerManager getPowerManager()
-    {
-        return (PowerManager) getGlobalContext().getSystemService(Context.POWER_SERVICE);
-    }
-
-    /**
-     * Retrieves <tt>NotificationManager</tt> instance using application context.
-     *
-     * @return <tt>NotificationManager</tt> service instance.
-     */
-    public static NotificationManager getNotificationManager()
-    {
-        return (NotificationManager) getGlobalContext().getSystemService(Context.NOTIFICATION_SERVICE);
-    }
-
-    /**
      * Retrieves <tt>DownloadManager</tt> instance using application context.
      *
      * @return <tt>DownloadManager</tt> service instance.
@@ -320,25 +290,10 @@ public class HymnsApp extends Application implements LifecycleEventObserver
     }
 
     /**
-     * Returns Android string resource for given <tt>id</tt> and format arguments that will be used for substitution.
-     *
-     * @param aString the string identifier.
-     * @return Android string resource for given <tt>id</tt> and format arguments.
-     */
-    public static String getResStringByName(String aString)
-    {
-        String packageName = mInstance.getPackageName();
-        int resId = mInstance.getResources().getIdentifier(aString, "string", packageName);
-
-        return (resId != 0) ? mInstance.getString(resId) : "";
-    }
-
-    /**
      * Toast show message in UI thread
      *
      * @param message the string message to display.
      */
-    private static Toast toast = null;
     public static void showToastMessage(final String message)
     {
         new Handler(Looper.getMainLooper()).post(() -> {
@@ -357,12 +312,5 @@ public class HymnsApp extends Application implements LifecycleEventObserver
     public static void showToastMessage(int id, Object... arg)
     {
         showToastMessage(mInstance.getString(id, arg));
-    }
-
-    public static void showDialogError(final int id, final Object... arg)
-    {
-        new Handler(Looper.getMainLooper()).post(() -> {
-            DialogActivity.showDialog(mInstance, R.string.gui_error, id, arg);
-        });
     }
 }

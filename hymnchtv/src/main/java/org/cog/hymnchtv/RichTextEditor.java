@@ -62,7 +62,7 @@ public class RichTextEditor extends FragmentActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rich_text_editor);
-        mEditor = (RichEditor) findViewById(R.id.editor);
+        mEditor = findViewById(R.id.editor);
         mEditor.setEditorHeight(200);
         mEditor.setEditorFontSize(15);
         mEditor.setEditorFontColor(Color.DKGRAY);
@@ -74,7 +74,7 @@ public class RichTextEditor extends FragmentActivity
         mEditor.setPlaceholder("Insert text here...");
         //mEditor.setInputEnabled(false);
 
-        mPreview = (TextView) findViewById(R.id.preview);
+        mPreview = findViewById(R.id.preview);
         mEditor.setOnTextChangeListener(text -> {
             hasChanges = true;
             mPreview.setText(text);

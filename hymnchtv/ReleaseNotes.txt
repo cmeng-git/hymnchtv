@@ -1,10 +1,20 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    10/14/2022
-Version:        1.7.6 (107061)
-- MediaConfig: Update listview and keep view item position after a record is deleted..
-- Reset ExoPlayer view height to 0.6 * screenWidth with a background image while in audio playback.
+Upload Date:    10/26/2022
+Version:        2.0.0 (200000)
+- Auto translate Chinese Traditional to Simplify text before content search start.
+- Support Chinese Simplify to Traditional (HK, TW or TWP) conversion in Chinese lyrics display.
+- Support English lyrics display in pager if available, else via external url link (non-secure SSL http blocked by android if access).
+- All user actions to show lyrics will be saved in history record i.e. search, toc, and in MediaConfig contents playback.
+- Update listview content and keep view item position after a record is deleted in MediaConfig UI.
+- Prevent SoftKeyboard being auto show on post media record deletion in MediaConfig
+- Fix incorrect lyrics content display after user exited with Home button (use SingleTask MainActivity instead).
+- Limit ExoPlayer view height to 0.6 * screenWidth with a background image while in audio media playback.
+- Import pre-fetched url record from assets file "url_import.txt", on new installation
+- compress all hymn score png files for single apk generation and reduce final apk from 192MB to 90MB
+- Update toc_bb_stroke file for 附 incorrect hymn numbering
+- Purge all Chinese Traditional lyrics text files
 
 =========================================================================
 Author:         cmeng

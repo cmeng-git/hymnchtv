@@ -17,12 +17,17 @@
 package org.cog.hymnchtv;
 
 import android.app.DownloadManager;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -37,8 +42,9 @@ import org.cog.hymnchtv.utils.ByteFormat;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import timber.log.Timber;
 
@@ -132,8 +138,8 @@ public class MediaDownloadHandler extends Fragment
     /**
      * Call from ContentHandler to fetch the requested media fName from the specified dnLnk
      *
-     * @param dnLnk    the source link for downloading file.
-     * @param dir      the destination dir for the downloaded file.
+     * @param dnLnk the source link for downloading file.
+     * @param dir the destination dir for the downloaded file.
      * @param fileName the downloaded filename.
      */
     public void initHttpFileDownload(String dnLnk, String dir, String fileName)
@@ -380,7 +386,7 @@ public class MediaDownloadHandler extends Fragment
             if (!cursor.moveToFirst())
                 return DownloadManager.STATUS_FAILED;
             else {
-                return cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                return cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
             }
         }
     }
@@ -423,8 +429,8 @@ public class MediaDownloadHandler extends Fragment
         Cursor cursor = downloadManager.query(query);
 
         if (cursor.moveToFirst()) {
-            mFileSize = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
-            long progress = cursor.getLong(cursor.getColumnIndex(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+            mFileSize = cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+            long progress = cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
 
             if (progressBar.isShown()) {
                 fileLabel.setText(getFileLabel(mFileName, mFileSize));
@@ -452,7 +458,7 @@ public class MediaDownloadHandler extends Fragment
      * Calculate a moving average for file download speed with a larger SMOOTHING_FACTOR;
      * so the UI display remaining time is no so jumpy
      *
-     * @param transferredBytes  file size
+     * @param transferredBytes file size
      * @param progressTimestamp time stamp
      */
     private void updateProgress(String fileName, long transferredBytes, long progressTimestamp)

@@ -46,8 +46,8 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
  */
 public class Hymn2SnConvert
 {
-    private static String HYMN_BB_MIDI = "hymn_bb_midi/";
-    private static String HYMN_DB_MIDI = "hymn_db_midi/";
+    private static final String HYMN_BB_MIDI = "hymn_bb_midi/";
+    private static final String HYMN_DB_MIDI = "hymn_db_midi/";
 
     /* Maximum number of lyrics in DB and start of its supplement */
     private static final int HYMN_DB_MAX = 787; // inclusive of supplements
@@ -79,7 +79,7 @@ public class Hymn2SnConvert
 
         int hymnNo;
         int nui;
-        int midiIdx = -1;
+        int midiIdx;
         String resFileName;
 
         // ResId offset for toc range, the first index used for bb and db #1 hymn numbering

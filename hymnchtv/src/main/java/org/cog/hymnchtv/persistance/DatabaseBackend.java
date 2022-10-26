@@ -29,8 +29,11 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.cog.hymnchtv.*;
+import org.cog.hymnchtv.BuildConfig;
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MediaType;
 import org.cog.hymnchtv.hymnhistory.HistoryRecord;
+import org.cog.hymnchtv.mediaconfig.LyricsEnglishRecord;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.mediaconfig.MediaRecord;
 import org.cog.hymnchtv.persistance.migrations.Migrations;
@@ -54,7 +57,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      * Increment DATABASE_VERSION when there is a change in database records
      */
     public static final String DATABASE_NAME = "dbHymnApp.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     private static DatabaseBackend instance = null;
     private final Context mContext;
@@ -122,6 +125,12 @@ public class DatabaseBackend extends SQLiteOpenHelper
             + HistoryRecord.HYMN_TYPE + ", " + HistoryRecord.HYMN_NO + ", " + MediaConfig.HYMN_FU
             + ") ON CONFLICT REPLACE);";
 
+    public static String CREATE_HYMN_ENGLISH = "CREATE TABLE " + LyricsEnglishRecord.TABLE_NAME + " ("
+            + LyricsEnglishRecord.HYMN_NO_ENG + " INTEGER, "
+            + LyricsEnglishRecord.LYRICS_ENG + " TEXT, UNIQUE("
+            + LyricsEnglishRecord.HYMN_NO_ENG
+            + ") ON CONFLICT REPLACE);";
+
     /**
      * Create all the required virgin database tables and perform initial data migration:
      * a. HymnContent Table per HYMN_XXX
@@ -144,6 +153,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
         db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_ER));
 
         db.execSQL(CREATE_HYMN_HISTORY);
+        db.execSQL(CREATE_HYMN_ENGLISH);
 
         // Perform the first data migration to SQLite database
         initDatabase(db);
@@ -377,6 +387,63 @@ public class DatabaseBackend extends SQLiteOpenHelper
         return historyRecords;
     }
 
+    /**
+     * Save the given MediaRecord to the database table mRecord.getHymnType()
+     *
+     * @param hymnNoEng English hymnNo
+     * @param lyrics string containing html lyrics
+     */
+    public long storeLyricsEng(int hymnNoEng, String lyrics)
+    {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(LyricsEnglishRecord.HYMN_NO_ENG, hymnNoEng);
+        values.put(LyricsEnglishRecord.LYRICS_ENG, lyrics);
+
+        long row = db.insert(LyricsEnglishRecord.TABLE_NAME, null, values);
+        if (row == -1) {
+            Timber.e("### Error in saving Url record for hymnNo English: %s", hymnNoEng);
+        }
+        return row;
+    }
+
+    /**
+     * Delete the given HistoryRecord in the database table hymnHistory
+     *
+     * @param hymnNoEng English hymnNo
+     */
+    public int deleteLyricsEng(int hymnNoEng)
+    {
+        SQLiteDatabase db = getWritableDatabase();
+        String[] args = {String.valueOf(hymnNoEng)};
+
+        return db.delete(LyricsEnglishRecord.TABLE_NAME, LyricsEnglishRecord.HYMN_NO_ENG + "=?", args);
+    }
+
+    /**
+     * Fetch a list of the history record from hymnHistory table for user selection
+     *
+     * @param hymnNoEng English hymnNo
+     */
+    public String getLyricsEnglish(int hymnNoEng)
+    {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String lyrics = null;
+
+        String[] columns = {LyricsEnglishRecord.LYRICS_ENG};
+        String[] args = {String.valueOf(hymnNoEng)};
+
+        Cursor cursor = db.query(LyricsEnglishRecord.TABLE_NAME, columns,
+                LyricsEnglishRecord.HYMN_NO_ENG + "=?", args, null, null, null);
+
+        while (cursor.moveToNext()) {
+            lyrics = cursor.getString(0);
+        }
+        cursor.close();
+        return lyrics;
+    }
+
     @Override
     public SQLiteDatabase getWritableDatabase()
     {
@@ -398,10 +465,5 @@ public class DatabaseBackend extends SQLiteOpenHelper
         {
             return HymnsApp.getGlobalContext();
         }
-
-        //        @Override
-        //        public String serializeFlags(List<Flag> flags) {
-        //            return LocalStore.serializeFlags(flags);
-        //        }
     }
 }

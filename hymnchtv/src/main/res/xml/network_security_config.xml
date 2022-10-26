@@ -7,6 +7,7 @@
     </base-config>
 
     <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">witness-lee-hymns.org/</domain>
         <domain includeSubdomains="true">lightinnj.org</domain>
         <domain includeSubdomains="true">cgbr.org</domain>
     </domain-config>

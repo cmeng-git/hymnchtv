@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:text="@string/STD" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupVar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <RadioButton
+            android:id="@+id/radioButtonS2T"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/S2T" />
+
+        <RadioButton
+            android:id="@+id/radioButtonS2HK"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/S2HK" />
+
+        <RadioButton
+            android:id="@+id/radioButtonS2TW"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/S2TW" />
+
+        <RadioButton
+            android:id="@+id/radioButtonS2TWP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/S2TWP" />
+    </RadioGroup>
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <Button
+            android:id="@+id/btnCancel"
+            style="@style/ButtonTop"
+            android:text="@string/gui_cancel"
+            android:textSize="22sp" />
+
+        <Button
+            android:id="@+id/btnOk"
+            style="@style/ButtonTop"
+            android:layout_marginStart="4dp"
+            android:text="@string/gui_ok"
+            android:textSize="22sp" />
+    </LinearLayout>
+</LinearLayout>

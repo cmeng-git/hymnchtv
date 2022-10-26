@@ -1,4 +1,3 @@
 include ':hymnchtv'
-include ':asset_hymnchtv_104000'
 include ':android-youtube-player:core'
 rootProject.name = "hymnchtv"

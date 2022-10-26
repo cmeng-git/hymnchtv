@@ -47,7 +47,6 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_INDEX_MAX;
 public class MyPagerAdapter extends FragmentStateAdapter
 {
     private final String mHymnType;
-    private ContentView mContentView;
 
     // Map array of index to ContentView for correct Content reference during access
     public final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
@@ -87,7 +86,7 @@ public class MyPagerAdapter extends FragmentStateAdapter
         bundle.putString(LYRICS_TYPE, mHymnType);
         bundle.putInt(LYRICS_INDEX, index);
 
-        mContentView = new ContentView();
+        ContentView mContentView = new ContentView();
         // Save a copy of reference content view for local access
         mFragments.put(index, mContentView);
 

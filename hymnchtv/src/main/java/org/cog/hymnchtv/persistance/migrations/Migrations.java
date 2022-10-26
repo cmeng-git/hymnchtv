@@ -26,7 +26,9 @@ public class Migrations
             case 1:
                 MigrationTo2.createHymnHistoryTable(db);
             case 2:
-                // MigrationTo3.createHymnQQTable(db);
+                // Purge and relocate all qq records; access via jiaoChang button for >= v1.7.6 release
+                MigrationTo3.purgeHymnUrl(db);
+                MigrationTo3.createHymnEnglishTable(db);
         }
     }
 }

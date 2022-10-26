@@ -47,7 +47,7 @@ public class AssetFile
         }
     }
 
-    public InputStream getInputStream() throws IOException
+    public InputStream getInputStream()
     {
         try {
             return (assetManager == null) ? null : assetManager.open(path);

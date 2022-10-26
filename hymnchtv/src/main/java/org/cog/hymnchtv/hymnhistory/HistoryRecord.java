@@ -117,7 +117,7 @@ public class HistoryRecord
 
     public String getHymnNoFu()
     {
-        String hymnNo = String.format(Locale.CHINA, "%d", mHymnNo);
+        String hymnNo = Integer.toString(mHymnNo);
         if (mIsFu && mHymnType.equals(HYMN_DB)) {
             hymnNo = "附" + (mHymnNo - HYMN_DB_NO_MAX);
         }

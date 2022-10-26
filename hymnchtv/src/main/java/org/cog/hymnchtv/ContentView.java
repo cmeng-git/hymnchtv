@@ -16,33 +16,49 @@
  */
 package org.cog.hymnchtv;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.*;
-import android.widget.ImageView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-
-import org.cog.hymnchtv.glide.MyGlideApp;
-import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
-import org.cog.hymnchtv.utils.HymnNoCh2EngXRef;
-import org.cog.hymnchtv.utils.ZoomTextView;
-import org.jetbrains.annotations.NotNull;
-
-import java.io.*;
-
-import timber.log.Timber;
-
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.TextUtils;
+import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.ImageView;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.zqc.opencc.android.lib.ChineseConverter;
+import com.zqc.opencc.android.lib.ConversionType;
+
+import org.cog.hymnchtv.glide.MyGlideApp;
+import org.cog.hymnchtv.mediaconfig.LyricsEnglishRecord;
+import org.cog.hymnchtv.utils.ChineseS2TSelection;
+import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
+import org.cog.hymnchtv.utils.ZoomTextView;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import timber.log.Timber;
 
 /**
  * The class displays the hymn lyrics content selected by user;
@@ -52,7 +68,8 @@ import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
  *
  * @author Eng Chong Meng
  */
-public class ContentView extends Fragment implements ZoomTextView.ZoomTextListener
+public class ContentView extends Fragment implements ZoomTextView.ZoomTextListener, View.OnClickListener,
+        View.OnLongClickListener, LyricsEnglishRecord.EnglishLyricsListener
 {
     public static String LYRICS_ER_SCORE = "lyrics_er_score/";
     public static String LYRICS_XB_SCORE = "lyrics_xb_score/";
@@ -64,25 +81,34 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     public static String LYRICS_BBS_TEXT = "lyrics_bbs_text/";
     public static String LYRICS_DBS_TEXT = "lyrics_dbs_text/";
 
-    public static String LYRICS_BB_TEXT = "lyrics_bb_text/";
-    public static String LYRICS_DB_TEXT = "lyrics_db_text/";
-
     public static String LYRICS_TOC = "lyrics_toc/";
 
     public final static String LYRICS_TYPE = "lyricsType";
     public final static String LYRICS_INDEX = "lyricsIndex";
 
+    public static final String EXTR_KEY_HAS_CHANGES = "hasChanges";
+    public static final String PREF_CONVERSION_TYPE = "ConversionType";
+    public static final String PREF_SIMPLIFY = "LyricsSimplify";
     public static final String PREF_LYRICS_SCALE_P = "LyricsScaleP";
     public static final String PREF_LYRICS_SCALE_L = "LyricsScaleL";
 
-    private FragmentActivity mContext;
+    public ContentHandler mContext;
+    private LyricsEnglishRecord mLyricsEnglishRecord;
+    private ConversionType mConversionType = ConversionType.S2T;
 
+    private Button btn_english;
     private View mConvertView;
     private View lyricsView;
-    ZoomTextView lyricsTextView;
+    private ZoomTextView lyricsSimplify;
+    private ZoomTextView lyricsTraditional;
+    private WebView lyricsEnglish;
 
     private ImageView mContentView = null;
-    private Integer hymnNoEng = null;
+    private Integer mHymnNoEng = null;
+
+    private boolean isSimplify;
+    private boolean mLyricsLoaded = false;
+    private boolean hasEnglishLyrics = false;
 
     private static float lyricsScaleP;
     private static float lyricsScaleL;
@@ -97,7 +123,10 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     public void onAttach(@NonNull @NotNull Context context)
     {
         super.onAttach(context);
-        mContext = (FragmentActivity) context;
+        mContext = (ContentHandler) context;
+
+        mLyricsEnglishRecord = LyricsEnglishRecord.getInstanceFor(mContext);
+        mLyricsEnglishRecord.registerLyricsListener(this);
 
         mSharedPref = mContext.getSharedPreferences(PREF_SETTINGS, 0);
         mEditor = mSharedPref.edit();
@@ -109,12 +138,31 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         mConvertView = inflater.inflate(R.layout.content_lyrics, container, false);
         mContentView = mConvertView.findViewById(R.id.contentView);
 
+        Button btn_ts = mConvertView.findViewById(R.id.button_ts);
+        btn_ts.setOnClickListener(this);
+        btn_ts.setOnLongClickListener(this);
+
+        btn_english = mConvertView.findViewById(R.id.button_english);
+        btn_english.setOnClickListener(this);
+        btn_english.setOnLongClickListener(this);
+
         lyricsView = mConvertView.findViewById(R.id.lyricsView);
-        lyricsTextView = mConvertView.findViewById(R.id.contentViewCh_txt);
-        lyricsTextView.registerZoomTextListener(this);
+        lyricsSimplify = mConvertView.findViewById(R.id.lyrics_simplifiy);
+        lyricsSimplify.registerZoomTextListener(this);
+        lyricsTraditional = mConvertView.findViewById(R.id.lyrics_traditional);
+
+        lyricsEnglish = mConvertView.findViewById(R.id.lyrics_english);
 
         lyricsScaleP = mSharedPref.getFloat(PREF_LYRICS_SCALE_P, 1.0f);
         lyricsScaleL = mSharedPref.getFloat(PREF_LYRICS_SCALE_L, 1.0f);
+
+        isSimplify = mSharedPref.getBoolean(PREF_SIMPLIFY, true);
+        mConversionType = ConversionType.valueOf(mSharedPref.getString(PREF_CONVERSION_TYPE, ConversionType.S2T.toString()));
+
+        mLyricsLoaded = false;
+        hasEnglishLyrics = false;
+
+        toggleLyricsView();
 
         Bundle bundle = getArguments();
         if (bundle != null) {
@@ -133,6 +181,10 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     {
         super.onResume();
         registerForContextMenu(lyricsView);
+
+        // get the corresponding English lyrics# or null if none
+        mHymnNoEng = mContext.getHymnNoEng();
+        btn_english.setVisibility((mHymnNoEng != null) ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -152,7 +204,46 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         mContext.getMenuInflater().inflate(R.menu.menu_content, menu);
 
         // Hide "英文歌词" if no associated English lyrics
-        menu.findItem(R.id.lyrcsEnglish).setVisible(hymnNoEng != null);
+        menu.findItem(R.id.lyrcsEnglish).setVisible(mHymnNoEng != null);
+        menu.findItem(R.id.lyrcsEnglishDelete).setVisible(mHymnNoEng != null && hasEnglishLyrics);
+    }
+
+    @Override
+    public void onClick(View v)
+    {
+        switch (v.getId()) {
+            case R.id.button_ts:
+                if (!hasEnglishLyrics) {
+                    isSimplify = !isSimplify;
+                    mEditor.putBoolean(PREF_SIMPLIFY, isSimplify);
+                    mEditor.apply();
+                }
+                else {
+                    hasEnglishLyrics = false;
+                }
+                toggleLyricsView();
+                break;
+
+            case R.id.button_english:
+                hasEnglishLyrics = !hasEnglishLyrics;
+                toggleLyricsView();
+                break;
+        }
+    }
+
+    @Override
+    public boolean onLongClick(View v)
+    {
+        switch (v.getId()) {
+            case R.id.button_ts:
+                mStartForResult.launch(new Intent(mContext, ChineseS2TSelection.class));
+                return true;
+
+            case R.id.button_english:
+                mContext.initWebView(ContentHandler.UrlType.englishLyrics);
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -174,9 +265,6 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
 
         // Chinese lyrics#
         int lyricsNo = hymnScoreInfo[0];
-
-        // get the corresponding English lyrics# or null if none
-        hymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(hymnType, lyricsNo);
 
         switch (hymnType) {
             case HYMN_ER:
@@ -287,7 +375,9 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
                 lyrics.append(line);
                 lyrics.append('\n');
             }
-            lyricsTextView.setText(lyrics);
+            lyricsSimplify.setText(lyrics);
+            lyricsTraditional.setText(ChineseConverter.convert(lyrics.toString(), mConversionType, mContext));
+
         } catch (IOException e) {
             Timber.w("Error reading file: %s", resFName);
         }
@@ -299,23 +389,30 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
      */
     public void setLyricsTextScale()
     {
-        if (HymnsApp.isPortrait)
-            lyricsTextView.scaleTextSize(20, lyricsScaleP);
-        else
-            lyricsTextView.scaleTextSize(35, lyricsScaleL);
+        if (HymnsApp.isPortrait) {
+            lyricsSimplify.scaleTextSize(20, lyricsScaleP);
+            lyricsTraditional.scaleTextSize(20, lyricsScaleP);
+        }
+        else {
+            lyricsSimplify.scaleTextSize(35, lyricsScaleL);
+            lyricsTraditional.scaleTextSize(35, lyricsScaleL);
+        }
     }
 
     /**
      * Increase or decrease the lyrics text scale factor
+     *
      * @param stepInc true if size increment else decrement
      */
     public void setLyricsTextSize(boolean stepInc)
     {
-        lyricsTextView.onTextSizeChange(stepInc);
+        lyricsSimplify.onTextSizeChange(stepInc);
+        lyricsTraditional.onTextSizeChange(stepInc);
     }
 
     /**
      * Save the user selected scale factory to preference settings
+     *
      * @param scaleFactor scale factor
      */
     @Override
@@ -332,4 +429,57 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         mEditor.apply();
     }
 
+    private void toggleLyricsView()
+    {
+        lyricsTraditional.setVisibility(View.GONE);
+        lyricsSimplify.setVisibility(View.GONE);
+        lyricsEnglish.setVisibility(View.GONE);
+
+        if (hasEnglishLyrics) {
+            lyricsEnglish.setVisibility(View.VISIBLE);
+            Timber.d("Lyrics loaded: %s", mLyricsLoaded);
+            if (!mLyricsLoaded) {
+                showLyricsEnglish("<h3>" + getResources().getString(R.string.gui_download_wait) + "</h3>");
+                mLyricsEnglishRecord.fetchLyrics(mHymnNoEng);
+            }
+        }
+        else {
+            if (isSimplify) {
+                lyricsSimplify.setVisibility(View.VISIBLE);
+            }
+            else {
+                lyricsTraditional.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    @Override
+    public void showLyricsEnglish(final String lyrics)
+    {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (lyrics != null) {
+                mLyricsLoaded = true;
+                lyricsEnglish.loadDataWithBaseURL(null, lyrics, "text/html", "utf8", null);
+            }
+            else {
+                lyricsEnglish.loadUrl(LyricsEnglishRecord.HYMNAL_LINK_MAIN + mHymnNoEng);
+            }
+        });
+    }
+
+    /**
+     * standard ActivityResultContract#StartActivityForResult
+     */
+    ActivityResultLauncher<Intent> mStartForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        if (result.getResultCode() == Activity.RESULT_OK) {
+            Intent intent = result.getData();
+            if (intent != null) {
+                boolean hasChanges = intent.getBooleanExtra(EXTR_KEY_HAS_CHANGES, false);
+                if (!isSimplify && hasChanges) {
+                    mConversionType = ConversionType.valueOf(mSharedPref.getString(PREF_CONVERSION_TYPE, ConversionType.S2T.toString()));
+                    toggleLyricsView();
+                }
+            }
+        }
+    });
 }

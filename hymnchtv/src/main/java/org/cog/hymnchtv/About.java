@@ -50,6 +50,7 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
 
     private static final String[][] USED_LIBRARIES = new String[][]{
             new String[]{"Android Support Library", "https://developer.android.com/topic/libraries/support-library/index.html"},
+            new String[]{"android-opencc", "https://github.com/qichuan/android-opencc"},
             new String[]{"android-youtube-player", "https://github.com/PierfrancescoSoffritti/android-youtube-player"},
             new String[]{"annotations-java5", "https://mvnrepository.com/artifact/org.jetbrains/annotations"},
             new String[]{"Apache HttpCore", "https://hc.apache.org/httpcomponents-core-4.4.x/httpcore/dependency-info.html"},
@@ -221,7 +222,7 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
         html.append(getString(R.string.content_help))
                 .append("</p><hr/><p>");
 
-        html.append(String.format(getString(R.string.gui_app_libraries), libs.toString()))
+        html.append(String.format(getString(R.string.gui_app_libraries), libs))
                 .append("</p><hr/><p>");
         html.append("</body></html>");
 

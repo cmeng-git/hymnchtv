@@ -20,7 +20,6 @@ import static org.cog.hymnchtv.ContentHandler.MEDIA_BANZOU;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_CHANGSHI;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_JIAOCHANG;
 import static org.cog.hymnchtv.ContentHandler.MEDIA_MEDIA;
-import static org.cog.hymnchtv.MainActivity.ATTR_AUTO_PLAY;
 import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_TYPE;
 import static org.cog.hymnchtv.MainActivity.ATTR_MEDIA_URI;
@@ -52,6 +51,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.URLUtil;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -68,8 +68,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.FragmentActivity;
 
 import org.apache.http.util.EncodingUtils;
-import org.cog.hymnchtv.ContentHandler;
 import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MainActivity;
 import org.cog.hymnchtv.MediaType;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.RichTextEditor;
@@ -77,6 +77,7 @@ import org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
+import org.cog.hymnchtv.persistance.migrations.MigrationTo3;
 import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNoValidate;
 import org.cog.hymnchtv.utils.TimberLog;
@@ -352,6 +353,18 @@ public class MediaConfig extends FragmentActivity
         mPlayerView.setVisibility(View.GONE);
     }
 
+    /**
+     * Android will automatically assign initial focus to the first EditText or focusable control in your Activity.
+     * It naturally follows that the InputMethod (i.e. the soft keyboard) will respond to the focus event
+     * by showing itself. Disable this effect, else post media deletion will popup the softKeyboard.
+     */
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    }
+
     @Override
     public void onClick(View v)
     {
@@ -439,15 +452,15 @@ public class MediaConfig extends FragmentActivity
     {
         switch (v.getId()) {
             case R.id.button_import:
-                Timber.d("import Media Records from qq_url_import.txt");
-                importMediaRecords("qq_url_import.txt");
+                Timber.d("import Media Records from: %s", MigrationTo3.assetUrlFile);
+                importMediaRecords(MigrationTo3.assetUrlFile);
                 return true;
 
             case R.id.button_NQ:
                 downloadNQRecord(1);
                 return true;
 
-            case R.id.button_db_records:
+            case R.id.button_export:
                 // Generate an text import file for all URL link from database for sharing
                 createExportLink();
                 return true;
@@ -455,42 +468,8 @@ public class MediaConfig extends FragmentActivity
         return false;
     }
 
-//    /**
-//     * TouchListener to support singleTap, doubleTap and longPress for the view for site visit
-//     */
-//    TouchListener touchListener = new TouchListener(HymnsApp.getGlobalContext())
-//    {
-//        @Override
-//        public boolean onSingleTap(View v, int idx)
-//        {
-//            if (v.getId() == R.id.button_NQ) {
-//                downloadNQRecord(1);
-//                return true;
-//            }
-//            return false;
-//        }
-//
-//        @Override
-//        public void onLongPress(View v, int idx)
-//        {
-//            if (v.getId() == R.id.button_NQ) {
-//                downloadNQRecord(0);
-//            }
-//        }
-//
-//        @Override
-//        public boolean onDoubleTap(View v, int idx)
-//        {
-//            if (v.getId() == R.id.button_NQ) {
-//                downloadNQRecord(2);
-//                return true;
-//            }
-//            return false;
-//        }
-//    };
-
     /**
-     * This is activated by user; or automatic from mediaController when the downloaded uri is completed
+     * Start the user selected hymn for playback and show the lyrics content.
      */
     private void startPlayOrActionView()
     {
@@ -511,7 +490,7 @@ public class MediaConfig extends FragmentActivity
                 SharedPreferences.Editor mEditor = mSharedPref.edit();
                 mEditor.putInt(PREF_MEDIA_HYMN, mMediaType.getValue());
                 mEditor.apply();
-                showContent(mHymnType, nui);
+                MainActivity.showContent(this, mHymnType, nui, true);
             }
             else {
                 Intent openIntent = new Intent(Intent.ACTION_VIEW);
@@ -533,25 +512,6 @@ public class MediaConfig extends FragmentActivity
         else {
             HymnsApp.showToastMessage(R.string.gui_error_playback, "url is null or not found!");
         }
-    }
-
-    /**
-     * Save the user selected hymn into the history table
-     * Show the content of user selected hymnType and hymnNo
-     *
-     * @param hymnType lyrics content of the hymnType
-     * @param hymnNo the content of hymnNo to display
-     */
-    private void showContent(String hymnType, int hymnNo)
-    {
-        Intent intent = new Intent(this, ContentHandler.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(ATTR_HYMN_TYPE, hymnType);
-        bundle.putInt(ATTR_HYMN_NUMBER, hymnNo);
-        bundle.putBoolean(ATTR_AUTO_PLAY, true);
-
-        intent.putExtras(bundle);
-        startActivity(intent);
     }
 
     /**
@@ -897,14 +857,14 @@ public class MediaConfig extends FragmentActivity
                                 if (filePath != null) {
                                     File mediaFile = new File(filePath);
                                     if (mediaFile.exists() && !mediaFile.delete()) {
-                                        Timber.w(getString(R.string.gui_delete_media_failed,
-                                                mHymnType, nui));
+                                        Timber.w(getString(R.string.gui_delete_media_failed, mHymnType, nui));
                                     }
                                 }
                             }
-
                             int row = mDB.deleteMediaRecord(mRecord);
-                            HymnsApp.showToastMessage(R.string.gui_delete_media_ok, (row != 0) ? nui : 0);
+                            HymnsApp.showToastMessage((row != 0)
+                                    ? getString(R.string.gui_delete_media_ok, mHymnType, nui)
+                                    : getString(R.string.gui_delete_media_failed, mHymnType, nui));
                             showMediaRecords(mVisibleItem);
                             checkEntry();
                             return true;

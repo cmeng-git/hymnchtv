@@ -24,6 +24,7 @@ import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -54,14 +55,18 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
+import com.zqc.opencc.android.lib.ChineseConverter;
+import com.zqc.opencc.android.lib.ConversionType;
+
 import org.cog.hymnchtv.hymnhistory.HistoryRecord;
 import org.cog.hymnchtv.logutils.LogUploadServiceImpl;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
+import org.cog.hymnchtv.mediaconfig.MediaRecord;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.persistance.PermissionUtils;
-import org.cog.hymnchtv.persistance.migrations.MigrationUrlRecord;
+import org.cog.hymnchtv.persistance.migrations.MigrationTo3;
 import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNoValidate;
 import org.cog.hymnchtv.utils.MySwipeListAdapter;
@@ -186,10 +191,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                     cl.getLogDialog().show();
                 }
             }, 15000));
-
-            // Purge and relocate all qq records; access via jiaoChang button for >= v1.7.6 release
-            MigrationUrlRecord.purgeHymnUrl(mDB.getWritableDatabase());
-            MigrationUrlRecord.importQQRecords(mDB);
+            MigrationTo3.importUrlRecords(mDB);
+            //MigrationTo3.purgeHymnJC(mDB);
         }
 
         // 儿童诗歌
@@ -237,6 +240,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 HymnsApp.showToastMessage(R.string.gui_error_search_empty);
                 return;
             }
+            sValue = ChineseConverter.convert(sValue, ConversionType.T2S, this);
+            tv_Search.setText(sValue);
 
             Intent intent = new Intent();
             intent.setClass(this, ContentSearch.class);
@@ -248,8 +253,12 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
         // replace special hymns character; unable to enter from a standard keyboard.
         btn_search.setOnLongClickListener(v -> {
-            String sValue = tv_Search.getText().toString().replaceAll("他", "祂");
-            tv_Search.setText(sValue);
+            String sValue = tv_Search.getText().toString();
+            if (!TextUtils.isEmpty(sValue)) {
+                sValue = ChineseConverter.convert(sValue, ConversionType.T2S, this);
+                sValue = sValue.replaceAll("他", "祂");
+                tv_Search.setText(sValue);
+            }
             return true;
         });
         handleIntent(getIntent());
@@ -405,7 +414,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             if (nui != -1) {
                 mHymnType = hymnType;
                 mHymnNo = hymnNo;
-                showContent(hymnType, nui);
+                showContent(this, hymnType, nui, false);
             }
             // Only clear the user entry hymnNo if user entry is Fu and HymnType is not HYMN_DB
             else if (isFu && !hymnType.equals(HYMN_DB)) {
@@ -423,25 +432,29 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
     /**
-     * Save the user selected hymn into the history table
+     * Save the user selected hymn into the history table, and
      * Show the content of user selected hymnType and hymnNo
      *
+     * @param ctx Context
      * @param hymnType lyrics content of the hymnType
      * @param hymnNo the content of hymnNo to display
+     * @param autoPlay start media playback if true after the lyrics content is shown
      */
-    private void showContent(String hymnType, int hymnNo)
+    public static void showContent(Context ctx, String hymnType, int hymnNo, boolean autoPlay)
     {
+        // Save the user selection into history record
+        boolean isFu = MediaRecord.isFu(hymnType, hymnNo);
         HistoryRecord historyRecord = new HistoryRecord(hymnType, hymnNo, isFu);
-        mDB.storeHymnHistory(historyRecord);
+        DatabaseBackend.getInstance(ctx).storeHymnHistory(historyRecord);
 
-        Intent intent = new Intent(this, ContentHandler.class);
+        Intent intent = new Intent(ctx, ContentHandler.class);
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_HYMN_TYPE, hymnType);
         bundle.putInt(ATTR_HYMN_NUMBER, hymnNo);
-        bundle.putBoolean(ATTR_AUTO_PLAY, false);
+        bundle.putBoolean(ATTR_AUTO_PLAY, autoPlay);
 
         intent.putExtras(bundle);
-        startActivity(intent);
+        ctx.startActivity(intent);
     }
 
     /**
@@ -774,10 +787,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         mEntry.setHint(R.string.hint_hymn_number_enter);
         mHistoryListView.setVisibility(View.GONE);
 
-        isFu = sRecord.isFu();
         sNumber = sRecord.getHymnNoFu();
         mEntry.setText(sNumber);
-        showContent(sRecord.getHymnType(), sRecord.getHymnNo());
+        isFu = sRecord.isFu();
+        showContent(this, sRecord.getHymnType(), sRecord.getHymnNo(), false);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -1002,7 +1015,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     /**
      * standard ActivityResultContract#StartActivityForResult
-     **/
+     */
     ActivityResultLauncher<Intent> mStartForResult = registerForActivityResult(new StartActivityForResult(), result -> {
         if (result.getResultCode() == Activity.RESULT_OK) {
             Intent intent = result.getData();

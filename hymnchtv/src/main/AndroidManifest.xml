@@ -37,8 +37,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:launchMode="singleInstance">
+            android:launchMode="singleTask">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -86,12 +85,17 @@
         <activity
             android:name=".mediaconfig.MediaConfig"
             android:label="@string/gui_media_config" />
+        <!-- android:windowSoftInputMode="stateAlwaysHidden" #  do this in mediaConfig-->
 
         <activity android:name=".RichTextEditor" />
 
         <activity
             android:name=".utils.WallPaperUtil"
             android:label="@string/wallpaperUser" />
+
+        <activity
+            android:name=".utils.ChineseS2TSelection"
+            android:label="@string/STD" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

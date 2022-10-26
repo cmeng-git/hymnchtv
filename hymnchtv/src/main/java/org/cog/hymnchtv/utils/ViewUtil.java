@@ -7,12 +7,15 @@ package org.cog.hymnchtv.utils;
 
 import android.content.Context;
 import android.os.Handler;
-import android.text.*;
+import android.text.Html;
+import android.text.InputType;
+import android.text.Spanned;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.*;
-
-import org.cog.hymnchtv.HymnsApp;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import timber.log.Timber;
 
@@ -38,10 +41,11 @@ public class ViewUtil
 
         // Change to Spanned for proper display of "\n" or "br/> etc;
         text = text.replace("\n", "<br/>");
-        Spanned msgBody = null;
+        Spanned msgBody;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             msgBody = Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
-        } else {
+        }
+        else {
             msgBody = Html.fromHtml(text);
         }
 
