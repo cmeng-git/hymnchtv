@@ -795,10 +795,13 @@ public class MediaConfig extends FragmentActivity
                 File outFile = new File(subDir, inFile.getName());
 
                 try {
-                    // return false if inFile rename failed && outFile does not exist
+                    // return false if inFile rename and copy failed i.e. outFile does not exist
                     if (!inFile.renameTo(outFile) && !outFile.exists()) {
-                        HymnsApp.showToastMessage(R.string.gui_add_to_db_failed);
-                        isSuccess = false;
+                        FilePathHelper.copy(HymnsApp.getGlobalContext(), Uri.fromFile(inFile), outFile);
+                        if (!outFile.exists()) {
+                            HymnsApp.showToastMessage(R.string.gui_add_to_db_failed);
+                            isSuccess = false;
+                        }
                     }
 
                     filePath = outFile.getAbsolutePath();

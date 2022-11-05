@@ -420,8 +420,10 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     {
         RadioButton rb = group.findViewById(checkedId);
         if (null != rb) {
-            // Must clear mediaHymns on Radio button change; else last fetched media will be used for playback
-            mediaHymns.clear();
+            // Must clear mediaHymns on Radio button change (only if no playing); else last fetched media will be used for playback
+            if (!isPlaying())
+                mediaHymns.clear();
+
             switch (checkedId) {
                 case R.id.btn_media:
                     mMediaType = MediaType.HYMN_MEDIA;

@@ -15,13 +15,6 @@
         android:background="@color/background_light"
         android:spacing="20dp" />
 
-    <FrameLayout
-        android:id="@+id/player_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical" />
-
     <LinearLayout
         android:id="@+id/mediaPlayer"
         android:layout_width="match_parent"

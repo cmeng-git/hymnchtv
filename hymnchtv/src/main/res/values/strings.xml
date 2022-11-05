@@ -108,8 +108,8 @@
     <string name="gui_app_update_check">更新</string>
     <string name="gui_app_update_install">应用程序更新</string>
     <string name="gui_app_update_none">没有应用程序新版本</string>
-    <string name="gui_app_version_current">您当前安装版本编号和代码：\n(%1$s-%2$s) 是最新的</string>
-    <string name="gui_app_version_new_available">可下载新%1$s编号和代码：\n(%2$s-%3$s)</string>
+    <string name="gui_app_version_current">您当前安装版本编号和代码：(%1$s-%2$s) 是最新的。在线可用版本：%3$s。</string>
+    <string name="gui_app_version_new_available">可下载新%1$s编号和代码：\n(%2$s-%3$s)。当前安装的版本：%4$s。</string>
     <string name="gui_app_uninstall">您的版本 v1.2.0 需要先卸载再更新。\n然后从下载目录手动安装:\n%1$s</string>
 
     <string name="gui_download">下载</string>

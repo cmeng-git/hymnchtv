@@ -7,10 +7,6 @@ java -jar ../bundletool.jar build-apks --bundle=./hymnchtv/build/outputs/bundle/
 pushd ~/workspace/android/hymnchtv/hymnchtv/build/outputs/apk/debug || exit
 
 apktool d -f -s hymnchtv-debug2.apks -o ./tmp
-mv ./tmp/unknown/universal.apk hymnchtv-debug.apk
+mv ./tmp/unknown/universal.apk  ~/workspace/android/hymnchtv/hymnchtv/release/hymnchtv-debug.apk
 
 popd || return
-
-
-
-

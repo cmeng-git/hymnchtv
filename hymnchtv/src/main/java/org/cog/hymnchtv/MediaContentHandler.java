@@ -174,37 +174,29 @@ public class MediaContentHandler
     {
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_MEDIA_URL, videoUrl);
-
-        View playerContainer = mContentHandler.findViewById(R.id.player_container);
-        playerContainer.setVisibility(View.VISIBLE);
-        mContentHandler.showPlayerUi(false);
+        mContentHandler.showMediaPlayerUi();
 
         if (videoUrl.matches(URL_YOUTUBE)) {
             mYoutubePlayer = YoutubePlayerFragment.getInstance(bundle);
             mContentHandler.getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.player_container, mYoutubePlayer)
+                    .replace(R.id.mediaPlayer, mYoutubePlayer)
                     .addToBackStack(null)
                     .commit();
         }
         else {
             mExoPlayer = MediaExoPlayerFragment.getInstance(bundle);
             mContentHandler.getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.player_container, mExoPlayer)
+                    .replace(R.id.mediaPlayer, mExoPlayer)
                     .addToBackStack(null)
                     .commit();
         }
     }
 
     /**
-     * Release the exoPlayer resource on end
+     * Release the exoPlayer or youtube player resource on end
      */
     public void releasePlayer()
     {
-        // remove the existing player fragment view
-        Fragment playerView = mContentHandler.getSupportFragmentManager().findFragmentById(R.id.player_container);
-        if (playerView != null)
-            mContentHandler.getSupportFragmentManager().beginTransaction().remove(playerView).commit();
-
         if (mExoPlayer != null) {
             mExoPlayer.releasePlayer();
             mExoPlayer = null;

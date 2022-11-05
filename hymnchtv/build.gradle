@@ -13,8 +13,8 @@ android {
     defaultConfig {
         applicationId "org.cog.hymnchtv"
         // End digit - change to force update with same version number
-        versionCode 200000
-        versionName "2.0.0"
+        versionCode 200010
+        versionName "2.0.1"
 
         minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.compileSdk
@@ -112,7 +112,7 @@ dependencies {
 }
 
 task updateVersionFile(type: Copy) {
-    description '<!-- Generate versionupdate.properties file -->'
+    description '<!-- Generate version.properties file -->'
 
     def versionName = android.defaultConfig.versionName
     def versionCode = android.defaultConfig.versionCode
@@ -126,7 +126,7 @@ task updateVersionFile(type: Copy) {
     outputs.upToDateWhen {
         false
     }
-    from('./versionupdate.properties') {
+    from('./version.properties') {
         // Substitute property tokens in files
         expand(DATE: date, BUILD_VERSION: versionName, BUILD_VERSION_CODE: versionCode)
     }

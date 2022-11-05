@@ -1,6 +1,15 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    11/05/2022
+Version:        2.0.1 (200010)
+- Fix partial lyrics text being partially obscured when youtube or exo player is active; cannot use FrameLayout, switch to use R.id.mediaPlayer as container
+- Copy the user selected media file, if rename of file to destFile failed during mediaConfig new record creation
+- Only perform mediaHymns.clear() if it is not in play state; else user is unable to stop the player.
+- Enhance update service to auto generate the required apk for the BuildConfig.BUILD_TYPE, and check for valid downloadable apk.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    10/26/2022
 Version:        2.0.0 (200000)
 - Auto translate Chinese Traditional to Simplify text before content search start.
