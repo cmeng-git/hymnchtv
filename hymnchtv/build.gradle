@@ -114,6 +114,8 @@ dependencies {
 task updateVersionFile(type: Copy) {
     description '<!-- Generate version.properties file -->'
 
+    // media url record import version
+    def versionImport = 100
     def versionName = android.defaultConfig.versionName
     def versionCode = android.defaultConfig.versionCode
     def date = new Date()
@@ -122,13 +124,14 @@ task updateVersionFile(type: Copy) {
     println "# Date: " + date
     println "# last_version = " + versionName
     println "# last_version_code = " + versionCode
+    println "# version_import = " + versionImport
 
     outputs.upToDateWhen {
         false
     }
     from('./version.properties') {
         // Substitute property tokens in files
-        expand(DATE: date, BUILD_VERSION: versionName, BUILD_VERSION_CODE: versionCode)
+        expand(DATE: date, BUILD_VERSION: versionName, BUILD_VERSION_CODE: versionCode, VERSION_IMPORT: versionImport)
     }
     into 'release'
 }
