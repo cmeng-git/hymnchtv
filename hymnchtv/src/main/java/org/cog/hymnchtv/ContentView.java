@@ -267,14 +267,9 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         int lyricsNo = hymnScoreInfo[0];
 
         switch (hymnType) {
-            case HYMN_ER:
-                resPrefix = LYRICS_ER_SCORE + lyricsNo;
-                resFName = LYRICS_ER_TEXT + "er" + lyricsNo + ".txt";
-                break;
-
-            case HYMN_XB:
-                resPrefix = LYRICS_XB_SCORE + "xb" + lyricsNo;
-                resFName = LYRICS_XB_TEXT + "xb" + lyricsNo + ".txt";
+            case HYMN_DB:
+                resPrefix = LYRICS_DB_SCORE + "db" + lyricsNo;
+                resFName = LYRICS_DBS_TEXT + lyricsNo + ".txt";
                 break;
 
             case HYMN_BB:
@@ -282,9 +277,14 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
                 resFName = LYRICS_BBS_TEXT + lyricsNo + ".txt";
                 break;
 
-            case HYMN_DB:
-                resPrefix = LYRICS_DB_SCORE + "db" + lyricsNo;
-                resFName = LYRICS_DBS_TEXT + lyricsNo + ".txt";
+            case HYMN_XB:
+                resPrefix = LYRICS_XB_SCORE + "xb" + lyricsNo;
+                resFName = LYRICS_XB_TEXT + "xb" + lyricsNo + ".txt";
+                break;
+
+            case HYMN_ER:
+                resPrefix = LYRICS_ER_SCORE + lyricsNo;
+                resFName = LYRICS_ER_TEXT + "er" + lyricsNo + ".txt";
                 break;
 
             default:

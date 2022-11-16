@@ -191,8 +191,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                     cl.getLogDialog().show();
                 }
             }, 15000));
-            MigrationTo3.importUrlRecords(mDB);
             //MigrationTo3.purgeHymnJC(mDB);
+            MigrationTo3.importUrlRecords();
         }
 
         // 儿童诗歌

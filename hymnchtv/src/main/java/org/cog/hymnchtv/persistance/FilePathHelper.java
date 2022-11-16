@@ -104,6 +104,7 @@ public class FilePathHelper
             InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
             if (inputStream == null)
                 return;
+
             OutputStream outputStream = new FileOutputStream(dstFile);
             FileBackend.copy(inputStream, outputStream);
             inputStream.close();

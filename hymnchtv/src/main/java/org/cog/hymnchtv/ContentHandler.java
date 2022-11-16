@@ -36,9 +36,6 @@ import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -125,6 +122,7 @@ public class ContentHandler extends FragmentActivity {
     private Integer mHymnNoEng = null;
     private String mWebUrl = null;
     private String mHymnInfo = null;
+    private String mHymnSearch;
 
     /**
      * 大本诗歌 MP3 file naming is a mess, so attempt to use lyricsPhrase; may not match all the times
@@ -396,10 +394,10 @@ public class ContentHandler extends FragmentActivity {
         mHymnInfo = getHymnInfo();
         mMediaGuiController.initHymnInfo(mHymnInfo, isAvailable);
 
-        // Copy the hymn info to the clipboard
-        ClipboardManager cmgr = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        if (cmgr != null)
-            cmgr.setPrimaryClip(ClipData.newPlainText("Hymn Info", mHymnInfo));
+        // Copy the hymn info to the clipboard - disable as android API-33 have nuisance pop-up notification
+        // ClipboardManager cmgr = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        // if (cmgr != null)
+        //     cmgr.setPrimaryClip(ClipData.newPlainText("Hymn Info", mHymnInfo));
     }
 
     /**
@@ -955,31 +953,31 @@ public class ContentHandler extends FragmentActivity {
      * @return the hymn info for display
      */
     public String getHymnInfo() {
-        String fName = "";
+        String fileName = "";
         String hymnInfo = "";
         String hymnTitle = "";
         Resources res = getResources();
 
         switch (mHymnType) {
-            case HYMN_ER:
-                fName = LYRICS_ER_TEXT + "er" + mHymnNo + ".txt";
-                break;
-
-            case HYMN_XB:
-                fName = LYRICS_XB_TEXT + "xb" + mHymnNo + ".txt";
+            case HYMN_DB:
+                fileName = LYRICS_DBS_TEXT + mHymnNo + ".txt";
                 break;
 
             case HYMN_BB:
-                fName = LYRICS_BBS_TEXT + mHymnNo + ".txt";
+                fileName = LYRICS_BBS_TEXT + mHymnNo + ".txt";
                 break;
 
-            case HYMN_DB:
-                fName = LYRICS_DBS_TEXT + mHymnNo + ".txt";
+            case HYMN_XB:
+                fileName = LYRICS_XB_TEXT + "xb" + mHymnNo + ".txt";
+                break;
+
+            case HYMN_ER:
+                fileName = LYRICS_ER_TEXT + "er" + mHymnNo + ".txt";
                 break;
         }
 
         try {
-            InputStream in2 = getResources().getAssets().open(fName);
+            InputStream in2 = getResources().getAssets().open(fileName);
             byte[] buffer2 = new byte[in2.available()];
             if (in2.read(buffer2) == -1)
                 return hymnInfo;
@@ -1006,33 +1004,33 @@ public class ContentHandler extends FragmentActivity {
             lyricsPhrase = "";
             mList = tmp.split("[，、‘’！：；。？]");
             for (String s : mList) {
-                if (lyricsPhrase.length() < 6)
+                if (lyricsPhrase.length() < 6) {
                     lyricsPhrase += s;
+                }
             }
-
         } catch (Exception e) {
-            Timber.w("Error getting info for hymn %s: %s", fName, e.getMessage());
-            hymnTitle = hymnTitle + HymnsApp.getResString(R.string.gui_error_file_not_found, fName);
+            Timber.w("Error getting info for hymn %s: %s", fileName, e.getMessage());
+            hymnTitle = hymnTitle + HymnsApp.getResString(R.string.gui_error_file_not_found, fileName);
         }
 
+        int resId = -1;
         switch (mHymnType) {
             case HYMN_ER:
-                hymnInfo = res.getString(R.string.hymn_title_mc_er, mHymnNo, hymnTitle);
+                resId = R.string.hymn_title_mc_er;
                 break;
             case HYMN_XB:
-                hymnInfo = res.getString(R.string.hymn_title_mc_xb, mHymnNo, hymnTitle);
+                resId = R.string.hymn_title_mc_xb;
                 break;
             case HYMN_BB:
-                hymnInfo = res.getString(R.string.hymn_title_mc_bb, mHymnNo, hymnTitle);
+                resId = R.string.hymn_title_mc_bb;
                 break;
             case HYMN_DB:
-                if (mHymnNo > HYMN_DB_NO_MAX) {
-                    hymnInfo = res.getString(R.string.hymn_title_mc_dbs, mHymnNo - HYMN_DB_NO_MAX, hymnTitle);
-                } else {
-                    hymnInfo = res.getString(R.string.hymn_title_mc_db, mHymnNo, hymnTitle);
-                }
+                resId = (mHymnNo > HYMN_DB_NO_MAX) ? R.string.hymn_title_mc_dbs : R.string.hymn_title_mc_db;
                 break;
         }
+
+        mHymnSearch = res.getString(resId, mHymnNo, lyricsPhrase);
+        hymnInfo = res.getString(resId, mHymnNo, hymnTitle);
         return hymnInfo;
     }
 
@@ -1059,10 +1057,10 @@ public class ContentHandler extends FragmentActivity {
                 mWebUrl = (mHymnNoEng == null) ? null : HymnalLink + mHymnNoEng;
                 break;
             case hymnGoogleSearch:
-                mWebUrl = (mHymnInfo == null) ? null : "https://www.google.com/search?q=" + mHymnInfo;
+                mWebUrl = (mHymnInfo == null) ? null : "https://www.google.com/search?q=" + mHymnSearch;
                 break;
             case hymnYoutubeSearch:
-                mWebUrl = (mHymnInfo == null) ? null : "https://m.youtube.com/results?search_query=" + mHymnInfo;
+                mWebUrl = (mHymnInfo == null) ? null : "https://m.youtube.com/results?search_query=" + mHymnSearch;
                 break;
             case hymnNotionSearch:
                 mWebUrl = ((url.length < 1) || (url[0] == null)) ? NotionRecord.HYMNCHTV_NOTION : url[0];

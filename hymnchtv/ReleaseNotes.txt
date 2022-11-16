@@ -1,6 +1,17 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    11/16/2022
+Version:        2.0.2 (200020)
+- Add support to auto update the local database media records from online new media import links.
+- Use lyrics phrase in search string to improve content matching hit rate during youtube and web search.
+- History summary text will use lyrics phrase instead for hymn title.
+- Upon a record being updated/deleted, refresh media record list view only if it was visible.
+- Upon MediaRecord save/deletion process, always enable auto file i.e. isAutoFilled = true.
+- Remove auto clipboard search text insertion, android API-33 always pop-up a nuisance notification.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    11/05/2022
 Version:        2.0.1 (200010)
 - Fix partial lyrics text being partially obscured when youtube or exo player is active; cannot use FrameLayout, switch to use R.id.mediaPlayer as container

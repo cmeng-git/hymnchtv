@@ -16,6 +16,8 @@
  */
 package org.cog.hymnchtv.service.androidupdate;
 
+import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
@@ -33,18 +35,24 @@ import android.os.Build;
 import org.cog.hymnchtv.BuildConfig;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.R;
+import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.persistance.PermissionUtils;
 import org.cog.hymnchtv.utils.DialogActivity;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 
 import timber.log.Timber;
@@ -62,11 +70,14 @@ public class UpdateServiceImpl {
             "https://atalk.sytes.net/releases/hymnchtv/version.properties"
     };
 
+    // Url import link file location
+    private static final String urlImport = "https://raw.githubusercontent.com/cmeng-git/hymnchtv/master/hymnchtv/src/main/assets/url_import.txt";
+
     /**
      * Apk mime type constant.
      */
     private static final String APK_MIME_TYPE = "application/vnd.android.package-archive";
-    private static final String fileNameApk = String.format("hymnchtv-%s.apk", BuildConfig.BUILD_TYPE);
+    private static final String fileNameApk = String.format("/hymnchtv-%s.apk", BuildConfig.BUILD_TYPE);
 
     /**
      * The download link for the installed application
@@ -409,7 +420,14 @@ public class UpdateServiceImpl {
                     latestVersion = mProperties.getProperty("last_version");
                     latestVersionCode = Long.parseLong(mProperties.getProperty("last_version_code"));
 
-                    String aLinkPrefix = aLink.substring(0, aLink.lastIndexOf("/") + 1);
+                    try {
+                        int versionUrl = Integer.parseInt(mProperties.getProperty("version_import"));
+                        checkUrlImport(versionUrl);
+                    } catch (NumberFormatException e) {
+                        Timber.e("Url version unavailable: %s", e.getMessage());
+                    }
+
+                    String aLinkPrefix = aLink.substring(0, aLink.lastIndexOf("/"));
                     downloadLink = aLinkPrefix + fileNameApk;
                     if (isValidateLink(downloadLink)) {
                         // return true is current running application is already the latest
@@ -422,9 +440,43 @@ public class UpdateServiceImpl {
                 Timber.w("Could not retrieve version.properties for checking: %s", e.getMessage());
             }
         }
-
-        // return true if all failed.
+        // return true if all failed to force update.
         return true;
+    }
+
+    private void checkUrlImport(int version) {
+        String PREF_VERSION_URL = "VersionUrlImport";
+        Context context = HymnsApp.getGlobalContext();
+
+        SharedPreferences mSharedPref = context.getSharedPreferences(PREF_SETTINGS, 0);
+        int versionUrl = mSharedPref.getInt(PREF_VERSION_URL, 100);
+
+        if ((version > versionUrl) && isValidateLink(urlImport)) {
+            try {
+                // opens input stream from the HTTP connection
+                InputStream inputStream = mHttpConnection.getInputStream();
+
+                // Save a copy in hymn import_export directory for user later access
+                String fileName = String.format("url_import-%s.txt",
+                        new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
+                File file = MediaConfig.createFileIfNotExist(fileName, true);
+                if (file != null) {
+                    FileOutputStream outputStream = new FileOutputStream(file);
+                    FileBackend.copy(inputStream, outputStream);
+                    outputStream.close();
+
+                    inputStream = new FileInputStream(file);
+                    MediaConfig.importUrlRecords(inputStream, false);
+                    inputStream.close();
+
+                    SharedPreferences.Editor mEditor = mSharedPref.edit();
+                    mEditor.putInt(PREF_VERSION_URL, version);
+                    mEditor.apply();
+                }
+            } catch (IOException e) {
+                Timber.e("%s", e.getMessage());
+            }
+        }
     }
 
     /**
@@ -439,6 +491,7 @@ public class UpdateServiceImpl {
             mHttpConnection = (HttpURLConnection) mUrl.openConnection();
             mHttpConnection.setRequestMethod("GET");
             mHttpConnection.setRequestProperty("Content-length", "0");
+            mHttpConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
             mHttpConnection.setUseCaches(false);
             mHttpConnection.setAllowUserInteraction(false);
             mHttpConnection.setConnectTimeout(100000);

@@ -121,8 +121,7 @@ import timber.log.Timber;
  * @author Eng Chong Meng
  */
 public class MediaConfig extends FragmentActivity
-        implements View.OnClickListener, View.OnLongClickListener, AdapterView.OnItemSelectedListener
-{
+        implements View.OnClickListener, View.OnLongClickListener, AdapterView.OnItemSelectedListener {
     // Online text and video playback help contents
     private static final String HYMNCHTV_FAQ_UDC_RECORD = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0070";
     private static final ArrayList<String> videoUrls = new ArrayList<>();
@@ -230,8 +229,7 @@ public class MediaConfig extends FragmentActivity
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.media_config);
         setTitle(R.string.gui_media_config);
@@ -306,8 +304,7 @@ public class MediaConfig extends FragmentActivity
                 tvMediaUri.setText(mediaUri);
                 if (mediaUri.contains("mp.weixin.qq.com") || mediaUri.contains(".notion.site")) {
                     mediaTypeSpinner.setSelection(2);
-                }
-                else if (mediaUri.contains("youtube.com")
+                } else if (mediaUri.contains("youtube.com")
                         || mediaUri.contains("hymnal.net")) {
                     mediaTypeSpinner.setSelection(0);
                 }
@@ -359,15 +356,13 @@ public class MediaConfig extends FragmentActivity
      * by showing itself. Disable this effect, else post media deletion will popup the softKeyboard.
      */
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     @Override
-    public void onClick(View v)
-    {
+    public void onClick(View v) {
         switch (v.getId()) {
             case R.id.help_text:
                 Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -406,8 +401,7 @@ public class MediaConfig extends FragmentActivity
             case R.id.button_Exit:
                 if (mListView.getVisibility() == View.GONE) {
                     checkUnsavedChanges();
-                }
-                else {
+                } else {
                     setTitle(R.string.gui_media_config);
                     mListView.setVisibility(View.GONE);
                 }
@@ -448,8 +442,7 @@ public class MediaConfig extends FragmentActivity
     }
 
     @Override
-    public boolean onLongClick(View v)
-    {
+    public boolean onLongClick(View v) {
         switch (v.getId()) {
             case R.id.button_import:
                 Timber.d("import Media Records from: %s", MigrationTo3.assetUrlFile);
@@ -471,8 +464,7 @@ public class MediaConfig extends FragmentActivity
     /**
      * Start the user selected hymn for playback and show the lyrics content.
      */
-    private void startPlayOrActionView()
-    {
+    private void startPlayOrActionView() {
         String mediaUrl = ViewUtil.toString(tvMediaUri);
 
         if ((mediaUrl != null) && (URLUtil.isValidUrl(mediaUrl) || new File(mediaUrl).exists())) {
@@ -491,8 +483,7 @@ public class MediaConfig extends FragmentActivity
                 mEditor.putInt(PREF_MEDIA_HYMN, mMediaType.getValue());
                 mEditor.apply();
                 MainActivity.showContent(this, mHymnType, nui, true);
-            }
-            else {
+            } else {
                 Intent openIntent = new Intent(Intent.ACTION_VIEW);
                 openIntent.setDataAndType(uri, mimeType);
                 openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -508,8 +499,7 @@ public class MediaConfig extends FragmentActivity
                     // showToastMessage(R.string.service_gui_FILE_OPEN_NO_APPLICATION);
                 }
             }
-        }
-        else {
+        } else {
             HymnsApp.showToastMessage(R.string.gui_error_playback, "url is null or not found!");
         }
     }
@@ -521,21 +511,18 @@ public class MediaConfig extends FragmentActivity
      * @return an instant of ActivityResultLauncher<String>
      * @see ActivityResultCaller
      */
-    private ActivityResultLauncher<String> getFileUri()
-    {
+    private ActivityResultLauncher<String> getFileUri() {
         return registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
             if (uri == null) {
                 HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
-            }
-            else {
+            } else {
                 File inFile = new File(FilePathHelper.getFilePath(this, uri));
                 if (inFile.exists()) {
                     String filename = inFile.getPath();
                     if (mViewRequest == tvImportFile) {
                         filename = copyToLocalFile(filename);
                         editFile(filename);
-                    }
-                    else {
+                    } else {
                         isAutoFilled = false;
                     }
                     mViewRequest.setText(filename);
@@ -552,8 +539,7 @@ public class MediaConfig extends FragmentActivity
      * @param uriPath the uri path returns by File(FilePathHelper.getFilePath(mContext, uri))
      * @return original uri path or newly copied uri path
      */
-    private String copyToLocalFile(String uriPath)
-    {
+    private String copyToLocalFile(String uriPath) {
         if (uriPath.contains(FileBackend.TMP)) {
             File inFile = new File(uriPath);
 
@@ -575,16 +561,14 @@ public class MediaConfig extends FragmentActivity
 
     // ================= User entry events ================
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-    {
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (parent == hymnTypeSpinner) {
             mHymnType = hymnTypeValue.get(position);
             sHymnType = hymnTypeEntry.get(position);
             if (mListView.getVisibility() == View.VISIBLE) {
                 showMediaRecords(-1);
             }
-        }
-        else if (parent == mediaTypeSpinner) {
+        } else if (parent == mediaTypeSpinner) {
             mMediaType = mediaTypeValue.get(position);
             sMediaType = mediaTypeEntry.get(position);
         }
@@ -592,45 +576,37 @@ public class MediaConfig extends FragmentActivity
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent)
-    {
+    public void onNothingSelected(AdapterView<?> parent) {
     }
 
     private final View.OnFocusChangeListener focusListener = (v, hasFocus) -> {
         if (hasFocus) {
             mFocusedView = v;
-        }
-        else {
+        } else {
             mFocusedView = null;
         }
     };
 
-    private class MyTextWatcher implements TextWatcher
-    {
+    private class MyTextWatcher implements TextWatcher {
         private final EditText mEditText;
 
-        public MyTextWatcher(EditText editText)
-        {
+        public MyTextWatcher(EditText editText) {
             mEditText = editText;
         }
 
-        public void beforeTextChanged(CharSequence s, int start, int count, int after)
-        {
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
 
-        public void onTextChanged(CharSequence s, int start, int before, int count)
-        {
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
             if (tvMediaUri.equals(mEditText) && tvMediaUri.equals(mFocusedView)) {
                 Timber.d("AutoFilled set to false");
                 isAutoFilled = false;
-            }
-            else if (tvHymnNo.equals(mEditText) && tvHymnNo.equals(mFocusedView)) {
+            } else if (tvHymnNo.equals(mEditText) && tvHymnNo.equals(mFocusedView)) {
                 checkEntry();
             }
         }
 
-        public void afterTextChanged(Editable s)
-        {
+        public void afterTextChanged(Editable s) {
             hasChanges = true;
         }
     }
@@ -640,21 +616,18 @@ public class MediaConfig extends FragmentActivity
     /**
      * check for any unsaved changes and alert user before the exit.
      */
-    private void checkUnsavedChanges()
-    {
+    private void checkUnsavedChanges() {
         if (hasChanges && !isAutoFilled) {
             DialogActivity.showConfirmDialog(this,
                     R.string.gui_to_be_added,
                     R.string.gui_unsaved_changes,
-                    R.string.gui_add, new DialogActivity.DialogListener()
-                    {
+                    R.string.gui_add, new DialogActivity.DialogListener() {
                         /**
                          * Fired when user clicks the dialog's the confirm button.
                          *
                          * @param dialog source <tt>DialogActivity</tt>.
                          */
-                        public boolean onConfirmClicked(DialogActivity dialog)
-                        {
+                        public boolean onConfirmClicked(DialogActivity dialog) {
                             return cmdAdd.performClick();
                         }
 
@@ -663,13 +636,11 @@ public class MediaConfig extends FragmentActivity
                          *
                          * @param dialog source <tt>DialogActivity</tt>
                          */
-                        public void onDialogCancelled(DialogActivity dialog)
-                        {
+                        public void onDialogCancelled(DialogActivity dialog) {
                             finish();
                         }
                     });
-        }
-        else {
+        } else {
             finish();
         }
     }
@@ -681,8 +652,7 @@ public class MediaConfig extends FragmentActivity
      *
      * @return true if update is successful
      */
-    private boolean updateMediaRecord()
-    {
+    private boolean updateMediaRecord() {
         final MediaRecord mRecord = createMediaRecord();
         if (mRecord != null) {
             if (!checkMediaAvailable(mRecord)) {
@@ -693,15 +663,13 @@ public class MediaConfig extends FragmentActivity
                 DialogActivity.showConfirmDialog(this,
                         R.string.gui_to_be_added,
                         R.string.gui_db_overwrite_media,
-                        R.string.gui_overwrite, new DialogActivity.DialogListener()
-                        {
+                        R.string.gui_overwrite, new DialogActivity.DialogListener() {
                             /**
                              * Fired when user clicks the dialog's confirm button.
                              *
                              * @param dialog source <tt>DialogActivity</tt>.
                              */
-                            public boolean onConfirmClicked(DialogActivity dialog)
-                            {
+                            public boolean onConfirmClicked(DialogActivity dialog) {
                                 return saveMediaRecord(mRecord);
                             }
 
@@ -710,20 +678,17 @@ public class MediaConfig extends FragmentActivity
                              *
                              * @param dialog source <tt>DialogActivity</tt>
                              */
-                            public void onDialogCancelled(DialogActivity dialog)
-                            {
+                            public void onDialogCancelled(DialogActivity dialog) {
                             }
                         });
-            }
-            else {
+            } else {
                 return saveMediaRecord(mRecord);
             }
         }
         return false;
     }
 
-    private boolean checkMediaAvailable(MediaRecord mRecord)
-    {
+    private boolean checkMediaAvailable(MediaRecord mRecord) {
         String mediaFile;
         if (mRecord != null) {
             if (!TextUtils.isEmpty(mediaFile = mRecord.getMediaFilePath())) {
@@ -743,8 +708,7 @@ public class MediaConfig extends FragmentActivity
      *
      * @return return the newly created mediaRecord, null otherwise
      */
-    private MediaRecord createMediaRecord()
-    {
+    private MediaRecord createMediaRecord() {
         MediaRecord mediaRecord;
         String uriPath = ViewUtil.toString(tvMediaUri);
 
@@ -778,8 +742,7 @@ public class MediaConfig extends FragmentActivity
      *
      * @return true is successfully
      */
-    private boolean saveMediaRecord(MediaRecord mRecord)
-    {
+    private boolean saveMediaRecord(MediaRecord mRecord) {
         String filePath = mRecord.getMediaFilePath();
         boolean isSuccess = true;
 
@@ -817,8 +780,11 @@ public class MediaConfig extends FragmentActivity
         if (isSuccess) {
             mDB.storeMediaRecord(mRecord);
             HymnsApp.showToastMessage(R.string.gui_add_to_db);
-        }
-        else {
+            if (mListView.getVisibility() == View.VISIBLE) {
+                showMediaRecords(mVisibleItem);
+            }
+            isAutoFilled = true;
+        } else {
             HymnsApp.showToastMessage(R.string.gui_add_to_db_failed);
         }
         return isSuccess;
@@ -828,8 +794,7 @@ public class MediaConfig extends FragmentActivity
      * Delete user selected media record on user confirmation.
      * User must manually deleted the old media record if user changes uri to point to another HymnType
      */
-    private void deleteMediaRecord()
-    {
+    private void deleteMediaRecord() {
         String hymnNo = ViewUtil.toString(tvHymnNo);
         if (hymnNo == null) {
             HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
@@ -846,11 +811,9 @@ public class MediaConfig extends FragmentActivity
 
             // Displays the media record and content delete dialog and waits for user confirmation
             DialogActivity.showCustomDialog(this, title, MediaRecordDeleteFragment.class.getName(),
-                    args, getString(R.string.gui_delete), new DialogActivity.DialogListener()
-                    {
+                    args, getString(R.string.gui_delete), new DialogActivity.DialogListener() {
                         @Override
-                        public boolean onConfirmClicked(DialogActivity dialog)
-                        {
+                        public boolean onConfirmClicked(DialogActivity dialog) {
                             MediaRecord mRecord = new MediaRecord(mHymnType, nui, isFu, mMediaType);
                             CheckBox cbMediaDelete = dialog.findViewById(R.id.cb_media_delete);
 
@@ -868,14 +831,17 @@ public class MediaConfig extends FragmentActivity
                             HymnsApp.showToastMessage((row != 0)
                                     ? getString(R.string.gui_delete_media_ok, mHymnType, nui)
                                     : getString(R.string.gui_delete_media_failed, mHymnType, nui));
-                            showMediaRecords(mVisibleItem);
+
+                            if (mListView.getVisibility() == View.VISIBLE) {
+                                showMediaRecords(mVisibleItem);
+                            }
+                            isAutoFilled = true;
                             checkEntry();
                             return true;
                         }
 
                         @Override
-                        public void onDialogCancelled(DialogActivity dialog)
-                        {
+                        public void onDialogCancelled(DialogActivity dialog) {
                         }
                     }, null);
         }
@@ -884,8 +850,7 @@ public class MediaConfig extends FragmentActivity
     /**
      * check for any unsaved changes and alert user before the exit.
      */
-    private void shareMediaRecord()
-    {
+    private void shareMediaRecord() {
         ArrayList<Uri> imageUris = new ArrayList<>();
         String importFile = ViewUtil.toString(tvImportFile);
 
@@ -902,8 +867,7 @@ public class MediaConfig extends FragmentActivity
                 File mFile = new File(mediaFile);
                 if (mFile.exists()) {
                     imageUris.add(FileBackend.getUriForFile(this, new File(mediaFile)));
-                }
-                else {
+                } else {
                     HymnsApp.showToastMessage(R.string.gui_share_file_missing,
                             mediaFile.substring(mediaFile.indexOf("Download")));
                 }
@@ -915,13 +879,11 @@ public class MediaConfig extends FragmentActivity
     /**
      * Decode the url path so that it is user readable i.e. convert all %xx to actual text
      */
-    private void uriDecode()
-    {
+    private void uriDecode() {
         if (tvMediaUri.getVisibility() == View.GONE) {
             tvMediaUri.setVisibility(View.VISIBLE);
             tvUriDecode.setVisibility(View.GONE);
-        }
-        else {
+        } else {
             String mediaUri = ViewUtil.toString(tvMediaUri);
             if (mediaUri != null) {
                 tvMediaUri.setVisibility(View.GONE);
@@ -940,8 +902,7 @@ public class MediaConfig extends FragmentActivity
      *
      * @param fileName the import_export file name
      */
-    private void editFile(String fileName)
-    {
+    private void editFile(String fileName) {
         if (fileName != null) {
             Intent intent = new Intent(this, RichTextEditor.class);
             Bundle bundle = new Bundle();
@@ -954,8 +915,7 @@ public class MediaConfig extends FragmentActivity
     /**
      * Check any saved entry in DB based on user input. Show the DB content if found
      */
-    private void checkEntry()
-    {
+    private void checkEntry() {
         if (!isAutoFilled) {
             Timber.d("AutoFilled is false");
             return;
@@ -1000,29 +960,23 @@ public class MediaConfig extends FragmentActivity
      *
      * @param mode flag for either Notion (1 / 2) or QQ (0) site hymn link records fetch
      */
-    private void downloadNQRecord(final int mode)
-    {
+    private void downloadNQRecord(final int mode) {
         DialogActivity.showConfirmDialog(this,
                 R.string.gui_nq_download,
                 R.string.gui_nq_download_proceed,
-                R.string.gui_download, new DialogActivity.DialogListener()
-                {
-                    public boolean onConfirmClicked(DialogActivity dialog)
-                    {
+                R.string.gui_download, new DialogActivity.DialogListener() {
+                    public boolean onConfirmClicked(DialogActivity dialog) {
                         if (mode == 0) {
                             QQRecord.fetchQQLinks(MediaConfig.this);
-                        }
-                        else if (mode == 1) {
+                        } else if (mode == 1) {
                             NotionRecord.fetchNotionLinks(MediaConfig.this);
-                        }
-                        else if (mode == 2) {
+                        } else if (mode == 2) {
                             NotionRecordScrape.fetchNotionLinks(MediaConfig.this);
                         }
                         return true;
                     }
 
-                    public void onDialogCancelled(DialogActivity dialog)
-                    {
+                    public void onDialogCancelled(DialogActivity dialog) {
                     }
                 }, (mode != 0) ? "Notion" : "QQ");
     }
@@ -1030,33 +984,46 @@ public class MediaConfig extends FragmentActivity
     /**
      * Import the media records into the database based on import file info
      */
-    private void importMediaRecords(String assetFile)
-    {
+    private void importMediaRecords(String assetFile) {
         String importFile = ViewUtil.toString(tvImportFile);
         if (importFile == null && assetFile == null) {
             HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
             return;
         }
 
+        try {
+            InputStream inputStream;
+            if (importFile != null) {
+                inputStream = new FileInputStream(importFile);
+            } else {
+                inputStream = HymnsApp.getGlobalContext().getResources().getAssets().open(assetFile);
+            }
+            boolean isOverWrite = cbOverwrite.isChecked();
+            importUrlRecords(inputStream, isOverWrite);
+            inputStream.close();
+        } catch (IOException e) {
+            Timber.w("Input file not accessible: %s", e.getMessage());
+        }
+    }
+
+    /**
+     * Import the url records into the database form the given inputStream
+     */
+    public static void importUrlRecords(InputStream inputStream, boolean isOverWrite) {
         HymnsApp.showToastMessage(R.string.gui_db_import_start);
         int record = 0;
-        InputStream in2;
+
         try {
-            if (importFile != null) {
-                in2 = new FileInputStream(importFile);
-            }
-            else {
-                in2 = HymnsApp.getGlobalContext().getResources().getAssets().open(assetFile);
-            }
-
-            byte[] buffer2 = new byte[in2.available()];
-            if (in2.read(buffer2) == -1)
+            byte[] buffer2 = new byte[inputStream.available()];
+            if (inputStream.read(buffer2) == -1) {
                 return;
+            }
 
-            boolean isOverWrite = cbOverwrite.isChecked(); //|| (assetFile != null);
             String mResult = EncodingUtils.getString(buffer2, "utf-8");
             String[] mList = mResult.split("\r\n|\n");
+            // Timber.d("No of Records: %s", mList.length);
 
+            DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
             for (String mRecord : mList) {
                 MediaRecord mediaRecord = MediaRecord.toRecord(mRecord);
                 if (mediaRecord == null)
@@ -1073,7 +1040,7 @@ public class MediaConfig extends FragmentActivity
                     Timber.d("Import media record: %s; %s(%s); %s", nui, hymnNo, record, mRecord);
             }
         } catch (IOException e) {
-            Timber.w("Content toc not available: %s", e.getMessage());
+            Timber.w("Import file read error: %s", e.getMessage());
         }
         HymnsApp.showToastMessage(R.string.gui_db_import_record, record);
     }
@@ -1082,13 +1049,12 @@ public class MediaConfig extends FragmentActivity
      * Export the media records in database for all the HymnType and
      * filename tagged with timeStamp e.g hymnsAll-20201212_092033
      */
-    private void createExportFile()
-    {
+    private void createExportFile() {
         String fileName = String.format("hymnsAll-%s.txt",
                 new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
 
         File exportFile = createFileIfNotExist(fileName, true);
-        if (exportFile != null && exportFile.exists()) {
+        if (exportFile != null) {
             int recordSize = 0;
             FileWriter fileWriter;
             try {
@@ -1110,8 +1076,7 @@ public class MediaConfig extends FragmentActivity
                     HymnsApp.showToastMessage(R.string.hymn_match, recordSize);
                     tvImportFile.setText(exportFile.getPath());
                     editFile(exportFile.getPath());
-                }
-                else {
+                } else {
                     HymnsApp.showToastMessage(R.string.hymn_match_none);
                 }
             } catch (IOException e) {
@@ -1124,13 +1089,12 @@ public class MediaConfig extends FragmentActivity
      * Export the media records in database for the current selected mHymnType and
      * filename tagged with timeStamp e.g hymn_db-20201212_092033
      */
-    private void createExportLink()
-    {
+    private void createExportLink() {
         String fileName = String.format("hymnsLink-%s.txt",
                 new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
 
         File exportFile = createFileIfNotExist(fileName, true);
-        if (exportFile != null && exportFile.exists()) {
+        if (exportFile != null) {
             int recordSize = 0;
             FileWriter fileWriter;
             try {
@@ -1152,8 +1116,7 @@ public class MediaConfig extends FragmentActivity
                     HymnsApp.showToastMessage(R.string.hymn_match, recordSize);
                     tvImportFile.setText(exportFile.getPath());
                     editFile(exportFile.getPath());
-                }
-                else {
+                } else {
                     HymnsApp.showToastMessage(R.string.hymn_match_none);
                 }
             } catch (IOException e) {
@@ -1171,14 +1134,13 @@ public class MediaConfig extends FragmentActivity
      * <p>
      * Export filename tagged with timeStamp e.g hymn_db-20201212_092033
      */
-    private void createAutoImportFile()
-    {
+    private void createAutoImportFile() {
         String mediaRecord;
         String fileName = String.format("%s-%s.txt", mHymnType,
                 new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
 
         File importFile = createFileIfNotExist(fileName, true);
-        if (importFile != null && importFile.exists()) {
+        if (importFile != null) {
             File srcPath = FileBackend.getHymnchtvStore(mHymnType + mediaDir.get(mMediaType), false);
             if ((srcPath != null) && srcPath.isDirectory()) {
                 File[] files = srcPath.listFiles();
@@ -1211,12 +1173,10 @@ public class MediaConfig extends FragmentActivity
                     } catch (IOException e) {
                         Timber.e("Create Import File exception: %s", e.getMessage());
                     }
-                }
-                else {
+                } else {
                     HymnsApp.showToastMessage(R.string.hymn_match_none);
                 }
-            }
-            else {
+            } else {
                 HymnsApp.showToastMessage(R.string.hymn_match_none);
             }
         }
@@ -1227,10 +1187,10 @@ public class MediaConfig extends FragmentActivity
      * if createNew is true; else just return the filePath
      *
      * @param fileName of the created file
+     * @param createNew true to create if not exist; return null on failure
      * @return File path of the new file or null if failed
      */
-    private File createFileIfNotExist(String fileName, boolean createNew)
-    {
+    public static File createFileIfNotExist(String fileName, boolean createNew) {
         File subDir = FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true);
         if (subDir == null) {
             HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
@@ -1238,12 +1198,16 @@ public class MediaConfig extends FragmentActivity
         }
 
         File filePath = TextUtils.isEmpty(fileName) ? subDir : new File(subDir, fileName);
-        try {
-            if (createNew && (filePath.exists() || filePath.createNewFile())) {
-                return filePath;
+        if (createNew) {
+            try {
+                if (filePath.exists() || filePath.createNewFile()) {
+                    return filePath;
+                } else {
+                    return null;
+                }
+            } catch (IOException e) {
+                Timber.e("Failed to create media export file: %s", e.getMessage());
             }
-        } catch (IOException e) {
-            Timber.e("Failed to create media export file: %s", e.getMessage());
         }
         return filePath;
     }
@@ -1252,8 +1216,7 @@ public class MediaConfig extends FragmentActivity
      * Show all the DB media records in the DB based on user selected HymnType
      */
     @SuppressLint("ClickableViewAccessibility")
-    private void showMediaRecords(int scrollPos)
-    {
+    private void showMediaRecords(int scrollPos) {
         List<MediaRecord> mediaRecords = mDB.getMediaRecords(mHymnType);
         if (mediaRecords.isEmpty()) {
             HymnsApp.showToastMessage(R.string.hymn_match_none);
@@ -1311,10 +1274,16 @@ public class MediaConfig extends FragmentActivity
                 }
             }
         });
+
+        // Force entry update when longPress a list item
+        mListView.setOnItemLongClickListener((adapterView, view, position, id) -> {
+            isAutoFilled = true;
+            mListView.performItemClick(view, position, id);
+            return true;
+        });
     }
 
-    private void setHymnTypeSpinner(String hymnType)
-    {
+    private void setHymnTypeSpinner(String hymnType) {
         for (int i = 0; i < hymnTypeValue.size(); i++) {
             if (hymnTypeValue.get(i).equals(hymnType)) {
                 hymnTypeSpinner.setSelection(i);
@@ -1323,14 +1292,12 @@ public class MediaConfig extends FragmentActivity
         }
     }
 
-    public boolean onKeyDown(int keyCode, KeyEvent event)
-    {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (mPlayerView.getVisibility() == View.VISIBLE) {
                 releasePlayer();
                 mPlayerView.setVisibility(View.GONE);
-            }
-            else {
+            } else {
                 finish();
             }
             return true;
@@ -1341,8 +1308,7 @@ public class MediaConfig extends FragmentActivity
     /**
      * Use for playing the help video content only
      */
-    private void playVideoHelp()
-    {
+    private void playVideoHelp() {
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_MEDIA_URL, null);
         bundle.putStringArrayList(ATTR_MEDIA_URLS, videoUrls);
@@ -1355,8 +1321,7 @@ public class MediaConfig extends FragmentActivity
                 .commit();
     }
 
-    private void releasePlayer()
-    {
+    private void releasePlayer() {
         if (mExoPlayer != null) {
             mExoPlayer.releasePlayer();
         }

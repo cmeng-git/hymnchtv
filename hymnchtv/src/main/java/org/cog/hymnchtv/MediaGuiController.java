@@ -508,57 +508,6 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         return false;
     }
 
-//    /**
-//     * TouchListener to support singleTap, doubleTap and longPress for the view for site visit
-//     */
-//    TouchListener touchListener = new TouchListener(mContentHandler)
-//    {
-//        @Override
-//        public boolean onSingleTap(View v, int idx)
-//        {
-//            switch (v.getId()) {
-//                case R.id.btn_hymnSearch:
-//                    QQRecord mRecord = new QQRecord(mContentHandler.mSelect, mContentHandler.hymnNo);
-//                    String url = mContentHandler.mDB.getHymnUrl(mRecord);
-//                    if (url == null || url.contains(".notion.site") || !HYMN_DB.equals(mContentHandler.mSelect)) {
-//                        mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch, url);
-//                    }
-//                    else {
-//                        mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch);
-//                    }
-//                    break;
-//
-//                case R.id.btn_jiaochang:
-//                    if (!mContentHandler.isHFAvailable && !isJiaoChangAvailable)
-//                        mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
-//                    else
-//                        mBtnJiaoChang.performClick();
-//                    break;
-//            }
-//            return true;
-//        }
-//
-//        @Override
-//        public void onLongPress(View v, int idx)
-//        {
-//            switch (v.getId()) {
-//                case R.id.btn_hymnSearch:
-//                case R.id.btn_jiaochang:
-//                    mContentHandler.initWebView(ContentHandler.UrlType.hymnYoutubeSearch);
-//                    break;
-//            }
-//        }
-//
-//        @Override
-//        public boolean onDoubleTap(View v, int idx)
-//        {
-//            if (v.getId() == R.id.btn_hymnSearch) {
-//                mContentHandler.initWebView(ContentHandler.UrlType.hymnGoogleSearch);
-//            }
-//            return true;
-//        }
-//    };
-
     /**
      * Initialize the broadcast receiver for the media player (uri).
      * Keep the active bc receiver instance in bcRegisters list to ensure only one bc is registered

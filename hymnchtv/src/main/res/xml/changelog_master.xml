@@ -6,12 +6,20 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="2.0.2 (11/16/2022)" versioncode="200020">
+        <change>添加支持从在线新媒体导入链接，自动更新本地数据库媒体记录。</change>
+        <change>在搜索字符串中使用歌词短语来提高 youtube 和网络搜索期间的内容匹配命中率。</change>
+        <change>历史摘要文本将使用歌词短语代替诗歌标题。</change>
+        <change>删除自动剪贴板搜索文本插入，安卓系统 API-33 总是弹出一个令人讨厌的通知。</change>
+        <change>更新/删除记录后，仅在已显示状况下，刷新媒体记录列表视图。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+    </release>
+
     <release version="2.0.1 (11/05/2022)" versioncode="200010">
         <change>修复当媒体播放器处于活动状态时，部分歌词文本被部分遮挡的问题。</change>
         <change>如果在媒体配置中新记录创建期间文件重命名失败，则复制用户选择的媒体文件。</change>
         <change>仅当媒体类型更改时未处于播放状态时才清除当前播放列表；否则用户无法停止播放器。</change>
         <change>增强更新服务以自动生成所需的应用程序文件名，并检查其有效性以供下载。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
     </release>
 
     <release version="2.0.0 (10/26/2022)" versioncode="200000">

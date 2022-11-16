@@ -21,21 +21,18 @@ import java.io.InputStream;
 
 import timber.log.Timber;
 
-public class MigrationTo3
-{
+public class MigrationTo3 {
     public static final String assetUrlFile = "url_import.txt";
 
 
     // Create the table for lyrics English support
-    public static void createHymnEnglishTable(SQLiteDatabase db)
-    {
+    public static void createHymnEnglishTable(SQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS " + LyricsEnglishRecord.TABLE_NAME);
         db.execSQL(CREATE_HYMN_ENGLISH);
     }
 
     // Purge the table old HYMN_URL record
-    public static void purgeHymnUrl(SQLiteDatabase db)
-    {
+    public static void purgeHymnUrl(SQLiteDatabase db) {
         String[] hymnTypes = new String[]{MainActivity.HYMN_DB, MainActivity.HYMN_BB, MainActivity.HYMN_XB, MainActivity.HYMN_ER};
         for (String hymnType : hymnTypes) {
             String[] args = new String[]{"HYMN_URL"};
@@ -45,8 +42,7 @@ public class MigrationTo3
     }
 
     // Create the table for hymn history support
-    public static void purgeHymnJC(DatabaseBackend mdb)
-    {
+    public static void purgeHymnJC(DatabaseBackend mdb) {
         String[] hymnTypes = new String[]{MainActivity.HYMN_XB, MainActivity.HYMN_ER};
         SQLiteDatabase db = mdb.getWritableDatabase();
 
@@ -59,41 +55,14 @@ public class MigrationTo3
     }
 
     /**
-     * Import the QQ media records into the database based on asset file info
+     * Import the media records into the database based on asset file info
      */
-    public static void importUrlRecords(DatabaseBackend mDB)
-    {
-        boolean isOverWrite = false;
-
-        HymnsApp.showToastMessage(R.string.gui_db_import_start);
-        int record = 0;
+    public static void importUrlRecords() {
         try {
-            InputStream ins = HymnsApp.getGlobalContext().getResources().getAssets().open(assetUrlFile);
-            byte[] buffer2 = new byte[ins.available()];
-            if (ins.read(buffer2) == -1)
-                return;
-
-            String mResult = EncodingUtils.getString(buffer2, "utf-8");
-            String[] mList = mResult.split("\r\n|\n");
-
-            for (String mRecord : mList) {
-                MediaRecord mediaRecord = MediaRecord.toRecord(mRecord);
-                if (mediaRecord == null)
-                    continue;
-
-                boolean isFu = mediaRecord.isFu();
-                int hymnNo = isFu ? (mediaRecord.getHymnNo() - HYMN_DB_NO_MAX) : mediaRecord.getHymnNo();
-                int nui = HymnNoValidate.validateHymnNo(mediaRecord.getHymnType(), hymnNo, isFu);
-                if ((nui != -1) && (isOverWrite || !mDB.getMediaRecord(mediaRecord, false))) {
-                    mDB.storeMediaRecord(mediaRecord);
-                    record++;
-                }
-                if (TimberLog.isFinestEnable)
-                    Timber.d("Import media record: %s; %s(%s); %s", nui, hymnNo, record, mRecord);
-            }
+            InputStream inputStream = HymnsApp.getGlobalContext().getResources().getAssets().open(assetUrlFile);
+            MediaConfig.importUrlRecords(inputStream, false);
         } catch (IOException e) {
             Timber.w("Asset file not available: %s", e.getMessage());
         }
-        HymnsApp.showToastMessage(R.string.gui_db_import_record, record);
     }
 }

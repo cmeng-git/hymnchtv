@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
-import java.util.Locale;
 
 import timber.log.Timber;
 
@@ -78,7 +77,7 @@ public class HistoryRecord
     public HistoryRecord(String hymnType, int hymnNo, boolean isFu, String title, long timeStamp)
     {
         if (TextUtils.isEmpty(title))
-            title = getHymnTitleFromFile(hymnType, hymnNo);
+            title = getHymnInfoFromFile(hymnType, hymnNo);
 
         if (timeStamp == -1)
             timeStamp = new Date().getTime();
@@ -132,10 +131,11 @@ public class HistoryRecord
      * @param hymnNo The given hymnNo
      * @return the hymn title with category stripped off
      */
-    private String getHymnTitleFromFile(String hymnType, int hymnNo)
+    private String getHymnInfoFromFile(String hymnType, int hymnNo)
     {
-        String hymnTitle = "";
         String fileName = "";
+        String hymnTitle = "";
+        String lyricsPhrase = "";
 
         switch (hymnType) {
             case HYMN_DB:
@@ -159,7 +159,7 @@ public class HistoryRecord
             InputStream in2 = HymnsApp.getAppResources().getAssets().open(fileName);
             byte[] buffer2 = new byte[in2.available()];
             if (in2.read(buffer2) == -1)
-                return hymnTitle;
+                return lyricsPhrase;
 
             String mResult = EncodingUtils.getString(buffer2, "utf-8");
             String[] mList = mResult.split("\r\n|\n");
@@ -170,10 +170,24 @@ public class HistoryRecord
             if (idx != -1) {
                 hymnTitle = hymnTitle.substring(idx + 1);
             }
+
+            // Do the best guess to find the first phrase from lyrics
+            idx = 4;
+            String tmp = "";
+            while (tmp.length() < 6) {
+                tmp = mList[idx++];
+            }
+
+            mList = tmp.split("[，、‘’！：；。？]");
+            for (String s : mList) {
+                if (lyricsPhrase.length() < 6) {
+                    lyricsPhrase += s;
+                }
+            }
         } catch (IOException e) {
             Timber.w("Content search error: %s", e.getMessage());
         }
-        return hymnTitle;
+        return lyricsPhrase;
     }
 
     /**
