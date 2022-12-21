@@ -16,7 +16,9 @@
  */
 package org.cog.hymnchtv.utils;
 
-import android.app.*;
+import android.app.ActivityManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.drawable.TransitionDrawable;
@@ -35,8 +37,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
-import timber.log.Timber;
-
 /**
  * The <tt>AndroidUtils</tt> class provides a set of utility methods allowing an easy way to show
  * an alert dialog on android, show a general notification, etc.
@@ -45,8 +45,7 @@ import timber.log.Timber;
  * @author Pawel Domas
  * @author Eng Chong Meng
  */
-public class AndroidUtils
-{
+public class AndroidUtils {
     /**
      * Api level constant. Change it here to simulate lower api on new devices.
      *
@@ -67,8 +66,7 @@ public class AndroidUtils
      * @param appContext the <tt>Context</tt> that will be used to create new activity from notification
      * <tt>Intent</tt>.
      */
-    public static void clearGeneralNotification(Context appContext)
-    {
+    public static void clearGeneralNotification(Context appContext) {
 //        int id = Service.getGeneralNotificationId();
 //        if (id < 0) {
 //            Timber.log(TimberLog.FINER, "There's no global notification icon found");
@@ -90,8 +88,7 @@ public class AndroidUtils
      * @param date the date on which the event corresponding to the notification happened
      */
     public static void updateGeneralNotification(Context context, int notificationID, String title,
-            String message, long date)
-    {
+            String message, long date) {
         // Filter out the same subsequent notifications
         if (lastNotificationText != null && lastNotificationText.equals(message)) {
             return;
@@ -122,8 +119,7 @@ public class AndroidUtils
      * This method should be called when general notification is changed from the outside(like in
      * call notification for example).
      */
-    public static void generalNotificationInvalidated()
-    {
+    public static void generalNotificationInvalidated() {
         lastNotificationText = null;
     }
 
@@ -134,8 +130,7 @@ public class AndroidUtils
      * @param activityClass the activity class to check
      * @return <tt>true</tt> if the activity given by the class is running, <tt>false</tt> - otherwise
      */
-    public static boolean isActivityRunning(Context context, Class<?> activityClass)
-    {
+    public static boolean isActivityRunning(Context context, Class<?> activityClass) {
         ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         List<ActivityManager.RunningTaskInfo> services = activityManager.getRunningTasks(Integer.MAX_VALUE);
 
@@ -148,12 +143,9 @@ public class AndroidUtils
         return isServiceFound;
     }
 
-    public static void setOnTouchBackgroundEffect(View view)
-    {
-        view.setOnTouchListener(new OnTouchListener()
-        {
-            public boolean onTouch(View v, MotionEvent event)
-            {
+    public static void setOnTouchBackgroundEffect(View view) {
+        view.setOnTouchListener(new OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
                 if (!(v.getBackground() instanceof TransitionDrawable))
                     return false;
 
@@ -179,8 +171,7 @@ public class AndroidUtils
      *
      * @return <tt>true</tt> if we are currently running on tablet device.
      */
-    public static boolean isTablet()
-    {
+    public static boolean isTablet() {
         Context context = HymnsApp.getGlobalContext();
 
         return (context.getResources().getConfiguration().screenLayout
@@ -193,8 +184,7 @@ public class AndroidUtils
      * @param minApiLevel API level value to check
      * @return <tt>true</tt> if this device supports at least given API level.
      */
-    public static boolean hasAPI(int minApiLevel)
-    {
+    public static boolean hasAPI(int minApiLevel) {
         return API_LEVEL >= minApiLevel;
     }
 
@@ -203,8 +193,7 @@ public class AndroidUtils
      *
      * @return <tt>true</tt> if current <tt>Thread</tt> is UI thread.
      */
-    public static boolean isUIThread()
-    {
+    public static boolean isUIThread() {
         return Looper.getMainLooper().getThread() == Thread.currentThread();
     }
 
@@ -214,8 +203,7 @@ public class AndroidUtils
      * @param px pixels value to convert.
      * @return density independent pixels value for given pixels value.
      */
-    public static int pxToDp(int px)
-    {
+    public static int pxToDp(int px) {
         return (int) (((float) px) * HymnsApp.getAppResources().getDisplayMetrics().density + 0.5f);
     }
 
@@ -245,8 +233,7 @@ public class AndroidUtils
      * @param millis the time in milliseconds to format
      * @return the formatted seconds
      */
-    public static String formatSeconds(long millis)
-    {
+    public static String formatSeconds(long millis) {
         long[] values = new long[4];
         values[0] = millis / MILLIS_PER_DAY;
         values[1] = (millis / MILLIS_PER_HOUR) % 24;
@@ -264,8 +251,7 @@ public class AndroidUtils
             if (value == 0) {
                 if (valueOutput)
                     buf.append('0').append(fields[i]);
-            }
-            else {
+            } else {
                 valueOutput = true;
                 buf.append(value).append(fields[i]);
             }
@@ -273,8 +259,7 @@ public class AndroidUtils
         return buf.toString().trim();
     }
 
-    public static String UrlEncode(String url) throws UnsupportedEncodingException
-    {
+    public static String UrlEncode(String url) throws UnsupportedEncodingException {
         // Need to encode chinese link for safe access; revert all "%3A" and "%2F" to ":" and "/" etc
         String encDnLnk = URLEncoder.encode(url, "UTF-8")
                 .replace("%23", "#")

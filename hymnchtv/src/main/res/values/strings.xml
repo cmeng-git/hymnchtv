@@ -22,7 +22,7 @@
     <string name="gui_db_import_create">自建导入</string>
     <string name="gui_db_import_file">数据库导入文件</string>
     <string name="gui_db_import_record">数库导入共 %1$d 首诗歌</string>
-    <string name="gui_db_import_start">开始将网页链接内容导入数据库媒体记录…</string>
+    <string name="gui_db_import_start">开始将文件内容导入数据库媒体记录…</string>
     <string name="gui_db_import_NQ">NQ&#x2B07;</string>
     <string name="gui_db_file_missing">请提供媒体内容真实路径！</string>
     <string name="gui_db_list">数库列项</string>
@@ -91,7 +91,8 @@
     <string name="hymn_info_db_max">大本诗歌只有%1$d（%2$d）首，和附歌6首</string>
     <string name="hymn_info_db_range_fu">大本诗歌附歌只有1~6首</string>
 
-    <string name="hymn_info_xb_max">新歌颂咏只有%1$d（%2$d）首"</string>
+    <string name="hymn_info_xb_max">新歌颂咏只有%1$d（%2$d）首</string>
+    <string name="hymn_info_xb_invalid">新歌颂咏诗歌没有: %1$s</string>
 
     <string name="hymn_info_media_none">对不起！此项目前没有播放文件</string>
     <string name="hymn_info_sp_none">您选择的项目，没有附歌</string>
@@ -140,6 +141,7 @@
 
     <string name="gui_share_text">Share text&#8230;</string>
     <string name="gui_share_file">Share file&#8230;</string>
+    <string name="gui_share_lyrics">分享歌词&#8230;</string>
     <string name="gui_share_file_missing">提醒：您正在共享一个没有实际媒体内容的网址：%1$s！</string>
     <string name="gui_no_app_to_open_file">No application found to open file</string>
 

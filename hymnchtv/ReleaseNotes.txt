@@ -1,6 +1,17 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    12/21/2022
+Version:        2.0.3 (200030)
+- Add user share option for hymn score, lyrics, and mediaUrl if available via an external chat app.
+- Support user English lyrics font size change in portrait and landscape modes.
+- Do not display an invalid xb hymn page to user.
+- Correct lyrics xb165 text error and add xb171 lyrics
+- Fix apk update download error to reload without exit app.
+- Update lyrics url import file to include version update, avoid repeated action in updateServiceImpl call.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    11/16/2022
 Version:        2.0.2 (200020)
 - Add support to auto update the local database media records from online new media import links.

@@ -101,7 +101,7 @@ public class ContentSearch extends FragmentActivity
         // 大本詩歌: Simplified Chinese entry search in LYRICS_DBS_TEXT
         int hymnNo = 1;
         while (hymnNo <= HYMN_DB_NO_TMAX) {
-            fname = LYRICS_DBS_TEXT + hymnNo + ".txt";
+            fname = LYRICS_DBS_TEXT  + "db" + hymnNo + ".txt";
             result = getMatchResult(fname, searchString);
             if (result != null) {
                 mHymnNo[mCount] = hymnNo;
@@ -136,7 +136,7 @@ public class ContentSearch extends FragmentActivity
                     }
                 }
 
-                fname = LYRICS_BBS_TEXT + hymnNo + ".txt";
+                fname = LYRICS_BBS_TEXT  + "bb" + hymnNo + ".txt";
                 result = getMatchResult(fname, searchString);
                 if (result != null) {
                     mHymnNo[mCount] = hymnNo;

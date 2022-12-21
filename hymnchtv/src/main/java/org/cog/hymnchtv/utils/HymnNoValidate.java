@@ -37,29 +37,28 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class HymnNoValidate
-{
+public class HymnNoValidate {
     /* Maximum HymnNo/HymnIndex: 大本诗歌 and start of its supplement */
     // The values and the similar must be updated if there are any new contents added
     public static final int HYMN_DB_NO_MAX = 780;
-    public static final int HYMN_DBS_NO_MAX = 6;
+    public static final int HYMN_DBS_ITEM_COUNT = 6;
 
     // FuGe pass-in index is HYMN_DB_NO_MAX + fu Number
     public static final int HYMN_DB_NO_TMAX = 786;
     // Max index use by PageAdapter
-    public static final int HYMN_DB_INDEX_MAX = 786;
+    public static final int HYMN_DB_ITEM_COUNT = 786;
 
     /* Maximum HymnNo/HymnIndex (excluding multiPage i.e. a,b,c,d,e): 補充本 */
     public static final int HYMN_BB_NO_MAX = 1005;
-    public static final int HYMN_BB_INDEX_MAX = 513;
+    public static final int HYMN_BB_ITEM_COUNT = 513;
 
     /* Maximum HymnNo/HymnIndex: 新歌颂咏 */
-    public static final int HYMN_XB_NO_MAX = 169;
-    public static final int HYMN_XB_INDEX_MAX = 169;
+    public static final int HYMN_XB_NO_MAX = 171;
+    public static final int HYMN_XB_ITEM_COUNT = 168;
 
     /* Maximum HymnNo/HymnIndex: 儿童诗歌 */
     public static final int HYMN_ER_NO_MAX = 1232;
-    public static final int HYMN_ER_INDEX_MAX = 330;
+    public static final int HYMN_ER_ITEM_COUNT = 330;
 
     // ======================================================== //
     // 補充本 range parameters for page number (i.e. less than in each 100 range)
@@ -76,6 +75,16 @@ public class HymnNoValidate
         for (int i = 0; i < (rangeBbLimit.length - 1); i++) {
             rangeBbInvalid.add(Range.create(rangeBbLimit[i], 100 * (i + 1)));
         }
+    }
+
+    // 新歌颂咏 - invalid hymn number
+    public static final List<Integer> rangeXbInvalid = new ArrayList<>();
+
+    static {
+        rangeXbInvalid.add(167);
+        rangeXbInvalid.add(168);
+        rangeXbInvalid.add(170);
+        ;
     }
 
     // ======================================================== //
@@ -100,11 +109,9 @@ public class HymnNoValidate
      * @param hymnType The hymnTye
      * @param hymnNo The given hymnNo for validation
      * @param isFu true if the given hymnNo is Fu
-     *
      * @return the valid hymNo or -1 if invalid
      */
-    public static int validateHymnNo(String hymnType, int hymnNo, boolean isFu)
-    {
+    public static int validateHymnNo(String hymnType, int hymnNo, boolean isFu) {
         boolean isValid = true;
 
         switch (hymnType) {
@@ -118,12 +125,10 @@ public class HymnNoValidate
                 if (hymnNo > HYMN_ER_NO_MAX) {
                     HymnsApp.showToastMessage(R.string.hymn_info_er_max, HYMN_ER_NO_MAX, hymnNo);
                     isValid = false;
-                }
-                else if (hymnNo < 1) {
+                } else if (hymnNo < 1) {
                     HymnsApp.showToastMessage(R.string.gui_error_invalid);
                     isValid = false;
-                }
-                else {
+                } else {
                     for (Range<Integer> rangeX : rangeErInvalid) {
                         if (rangeX.contains(hymnNo)) {
                             HymnsApp.showToastMessage(R.string.hymn_info_er_range_over, rangeX.getLower(), rangeX.getUpper(), hymnNo);
@@ -144,8 +149,10 @@ public class HymnNoValidate
                 if (hymnNo > HYMN_XB_NO_MAX) {
                     HymnsApp.showToastMessage(R.string.hymn_info_xb_max, HYMN_XB_NO_MAX, hymnNo);
                     isValid = false;
-                }
-                else if (hymnNo < 1) {
+                } else if (rangeXbInvalid.contains(hymnNo)) {
+                    HymnsApp.showToastMessage(R.string.hymn_info_xb_invalid, rangeXbInvalid);
+                    isValid = false;
+                } else if (hymnNo < 1) {
                     HymnsApp.showToastMessage(R.string.gui_error_invalid);
                     isValid = false;
                 }
@@ -161,12 +168,10 @@ public class HymnNoValidate
                 if (hymnNo > HYMN_BB_NO_MAX) {
                     HymnsApp.showToastMessage(R.string.hymn_info_bb_max, HYMN_BB_NO_MAX, hymnNo);
                     isValid = false;
-                }
-                else if (hymnNo < 1) {
+                } else if (hymnNo < 1) {
                     HymnsApp.showToastMessage(R.string.gui_error_invalid);
                     isValid = false;
-                }
-                else {
+                } else {
                     for (Range<Integer> rangeX : rangeBbInvalid) {
                         if (rangeX.contains(hymnNo)) {
                             HymnsApp.showToastMessage(R.string.hymn_info_bb_range_over, rangeX.getLower(), rangeX.getUpper(), hymnNo);
@@ -179,14 +184,13 @@ public class HymnNoValidate
 
             case HYMN_DB:
                 // Fu hymnNo continues from HYMN_DB_NO_MAX
-                if (isFu && hymnNo <= HYMN_DBS_NO_MAX) {
+                if (isFu && hymnNo <= HYMN_DBS_ITEM_COUNT) {
                     hymnNo += HYMN_DB_NO_MAX;
                 }
                 if (hymnNo > HYMN_DB_NO_TMAX) {
                     HymnsApp.showToastMessage(R.string.hymn_info_db_max, HYMN_DB_NO_MAX, hymnNo);
                     isValid = false;
-                }
-                else if (hymnNo < 1) {
+                } else if (hymnNo < 1) {
                     HymnsApp.showToastMessage(R.string.gui_error_invalid);
                     isValid = false;
                 }

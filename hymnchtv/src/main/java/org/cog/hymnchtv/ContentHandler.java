@@ -17,8 +17,12 @@
 package org.cog.hymnchtv;
 
 import static org.cog.hymnchtv.ContentView.LYRICS_BBS_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_BB_SCORE;
 import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_DB_SCORE;
+import static org.cog.hymnchtv.ContentView.LYRICS_ER_SCORE;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_XB_SCORE;
 import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
 import static org.cog.hymnchtv.HymnToc.hymnCategoryBb;
 import static org.cog.hymnchtv.HymnToc.hymnCategoryDb;
@@ -55,6 +59,7 @@ import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.mediaconfig.MediaRecord;
 import org.cog.hymnchtv.mediaconfig.NotionRecord;
 import org.cog.hymnchtv.mediaconfig.QQRecord;
+import org.cog.hymnchtv.mediaconfig.ShareWith;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.utils.DepthPageTransformer;
@@ -65,6 +70,7 @@ import org.cog.hymnchtv.webview.WebViewFragment;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -333,6 +339,10 @@ public class ContentHandler extends FragmentActivity {
                 mDB.deleteLyricsEng(mHymnNoEng);
                 return true;
 
+            case R.id.lyrcsShare:
+                lyricsShare();
+                return true;
+
             case R.id.help:
                 // About.hymnUrlAccess(this, HYMNCHTV_FAQ_PLAYBACK);
                 initWebView(UrlType.onlineHelp);
@@ -350,6 +360,79 @@ public class ContentHandler extends FragmentActivity {
     private void backToHome() {
         mMediaGuiController.stopPlay();
         finish();
+    }
+
+    /**
+     * Sharing of both the score png and lyrics text files via e.g. whatsapp
+     */
+    private void lyricsShare() {
+        String resPrefix = "";
+        String resFName = "";
+
+        switch (mHymnType) {
+            case HYMN_DB:
+                resPrefix = LYRICS_DB_SCORE + "db" + mHymnNo;
+                resFName = LYRICS_DBS_TEXT + "db" + mHymnNo;
+                break;
+
+            case HYMN_BB:
+                resPrefix = LYRICS_BB_SCORE + "bb" + mHymnNo;
+                resFName = LYRICS_BBS_TEXT + "bb" + mHymnNo;
+                break;
+
+            case HYMN_XB:
+                resPrefix = LYRICS_XB_SCORE + "xb" + mHymnNo;
+                resFName = LYRICS_XB_TEXT + "xb" + mHymnNo;
+                break;
+
+            case HYMN_ER:
+                resPrefix = LYRICS_ER_SCORE + mHymnNo;
+                resFName = LYRICS_ER_TEXT + "er" + mHymnNo;
+                break;
+        }
+
+        String fnScore = resPrefix + ".png";
+        File fileScore = new File(FileBackend.getHymnchtvStore(FileBackend.TMP, true), fnScore.split("/")[1]);
+
+        String fnLyrics = resFName + ".txt";
+        File fileLyrics = new File(FileBackend.getHymnchtvStore(FileBackend.TMP, true), fnLyrics.split("/")[1]);
+
+        try {
+            InputStream inputStream = getResources().getAssets().open(fnScore);
+            FileOutputStream outputStream = new FileOutputStream(fileScore);
+            FileBackend.copy(inputStream, outputStream);
+            inputStream.close();
+            outputStream.close();
+
+            inputStream = getResources().getAssets().open(fnLyrics);
+            outputStream = new FileOutputStream(fileLyrics);
+            FileBackend.copy(inputStream, outputStream);
+            inputStream.close();
+            outputStream.close();
+
+            ArrayList<Uri> imageUris = new ArrayList<>();
+            imageUris.add(FileBackend.getUriForFile(this, fileScore));
+            imageUris.add(FileBackend.getUriForFile(this, fileLyrics));
+            ShareWith.share(this, getMediaUrl(), imageUris);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Get the current mediaRecord URL link
+     *
+     * @return urlLink if available else null
+     */
+    private String getMediaUrl() {
+        String urlLink = null;
+        boolean isFu = mHymnType.equals(HYMN_DB) && (mHymnNo > HYMN_DB_NO_MAX);
+        MediaRecord mediaRecord = new MediaRecord(mHymnType, mHymnNo, isFu, MediaType.HYMN_MEDIA);
+
+        if (mDB.getMediaRecord(mediaRecord, true) && (mediaRecord.getMediaUri() != null)){
+                urlLink = mediaRecord.toString();
+        }
+        return urlLink;
     }
 
     /**
@@ -960,11 +1043,11 @@ public class ContentHandler extends FragmentActivity {
 
         switch (mHymnType) {
             case HYMN_DB:
-                fileName = LYRICS_DBS_TEXT + mHymnNo + ".txt";
+                fileName = LYRICS_DBS_TEXT + "db" + mHymnNo + ".txt";
                 break;
 
             case HYMN_BB:
-                fileName = LYRICS_BBS_TEXT + mHymnNo + ".txt";
+                fileName = LYRICS_BBS_TEXT + "bb" + mHymnNo + ".txt";
                 break;
 
             case HYMN_XB:

@@ -77,7 +77,6 @@ import org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
-import org.cog.hymnchtv.persistance.migrations.MigrationTo3;
 import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNoValidate;
 import org.cog.hymnchtv.utils.TimberLog;
@@ -138,6 +137,13 @@ public class MediaConfig extends FragmentActivity
     public static final String MEDIA_TYPE = "mediaType";  // see MEDIA_xxx
     public static final String MEDIA_URI = "mediaUri";    // set to null if none
     public static final String MEDIA_FILE_PATH = "mediaFilePath"; // set to null if none
+
+    // The asset Url import file name
+    public static final String ASSET_IMPORT_URL_FILE = "url_import.txt";
+    // Import Url version preference parameter
+    public static String PREF_VERSION_URL = "VersionUrlImport";
+    // current version
+    public static final int IMPORT_URL_VERSION = 101;
 
     // The default directory when import_export files are being saved
     public static final String DIR_IMPORT_EXPORT = "import_export/";
@@ -445,8 +451,8 @@ public class MediaConfig extends FragmentActivity
     public boolean onLongClick(View v) {
         switch (v.getId()) {
             case R.id.button_import:
-                Timber.d("import Media Records from: %s", MigrationTo3.assetUrlFile);
-                importMediaRecords(MigrationTo3.assetUrlFile);
+                Timber.d("import Media Records from: %s", ASSET_IMPORT_URL_FILE);
+                importMediaRecords(ASSET_IMPORT_URL_FILE);
                 return true;
 
             case R.id.button_NQ:
@@ -996,7 +1002,7 @@ public class MediaConfig extends FragmentActivity
             if (importFile != null) {
                 inputStream = new FileInputStream(importFile);
             } else {
-                inputStream = HymnsApp.getGlobalContext().getResources().getAssets().open(assetFile);
+                inputStream = HymnsApp.getAppResources().getAssets().open(assetFile);
             }
             boolean isOverWrite = cbOverwrite.isChecked();
             importUrlRecords(inputStream, isOverWrite);
@@ -1043,6 +1049,25 @@ public class MediaConfig extends FragmentActivity
             Timber.w("Import file read error: %s", e.getMessage());
         }
         HymnsApp.showToastMessage(R.string.gui_db_import_record, record);
+    }
+
+    /**
+     * Import the media records into the database on hymnchtv installation from the asset file;
+     * Update preference setting: PREF_VERSION_URL to this app IMPORT_URL_VERSION.
+     */
+    public static void importUrlRecords() {
+        try {
+            InputStream inputStream = HymnsApp.getAppResources().getAssets().open(ASSET_IMPORT_URL_FILE);
+            MediaConfig.importUrlRecords(inputStream, false);
+            inputStream.close();
+
+            SharedPreferences mSharedPref = HymnsApp.getGlobalContext().getSharedPreferences(PREF_SETTINGS, 0);
+            SharedPreferences.Editor mEditor = mSharedPref.edit();
+            mEditor.putInt(PREF_VERSION_URL, IMPORT_URL_VERSION);
+            mEditor.apply();
+        } catch (IOException e) {
+            Timber.w("Asset file not available: %s", e.getMessage());
+        }
     }
 
     /**

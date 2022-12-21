@@ -30,6 +30,10 @@
         android:title="@string/gui_lyrics_english_delete" />
 
     <item
+        android:id="@+id/lyrcsShare"
+        android:title="@string/gui_share_lyrics" />
+
+    <item
         android:id="@+id/help"
         android:title="@string/help" />
 

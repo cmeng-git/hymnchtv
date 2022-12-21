@@ -139,11 +139,11 @@ public class HistoryRecord
 
         switch (hymnType) {
             case HYMN_DB:
-                fileName = LYRICS_DBS_TEXT + hymnNo + ".txt";
+                fileName = LYRICS_DBS_TEXT  + "db" + hymnNo + ".txt";
                 break;
 
             case HYMN_BB:
-                fileName = LYRICS_BBS_TEXT + hymnNo + ".txt";
+                fileName = LYRICS_BBS_TEXT  + "bb" + hymnNo + ".txt";
                 break;
 
             case HYMN_XB:

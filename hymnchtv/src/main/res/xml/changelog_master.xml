@@ -6,6 +6,15 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="2.0.3 (12/21/2022)" versioncode="200030">
+        <change>添加用户共享诗歌乐谱、歌词和媒体链接（如果有）的选项。</change>
+        <change>支持用户英文歌词字体大小更改。</change>
+        <change>不要向用户显示无效的补充本诗歌页面。</change>
+        <change>更正新歌颂咏歌词#165文本错误，并添加#171歌词。</change>
+        <change>修复应用程序更新下载错误，以在不退出应用程序的情况下重新加载。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+    </release>
+
     <release version="2.0.2 (11/16/2022)" versioncode="200020">
         <change>添加支持从在线新媒体导入链接，自动更新本地数据库媒体记录。</change>
         <change>在搜索字符串中使用歌词短语来提高 youtube 和网络搜索期间的内容匹配命中率。</change>

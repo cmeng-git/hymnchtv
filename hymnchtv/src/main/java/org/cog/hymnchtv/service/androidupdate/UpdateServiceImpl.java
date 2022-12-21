@@ -17,6 +17,8 @@
 package org.cog.hymnchtv.service.androidupdate;
 
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+import static org.cog.hymnchtv.mediaconfig.MediaConfig.IMPORT_URL_VERSION;
+import static org.cog.hymnchtv.mediaconfig.MediaConfig.PREF_VERSION_URL;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -214,7 +216,8 @@ public class UpdateServiceImpl {
                         R.string.gui_in_progress,
                         R.string.gui_download_in_progress);
             } else {
-                // Download is in progress or scheduled for retry
+                // Download id return failed status, remove failed id and retry
+                removeOldDownloads();
                 DialogActivity.showDialog(HymnsApp.getGlobalContext(),
                         R.string.gui_app_update_install, R.string.gui_download_failed);
             }
@@ -445,11 +448,9 @@ public class UpdateServiceImpl {
     }
 
     private void checkUrlImport(int version) {
-        String PREF_VERSION_URL = "VersionUrlImport";
         Context context = HymnsApp.getGlobalContext();
-
         SharedPreferences mSharedPref = context.getSharedPreferences(PREF_SETTINGS, 0);
-        int versionUrl = mSharedPref.getInt(PREF_VERSION_URL, 100);
+        int versionUrl = mSharedPref.getInt(PREF_VERSION_URL, IMPORT_URL_VERSION);
 
         if ((version > versionUrl) && isValidateLink(urlImport)) {
             try {

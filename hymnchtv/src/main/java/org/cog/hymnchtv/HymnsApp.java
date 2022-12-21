@@ -297,8 +297,9 @@ public class HymnsApp extends Application implements LifecycleEventObserver
     public static void showToastMessage(final String message)
     {
         new Handler(Looper.getMainLooper()).post(() -> {
-            if (toast != null)
+            if (toast != null && toast.getView() != null) {
                 toast.cancel();
+            }
             toast = Toast.makeText(getGlobalContext(), message, Toast.LENGTH_LONG);
             toast.show();
         });

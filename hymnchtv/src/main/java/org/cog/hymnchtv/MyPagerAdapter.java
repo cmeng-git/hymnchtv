@@ -31,10 +31,10 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
-import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_INDEX_MAX;
-import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_INDEX_MAX;
-import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_INDEX_MAX;
-import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_INDEX_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_ITEM_COUNT;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_ITEM_COUNT;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_ITEM_COUNT;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_ITEM_COUNT;
 
 /**
  * The hymn lyrics implementation for the user page sliding and display update using
@@ -62,16 +62,16 @@ public class MyPagerAdapter extends FragmentStateAdapter
     {
         switch (mHymnType) {
             case HYMN_ER:
-                return HYMN_ER_INDEX_MAX;
+                return HYMN_ER_ITEM_COUNT;
 
             case HYMN_XB:
-                return HYMN_XB_INDEX_MAX;
+                return HYMN_XB_ITEM_COUNT;
 
             case HYMN_BB:
-                return HYMN_BB_INDEX_MAX;
+                return HYMN_BB_ITEM_COUNT;
 
             case HYMN_DB:
-                return HYMN_DB_INDEX_MAX;
+                return HYMN_DB_ITEM_COUNT;
 
             default:
                 return 1;

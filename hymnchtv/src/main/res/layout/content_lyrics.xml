@@ -65,6 +65,7 @@
                 android:id="@+id/button_english"
                 style="@style/ButtonTop"
                 android:layout_weight="0.5"
+                android:layout_marginStart="4dp"
                 android:text="@string/gui_lyrics_english"
                 android:textSize="22sp" />
         </LinearLayout>
@@ -74,9 +75,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/border_bg_grey"
-            android:paddingStart="30dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="0dp"
+            android:padding="10dp"
             android:textIsSelectable="true"
             android:textSize="20sp" />
 
@@ -85,9 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/border_bg_grey"
-            android:paddingStart="30dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="0dp"
+            android:padding="10dp"
             android:textIsSelectable="true"
             android:textSize="20sp" />
 

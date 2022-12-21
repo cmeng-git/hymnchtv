@@ -246,7 +246,7 @@ public class HymnToc extends FragmentActivity
                             while (hymnNo <= HYMN_DB_NO_TMAX) {
 
                                 if (rangeToc.contains(hymnNo)) {
-                                    fname = LYRICS_DBS_TEXT + hymnNo + ".txt";
+                                    fname = LYRICS_DBS_TEXT  + "db" + hymnNo + ".txt";
 
                                     String hymnTitle = getHymnTitle(hymnNo, fname);
                                     if (hymnNo > HYMN_DB_NO_MAX) {
@@ -297,7 +297,7 @@ public class HymnToc extends FragmentActivity
                                 }
 
                                 if (rangeToc.contains(hymnNo)) {
-                                    fname = LYRICS_BBS_TEXT + hymnNo + ".txt";
+                                    fname = LYRICS_BBS_TEXT  + "bb" + hymnNo + ".txt";
                                     tocItems.add(getHymnTitle(hymnNo, fname));
                                     hymnNo++;
                                 }

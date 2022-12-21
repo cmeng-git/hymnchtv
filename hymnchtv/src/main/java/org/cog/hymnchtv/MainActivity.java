@@ -192,7 +192,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 }
             }, 15000));
             //MigrationTo3.purgeHymnJC(mDB);
-            MigrationTo3.importUrlRecords();
+            MediaConfig.importUrlRecords();
         }
 
         // 儿童诗歌
