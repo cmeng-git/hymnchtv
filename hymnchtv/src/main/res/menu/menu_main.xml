@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
+    <item
+        android:id="@+id/appTheme"
+        android:title="@string/theme_menu">
+        <menu>
+            <item
+                android:id="@+id/themeDark"
+                android:title="@string/theme_dark" />
+            <item
+                android:id="@+id/themeLight"
+                android:title="@string/theme_light" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/appLanguage"
+        android:title="@string/locale_menu">
+        <menu>
+            <item
+                android:id="@+id/localeChinese"
+                android:title="@string/locale_chinese" />
+            <item
+                android:id="@+id/localeenglish"
+                android:title="@string/locale_english" />
+        </menu>
+    </item>
     <item
         android:id="@+id/bg"
         android:title="@string/wall_paper">
@@ -47,32 +70,8 @@
         </menu>
     </item>
     <item
-        android:id="@+id/stext"
-        android:title="@string/stext">
-        <menu>
-            <item
-                android:id="@+id/small"
-                android:title="@string/small" />
-            <item
-                android:id="@+id/middle"
-                android:title="@string/normal" />
-            <item
-                android:id="@+id/lager"
-                android:title="@string/lager" />
-            <item
-                android:id="@+id/xlager"
-                android:title="@string/xlager" />
-            <item
-                android:id="@+id/inc"
-                android:title="@string/inc" />
-            <item
-                android:id="@+id/dec"
-                android:title="@string/dec" />
-        </menu>
-    </item>
-    <item
-        android:id="@+id/stextcolor"
-        android:title="@string/stextcolor">
+        android:id="@+id/fontColor"
+        android:title="@string/fontColor">
         <menu>
             <item
                 android:id="@+id/red"
@@ -100,26 +99,44 @@
                 android:title="@string/black" />
         </menu>
     </item>
-
+    <item
+        android:id="@+id/fontSize"
+        android:title="@string/fontSize">
+        <menu>
+            <item
+                android:id="@+id/small"
+                android:title="@string/small" />
+            <item
+                android:id="@+id/middle"
+                android:title="@string/normal" />
+            <item
+                android:id="@+id/lager"
+                android:title="@string/lager" />
+            <item
+                android:id="@+id/xlager"
+                android:title="@string/xlager" />
+            <item
+                android:id="@+id/inc"
+                android:title="@string/inc" />
+            <item
+                android:id="@+id/dec"
+                android:title="@string/dec" />
+        </menu>
+    </item>
     <item
         android:id="@+id/sn_convert"
         android:visible="false"
         android:title="@string/gui_hymn_sn_convert" />
-
     <item
         android:id="@+id/media_config"
         android:title="@string/gui_media_config" />
-
     <item
         android:id="@+id/online_help"
         android:title="@string/gui_help_online" />
-
     <item
         android:id="@+id/about"
         android:title="@string/gui_about" />
-
     <item
         android:id="@+id/exit"
         android:title="@string/gui_exit" />
-
 </menu>

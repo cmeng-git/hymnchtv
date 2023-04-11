@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="org.cog.hymnchtv"
     android:installLocation="preferExternal">
 
     <!-- Required to poll the state of the network connection and respond to changes -->
@@ -11,6 +10,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- Required to download files from Google Play etc -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />

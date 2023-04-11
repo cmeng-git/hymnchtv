@@ -35,6 +35,7 @@ import androidx.annotation.RequiresApi;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.FileBackend;
+import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
 
 import java.util.ArrayList;
 
@@ -72,8 +73,7 @@ public class ShareWith
                     if (!imageUris.isEmpty() && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1)) {
                         PendingIntent pi = PendingIntent.getBroadcast(activity, REQUEST_CODE_SHARE,
                                 new Intent(activity, ShareBroadcastReceiver.class),
-                                Build.VERSION.SDK_INT < Build.VERSION_CODES.M ? PendingIntent.FLAG_UPDATE_CURRENT
-                                        : PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+                                NotificationHelper.getPendingIntentFlag(false, true));
                         activity.startActivity(Intent.createChooser(shareIntent,
                                 activity.getString(R.string.gui_share_text), pi.getIntentSender()));
 
@@ -88,7 +88,7 @@ public class ShareWith
                                 activity.getString(R.string.gui_share_text)));
                     }
                 } catch (ActivityNotFoundException e) {
-                    Timber.w("%s", HymnsApp.getResString(R.string.gui_no_app_to_open_file));
+                    Timber.w("%s", HymnsApp.getResString(R.string.gui_file_OPEN_NO_APPLICATION));
                 }
             }
 

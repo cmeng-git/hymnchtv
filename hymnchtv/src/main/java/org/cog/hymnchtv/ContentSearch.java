@@ -38,10 +38,9 @@ import android.view.KeyEvent;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-import androidx.fragment.app.FragmentActivity;
-
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.TextUtils;
+import org.cog.hymnchtv.utils.ThemeHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,8 +60,7 @@ import timber.log.Timber;
  * @author Eng Chong Meng
  * @author wayfarer
  */
-public class ContentSearch extends FragmentActivity
-{
+public class ContentSearch extends BaseActivity {
     /* Allowable maximum matched items for display */
     private static final int HYMN_COUNT_MAX = 100;
 
@@ -84,8 +82,7 @@ public class ContentSearch extends FragmentActivity
      *
      * @param savedInstanceState bundle
      */
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String searchString = getIntent().getExtras().getString(ATTR_SEARCH);
         if (TextUtils.isEmpty((searchString)))
@@ -101,7 +98,7 @@ public class ContentSearch extends FragmentActivity
         // 大本詩歌: Simplified Chinese entry search in LYRICS_DBS_TEXT
         int hymnNo = 1;
         while (hymnNo <= HYMN_DB_NO_TMAX) {
-            fname = LYRICS_DBS_TEXT  + "db" + hymnNo + ".txt";
+            fname = LYRICS_DBS_TEXT + "db" + hymnNo + ".txt";
             result = getMatchResult(fname, searchString);
             if (result != null) {
                 mHymnNo[mCount] = hymnNo;
@@ -136,7 +133,7 @@ public class ContentSearch extends FragmentActivity
                     }
                 }
 
-                fname = LYRICS_BBS_TEXT  + "bb" + hymnNo + ".txt";
+                fname = LYRICS_BBS_TEXT + "bb" + hymnNo + ".txt";
                 result = getMatchResult(fname, searchString);
                 if (result != null) {
                     mHymnNo[mCount] = hymnNo;
@@ -215,8 +212,7 @@ public class ContentSearch extends FragmentActivity
      *
      * @param data The full search matched contents for display and user selection
      */
-    private void showResult(List<Map<String, Object>> data)
-    {
+    private void showResult(List<Map<String, Object>> data) {
         /*
          * Display the search result to the user
          */
@@ -248,10 +244,10 @@ public class ContentSearch extends FragmentActivity
      *
      * @param fName The name of file to search
      * @param sString the matching string
+     *
      * @return matching string if found, else null
      */
-    private String getMatchResult(String fName, String sString)
-    {
+    private String getMatchResult(String fName, String sString) {
         byte[] buffer;
         try {
             InputStream inStream = getResources().getAssets().open(fName);
@@ -286,10 +282,10 @@ public class ContentSearch extends FragmentActivity
      *
      * @param keyCode The keycode
      * @param event the key event
+     *
      * @return super
      */
-    public boolean onKeyDown(int keyCode, KeyEvent event)
-    {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             setResult(-1, getIntent());
             finish();

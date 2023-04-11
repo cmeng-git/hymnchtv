@@ -24,8 +24,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.cog.hymnchtv.About;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
+import org.cog.hymnchtv.utils.ThemeHelper;
 
 import java.util.WeakHashMap;
 import java.util.regex.Matcher;
@@ -45,6 +47,9 @@ public class LyricsEnglishRecord
     public static final String HYMN_NO_ENG = "hymnNoEng";
     public static final String LYRICS_ENG = "lyricsEng";
 
+    // Offset added to ErGe English lyrics
+    private static final int ER_GE_ENG_OFFSET = 2000;
+
     /**
      * Default CSS styles used to format the retrieved english lyrics for table display.
      */
@@ -63,6 +68,7 @@ public class LyricsEnglishRecord
             " table tr.stanza-num { left: -2 em; width: 1.5 em; padding: 2px; text-align: center; color: #444; background: #ddd }\n";
 
     public static String HYMNAL_LINK_MAIN = "https://www.hymnal.net/en/hymn/h/";
+    public static String HYMNAL_LINK_MAIN_ER = "https://www.hymnal.net/en/hymn/c/";
 
     private static final WeakHashMap<Context, LyricsEnglishRecord> INSTANCES = new WeakHashMap<>();
     private final Context mContext;
@@ -88,13 +94,16 @@ public class LyricsEnglishRecord
      * Get the English lyrics from SQL DB if found, else retrieve it online; save to DB available.
      * mLyricsEnglish may only contain a link for external access. Currently the link is http i.e.
      * not secure ssl and will be blocked by android if proceed to access its content.
+     *
+     * Note: ErGe hymnNo is with offset ER_GE_ENG_OFFSET for DB saving/retrieving.
      */
-    public void fetchLyrics(int hymnNoEng)
+    public void fetchLyrics(int hymnNoEng, boolean isErGe)
     {
         DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
-        String webUrl = HYMNAL_LINK_MAIN + hymnNoEng;
+        String webUrl = (isErGe ? HYMNAL_LINK_MAIN_ER : HYMNAL_LINK_MAIN) + hymnNoEng;
+        final int hymnNo = hymnNoEng + (isErGe ? ER_GE_ENG_OFFSET : 0);
 
-        mLyricsEnglish = mDB.getLyricsEnglish(hymnNoEng);
+        mLyricsEnglish = mDB.getLyricsEnglish(hymnNo);
         if (mLyricsEnglish != null) {
             showLyrics(mLyricsEnglish);
             return;
@@ -102,7 +111,7 @@ public class LyricsEnglishRecord
 
         getURLSource(webUrl, data -> {
             if (extraEnglishLyrics(data)) {
-                mDB.storeLyricsEng(hymnNoEng, mLyricsEnglish);
+                mDB.storeLyricsEng(hymnNo, mLyricsEnglish);
                 showLyrics(mLyricsEnglish);
             }
             else {
@@ -224,13 +233,21 @@ public class LyricsEnglishRecord
      * @param content The lyrics table content
      * @return the html formatted string
      */
-    private String toHtml(String content)
+    public static String toHtml(String content)
     {
         StringBuilder html = new StringBuilder()
                 .append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"/>")
                 .append("<html><head>\n<style type=\"text/css\">\n")
-                .append(DEFAULT_CSS)
-                .append("</style></head><body>\n")
+                .append(DEFAULT_CSS);
+
+        // Change text and ulr according to app theme
+        if (ThemeHelper.isAppTheme(ThemeHelper.Theme.DARK)) {
+            html.append(About.bodyTextLight);
+        } else {
+            html.append(About.bodyTextDark);
+        }
+
+        html.append("</style></head><body>\n")
                 .append(content)
                 .append("\n</body></html>");
         return html.toString();

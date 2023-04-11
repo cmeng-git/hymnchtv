@@ -18,19 +18,23 @@ package org.cog.hymnchtv;
 
 import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
 import static org.cog.hymnchtv.HymnToc.hymnTocPage;
+import static org.cog.hymnchtv.persistance.PermissionUtils.PRC_NOTIFICATIONS;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -53,7 +57,7 @@ import android.widget.ViewSwitcher;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.ActionBar;
 
 import com.zqc.opencc.android.lib.ChineseConverter;
 import com.zqc.opencc.android.lib.ConversionType;
@@ -66,10 +70,12 @@ import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.persistance.PermissionUtils;
-import org.cog.hymnchtv.persistance.migrations.MigrationTo3;
 import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNoValidate;
+import org.cog.hymnchtv.utils.LocaleHelper;
 import org.cog.hymnchtv.utils.MySwipeListAdapter;
+import org.cog.hymnchtv.utils.ThemeHelper;
+import org.cog.hymnchtv.utils.ThemeHelper.Theme;
 import org.cog.hymnchtv.utils.TouchListener;
 import org.cog.hymnchtv.utils.WallPaperUtil;
 
@@ -86,8 +92,7 @@ import timber.log.Timber;
  * @author Eng Chong Meng
  * @author wayfarer
  */
-public class MainActivity extends FragmentActivity implements AdapterView.OnItemSelectedListener
-{
+public class MainActivity extends BaseActivity implements AdapterView.OnItemSelectedListener {
     public static String HYMNCHTV_FAQ = "https://cmeng-git.github.io/hymnchtv/faq.html";
     private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
@@ -106,9 +111,11 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     public static final String PREF_MENU_SHOW = "MenuShow";
     public static final String PREF_SETTINGS = "Settings";
-    public static final String PREF_TEXT_SIZE = "TextSize";
-    public static final String PREF_TEXT_COLOR = "TextColor";
     public static final String PREF_BACKGROUND = "Background";
+    public static final String PREF_TEXT_COLOR = "TextColor";
+    public static final String PREF_TEXT_SIZE = "TextSize";
+    public static final String PREF_THEME = "Theme";
+    public static final String PREF_LOCALE = "Locale";
     public static final String PREF_WALLPAPER = "WallPaper";
 
     public static final String PREF_MEDIA_HYMN = "MediaHymn";
@@ -138,11 +145,11 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     private Button btn_search;
 
     private Spinner tocSpinner;
-    private EditText tv_Search;
     private MySwipeListAdapter<HistoryRecord> mHistoryAdapter;
     private ListView mHistoryListView;
     private TextView mTocSpinnerItem;
     private TextView mEntry;
+    private EditText tv_Search;
 
     private LinearLayout background;
 
@@ -159,20 +166,24 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     private String sNumber = "";
     private String tocPage;
 
+    private static MainActivity mInstance;
+
     // Available background wall papers
     public static int[] bgResId = {R.drawable.bg0, R.drawable.bg1, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4, R.drawable.bg5,
             R.drawable.bg20, R.drawable.bg21, R.drawable.bg22, R.drawable.bg23, R.drawable.bg24, R.drawable.bg25};
 
-    @SuppressLint("CommitPrefEdits")
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
+        mInstance = this;
+        // Must setTheme() before super.onCreate(), otherwise not working
+        mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
+        mEditor = mSharedPref.edit();
+
+        String theme = mSharedPref.getString(PREF_THEME, Theme.DARK.toString());
+        setAppTheme(theme, false);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         registerForContextMenu(findViewById(R.id.viewMain));
-        setTitle(R.string.app_title_main);
-
-        mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
-        mEditor = mSharedPref.edit();
 
         mHistoryListView = findViewById(R.id.historyListView);
         mHistoryListView.setVisibility(View.GONE);
@@ -180,8 +191,13 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         initUserSettings();
 
         // PermissionUtils.isPermissionGranted(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        PermissionUtils.requestPermission(this, 1001,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE, false);
+        PermissionUtils.hasWriteStoragePermission(this, true);
+
+        // POST_NOTIFICATIONS is need for api-13
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            PermissionUtils.hasPermission(this, true, PRC_NOTIFICATIONS,
+                    Manifest.permission.POST_NOTIFICATIONS);
+        }
 
         // allow 15 seconds for first launch login to complete before showing history log if the activity is still active
         ChangeLog cl = new ChangeLog(this);
@@ -191,7 +207,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                     cl.getLogDialog().show();
                 }
             }, 15000));
-            //MigrationTo3.purgeHymnJC(mDB);
+            // Not necessary for debug version; can rely on updateServiceImpl;
             MediaConfig.importUrlRecords();
         }
 
@@ -270,8 +286,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * @param intent new <tt>Intent</tt> data.
      */
     @Override
-    protected void onNewIntent(Intent intent)
-    {
+    protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         handleIntent(intent);
     }
@@ -281,8 +296,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      *
      * @param intent <tt>Activity</tt> <tt>Intent</tt>.
      */
-    private void handleIntent(Intent intent)
-    {
+    private void handleIntent(Intent intent) {
         super.onStart();
         if (intent == null) {
             return;
@@ -317,14 +331,45 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
         autoClear = true;
+        configureToolBar();
     }
 
-    private String getFile(Uri uri)
-    {
+    /**
+     * Configure the main activity action bar using
+     * a. Android actionBar
+     * b. Customer action_bar layout
+     */
+    private void configureToolBar() {
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_HOME
+                    | ActionBar.DISPLAY_USE_LOGO
+                    | ActionBar.DISPLAY_SHOW_TITLE);
+
+            // ensure actual logo size is ~64x64
+            actionBar.setLogo(R.drawable.logo_hymnchtv);
+            actionBar.setTitle(R.string.app_title_main);
+
+        /*
+           // actionBar.setTitle("");
+           // actionBar.setDisplayShowCustomEnabled(true);
+           // actionBar.setCustomView(R.layout.action_bar);
+           // ImageView logo = findViewById(R.id.logo);
+           // logo.setImageResource(R.drawable.logo_hymnchtv);
+           // TextView actionBarText = findViewById(R.id.actionBarTitle);
+           // actionBarText.setText(R.string.app_title_main);
+        */
+        }
+    }
+
+    public static MainActivity getInstance() {
+        return mInstance;
+    }
+
+    private String getFile(Uri uri) {
         File inFile = new File(FilePathHelper.getFilePath(this, uri));
         if (inFile.exists()) {
             return inFile.getPath();
@@ -337,16 +382,17 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
     // 目录 Spinner selector handler
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-    {
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         tocPage = hymnTocPage.get(position);
         isToc = (position > 0);
 
         if (isToc) {
             sNumber = "";
+            // mEntry.setFilters(new InputFilter[] { new InputFilter.LengthFilter(10) });
             mEntry.setText(tocPage);
         }
         else if (TextUtils.isEmpty(sNumber)) {
+            // mEntry.setFilters(new InputFilter[] { new InputFilter.LengthFilter(4) });
             mEntry.setText("");
         }
 
@@ -360,8 +406,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent)
-    {
+    public void onNothingSelected(AdapterView<?> parent) {
     }
 
     /**
@@ -369,8 +414,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      *
      * @param btnView fu and number buttons views
      */
-    private void onNumberClick(View btnView)
-    {
+    private void onNumberClick(View btnView) {
         // Auto clear sNumber to "" if this is first resume
         if (autoClear) {
             autoClear = false;
@@ -394,8 +438,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      *
      * @param hymnType the button being clicked
      */
-    private void onHymnButtonClicked(String hymnType)
-    {
+    private void onHymnButtonClicked(String hymnType) {
         if (!isToc) {
             sNumber = mEntry.getText().toString();
             if (isFu) {
@@ -440,8 +483,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * @param hymnNo the content of hymnNo to display
      * @param autoPlay start media playback if true after the lyrics content is shown
      */
-    public static void showContent(Context ctx, String hymnType, int hymnNo, boolean autoPlay)
-    {
+    public static void showContent(Context ctx, String hymnType, int hymnNo, boolean autoPlay) {
         // Save the user selection into history record
         boolean isFu = MediaRecord.isFu(hymnType, hymnNo);
         HistoryRecord historyRecord = new HistoryRecord(hymnType, hymnNo, isFu);
@@ -462,11 +504,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      *
      * @param hymnType Hymn Toc
      */
-    private void showHymnToc(String hymnType)
-    {
+    private void showHymnToc(String hymnType) {
         // "英中对照" not implemented for HYMN_ER or HYMN_XB
         if (TOC_ENGLISH.equals(tocPage) && (HYMN_ER.equals(hymnType) || HYMN_XB.equals(hymnType))) {
-            HymnsApp.showToastMessage(R.string.gui_in_development);
+            HymnsApp.showToastMessage(R.string.gui_en2ch_hymn_same);
             return;
         }
 
@@ -484,10 +525,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      *
      * @param keyCode android keyCode
      * @param event KeyEvent
+     *
      * @return handler state from android super
      */
-    public boolean onKeyDown(int keyCode, KeyEvent event)
-    {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (mHistoryListView.getVisibility() == View.VISIBLE) {
                 mEntry.setHint(R.string.hint_hymn_number_enter);
@@ -508,16 +549,18 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * Initial the option item menu
      *
      * @param menu the menu container
+     *
      * @return true always
      */
-    public boolean onCreateOptionsMenu(@NonNull Menu menu)
-    {
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
+        /*
         // if (BuildConfig.DEBUG) {
         //     menu.findItem(R.id.sn_convert).setVisible(true);
         // }
+         */
         return true;
     }
 
@@ -528,8 +571,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * @param v view
      * @param menuInfo info
      */
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)
-    {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
     }
 
@@ -537,10 +579,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * Handler for the Context item clicked; use the same handlers as Option Item clicked
      *
      * @param item Option Item
+     *
      * @return the handle state
      */
-    public boolean onContextItemSelected(MenuItem item)
-    {
+    public boolean onContextItemSelected(MenuItem item) {
         return onOptionsItemSelected(item);
     }
 
@@ -548,14 +590,31 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * Handler for the option item clicked
      *
      * @param item menu Item
+     *
      * @return the handle state
      */
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+    public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
 
         switch (item.getItemId()) {
-            // Set font size
+            // === Set app theme ===
+            case R.id.themeDark:
+                setAppTheme(Theme.DARK.toString(), true);
+                return true;
+
+            case R.id.themeLight:
+                setAppTheme(Theme.LIGHT.toString(), true);
+                return true;
+
+            case R.id.localeChinese:
+                setAppLocale(LocaleHelper.LocaleChinese);
+                return true;
+
+            case R.id.localeenglish:
+                setAppLocale(LocaleHelper.LocaleEnglish);
+                return true;
+
+            // === Set font size ===
             case R.id.small:
                 fontSize = FONT_SIZE_DEFAULT - 5;
                 setFontSize(fontSize, true);
@@ -586,7 +645,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 setFontSize(fontSize, true);
                 return true;
 
-            // Set font color
+            // === Set font color ===
             case R.id.red:
                 setFontColor(Color.RED, true);
                 return true;
@@ -616,10 +675,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
                 return true;
 
             case R.id.black:
-                setFontColor(Color.BLACK, true);
+                setFontColor(getResources().getColor(R.color.grey900), true);
                 return true;
 
-            // Set background color
+            // === Set background color ===
             case R.id.sbg1:
                 setBgColor(0, R.drawable.bg0);
                 return true;
@@ -702,7 +761,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             case R.id.alwayshow:
             case R.id.alwayhide:
             case R.id.bg:
-            case R.id.stextcolor:
+            case R.id.fontColor:
             default:
                 return false;
         }
@@ -711,8 +770,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     /**
      * Bind all the button to its resource id
      */
-    private void initButton()
-    {
+    private void initButton() {
         background = findViewById(R.id.viewMain);
         mEntry = findViewById(R.id.tv_entry);
 
@@ -754,7 +812,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         // Create an ArrayAdapter using the string array and hymnApp default spinner layout
         ArrayAdapter<String> mAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, hymnTocPage);
         // Specify the layout to use when the list of choices appears
-        mAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+        mAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_radio);
 
         tocSpinner = findViewById(R.id.spinner_toc);
         tocSpinner.setAdapter(mAdapter);
@@ -771,8 +829,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     /**
      * Retrieve all the user preference settings and initialize the UI accordingly
      */
-    private void initUserSettings()
-    {
+    private void initUserSettings() {
         setWallpaper();
 
         fontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT);
@@ -780,10 +837,10 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
 
         fontColor = mSharedPref.getInt(PREF_TEXT_COLOR, Color.BLACK);
         setFontColor(fontColor, false);
+
     }
 
-    private void showHymn(HistoryRecord sRecord)
-    {
+    private void showHymn(HistoryRecord sRecord) {
         mEntry.setHint(R.string.hint_hymn_number_enter);
         mHistoryListView.setVisibility(View.GONE);
 
@@ -794,14 +851,11 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private void initHistoryList()
-    {
+    private void initHistoryList() {
         List<HistoryRecord> historyRecords = mDB.getHistoryRecords();
-        mHistoryAdapter = new MySwipeListAdapter<HistoryRecord>(this, historyRecords)
-        {
+        mHistoryAdapter = new MySwipeListAdapter<HistoryRecord>(this, historyRecords) {
             @Override
-            public void remove(@NonNull HistoryRecord sRecord)
-            {
+            public void remove(@NonNull HistoryRecord sRecord) {
                 int count = mDB.deleteHymnHistory(sRecord);
                 if (count == 1) {
                     super.remove(sRecord);
@@ -809,8 +863,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             }
 
             @Override
-            public void open(@NonNull HistoryRecord sRecord)
-            {
+            public void open(@NonNull HistoryRecord sRecord) {
                 showHymn(sRecord);
             }
         };
@@ -821,11 +874,9 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     /**
      * TouchListener to support singleTap, doubleTap and longPress for the view for site visit
      */
-    TouchListener touchListener = new TouchListener(HymnsApp.getGlobalContext())
-    {
+    TouchListener touchListener = new TouchListener(HymnsApp.getGlobalContext()) {
         @Override
-        public boolean onSingleTap(View v, int pos)
-        {
+        public boolean onSingleTap(View v, int pos) {
             HistoryRecord sRecord = (HistoryRecord) ((ListView) v).getItemAtPosition(pos);
             if (sRecord != null) {
                 showHymn(sRecord);
@@ -834,8 +885,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         }
 
         @Override
-        public void onLongPress(View v, int pos)
-        {
+        public void onLongPress(View v, int pos) {
             HistoryRecord sRecord = (HistoryRecord) ((ListView) v).getItemAtPosition(pos);
             if (sRecord == null)
                 return;
@@ -843,33 +893,28 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
             DialogActivity.showConfirmDialog(MainActivity.this,
                     R.string.gui_delete,
                     R.string.gui_delete_history,
-                    R.string.gui_delete, new DialogActivity.DialogListener()
-                    {
-                        public boolean onConfirmClicked(DialogActivity dialog)
-                        {
+                    R.string.gui_delete, new DialogActivity.DialogListener() {
+                        public boolean onConfirmClicked(DialogActivity dialog) {
                             mHistoryAdapter.setSelectState(pos, false);
                             mHistoryAdapter.remove(sRecord);
                             return true;
                         }
 
-                        public void onDialogCancelled(DialogActivity dialog)
-                        {
+                        public void onDialogCancelled(DialogActivity dialog) {
                         }
                     }, sRecord.toString());
 
         }
 
         @Override
-        public boolean onSwipeRight(View v, int idx)
-        {
+        public boolean onSwipeRight(View v, int idx) {
             mHistoryAdapter.setSelectState(idx, false);
             int pos = idx - ((ListView) v).getFirstVisiblePosition();
             return showActionButton(pos, false);
         }
 
         @Override
-        public boolean onSwipeLeft(View v, int idx)
-        {
+        public boolean onSwipeLeft(View v, int idx) {
             mHistoryAdapter.setSelectState(idx, true);
             int pos = idx - ((ListView) v).getFirstVisiblePosition();
             return showActionButton(pos, true);
@@ -882,8 +927,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
          * @param show true is to reveal the alt layout
          * @return true always
          */
-        private boolean showActionButton(int pos, boolean show)
-        {
+        private boolean showActionButton(int pos, boolean show) {
             ViewSwitcher child = (ViewSwitcher) mHistoryListView.getChildAt(pos);
             if (child != null) {
                 if ((child.getDisplayedChild() == 0) == show) {
@@ -895,10 +939,57 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
     };
 
     /**
+     * Set app Theme as per sTheme. Need to restart MainActivity to reflect newly selected theme.
+     *
+     * @param sTheme Request Theme
+     * @param prefChange true if use change theme
+     */
+    private void setAppTheme(String sTheme, boolean prefChange) {
+        Timber.d("Set App Theme: %s => %s", prefChange, sTheme);
+        if (prefChange) {
+            mEditor.putString(PREF_THEME, sTheme);
+            mEditor.apply();
+
+            finish();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+        else {
+            Theme theme = Theme.valueOf(sTheme);
+            ThemeHelper.setTheme(this, theme);
+        }
+    }
+
+    /**
+     * Set HymnApp locale per user selected language.
+     * Must commit preference change immediately before perform system restart.
+     *
+     * Note: Restart MainActivity does not apply to HymnApp Application class.
+     * HymnApp mBase Context can only be changed with Application restart.
+     *
+     * @param language Locale language
+     */
+    private void setAppLocale(String language) {
+        mEditor.putString(PREF_LOCALE, language);
+        mEditor.commit();
+
+        doRestart();
+    }
+
+    // Need to restart whole app to make HymnApp Locale change working
+    private void doRestart() {
+        PackageManager pm = getPackageManager();
+        Intent intent = pm.getLaunchIntentForPackage(getPackageName());
+        ComponentName componentName = intent.getComponent();
+        Intent mainIntent = Intent.makeRestartActivityTask(componentName);
+        startActivity(mainIntent);
+        Runtime.getRuntime().exit(0);
+    }
+
+    /**
      * Init the main UI wallpaper with one of the predefined image in drawable or user own if bgResId == -1
      */
-    private void setWallpaper()
-    {
+    private void setWallpaper() {
         mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
         int bgResId = mSharedPref.getInt(PREF_BACKGROUND, 5);
         if (bgResId != -1) {
@@ -920,8 +1011,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * @param size button label font size
      * @param update true to update the preference settings
      */
-    private void setFontSize(int size, boolean update)
-    {
+    private void setFontSize(int size, boolean update) {
         if (update) {
             mEditor.putInt(PREF_TEXT_SIZE, size);
             mEditor.apply();
@@ -957,13 +1047,19 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * @param color text color
      * @param update true to update the preference settings
      */
-    private void setFontColor(int color, boolean update)
-    {
+    private void setFontColor(int color, boolean update) {
         fontColor = color;
         if (update) {
             mEditor.putInt(PREF_TEXT_COLOR, color);
             mEditor.apply();
         }
+
+        // set hint text alpha to 40%
+        mEntry.setHintTextColor(color & 0x66FFFFFF);
+        mEntry.setTextColor(color);
+
+        tv_Search.setHintTextColor(color & 0x66FFFFFF);
+        tv_Search.setTextColor(color);
 
         btn_n0.setTextColor(color);
         btn_n1.setTextColor(color);
@@ -983,8 +1079,8 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
         btn_xb.setTextColor(color);
         btn_bb.setTextColor(color);
         btn_db.setTextColor(color);
-        btn_search.setTextColor(color);
 
+        btn_search.setTextColor(color);
         mTocSpinnerItem.setTextColor(color);
     }
 
@@ -994,8 +1090,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * @param bgMode the selected background wall paper
      * @param resid the android drawable resource Id for the selected wall paper
      */
-    private void setBgColor(int bgMode, int resid)
-    {
+    private void setBgColor(int bgMode, int resid) {
         mEditor.putInt(PREF_BACKGROUND, bgMode);
         mEditor.apply();
         background.setBackgroundResource(resid);
@@ -1007,8 +1102,7 @@ public class MainActivity extends FragmentActivity implements AdapterView.OnItem
      * @param hymnType Update HymnType as given
      * @param hymnNo Update HymnNo as given
      */
-    public static void setHymnTypeNo(String hymnType, int hymnNo)
-    {
+    public static void setHymnTypeNo(String hymnType, int hymnNo) {
         mHymnType = hymnType;
         mHymnNo = hymnNo;
     }

@@ -63,6 +63,7 @@ public class HymnNoCh2EngXRef
         switch (hymnType) {
             // 儿童诗歌
             case HYMN_ER:
+                hymnNoEng = hymnNo;
                 break;
 
             // 新歌颂咏

@@ -16,11 +16,13 @@
  */
 package org.cog.hymnchtv.persistance;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -39,9 +41,59 @@ import org.cog.hymnchtv.R;
  */
 public class PermissionUtils
 {
+    // android Permission Request Code
+    public static final int PRC_WRITE_EXTERNAL_STORAGE = 2000;
+    public static final int PRC_NOTIFICATIONS = 2001;
+
     private static FragmentActivity mActivity;
     private static String mPermissionRequest;
     private static String mPermissionType;
+
+    // =========== Runtime permission handlers ==========
+    /**
+     * Check the WRITE_EXTERNAL_STORAGE state; proceed to request for permission if requestPermission == true.
+     * Require to support WRITE_EXTERNAL_STORAGE pending aTalk installed API version.
+     *
+     * @param callBack the requester activity to receive onRequestPermissionsResult()
+     * @param requestPermission Proceed to request for the permission if was denied; check only if false
+     *
+     * @return the current WRITE_EXTERNAL_STORAGE permission state
+     */
+    public static boolean hasWriteStoragePermission(FragmentActivity callBack, boolean requestPermission) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            return true;
+        }
+        return hasPermission(callBack, requestPermission, PRC_WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+
+    public static boolean hasPermission(FragmentActivity callBack, boolean requestPermission, int requestCode, String permission) {
+        // Timber.d(new Exception(),"Callback: %s => %s (%s)", callBack, permission, requestPermission);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ActivityCompat.checkSelfPermission(callBack, permission) != PackageManager.PERMISSION_GRANTED) {
+                if (requestPermission) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(callBack, permission)) {
+                        ActivityCompat.requestPermissions(callBack, new String[]{permission}, requestCode);
+                    } else {
+                        showHintMessage(requestCode, permission);
+                    }
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static void showHintMessage(int requestCode, String permission) {
+        if (requestCode == PRC_WRITE_EXTERNAL_STORAGE) {
+            HymnsApp.showToastMessage(R.string.permission_storage_required);
+        }
+        else if (requestCode == PRC_NOTIFICATIONS) {
+            HymnsApp.showToastMessage(R.string.permission_notifications_required);
+        } else {
+            HymnsApp.showToastMessage(HymnsApp.getResString(R.string.permission_app_rational) + ": " + permission);
+        }
+    }
 
     /**
      * Requests the required permission. If a rationale with an additional explanation should
@@ -108,7 +160,7 @@ public class PermissionUtils
             endApp = getArguments().getBoolean(ARGUMENT_FINISH_ACTIVITY);
 
             return new AlertDialog.Builder(mActivity)
-                    .setMessage(getString(R.string.permission_storage_rational, mPermissionType))
+                    .setMessage(getString(R.string.permission_app_rational, mPermissionType))
                     .setPositiveButton(R.string.gui_ok, null)
                     .create();
         }
@@ -164,7 +216,7 @@ public class PermissionUtils
             endApp = arguments.getBoolean(ARGUMENT_FINISH_ACTIVITY);
 
             return new AlertDialog.Builder(mActivity)
-                    .setMessage(getString(R.string.permission_storage_rational, mPermissionType))
+                    .setMessage(getString(R.string.permission_app_rational, mPermissionType))
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                         // After click on Ok, request the permission.
                         ActivityCompat.requestPermissions(mActivity, new String[]{mPermissionRequest}, requestCode);

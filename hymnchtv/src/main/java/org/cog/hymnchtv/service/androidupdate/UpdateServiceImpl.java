@@ -36,6 +36,7 @@ import android.os.Build;
 
 import org.cog.hymnchtv.BuildConfig;
 import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MainActivity;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.persistance.FileBackend;
@@ -148,8 +149,7 @@ public class UpdateServiceImpl {
                         new DialogActivity.DialogListener() {
                             @Override
                             public boolean onConfirmClicked(DialogActivity dialog) {
-                                if (PermissionUtils.isPermissionGranted(HymnsApp.getGlobalContext(),
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                if (PermissionUtils.hasWriteStoragePermission(MainActivity.getInstance(), true)) {
                                     downloadApk();
                                 }
                                 return true;
@@ -158,7 +158,7 @@ public class UpdateServiceImpl {
                             @Override
                             public void onDialogCancelled(DialogActivity dialog) {
                             }
-                        }, HymnsApp.getResString(R.string.app_name), latestVersion, latestVersionCode, currentVersion
+                        }, HymnsApp.getResString(R.string.app_title_main), latestVersion, latestVersionCode, currentVersion
                 );
             } else if (notifyAboutNewestVersion) {
                 // Notify that running version is up to date
@@ -169,8 +169,7 @@ public class UpdateServiceImpl {
                         new DialogActivity.DialogListener() {
                             @Override
                             public boolean onConfirmClicked(DialogActivity dialog) {
-                                if (PermissionUtils.isPermissionGranted(HymnsApp.getGlobalContext(),
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                                if (PermissionUtils.hasWriteStoragePermission(MainActivity.getInstance(), true)) {
                                     if (checkLastDLFileAction() >= DownloadManager.ERROR_UNKNOWN)
                                         downloadApk();
                                 }

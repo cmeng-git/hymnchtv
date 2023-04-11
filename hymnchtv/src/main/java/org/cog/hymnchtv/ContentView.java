@@ -27,6 +27,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -110,6 +111,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     private Integer mHymnNoEng = null;
 
     private boolean isSimplify;
+    private boolean isErGe;
     private boolean mLyricsLoaded = false;
     private boolean hasEnglishLyrics = false;
 
@@ -155,6 +157,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         lyricsTraditional = mConvertView.findViewById(R.id.lyrics_traditional);
 
         lyricsEnglish = mConvertView.findViewById(R.id.lyrics_english);
+        lyricsEnglish.setBackgroundColor(Color.TRANSPARENT);
 
         lyricsScaleP = mSharedPref.getFloat(PREF_LYRICS_SCALE_P, 1.0f);
         lyricsScaleL = mSharedPref.getFloat(PREF_LYRICS_SCALE_L, 1.0f);
@@ -218,7 +221,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
                     isSimplify = !isSimplify;
                     mEditor.putBoolean(PREF_SIMPLIFY, isSimplify);
                     mEditor.apply();
-                } else {
+                }
+                else {
                     hasEnglishLyrics = false;
                 }
                 toggleLyricsView();
@@ -263,16 +267,17 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
 
         // Chinese lyrics#
         int lyricsNo = hymnScoreInfo[0];
+        isErGe = HYMN_ER.equals(hymnType);
 
         switch (hymnType) {
             case HYMN_DB:
                 resPrefix = LYRICS_DB_SCORE + "db" + lyricsNo;
-                resFName = LYRICS_DBS_TEXT  + "db" + lyricsNo + ".txt";
+                resFName = LYRICS_DBS_TEXT + "db" + lyricsNo + ".txt";
                 break;
 
             case HYMN_BB:
                 resPrefix = LYRICS_BB_SCORE + "bb" + lyricsNo;
-                resFName = LYRICS_BBS_TEXT  + "bb" + lyricsNo + ".txt";
+                resFName = LYRICS_BBS_TEXT + "bb" + lyricsNo + ".txt";
                 break;
 
             case HYMN_XB:
@@ -322,7 +327,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
             resName = resPrefix + "a.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
             MyGlideApp.loadImage(ctx, contentView, resName);
-        } else {
+        }
+        else {
             return;
         }
 
@@ -331,7 +337,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
             resName = resPrefix + "b.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
             MyGlideApp.loadImage(ctx, contentView, resName);
-        } else {
+        }
+        else {
             return;
         }
 
@@ -340,7 +347,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
             resName = resPrefix + "c.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
             MyGlideApp.loadImage(ctx, contentView, resName);
-        } else {
+        }
+        else {
             return;
         }
 
@@ -388,7 +396,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
             lyricsSimplify.scaleTextSize(20, lyricsScaleP);
             lyricsTraditional.scaleTextSize(20, lyricsScaleP);
             webSettings.setDefaultFontSize((int) (18 * lyricsScaleEP));
-        } else {
+        }
+        else {
             lyricsSimplify.scaleTextSize(35, lyricsScaleL);
             lyricsTraditional.scaleTextSize(35, lyricsScaleL);
             webSettings.setDefaultFontSize((int) (26 * lyricsScaleEL));
@@ -403,7 +412,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     public void setLyricsTextSize(boolean stepInc) {
         if (lyricsEnglish.getVisibility() == View.VISIBLE) {
             setLyricsEnglishTS(stepInc);
-        } else {
+        }
+        else {
             lyricsSimplify.onTextSizeChange(stepInc);
             lyricsTraditional.onTextSizeChange(stepInc);
         }
@@ -416,7 +426,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         if (HymnsApp.isPortrait) {
             lyricsScaleEP += tmpScale;
             mEditor.putFloat(PREF_LYRICS_ENGLISH_SCALE_P, lyricsScaleEP);
-        } else {
+        }
+        else {
             lyricsScaleEL += tmpScale;
             mEditor.putFloat(PREF_LYRICS_ENGLISH_SCALE_L, lyricsScaleEL);
         }
@@ -434,7 +445,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         if (HymnsApp.isPortrait) {
             lyricsScaleP = scaleFactor;
             mEditor.putFloat(PREF_LYRICS_SCALE_P, scaleFactor);
-        } else {
+        }
+        else {
             lyricsScaleL = scaleFactor;
             mEditor.putFloat(PREF_LYRICS_SCALE_L, scaleFactor);
         }
@@ -450,13 +462,16 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
             lyricsEnglish.setVisibility(View.VISIBLE);
             Timber.d("Lyrics loaded: %s", mLyricsLoaded);
             if (!mLyricsLoaded) {
-                showLyricsEnglish("<h3>" + getResources().getString(R.string.gui_download_wait) + "</h3>");
-                mLyricsEnglishRecord.fetchLyrics(mHymnNoEng);
+                showLyricsEnglish(LyricsEnglishRecord
+                        .toHtml("<h3>" + getResources().getString(R.string.gui_download_wait) + "</h3>"));
             }
-        } else {
+            mLyricsEnglishRecord.fetchLyrics(mHymnNoEng, isErGe);
+        }
+        else {
             if (isSimplify) {
                 lyricsSimplify.setVisibility(View.VISIBLE);
-            } else {
+            }
+            else {
                 lyricsTraditional.setVisibility(View.VISIBLE);
             }
         }
@@ -468,7 +483,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
             if (lyrics != null) {
                 mLyricsLoaded = true;
                 lyricsEnglish.loadDataWithBaseURL(null, lyrics, "text/html", "utf8", null);
-            } else {
+            }
+            else {
                 lyricsEnglish.loadUrl(LyricsEnglishRecord.HYMNAL_LINK_MAIN + mHymnNoEng);
             }
         });

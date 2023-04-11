@@ -45,8 +45,6 @@ import android.view.KeyEvent;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 
-import androidx.fragment.app.FragmentActivity;
-
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.TextUtils;
 
@@ -70,8 +68,7 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class HymnToc extends FragmentActivity
-{
+public class HymnToc extends BaseActivity {
     /* 大本诗歌 db toc category */
     public static final String[] hymnCategoryDb
             = new String[]{"颂赞三一神", "敬拜父", "赞美主", "圣灵的丰满", "得救的证实与快乐", "羡慕", "奉献", "与基督的联合",
@@ -103,8 +100,13 @@ public class HymnToc extends FragmentActivity
     public static final String TOC_PINYIN = "拼音索引";
     public static final String TOC_ENGLISH = "英中对照";
 
-    public static List<String> hymnTocPage = new ArrayList<>();
+//    public static final String TOC_TITLE = HymnsApp.getResString(R.string.hymn_toc);
+//    public static final String TOC_CATEGORY = HymnsApp.getResString(R.string.hymn_category);
+//    public static final String TOC_STROKE = HymnsApp.getResString(R.string.hymn_stroke);
+//    public static final String TOC_PINYIN = HymnsApp.getResString(R.string.hymn_pinyin);
+//    public static final String TOC_ENGLISH = HymnsApp.getResString(R.string.hymn_eng2ch);
 
+    public static List<String> hymnTocPage = new ArrayList<>();
     static {
         hymnTocPage.add(TOC_TITLE);
         hymnTocPage.add(TOC_CATEGORY);
@@ -136,14 +138,13 @@ public class HymnToc extends FragmentActivity
      *
      * @param savedInstanceState bundle
      */
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String hymnType = getIntent().getExtras().getString(ATTR_HYMN_TYPE);
         if (TextUtils.isEmpty((hymnType)))
             return;
-        String tocPage = getIntent().getExtras().getString(ATTR_PAGE);
 
+        String tocPage = getIntent().getExtras().getString(ATTR_PAGE);
         setContentView(R.layout.hymn_toc);
         expandableListView = findViewById(R.id.hymnToc);
         initHymnTocAdapter(hymnType, tocPage);
@@ -155,8 +156,7 @@ public class HymnToc extends FragmentActivity
      * @param hymnType the hymn type
      * @param tocPage the TOC type
      */
-    private void initHymnTocAdapter(String hymnType, String tocPage)
-    {
+    private void initHymnTocAdapter(String hymnType, String tocPage) {
         tocListDetail = getHymnToc(hymnType, tocPage);
         tocListCategory = new ArrayList<>(tocListDetail.keySet());
         ExpandableListAdapter expandableListAdapter = new HymnTocExpandableListAdapter(this, tocListCategory, tocListDetail);
@@ -186,8 +186,7 @@ public class HymnToc extends FragmentActivity
      * @param hymnType the hymn type
      * @param hymnTitle the hymn title for extracting the hymn no for content display
      */
-    private void onHymnTitleClick(String hymnType, String hymnTitle)
-    {
+    private void onHymnTitleClick(String hymnType, String hymnTitle) {
         int hymnNo;
         int idx = hymnTitle.lastIndexOf("#");
         if (idx != -1) {
@@ -208,10 +207,10 @@ public class HymnToc extends FragmentActivity
      *
      * @param hymnType the hymn type
      * @param tocPage the toc page
+     *
      * @return HashMap to build the tree view
      */
-    private HashMap<String, List<String>> getHymnToc(String hymnType, String tocPage)
-    {
+    private HashMap<String, List<String>> getHymnToc(String hymnType, String tocPage) {
         int hymnNo;
         String fname;
         Range<Integer> rangeToc;
@@ -246,7 +245,7 @@ public class HymnToc extends FragmentActivity
                             while (hymnNo <= HYMN_DB_NO_TMAX) {
 
                                 if (rangeToc.contains(hymnNo)) {
-                                    fname = LYRICS_DBS_TEXT  + "db" + hymnNo + ".txt";
+                                    fname = LYRICS_DBS_TEXT + "db" + hymnNo + ".txt";
 
                                     String hymnTitle = getHymnTitle(hymnNo, fname);
                                     if (hymnNo > HYMN_DB_NO_MAX) {
@@ -297,7 +296,7 @@ public class HymnToc extends FragmentActivity
                                 }
 
                                 if (rangeToc.contains(hymnNo)) {
-                                    fname = LYRICS_BBS_TEXT  + "bb" + hymnNo + ".txt";
+                                    fname = LYRICS_BBS_TEXT + "bb" + hymnNo + ".txt";
                                     tocItems.add(getHymnTitle(hymnNo, fname));
                                     hymnNo++;
                                 }
@@ -428,8 +427,7 @@ public class HymnToc extends FragmentActivity
      *
      * @param tocFile the toc file to extract info from
      */
-    private void getHymnTocType(String tocFile)
-    {
+    private void getHymnTocType(String tocFile) {
         List<String> tocItems = new ArrayList<>();
         String tocCategory = "";
         StringBuilder indexString = new StringBuilder("（");
@@ -483,10 +481,10 @@ public class HymnToc extends FragmentActivity
      * return result if found, else null
      *
      * @param fName The name of file to search
+     *
      * @return matching string if found, else null
      */
-    private String getHymnTitle(int hymnNo, String fName)
-    {
+    private String getHymnTitle(int hymnNo, String fName) {
         String hymnTitle = "";
 
         // These two variables are used to generate "英中对照"
@@ -541,10 +539,10 @@ public class HymnToc extends FragmentActivity
      *
      * @param keyCode The keycode
      * @param event the key event
+     *
      * @return from its super if it is not KEYCODE_BACK
      */
-    public boolean onKeyDown(int keyCode, KeyEvent event)
-    {
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             finish();
             return true;

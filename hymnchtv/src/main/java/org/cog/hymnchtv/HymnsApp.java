@@ -16,12 +16,16 @@
  */
 package org.cog.hymnchtv;
 
+import static org.cog.hymnchtv.MainActivity.PREF_LOCALE;
+import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+
 import android.app.ActivityManager;
 import android.app.Application;
 import android.app.DownloadManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Point;
@@ -45,19 +49,19 @@ import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
 import org.cog.hymnchtv.service.androidupdate.OnlineUpdateService;
 import org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl;
+import org.cog.hymnchtv.utils.LocaleHelper;
 
 import java.util.List;
 
 import timber.log.Timber;
 
 /**
- * HymnsApp is the hymnchtv application class, the first to be lauched.
+ * HymnsApp is the hymnchtv application class, the first to be launched.
  * It is a global context and utility class for global actions (like EXIT broadcast).
  *
  * @author Eng Chong Meng
  */
-public class HymnsApp extends Application implements LifecycleEventObserver
-{
+public class HymnsApp extends Application implements LifecycleEventObserver {
     /**
      * Indicate if hymnchtv is in the foreground (true) or background (false)
      */
@@ -71,7 +75,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver
     /**
      * Static instance holder.
      */
-    private static HymnsApp mInstance;
+    private static Context mInstance;
 
     /**
      * Must have only one instance of the MediaDownloadHandler for properly UI display
@@ -87,8 +91,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver
      * {@inheritDoc}
      */
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         TimberLogImpl.init();
         // https://github.com/guardian/toolargetool
         // TooLargeTool.startLogging(this);
@@ -96,7 +99,11 @@ public class HymnsApp extends Application implements LifecycleEventObserver
         // This helps to prevent WebView resets UI back to system default.
         // Must skip for < N else weired exceptions happen in Note-5
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            new WebView(this).destroy();
+            try {
+                new WebView(this).destroy();
+            } catch (Exception e) {
+                Timber.e("WebView init exception: %s", e.getMessage());
+            }
         }
 
         // Must initialize Notification channels before any notification is being issued.
@@ -107,11 +114,6 @@ public class HymnsApp extends Application implements LifecycleEventObserver
 
         // Trigger the hymnchtv database upgrade or creation if none exist
         DatabaseBackend.getInstance(this);
-
-        // Do this after WebView(this).destroy(); Set up contextWrapper to use hymnchtv user selected Language
-        mInstance = this;
-        // String language = ConfigurationUtils.getProperty(getString(androidx.lifecycle.R.string.pref_key_locale), "");
-        // LocaleHelper.setLocale(mInstance, language);
 
         super.onCreate();
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
@@ -135,9 +137,19 @@ public class HymnsApp extends Application implements LifecycleEventObserver
         UpdateServiceImpl.getInstance().removeOldDownloads();
     }
 
+    /**
+     * setLocale for Application class to work properly with PBContext class.
+     */
     @Override
-    public void onConfigurationChanged(Configuration newConfig)
-    {
+    protected void attachBaseContext(Context base) {
+        SharedPreferences sharePref = base.getSharedPreferences(PREF_SETTINGS, 0);
+        String language = sharePref.getString(PREF_LOCALE, LocaleHelper.LocaleChinese);
+        mInstance = LocaleHelper.setLocale(base, language);
+        super.attachBaseContext(mInstance);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
         int orientation = newConfig.orientation;
@@ -150,21 +162,19 @@ public class HymnsApp extends Application implements LifecycleEventObserver
     }
 
     /**
-     * This method is for use in emulated process environments.  It will never be called on a production Android
+     * This method is for use in emulated process environments. It will never be called on a production Android
      * device, where processes are removed by simply killing them; no user code (including this callback)
      * is executed when doing so.
      */
     @Override
-    public void onTerminate()
-    {
+    public void onTerminate() {
         mInstance = null;
         super.onTerminate();
     }
 
     // ========= LifecycleEventObserver implementations ======= //
     @Override
-    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event)
-    {
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         if (Lifecycle.Event.ON_START == event) {
             isForeground = true;
             startUpdateService();
@@ -178,8 +188,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver
      * Start online service only when app is in the foreground, before going back to background upon detect
      * the device screen is locked. So need to handle with addition checks else Illegal exception.
      */
-    private static void startUpdateService()
-    {
+    private static void startUpdateService() {
         // Perform software version update check on first launch for both release and debug version
         if (BuildConfig.DEBUG && !isUpdateServerStarted) {
             ActivityManager manager = (ActivityManager) mInstance.getSystemService(Context.ACTIVITY_SERVICE);
@@ -199,22 +208,11 @@ public class HymnsApp extends Application implements LifecycleEventObserver
     }
 
     /**
-     * All language setting changes must call via this so HymnsApp contextWrapper is updated
-     *
-     * @param language locale for the HymnsApp
-     */
-    public static void setLocale(String language)
-    {
-        // LocaleHelper.setLocale(mInstance, language);
-    }
-
-    /**
      * Retrieves <tt>DownloadManager</tt> instance using application context.
      *
      * @return <tt>DownloadManager</tt> service instance.
      */
-    public static DownloadManager getDownloadManager()
-    {
+    public static DownloadManager getDownloadManager() {
         return (DownloadManager) getGlobalContext().getSystemService(Context.DOWNLOAD_SERVICE);
     }
 
@@ -223,8 +221,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver
      *
      * @return HymnsApp mInstance
      */
-    public static HymnsApp getInstance()
-    {
+    public static Context getInstance() {
         return mInstance;
     }
 
@@ -233,8 +230,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver
      *
      * @return Returns global application <tt>Context</tt>.
      */
-    public static Context getGlobalContext()
-    {
+    public static Context getGlobalContext() {
         return mInstance.getApplicationContext();
     }
 
@@ -243,8 +239,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver
      *
      * @return application <tt>Resources</tt> object.
      */
-    public static Resources getAppResources()
-    {
+    public static Resources getAppResources() {
         return mInstance.getResources();
     }
 
@@ -254,10 +249,10 @@ public class HymnsApp extends Application implements LifecycleEventObserver
      *
      * @param id the string identifier.
      * @param arg the format arguments that will be used for substitution.
+     *
      * @return Android string resource for given <tt>id</tt> and format arguments.
      */
-    public static String getResString(int id, Object... arg)
-    {
+    public static String getResString(int id, Object... arg) {
         return mInstance.getString(id, arg);
     }
 
@@ -266,24 +261,22 @@ public class HymnsApp extends Application implements LifecycleEventObserver
      *
      * @param resName the resource fileName.
      * @param defType the resource defined Type.
+     *
      * @return Android ResourceId for given defType and filename
      */
 
-    public static int getFileResId(String resName, String defType)
-    {
+    public static int getFileResId(String resName, String defType) {
         String packageName = mInstance.getPackageName();
         return mInstance.getResources().getIdentifier(resName, defType, packageName);
     }
 
-    public static Uri getRawUri(String filename)
-    {
+    public static Uri getRawUri(String filename) {
         int resId = HymnsApp.getFileResId(filename, "raw");
         return (resId != 0) ? Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
                 + mInstance.getPackageName() + "/raw/" + resId) : null;
     }
 
-    public static Uri getDrawableUri(String filename)
-    {
+    public static Uri getDrawableUri(String filename) {
         int resId = HymnsApp.getFileResId(filename, "drawable");
         return (resId != 0) ? Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
                 + mInstance.getPackageName() + "/drawable/" + resId) : null;
@@ -294,8 +287,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver
      *
      * @param message the string message to display.
      */
-    public static void showToastMessage(final String message)
-    {
+    public static void showToastMessage(final String message) {
         new Handler(Looper.getMainLooper()).post(() -> {
             if (toast != null && toast.getView() != null) {
                 toast.cancel();
@@ -305,13 +297,11 @@ public class HymnsApp extends Application implements LifecycleEventObserver
         });
     }
 
-    public static void showToastMessage(int id)
-    {
+    public static void showToastMessage(int id) {
         showToastMessage(getResString(id));
     }
 
-    public static void showToastMessage(int id, Object... arg)
-    {
+    public static void showToastMessage(int id, Object... arg) {
         showToastMessage(mInstance.getString(id, arg));
     }
 }

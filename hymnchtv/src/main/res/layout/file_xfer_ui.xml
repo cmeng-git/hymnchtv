@@ -6,7 +6,7 @@
     android:layout_height="90dp"
     android:layout_gravity="bottom"
     android:layout_margin="5dp"
-    android:background="@drawable/border_grey"
+    android:background="@drawable/tv_border_grey"
     android:orientation="vertical"
     android:clickable="true"
     android:focusable="true"

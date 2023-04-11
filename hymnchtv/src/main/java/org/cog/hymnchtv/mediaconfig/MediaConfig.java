@@ -59,15 +59,16 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.fragment.app.FragmentActivity;
 
 import org.apache.http.util.EncodingUtils;
+import org.cog.hymnchtv.BaseActivity;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.MainActivity;
 import org.cog.hymnchtv.MediaType;
@@ -79,6 +80,7 @@ import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNoValidate;
+import org.cog.hymnchtv.utils.ThemeHelper;
 import org.cog.hymnchtv.utils.TimberLog;
 import org.cog.hymnchtv.utils.ViewUtil;
 
@@ -119,7 +121,7 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class MediaConfig extends FragmentActivity
+public class MediaConfig extends BaseActivity
         implements View.OnClickListener, View.OnLongClickListener, AdapterView.OnItemSelectedListener {
     // Online text and video playback help contents
     private static final String HYMNCHTV_FAQ_UDC_RECORD = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0070";
@@ -241,9 +243,9 @@ public class MediaConfig extends FragmentActivity
         setTitle(R.string.gui_media_config);
 
         // Create an ArrayAdapter using the string array and hymnApp default spinner layout
-        ArrayAdapter<?> hymnTypeAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, hymnTypeEntry);
+        ArrayAdapter<?> hymnTypeAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item_light, hymnTypeEntry);
         // Specify the layout to use when the list of choices appears
-        hymnTypeAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+        hymnTypeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_radio);
 
         hymnTypeSpinner = findViewById(R.id.hymnType);
         hymnTypeSpinner.setAdapter(hymnTypeAdapter);
@@ -255,9 +257,9 @@ public class MediaConfig extends FragmentActivity
         // mHymnTypeSpinnerItem = hymnTypeSpinner.findViewById(R.id.textItem);
 
         // Create an ArrayAdapter using the string array and hymnApp default spinner layout
-        ArrayAdapter<?> mediaTypeAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, mediaTypeEntry);
+        ArrayAdapter<?> mediaTypeAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item_light, mediaTypeEntry);
         // Specify the layout to use when the list of choices appears
-        mediaTypeAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+        mediaTypeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_radio);
 
         mediaTypeSpinner = findViewById(R.id.mediaType);
         mediaTypeSpinner.setAdapter(mediaTypeAdapter);
@@ -310,7 +312,8 @@ public class MediaConfig extends FragmentActivity
                 tvMediaUri.setText(mediaUri);
                 if (mediaUri.contains("mp.weixin.qq.com") || mediaUri.contains(".notion.site")) {
                     mediaTypeSpinner.setSelection(2);
-                } else if (mediaUri.contains("youtube.com")
+                }
+                else if (mediaUri.contains("youtube.com")
                         || mediaUri.contains("hymnal.net")) {
                     mediaTypeSpinner.setSelection(0);
                 }
@@ -407,7 +410,8 @@ public class MediaConfig extends FragmentActivity
             case R.id.button_Exit:
                 if (mListView.getVisibility() == View.GONE) {
                     checkUnsavedChanges();
-                } else {
+                }
+                else {
                     setTitle(R.string.gui_media_config);
                     mListView.setVisibility(View.GONE);
                 }
@@ -489,7 +493,8 @@ public class MediaConfig extends FragmentActivity
                 mEditor.putInt(PREF_MEDIA_HYMN, mMediaType.getValue());
                 mEditor.apply();
                 MainActivity.showContent(this, mHymnType, nui, true);
-            } else {
+            }
+            else {
                 Intent openIntent = new Intent(Intent.ACTION_VIEW);
                 openIntent.setDataAndType(uri, mimeType);
                 openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -505,7 +510,8 @@ public class MediaConfig extends FragmentActivity
                     // showToastMessage(R.string.service_gui_FILE_OPEN_NO_APPLICATION);
                 }
             }
-        } else {
+        }
+        else {
             HymnsApp.showToastMessage(R.string.gui_error_playback, "url is null or not found!");
         }
     }
@@ -521,14 +527,16 @@ public class MediaConfig extends FragmentActivity
         return registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
             if (uri == null) {
                 HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
-            } else {
+            }
+            else {
                 File inFile = new File(FilePathHelper.getFilePath(this, uri));
                 if (inFile.exists()) {
                     String filename = inFile.getPath();
                     if (mViewRequest == tvImportFile) {
                         filename = copyToLocalFile(filename);
                         editFile(filename);
-                    } else {
+                    }
+                    else {
                         isAutoFilled = false;
                     }
                     mViewRequest.setText(filename);
@@ -543,6 +551,7 @@ public class MediaConfig extends FragmentActivity
      * The mediaUri will only moved to its final media directory when user performs add command
      *
      * @param uriPath the uri path returns by File(FilePathHelper.getFilePath(mContext, uri))
+     *
      * @return original uri path or newly copied uri path
      */
     private String copyToLocalFile(String uriPath) {
@@ -574,7 +583,8 @@ public class MediaConfig extends FragmentActivity
             if (mListView.getVisibility() == View.VISIBLE) {
                 showMediaRecords(-1);
             }
-        } else if (parent == mediaTypeSpinner) {
+        }
+        else if (parent == mediaTypeSpinner) {
             mMediaType = mediaTypeValue.get(position);
             sMediaType = mediaTypeEntry.get(position);
         }
@@ -588,7 +598,8 @@ public class MediaConfig extends FragmentActivity
     private final View.OnFocusChangeListener focusListener = (v, hasFocus) -> {
         if (hasFocus) {
             mFocusedView = v;
-        } else {
+        }
+        else {
             mFocusedView = null;
         }
     };
@@ -607,7 +618,8 @@ public class MediaConfig extends FragmentActivity
             if (tvMediaUri.equals(mEditText) && tvMediaUri.equals(mFocusedView)) {
                 Timber.d("AutoFilled set to false");
                 isAutoFilled = false;
-            } else if (tvHymnNo.equals(mEditText) && tvHymnNo.equals(mFocusedView)) {
+            }
+            else if (tvHymnNo.equals(mEditText) && tvHymnNo.equals(mFocusedView)) {
                 checkEntry();
             }
         }
@@ -646,7 +658,8 @@ public class MediaConfig extends FragmentActivity
                             finish();
                         }
                     });
-        } else {
+        }
+        else {
             finish();
         }
     }
@@ -687,7 +700,8 @@ public class MediaConfig extends FragmentActivity
                             public void onDialogCancelled(DialogActivity dialog) {
                             }
                         });
-            } else {
+            }
+            else {
                 return saveMediaRecord(mRecord);
             }
         }
@@ -790,7 +804,8 @@ public class MediaConfig extends FragmentActivity
                 showMediaRecords(mVisibleItem);
             }
             isAutoFilled = true;
-        } else {
+        }
+        else {
             HymnsApp.showToastMessage(R.string.gui_add_to_db_failed);
         }
         return isSuccess;
@@ -873,7 +888,8 @@ public class MediaConfig extends FragmentActivity
                 File mFile = new File(mediaFile);
                 if (mFile.exists()) {
                     imageUris.add(FileBackend.getUriForFile(this, new File(mediaFile)));
-                } else {
+                }
+                else {
                     HymnsApp.showToastMessage(R.string.gui_share_file_missing,
                             mediaFile.substring(mediaFile.indexOf("Download")));
                 }
@@ -889,7 +905,8 @@ public class MediaConfig extends FragmentActivity
         if (tvMediaUri.getVisibility() == View.GONE) {
             tvMediaUri.setVisibility(View.VISIBLE);
             tvUriDecode.setVisibility(View.GONE);
-        } else {
+        }
+        else {
             String mediaUri = ViewUtil.toString(tvMediaUri);
             if (mediaUri != null) {
                 tvMediaUri.setVisibility(View.GONE);
@@ -974,9 +991,11 @@ public class MediaConfig extends FragmentActivity
                     public boolean onConfirmClicked(DialogActivity dialog) {
                         if (mode == 0) {
                             QQRecord.fetchQQLinks(MediaConfig.this);
-                        } else if (mode == 1) {
+                        }
+                        else if (mode == 1) {
                             NotionRecord.fetchNotionLinks(MediaConfig.this);
-                        } else if (mode == 2) {
+                        }
+                        else if (mode == 2) {
                             NotionRecordScrape.fetchNotionLinks(MediaConfig.this);
                         }
                         return true;
@@ -1001,7 +1020,8 @@ public class MediaConfig extends FragmentActivity
             InputStream inputStream;
             if (importFile != null) {
                 inputStream = new FileInputStream(importFile);
-            } else {
+            }
+            else {
                 inputStream = HymnsApp.getAppResources().getAssets().open(assetFile);
             }
             boolean isOverWrite = cbOverwrite.isChecked();
@@ -1101,7 +1121,8 @@ public class MediaConfig extends FragmentActivity
                     HymnsApp.showToastMessage(R.string.hymn_match, recordSize);
                     tvImportFile.setText(exportFile.getPath());
                     editFile(exportFile.getPath());
-                } else {
+                }
+                else {
                     HymnsApp.showToastMessage(R.string.hymn_match_none);
                 }
             } catch (IOException e) {
@@ -1141,7 +1162,8 @@ public class MediaConfig extends FragmentActivity
                     HymnsApp.showToastMessage(R.string.hymn_match, recordSize);
                     tvImportFile.setText(exportFile.getPath());
                     editFile(exportFile.getPath());
-                } else {
+                }
+                else {
                     HymnsApp.showToastMessage(R.string.hymn_match_none);
                 }
             } catch (IOException e) {
@@ -1198,10 +1220,12 @@ public class MediaConfig extends FragmentActivity
                     } catch (IOException e) {
                         Timber.e("Create Import File exception: %s", e.getMessage());
                     }
-                } else {
+                }
+                else {
                     HymnsApp.showToastMessage(R.string.hymn_match_none);
                 }
-            } else {
+            }
+            else {
                 HymnsApp.showToastMessage(R.string.hymn_match_none);
             }
         }
@@ -1213,6 +1237,7 @@ public class MediaConfig extends FragmentActivity
      *
      * @param fileName of the created file
      * @param createNew true to create if not exist; return null on failure
+     *
      * @return File path of the new file or null if failed
      */
     public static File createFileIfNotExist(String fileName, boolean createNew) {
@@ -1227,7 +1252,8 @@ public class MediaConfig extends FragmentActivity
             try {
                 if (filePath.exists() || filePath.createNewFile()) {
                     return filePath;
-                } else {
+                }
+                else {
                     return null;
                 }
             } catch (IOException e) {
@@ -1256,9 +1282,10 @@ public class MediaConfig extends FragmentActivity
             data.add(item_db);
         }
 
+        // android.R.layout.simple_list_item_single_choice,
         /* Display the search result to the user */
-        SimpleListAdapter mediaAdapter = new SimpleListAdapter(this, data, R.layout.media_records_list,
-                new String[]{"match"}, new int[]{R.id.item_record});
+        SimpleAdapter mediaAdapter = new SimpleAdapter(this, data,
+                R.layout.media_records_list, new String[]{"match"}, new int[]{R.id.item_record});
 
         mListView.setAdapter(mediaAdapter);
         mListView.setVisibility(View.VISIBLE);
@@ -1269,7 +1296,7 @@ public class MediaConfig extends FragmentActivity
         // Update the media Record Editor info.
         mListView.setOnItemClickListener((adapterView, view, pos, id) -> {
             mVisibleItem = mListView.getFirstVisiblePosition();
-            mediaAdapter.setSelectItem(pos, view);
+            // mediaAdapter.setSelectItem(pos, view);
 
             if (isAutoFilled) {
                 String qqEntry = data.get(pos).get("match");
@@ -1322,7 +1349,8 @@ public class MediaConfig extends FragmentActivity
             if (mPlayerView.getVisibility() == View.VISIBLE) {
                 releasePlayer();
                 mPlayerView.setVisibility(View.GONE);
-            } else {
+            }
+            else {
                 finish();
             }
             return true;

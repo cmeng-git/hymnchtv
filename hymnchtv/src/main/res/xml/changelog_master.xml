@@ -6,13 +6,22 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="2.1.0 (04/11/2023)" versioncode="201000">
+        <change>升级诗歌本以支持安卓 Tiramisu API-33</change>
+        <change>添加用户可选择主题支持：Theme.DARK 和 Theme.LIGHT, 包括 WebView。</change>
+        <change>添加用户可选择的语言环境：简体中文和英文。</change>
+        <change>增加儿童诗歌英文歌词显示支持。</change>
+        <change>更新权限请求以支持各种安卓 API。</change>
+        <change>修复英文歌词内容显示判断错误。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+    </release>
+
     <release version="2.0.3 (12/21/2022)" versioncode="200030">
         <change>添加用户共享诗歌乐谱、歌词和媒体链接（如果有）的选项。</change>
         <change>支持用户英文歌词字体大小更改。</change>
         <change>不要向用户显示无效的补充本诗歌页面。</change>
         <change>更正新歌颂咏歌词#165文本错误，并添加#171歌词。</change>
         <change>修复应用程序更新下载错误，以在不退出应用程序的情况下重新加载。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
     </release>
 
     <release version="2.0.2 (11/16/2022)" versioncode="200020">

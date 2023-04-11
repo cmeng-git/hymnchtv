@@ -22,7 +22,7 @@
 
         <EditText
             android:id="@+id/username"
-            style="@style/EntryTextView"
+            style="@style/StyleTextView"
             android:layout_width="match_parent" />
     </LinearLayout>
 
@@ -49,7 +49,7 @@
 
             <EditText
                 android:id="@+id/passwordField"
-                style="@style/EntryTextView"
+                style="@style/StyleTextView"
                 android:layout_width="match_parent"
                 android:hint="@string/password"
                 android:layout_gravity="center_vertical"

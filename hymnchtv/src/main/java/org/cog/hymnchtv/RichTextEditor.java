@@ -23,13 +23,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.fragment.app.FragmentActivity;
-
 import org.apache.http.util.EncodingUtils;
 import org.cog.hymnchtv.utils.DialogActivity;
+import org.cog.hymnchtv.utils.ThemeHelper;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 
 import jp.wasabeef.richeditor.RichEditor;
 import timber.log.Timber;
@@ -40,9 +43,8 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class RichTextEditor extends FragmentActivity
-        implements View.OnClickListener, DialogActivity.DialogListener
-{
+public class RichTextEditor extends BaseActivity
+        implements View.OnClickListener, DialogActivity.DialogListener {
     // Tags for the onSaveInstanceState bundle.
     public static final String ATTR_FILE_URI = "attr_file_uUri";
     private static final String URI_CONTENT = "uri_content";
@@ -58,8 +60,7 @@ public class RichTextEditor extends FragmentActivity
     private Button cmdSave;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rich_text_editor);
         mEditor = findViewById(R.id.editor);
@@ -97,25 +98,21 @@ public class RichTextEditor extends FragmentActivity
         findViewById(R.id.action_heading5).setOnClickListener(v -> mEditor.setHeading(5));
         findViewById(R.id.action_heading6).setOnClickListener(v -> mEditor.setHeading(6));
 
-        findViewById(R.id.action_txt_color).setOnClickListener(new View.OnClickListener()
-        {
+        findViewById(R.id.action_txt_color).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
 
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 mEditor.setTextColor(isChanged ? Color.BLACK : Color.RED);
                 isChanged = !isChanged;
             }
         });
 
-        findViewById(R.id.action_bg_color).setOnClickListener(new View.OnClickListener()
-        {
+        findViewById(R.id.action_bg_color).setOnClickListener(new View.OnClickListener() {
             private boolean isChanged;
 
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 mEditor.setTextBackgroundColor(isChanged ? Color.TRANSPARENT : Color.YELLOW);
                 isChanged = !isChanged;
             }
@@ -175,16 +172,14 @@ public class RichTextEditor extends FragmentActivity
      * @param outState Bundle
      */
     @Override
-    protected void onSaveInstanceState(@NotNull Bundle outState)
-    {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(ATTR_FILE_URI, fileUri);
         outState.putString(URI_CONTENT, mEditor.getHtml());
     }
 
     @Override
-    public void onClick(View v)
-    {
+    public void onClick(View v) {
         switch (v.getId()) {
             case R.id.saveButton:
                 if (hasChanges) {
@@ -202,8 +197,7 @@ public class RichTextEditor extends FragmentActivity
     /**
      * check for any unsaved changes and alert user
      */
-    private void checkUnsavedChanges()
-    {
+    private void checkUnsavedChanges() {
         if (hasChanges) {
             DialogActivity.showConfirmDialog(this,
                     R.string.gui_to_be_added,
@@ -220,8 +214,7 @@ public class RichTextEditor extends FragmentActivity
      *
      * @param dialog source <tt>DialogActivity</tt>.
      */
-    public boolean onConfirmClicked(DialogActivity dialog)
-    {
+    public boolean onConfirmClicked(DialogActivity dialog) {
         return cmdSave.performClick();
     }
 
@@ -230,17 +223,16 @@ public class RichTextEditor extends FragmentActivity
      *
      * @param dialog source <tt>DialogActivity</tt>
      */
-    public void onDialogCancelled(DialogActivity dialog)
-    {
+    public void onDialogCancelled(DialogActivity dialog) {
         finish();
     }
 
     /**
      * Extract the export file content for edit in RichText Editor
+     *
      * @param fileName The file for editing
      */
-    private void editFile(String fileName)
-    {
+    private void editFile(String fileName) {
         try {
             InputStream in2 = new FileInputStream(fileName);
             byte[] buffer2 = new byte[in2.available()];
@@ -259,8 +251,7 @@ public class RichTextEditor extends FragmentActivity
     /**
      * Save the changed file content to its original given fileName
      */
-    private void saveFile()
-    {
+    private void saveFile() {
         try {
             File outFile = new File(fileUri);
             FileWriter fileWriter = new FileWriter(outFile.getAbsolutePath());

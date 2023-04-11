@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <style name="AppTheme" parent="AppTheme.Dark" />
+
+    <style name="AppTheme.Dark" parent="Theme.AppCompat">
+        <!-- <item name="android:actionBarStyle">@style/AppTheme.ActionBar</item>-->
+        <item name="actionOverflowButtonStyle">@style/actionOverflowButtonStyle.Dark</item>
+
+        <item name="listItemRow">@style/RowList.Dark</item>
+        <item name="listItemRadio">@style/RadioListItem.Dark</item>
+    </style>
+
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light">
+
+        <!-- Menu item attributes -->
+        <!-- <item name="android:itemBackground">@color/background_light</item>-->
+        <!-- <item name="android:itemTextAppearance">@style/MenuItemTextAppearance</item>-->
+
+        <!-- <item name="android:actionBarStyle">@style/AppTheme.ActionBar</item>-->
+        <item name="actionOverflowButtonStyle">@style/actionOverflowButtonStyle.Light</item>
+
+        <item name="listItemRow">@style/RowList.Light</item>
+        <item name="listItemRadio">@style/RadioListItem.Light</item>
+        <item name="actionModeStyle">@style/ActionMode</item>
+
+        <!--item name="android:listSeparatorTextViewStyle">@style/PreferenceListHeader</item-->
+
+        <!-- override the default theme for DialogFragments -->
+        <item name="android:dialogTheme">@style/Dialog_Light</item>
+        <item name="alertDialogTheme">@style/AlertDialog_Light</item>
+    </style>
+
+    <!-- OverflowButtonStyle force to white always -->
+    <style name="actionOverflowButtonStyle.Dark" parent="@android:style/Widget.Holo.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_menu_overflow_dark</item>
+    </style>
+
+    <style name="actionOverflowButtonStyle.Light" parent="@android:style/Widget.Holo.ActionButton.Overflow">
+        <item name="android:src">@drawable/ic_menu_overflow_light</item>
+    </style>
+
+    <!-- ActionMode menu background color -->
+    <style name="ActionMode" parent="@android:style/Widget.Holo.ActionMode">
+        <item name="android:background">@color/background_dark</item>
+        <item name="android:titleTextStyle">@style/TextAppearance_ActionMode_Title</item>
+    </style>
+
+    <style name="Dialog_Light" parent="Theme.AppCompat.Light.Dialog.MinWidth">
+        <item name="android:windowTitleStyle">@style/DialogWindowTitle</item>
+        <item name="android:windowNoTitle">false</item>
+    </style>
+
+    <style name="DialogWindowTitle" parent="TextAppearance.AppCompat.Title">
+        <item name="android:textColor">@color/color_accent</item>
+    </style>
+
+    <!-- ActionMode menu Title text color and size -->
+    <style name="TextAppearance_ActionMode_Title" parent="android:TextAppearance.Medium">
+        <item name="android:textColor">@color/textColorWhite</item>
+    </style>
+
+    <style name="AlertDialog_Light" parent="Theme.AppCompat.Light.Dialog.MinWidth">
+        <item name="android:windowTitleStyle">@style/DialogWindowTitle</item>
+    </style>
+
+
+</resources>

@@ -50,7 +50,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupWindow;
 
-import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
 
@@ -66,6 +65,7 @@ import org.cog.hymnchtv.utils.DepthPageTransformer;
 import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
 import org.cog.hymnchtv.utils.HymnNo2IdxConvert;
 import org.cog.hymnchtv.utils.HymnNoCh2EngXRef;
+import org.cog.hymnchtv.utils.ThemeHelper;
 import org.cog.hymnchtv.webview.WebViewFragment;
 import org.jetbrains.annotations.NotNull;
 
@@ -93,7 +93,7 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class ContentHandler extends FragmentActivity {
+public class ContentHandler extends BaseActivity {
     public static String HYMNCHTV_FAQ_PLAYBACK = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0050";
 
     // sub-directory for various media type
@@ -160,7 +160,7 @@ public class ContentHandler extends FragmentActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(1);
+        supportRequestWindowFeature(1);
         getWindow().setFlags(1024, 1024);
         setContentView(R.layout.content_main);
         registerForContextMenu(findViewById(R.id.linear));
@@ -271,7 +271,8 @@ public class ContentHandler extends FragmentActivity {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if (mWebView.isShown()) {
                 mWebView.setVisibility(View.INVISIBLE);
-            } else if (isMediaPlayerUi) {
+            }
+            else if (isMediaPlayerUi) {
                 mMediaContentHandler.releasePlayer();
                 // Must do this only after mMediaContentHandler.releasePlayer()
                 mMediaGuiController.initPlaybackSpeed();
@@ -281,9 +282,11 @@ public class ContentHandler extends FragmentActivity {
                 showPlayerUi(isShowPlayerUi && HymnsApp.isPortrait);
 
                 isMediaPlayerUi = false;
-            } else if (mMediaGuiController.isPlaying()) {
+            }
+            else if (mMediaGuiController.isPlaying()) {
                 mMediaGuiController.stopPlay();
-            } else {
+            }
+            else {
                 backToHome();
             }
             return true;
@@ -429,8 +432,8 @@ public class ContentHandler extends FragmentActivity {
         boolean isFu = mHymnType.equals(HYMN_DB) && (mHymnNo > HYMN_DB_NO_MAX);
         MediaRecord mediaRecord = new MediaRecord(mHymnType, mHymnNo, isFu, MediaType.HYMN_MEDIA);
 
-        if (mDB.getMediaRecord(mediaRecord, true) && (mediaRecord.getMediaUri() != null)){
-                urlLink = mediaRecord.toString();
+        if (mDB.getMediaRecord(mediaRecord, true) && (mediaRecord.getMediaUri() != null)) {
+            urlLink = mediaRecord.toString();
         }
         return urlLink;
     }
@@ -476,11 +479,6 @@ public class ContentHandler extends FragmentActivity {
         boolean[] isAvailable = getHymnMediaState();
         mHymnInfo = getHymnInfo();
         mMediaGuiController.initHymnInfo(mHymnInfo, isAvailable);
-
-        // Copy the hymn info to the clipboard - disable as android API-33 have nuisance pop-up notification
-        // ClipboardManager cmgr = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        // if (cmgr != null)
-        //     cmgr.setPrimaryClip(ClipData.newPlainText("Hymn Info", mHymnInfo));
     }
 
     /**
@@ -498,7 +496,8 @@ public class ContentHandler extends FragmentActivity {
         if (mAutoPlay && reset) {
             mAutoPlay = false;
             return true;
-        } else
+        }
+        else
             return mAutoPlay;
     }
 
@@ -639,6 +638,7 @@ public class ContentHandler extends FragmentActivity {
      *
      * @param mediaType media Type for the playback i.e. midi, BanZhou, JianChang or MP3
      * @param proceedDownLoad download from the specified dnLink if true;
+     *
      * @return array of media resource to playback. Usually only one item, two for midi resources
      */
     public List<Uri> getPlayHymn(MediaType mediaType, boolean proceedDownLoad) {
@@ -714,11 +714,13 @@ public class ContentHandler extends FragmentActivity {
                             String resName = ER_Links.get(mHymnNo);
                             if (resName == null) {
                                 resName = fileName;
-                            } else {
+                            }
+                            else {
                                 resName = resName + ".mp3";
                             }
                             dnLink = "https://heavenlyfood.cn/hymnal/诗歌/儿童诗歌/" + subLink + resName;
-                        } else if (TextUtils.isEmpty(fbLink)) {
+                        }
+                        else if (TextUtils.isEmpty(fbLink)) {
                             fbLink = String.format(Locale.US, "http://www.lightinnj.org/mp3/k-mp3/C%04d.mp3", mHymnNo);
                         }
                         break;
@@ -766,7 +768,8 @@ public class ContentHandler extends FragmentActivity {
                                 }
                             }
                             dnLink = "https://heavenlyfood.cn/hymnal/诗歌/新歌颂咏/" + subLink + fileName;
-                        } else if (TextUtils.isEmpty(fbLink)) {
+                        }
+                        else if (TextUtils.isEmpty(fbLink)) {
                             fbLink = String.format(Locale.US, "http://g.cgbr.org/music/x/media/%03d.mp3", mHymnNo);
                         }
                         break;
@@ -792,7 +795,8 @@ public class ContentHandler extends FragmentActivity {
 
                         if (isHFAvailable) {
                             dnLink = "https://heavenlyfood.cn/hymns/music/bu/" + fileName;
-                        } else if (TextUtils.isEmpty(fbLink)) {
+                        }
+                        else if (TextUtils.isEmpty(fbLink)) {
                             fbLink = String.format(Locale.US, "https://www.hymnal.net/cn/hymn/ts/%d/f=mid", mHymnNo);
                         }
                         break;
@@ -826,11 +830,13 @@ public class ContentHandler extends FragmentActivity {
                             String resName = BB_Links.get(mHymnNo);
                             if (resName == null) {
                                 resName = fileName;
-                            } else {
+                            }
+                            else {
                                 resName = resName + ".mp3";
                             }
                             dnLink = "https://heavenlyfood.cn/hymnal/诗歌/补充本/" + subLink + resName;
-                        } else if (TextUtils.isEmpty(fbLink)) {
+                        }
+                        else if (TextUtils.isEmpty(fbLink)) {
                             fbLink = String.format(Locale.US, "https://www.hymnal.net/cn/hymn/ts/%d/f=sing", mHymnNo);
                         }
                         break;
@@ -857,7 +863,8 @@ public class ContentHandler extends FragmentActivity {
 
                         if (isHFAvailable) {
                             dnLink = "https://heavenlyfood.cn/hymns/music/da/" + fileName;
-                        } else if (TextUtils.isEmpty(fbLink)) {
+                        }
+                        else if (TextUtils.isEmpty(fbLink)) {
                             fbLink = String.format(Locale.US, "https://www.hymnal.net/cn/hymn/ch/%d/f=mid", mHymnNo);
                         }
                         break;
@@ -883,7 +890,8 @@ public class ContentHandler extends FragmentActivity {
                                 if (mHymnNo < category_db[x]) {
                                     if (mHymnNo > HYMN_DB_NO_MAX) {
                                         subLink = String.format(Locale.CHINA, "%02d%s/", x, hymnCategoryDb[x - 1]);
-                                    } else {
+                                    }
+                                    else {
                                         subLink = String.format(Locale.CHINA, "%02d%s%03d/", x, hymnCategoryDb[x - 1],
                                                 category_db[x - 1]);
                                     }
@@ -896,12 +904,14 @@ public class ContentHandler extends FragmentActivity {
                             if (resName == null) {
                                 if (mHymnNo > HYMN_DB_NO_MAX) {
                                     resName = "DF" + (mHymnNo - HYMN_DB_NO_MAX) + lyricsPhrase;
-                                } else {
+                                }
+                                else {
                                     resName = "D" + mHymnNo + lyricsPhrase;
                                 }
                             }
                             dnLink = "https://heavenlyfood.cn/hymnal/诗歌/大本诗歌/" + subLink + resName + ".mp3";
-                        } else if (TextUtils.isEmpty(fbLink)) {
+                        }
+                        else if (TextUtils.isEmpty(fbLink)) {
                             fbLink = String.format(Locale.US, "https://www.hymnal.net/cn/hymn/ch/%d/f=sing", mHymnNo);
                         }
                         break;
@@ -913,10 +923,12 @@ public class ContentHandler extends FragmentActivity {
             File mediaFile = new File(FileBackend.getHymnchtvStore(dir, true), fileName);
             if (mediaFile.exists()) {
                 uriList.add(Uri.fromFile(mediaFile));
-            } else if (!TextUtils.isEmpty(fbLink) && proceedDownLoad) {
+            }
+            else if (!TextUtils.isEmpty(fbLink) && proceedDownLoad) {
                 Timber.d("FileName = %s%s; fbLink = %s", dir, fileName, fbLink);
                 mMediaDownloadHandler.initHttpFileDownload(fbLink, dir, fileName);
-            } else if (!TextUtils.isEmpty(dnLink) && proceedDownLoad) {
+            }
+            else if (!TextUtils.isEmpty(dnLink) && proceedDownLoad) {
                 Timber.d("FileName = %s%s; dnLink = %s", dir, fileName, dnLink);
                 mMediaDownloadHandler.initHttpFileDownload(dnLink, dir, fileName);
             }
@@ -930,6 +942,7 @@ public class ContentHandler extends FragmentActivity {
      * @param dir the media local dir
      * @param fileName the media filename
      * @param uriList the media URI list
+     *
      * @return true if local media file is found else false
      */
     private boolean isExist(String dir, String fileName, List<Uri> uriList) {
@@ -1171,7 +1184,8 @@ public class ContentHandler extends FragmentActivity {
         WebViewFragment mWebFragment = (WebViewFragment) getSupportFragmentManager().findFragmentById(R.id.webView);
         if (mWebFragment == null) {
             mWebFragment = new WebViewFragment();
-        } else {
+        }
+        else {
             mWebFragment.initWebView();
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.webView, mWebFragment).commit();
@@ -1200,7 +1214,8 @@ public class ContentHandler extends FragmentActivity {
 
         if (HymnsApp.isPortrait) {
             showPlayerUi(!isMediaPlayerUi && isShowPlayerUi);
-        } else {
+        }
+        else {
             showPlayerUi(false);
         }
     }

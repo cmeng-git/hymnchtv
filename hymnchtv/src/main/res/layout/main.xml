@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/viewMain"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:alpha="20.0"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@drawable/bg0"
     android:orientation="vertical"
     android:padding="5dp">
 
     <TextView
-        android:id="@+id/tv_hint"
         style="@style/LargeFont"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:maxLines="2"
@@ -21,7 +19,7 @@
 
     <TextView
         android:id="@+id/tv_entry"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:gravity="center"
@@ -35,19 +33,19 @@
         android:id="@+id/historyListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/border_bg_grey"
+        android:background="@drawable/tv_border_bg_primary"
         android:visibility="gone" />
 
     <EditText
         android:id="@+id/tv_search"
         style="@style/XLargeFont"
-        android:inputType="text"
-        android:maxLines="1"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="bottom"
-        android:hint="@string/hint_hymn_content_search" />
+        android:hint="@string/hint_hymn_content_search"
+        android:inputType="text"
+        android:maxLines="1" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -58,23 +56,18 @@
 
         <Button
             android:id="@+id/btn_search"
-            android:layout_width="0dp"
+            style="@style/ButtonMain"
             android:layout_height="wrap_content"
             android:layout_marginEnd="20dp"
-            android:layout_weight="1"
-            android:shadowColor="@color/black"
             android:text="@string/hymn_search"
-            android:textSize="25sp"
-            android:textStyle="bold" />
+            android:textSize="25sp" />
 
         <Spinner
             android:id="@+id/spinner_toc"
-            style="@style/SpinnerView"
+            android:background="@drawable/btn_transparent"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_weight="1"
-            android:background="@drawable/btn_transparent" />
+            android:layout_weight="1" />
     </LinearLayout>
 
     <LinearLayout
@@ -92,39 +85,24 @@
 
             <Button
                 android:id="@+id/n7"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/nn7"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                style="@style/ButtonMain"
+                android:text="@string/nn7" />
 
             <Button
                 android:id="@+id/n8"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/nn8"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                style="@style/ButtonMain"
+                android:text="@string/nn8" />
 
             <Button
                 android:id="@+id/n9"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/nn9"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                style="@style/ButtonMain"
+                android:text="@string/nn9" />
 
             <Button
                 android:id="@+id/bs_er"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
+                style="@style/ButtonMain"
                 android:text="@string/hymn_er"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textSize="25sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -135,39 +113,24 @@
 
             <Button
                 android:id="@+id/n4"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/nn4"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                style="@style/ButtonMain"
+                android:text="@string/nn4" />
 
             <Button
                 android:id="@+id/n5"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/nn5"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                style="@style/ButtonMain"
+                android:text="@string/nn5" />
 
             <Button
                 android:id="@+id/n6"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/nn6"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                style="@style/ButtonMain"
+                android:text="@string/nn6" />
 
             <Button
                 android:id="@+id/bs_xb"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
+                style="@style/ButtonMain"
                 android:text="@string/hymn_xb"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textSize="25sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -178,39 +141,24 @@
 
             <Button
                 android:id="@+id/n1"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/nn1"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                style="@style/ButtonMain"
+                android:text="@string/nn1" />
 
             <Button
                 android:id="@+id/n2"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/nn2"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                style="@style/ButtonMain"
+                android:text="@string/nn2" />
 
             <Button
                 android:id="@+id/n3"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/nn3"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                style="@style/ButtonMain"
+                android:text="@string/nn3" />
 
             <Button
                 android:id="@+id/bs_bb"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
+                style="@style/ButtonMain"
                 android:text="@string/hymn_bb"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textSize="25sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -221,39 +169,26 @@
 
             <Button
                 android:id="@+id/n10"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
+                style="@style/ButtonMain"
                 android:text="@string/nn10"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textSize="25sp" />
 
             <Button
                 android:id="@+id/n0"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="@string/nn0"
-                android:textSize="35sp"
-                android:textStyle="bold" />
+                style="@style/ButtonMain"
+                android:text="@string/nn0" />
 
             <Button
                 android:id="@+id/n11"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
+                style="@style/ButtonMain"
                 android:text="@string/nn11"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textSize="25sp" />
 
             <Button
                 android:id="@+id/bs_db"
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
+                style="@style/ButtonMain"
                 android:text="@string/hymn_db"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textSize="25sp" />
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

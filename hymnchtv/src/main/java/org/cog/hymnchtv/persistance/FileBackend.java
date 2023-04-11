@@ -28,6 +28,7 @@ import android.webkit.MimeTypeMap;
 import androidx.core.content.FileProvider;
 
 import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MainActivity;
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -225,8 +226,7 @@ public class FileBackend
      */
     public static File getHymnchtvStore(String subFolder, boolean createNew)
     {
-        if (createNew && !PermissionUtils.isPermissionGranted(HymnsApp.getGlobalContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        if (createNew && !PermissionUtils.hasWriteStoragePermission(MainActivity.getInstance(), true)) {
             return null;
         }
 

@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark"
     android:clickable="true"
     android:focusable="true"
     android:orientation="vertical"
@@ -26,8 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="2"
-            android:text="@string/gui_hymn_type"
-            android:textColor="@color/textColorWhite" />
+            android:text="@string/gui_hymn_type" />
 
         <TextView
             style="@style/MediumFont"
@@ -35,8 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="1"
-            android:text="@string/gui_hymn_no"
-            android:textColor="@color/textColorWhite" />
+            android:text="@string/gui_hymn_no" />
     </LinearLayout>
 
     <LinearLayout
@@ -53,7 +50,7 @@
 
         <EditText
             android:id="@+id/hymnNo"
-            style="@style/EntryTextView"
+            style="@style/StyleTextView"
             android:layout_width="0dp"
             android:layout_marginStart="5dp"
             android:layout_weight="1"
@@ -65,8 +62,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:text="@string/gui_media_type"
-        android:textColor="@color/textColorWhite" />
+        android:text="@string/gui_media_type" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -89,7 +85,6 @@
             android:layout_marginStart="5dp"
             android:layout_weight="1"
             android:text="@string/hymn_fu" />
-
     </LinearLayout>
 
     <LinearLayout
@@ -103,14 +98,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="1"
-            android:text="@string/gui_media_link"
-            android:textColor="@color/textColorWhite" />
+            android:text="@string/gui_media_link" />
 
         <ImageButton
             android:id="@+id/help_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
+            android:contentDescription="@string/gui_help_online"
             android:src="@drawable/ic_help" />
 
         <ImageButton
@@ -118,6 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
+            android:contentDescription="@string/gui_share_lyrics"
             android:src="@drawable/ic_share" />
 
         <ImageButton
@@ -125,18 +121,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
+            android:contentDescription="@string/gui_media_link"
             android:src="@drawable/ic_uri_decode" />
 
         <ImageButton
             android:id="@+id/browseMediaUri"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/gui_media_link"
             android:src="@drawable/ic_folder" />
     </LinearLayout>
 
     <EditText
         android:id="@+id/mediaUri"
-        style="@style/EntryTextView"
+        style="@style/StyleTextView"
         android:layout_width="match_parent"
         android:layout_marginBottom="8dp"
         android:inputType="textUri"
@@ -146,7 +144,7 @@
 
     <EditText
         android:id="@+id/linkDecoded"
-        style="@style/EntryTextView"
+        style="@style/StyleTextView"
         android:layout_width="match_parent"
         android:layout_marginBottom="8dp"
         android:focusable="false"
@@ -159,7 +157,7 @@
 
     <TextView
         android:id="@+id/mediaMissing"
-        style="@style/EntryTextView"
+        style="@style/StyleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -200,14 +198,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="10dp"
-        android:background="@color/color_bg_share"
+        android:choiceMode="singleChoice"
         android:visibility="gone" />
 
     <LinearLayout
+        android:background="@color/grey400"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
-        android:background="@color/color_bg_share"
         android:clickable="true"
         android:focusable="true"
         android:orientation="vertical"
@@ -225,13 +223,14 @@
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
                 android:text="@string/gui_db_import_file"
-                android:textColor="@color/textColorWhite" />
+                android:textColor="@color/textColorBlack" />
 
             <ImageButton
                 android:id="@+id/help_video"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="15dp"
+                android:contentDescription="@string/help"
                 android:src="@drawable/ic_help_video" />
 
             <ImageButton
@@ -239,18 +238,20 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="15dp"
+                android:contentDescription="@string/edit"
                 android:src="@drawable/ic_edit" />
 
             <ImageButton
                 android:id="@+id/browseImportFile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/gui_db_import_file"
                 android:src="@drawable/ic_folder" />
         </LinearLayout>
 
         <EditText
             android:id="@+id/importFile"
-            style="@style/EntryTextView"
+            style="@style/StyleTextView"
             android:layout_width="match_parent"
             android:layout_marginBottom="8dp"
             android:inputType="textUri"

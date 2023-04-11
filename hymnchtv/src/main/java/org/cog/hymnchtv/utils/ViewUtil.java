@@ -48,7 +48,6 @@ public class ViewUtil
         else {
             msgBody = Html.fromHtml(text);
         }
-
         tv.setText(msgBody);
     }
 

@@ -10,7 +10,6 @@
         android:id="@+id/lyricsView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background_light"
         android:orientation="vertical">
 
         <ImageView
@@ -51,7 +50,8 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="@color/background_light"
+            android:padding="3dp"
+            android:background="?attr/colorPrimary"
             android:orientation="horizontal">
 
             <Button
@@ -74,7 +74,7 @@
             android:id="@+id/lyrics_simplifiy"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/border_bg_grey"
+            android:background="@drawable/tv_border_bg_primary"
             android:padding="10dp"
             android:textIsSelectable="true"
             android:textSize="20sp" />
@@ -83,7 +83,7 @@
             android:id="@+id/lyrics_traditional"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/border_bg_grey"
+            android:background="@drawable/tv_border_bg_primary"
             android:padding="10dp"
             android:textIsSelectable="true"
             android:textSize="20sp" />

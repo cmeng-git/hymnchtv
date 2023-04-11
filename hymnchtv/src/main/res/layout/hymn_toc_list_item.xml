@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/background_light"
     android:paddingStart="10dp"
     android:paddingEnd="10dp"
     android:descendantFocusability="blocksDescendants">
@@ -14,12 +14,12 @@
         android:layout_height="35dp"
         android:gravity="center_vertical"
         android:paddingStart="20dp"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        tools:ignore="RtlSymmetry">
 
         <TextView
             android:id="@+id/hymnTitle"
             style="@style/MediumFont"
-            android:textColor="@color/textColorBlack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"

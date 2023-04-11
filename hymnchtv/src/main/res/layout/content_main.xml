@@ -3,6 +3,7 @@
     android:id="@+id/linear"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorPrimary"
     android:padding="5dp">
 
     <androidx.viewpager2.widget.ViewPager2
@@ -12,7 +13,6 @@
         android:layout_above="@+id/mediaPlayer"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:background="@color/background_light"
         android:spacing="20dp" />
 
     <LinearLayout

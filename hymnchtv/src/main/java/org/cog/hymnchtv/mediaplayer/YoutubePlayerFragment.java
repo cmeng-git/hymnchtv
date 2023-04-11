@@ -78,7 +78,6 @@ public class YoutubePlayerFragment extends Fragment
     private static final float rateStep = 0.1f;
     private float mSpeed = 1.0f;
 
-    // private static final String[] mpSpeedValues = HymnsApp.getAppResources().getStringArray(R.array.mp_speed_value);
     private FragmentActivity mContext;
     private SharedPreferences mSharedPref;
 

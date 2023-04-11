@@ -31,10 +31,9 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.fragment.app.FragmentActivity;
-
 import org.cog.hymnchtv.logutils.LogUploadServiceImpl;
 import org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl;
+import org.cog.hymnchtv.utils.ThemeHelper;
 
 import de.cketti.library.changelog.ChangeLog;
 
@@ -43,9 +42,7 @@ import de.cketti.library.changelog.ChangeLog;
  *
  * @author Eng Chong Meng
  */
-public class About extends FragmentActivity implements View.OnClickListener, View.OnLongClickListener
-{
-
+public class About extends BaseActivity implements View.OnClickListener, View.OnLongClickListener {
     public static String HYMNCHTV_LINK = "https://cmeng-git.github.io/hymnchtv/";
 
     private static final String[][] USED_LIBRARIES = new String[][]{
@@ -69,12 +66,18 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
      * Default CSS styles used to format the change log.
      */
     public static final String DEFAULT_CSS =
-            "h1 { margin-left: 0px; font-size: 1.2em; }" + "\n" +
-                    "li { margin-left: 0px; font-size: 0.9em;}" + "\n" +
+            "h1 { margin-left: 0px; font-size: 1.2em; }\n" +
+                    "li { margin-left: 0px; font-size: 0.9em;}\n" +
                     "ul { padding-left: 2em; }";
+    public static final String bodyTextLight =
+            " body { color: white }\n" +
+                    " a { color: #80CBC4; text-decoration:none }";
 
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public static final String bodyTextDark =
+            " body { color: black }\n" +
+                    " a { color: #00897B; text-decoration:none }";
+
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.about);
         // crash if enabled under FragmentActivity
@@ -86,7 +89,6 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
         hymnchtvkUrl.setOnClickListener(this);
 
         TextView hymnchtvHelp = findViewById(R.id.hymnchtv_help);
-        hymnchtvHelp.setTextColor(Color.CYAN);
         hymnchtvHelp.setOnClickListener(this);
 
         TextView copyRight = findViewById(R.id.copyRight);
@@ -109,7 +111,8 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
         if (BuildConfig.DEBUG) {
             btn_chkNewVersion.setVisibility(View.VISIBLE);
             btn_chkNewVersion.setOnClickListener(this);
-        } else {
+        }
+        else {
             btn_chkNewVersion.setVisibility(View.GONE);
         }
 
@@ -117,13 +120,14 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
         // btn_submitLogs.setOnClickListener(this);
 
         String aboutInfo = getAboutInfo();
-        WebView wv = findViewById(R.id.AboutDialog_Info);
+        WebView wv = findViewById(R.id.about_info);
+        wv.setBackgroundColor(Color.TRANSPARENT);
         wv.loadDataWithBaseURL("file:///android_res/drawable/", aboutInfo, "text/html", "utf-8", null);
 
         try {
             PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
 
-            TextView textView = findViewById(R.id.AboutDialog_Version);
+            TextView textView = findViewById(R.id.about_appVersion);
             textView.setText(String.format(getString(R.string.gui_version), pi.versionName));
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
@@ -131,8 +135,7 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
     }
 
     @Override
-    public void onClick(View view)
-    {
+    public void onClick(View view) {
         String LOG_REPORT_EMAIL = "cmeng.gm@gmail.com";
         switch (view.getId()) {
             case R.id.ok_button:
@@ -165,8 +168,7 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
     }
 
     @Override
-    public boolean onLongClick(View view)
-    {
+    public boolean onLongClick(View view) {
         if (view.getId() == R.id.history_log) {
             checkUpdate();
             return true;
@@ -177,20 +179,16 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
     /**
      * Check app new update availability
      */
-    private void checkUpdate()
-    {
-        new Thread()
-        {
+    private void checkUpdate() {
+        new Thread() {
             @Override
-            public void run()
-            {
+            public void run() {
                 UpdateServiceImpl.getInstance().checkForUpdates(true);
             }
         }.start();
     }
 
-    public static void hymnUrlAccess(Context context, String url)
-    {
+    public static void hymnUrlAccess(Context context, String url) {
         if (url == null)
             url = HYMNCHTV_LINK;
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -198,13 +196,21 @@ public class About extends FragmentActivity implements View.OnClickListener, Vie
         context.startActivity(intent);
     }
 
-    private String getAboutInfo()
-    {
+    private String getAboutInfo() {
         StringBuilder html = new StringBuilder()
                 .append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"/>")
                 .append("<html><head><style type=\"text/css\">")
-                .append(DEFAULT_CSS)
-                .append("</style></head><body>");
+                .append(DEFAULT_CSS);
+
+        // Change text and ulr according to app theme
+        if (ThemeHelper.isAppTheme(ThemeHelper.Theme.DARK)) {
+            html.append(bodyTextLight);
+        }
+        else {
+            html.append(bodyTextDark);
+        }
+
+        html.append("</style></head><body>");
 
         StringBuilder libs = new StringBuilder().append("<ul>");
         for (String[] library : USED_LIBRARIES) {

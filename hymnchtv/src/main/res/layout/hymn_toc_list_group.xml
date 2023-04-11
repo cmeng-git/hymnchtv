@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@color/background_dark"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:descendantFocusability="blocksDescendants">
@@ -10,14 +9,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginStart="6dp"
+        android:layout_marginStart="5dp"
         android:src="@drawable/group_collapsed_dark" />
 
     <TextView
         android:id="@+id/hymnCategory"
         style="@style/LargeFont"
         android:singleLine="true"
-        android:textColor="@color/textColorWhite"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:gravity="center_vertical"

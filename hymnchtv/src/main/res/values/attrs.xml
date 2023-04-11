@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="AppStyles">
+        <attr name="listItemRow" format="reference" />
+        <attr name="listItemRadio" format="reference" />
+
+        <attr name="iconFolder" format="reference" />
+        <attr name="iconActionDelete" format="reference" />
+        <attr name="iconActionMove" format="reference" />
+        <attr name="iconActionCopy" format="reference" />
+        <attr name="iconActionSearch" format="reference" />
+        <attr name="iconActionSend" format="reference" />
+        <attr name="iconActionSettings" format="reference" />
+        <attr name="iconActionAbout" format="reference" />
+        <attr name="iconActionAdd" format="reference" />
+        <attr name="iconActionSelectAll" format="reference" />
+        <attr name="iconActionCancel" format="reference" />
+        <attr name="iconActionExpand" format="reference" />
+        <attr name="iconActionCollapse" format="reference" />
+
+        <attr name="tintColorBulletPointPositive" format="reference|color"/>
+        <attr name="tintColorBulletPointNeutral" format="reference|color"/>
+        <attr name="tintColorBulletPointNegative" format="reference|color"/>
+    </declare-styleable>
+
+    <declare-styleable name="TouchInterceptor">
+        <attr name="itemHeight" format="dimension" />
+        <attr name="itemExpandedHeight" format="dimension" />
+        <attr name="dragRegionStartX" format="dimension" />
+        <attr name="dragRegionEndX" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="ConfigWidget">
+        <attr name="storeInNewThread" format="boolean" />
+        <attr name="mapSummary" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="ConfigEditText">
+        <attr name="intMax" format="integer" />
+        <attr name="intMin" format="integer" />
+        <attr name="floatMax" format="float" />
+        <attr name="floatMin" format="float" />
+        <attr name="allowEmpty" format="boolean" />
+        <attr name="editable" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="ConfigListPreference">
+        <attr name="disableDependentsValue" format="string" />
+        <attr name="disableOnNotEqualValue" format="boolean" />
+    </declare-styleable>
+
+    <!-- View styles -->
+    <attr name="MainGroup" format="reference" />
+    <attr name="MainChild" format="reference" />
+    <attr name="ErrorView" format="reference" />
+    <attr name="dialogTextColor" format="reference" />
+
+    <!-- Attributes -->
+    <attr name="colorForeground" format="reference|color" />
+    <attr name="colorBackground" format="reference|color" />
+
+    <attr name="colorBackgroundPrimary" format="reference|color" />
+    <attr name="colorBackgroundSecondary" format="reference|color" />
+
+    <attr name="textColorPrimary" format="reference|color" />
+    <attr name="textColorSecondary" format="reference|color" />
+
+    <attr name="ChatMsgHeaderMeColor" format="reference|color" />
+    <attr name="ChatMsgHeaderYouColor" format="reference|color" />
+    <attr name="OnlineFriends" format="reference" />
+    <attr name="AllFriends" format="reference" />
+
+    <attr name="MyTabWidget" format="reference" />
+    <attr name="MyTabContentBkg" format="reference|color" />
+    <attr name="MainChildPhoto" format="reference" />
+    <attr name="MainChildName" format="reference" />
+    <attr name="MainWindow_NewMsg_Normal_Color" format="reference|color"/>
+    <attr name="MainWindow_NewMsg_Crypto_Color" format="reference|color"/>
+    <attr name="MainWindow_NewMsg_Stealth_Color" format="reference|color"/>
+
+    <attr name="infocard_border" format="reference"/>
+
+    <declare-styleable name="FontStyle">
+        <attr name="font_xxsmall" format="dimension" />
+        <attr name="font_xsmall" format="dimension" />
+        <attr name="font_small" format="dimension" />
+        <attr name="font_medium" format="dimension" />
+        <attr name="font_large" format="dimension" />
+        <attr name="font_xlarge" format="dimension" />
+
+        <attr name="TextSizeInfo" format="dimension" />
+        <attr name="TextSizeBody" format="dimension" />
+        <attr name="TextSizeHeadline" format="dimension" />
+    </declare-styleable>
+
+</resources>

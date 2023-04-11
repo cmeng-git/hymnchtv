@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--string name="app_name">Hymnch</string // Fix app label in Chinese-->
+    <string name="app_title_main">Shulamite - Hymns</string>
+
+    <string name="gui_about">About</string>
+    <string name="gui_add">Add</string>
+    <string name="gui_add_renew">Add/Renew</string>
+    <string name="gui_overwrite">Overwrite</string>
+    <string name="gui_add_to_db">Has been added and saved to the database!</string>
+    <string name="gui_add_to_db_failed">Failed to save media record!</string>
+    <string name="gui_app_libraries">Hymnch uses the following third-party libraries: %1$s</string>
+    <!-- Message to display while video is buffering -->
+    <string name="gui_buffering">Buffering&#8230;</string>
+    <string name="gui_cancel">Cancel</string>
+    <string name="gui_close">Close</string>
+    <string name="gui_copyright">Copyright@2020, Eng Chong Meng
+        &lt;br/>&lt;a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0&lt;/a>
+        &lt;br/>All rights reserved.</string>
+    <string name="gui_db_export">DB Expt</string>
+    <string name="gui_db_import">DB Impt</string>
+    <string name="gui_db_import_create">Gen Impt</string>
+    <string name="gui_db_import_file">DB import file</string>
+    <string name="gui_db_import_record">The db imports a total of %1$d hymns</string>
+    <string name="gui_db_import_start">Start importing file contents into database media records…</string>
+    <string name="gui_db_import_NQ">NQ&#x2B07;</string>
+    <string name="gui_db_file_missing">Please provide the absolute path of the media content!</string>
+    <string name="gui_db_list">DB List</string>
+    <string name="gui_db_overwrite">Overwrite</string>
+    <string name="gui_db_overwrite_media">Do you want to overwrite existing media records in the database?</string>
+    <string name="gui_delete">Delete</string>
+    <string name="gui_delete_history">Delete hymn history: %1$s?</string>
+    <string name="gui_delete_media">Delete hymn media records? &lt;br/>%1$s#%2$04d: %3$s</string>
+    <string name="gui_delete_media_failed">Failed to delete media record: %1$s#%2$d</string>
+    <string name="gui_delete_media_ok">Successfully deleted media record: %1$s#%2$d</string>
+    <string name="gui_en2ch_hymn_same">The Chinese and English hymn numbers are the same!</string>
+    <string name="gui_exit">Exit</string>
+    <string name="gui_file_saved">The file was saved successfully!</string>
+    <string name="gui_help_online">Online Help</string>
+    <string name="gui_hymn_no">Hymn No:</string>
+    <string name="gui_hymn_sn_convert">Hymn digital conversion test</string>
+    <string name="gui_hymn_type">Hymn Category:</string>
+    <string name="gui_in_development">Still under development</string>
+    <string name="gui_lyrics_chinese_traditional">CN&#x2B0C;TW Lyrics</string>
+    <string name="gui_lyrics_english">English Lyrics</string>
+    <string name="gui_lyrics_english_delete">Delete English lyrics</string>
+    <string name="gui_lyrics_text_size_increase">Increase lyrics text</string>
+    <string name="gui_lyrics_text_size_decrease">Lyrics text reduced</string>
+    <string name="gui_lyrics_text_size_limits">The text minimum or maximum limit has been reached.</string>
+    <string name="gui_media_content_remove">Remove media content from phone (if any)</string>
+    <string name="gui_media_config">Media Configuration</string>
+    <string name="gui_media_file_not_found">The actual media content to link to could not be found! Please save a copy to the desired location.</string>
+    <string name="gui_media_link">Media Link:</string>
+    <string name="gui_media_content">Media content</string>
+    <string name="gui_media_type">Media Type:</string>
+    <string name="gui_ok">OK</string>
+    <string name="gui_return">Return</string>
+
+    <!-- Message for Notion / QQ links update -->
+    <string name="gui_nq_download">NQ－Hymns link download</string>
+    <string name="gui_nq_download_completed">%1$s－Hymns link: %2$s download completed!</string>
+    <string name="gui_nq_download_failed">%1$s－Hymns link download failed!</string>
+    <string name="gui_nq_download_in_progress">%1$s－Link downloading…</string>
+    <string name="gui_nq_download_proceed">Proceed %1$s hymn link download? The process takes some time. The process will take place in the background and you can continue using the application.</string>
+    <string name="gui_nq_download_starting">%1$s－Hymns link downloading starts…</string>
+    <string name="gui_nq_record_delete">Delete NQ-media link record:\n%1$s?</string>
+
+    <!-- Message to display when video is finished playing -->
+    <string name="gui_playback_completed">Playback completed</string>
+    <string name="gui_playback_rate">Video playback rate: %1$sx</string>
+    <string name="gui_to_be_added">To be added</string>
+    <string name="gui_unsaved_changes">You have unsaved changes. Save or cancel and exit.</string>
+    <string name="gui_version">Application version: %1$s</string>
+    <string name="gui_show_history_log">History</string>
+    <string name="gui_wp_size">Wallpaper pixel size [width x height]: [%1$dx%2$d]</string>
+
+    <string name="gui_error">Error</string>
+    <string name="gui_error_hymn_config">Input error: No hymn no or media link</string>
+    <string name="gui_error_invalid">Input error: Input TOC or hymnNo</string>
+    <string name="gui_error_media_url_invalid">The provided media URL is incorrect: %1$s</string>
+    <string name="gui_error_playback">Unable to decode link or playback: %1$s</string>
+    <string name="gui_error_search_empty">Please enter string to search</string>
+    <string name="gui_error_file_not_found"> (Unable to get file: %1$s)</string>
+    <string name="gui_error_english_lyrics_null">Sorry! Hymn \'%1$d\' has no English lyrics</string>
+
+    <string name="hymn_info_er_max">ErGe has only %1$d (%2$d)</string>
+    <string name="hymn_info_er_range_over">ErGe does not have: %1$s~%2$s (%3$s)</string>
+
+    <string name="hymn_info_bb_max">FuGe has only %1$d (%2$d)</string>
+    <string name="hymn_info_bb_range_over">BuChong does not have hymn: %1$s~%2$s (%3$s)</string>
+
+    <string name="hymn_info_db_max">DaBen only has %1$d (%2$d), and 6 FuGe</string>
+    <string name="hymn_info_db_range_fu">DaBen only has FuGe: 1~6</string>
+
+    <string name="hymn_info_xb_max">XinGe has only %1$d (%2$d)</string>
+    <string name="hymn_info_xb_invalid">XinGe does not have: %1$s</string>
+
+    <string name="hymn_info_media_none">The selected item does not have playback media</string>
+    <string name="hymn_info_sp_none">Selected item does not have FuGe</string>
+
+    <!-- Update checker -->
+    <string name="gui_app_apk_invalid">The downloaded file is invalid or the version is incorrect</string>
+    <string name="gui_apk_install_failed">An error occurred during app installation: (%1$s) %2$s</string>
+    <string name="gui_apk_install_completed">The app was installed successfully!</string>
+    <string name="gui_app_install_ready">The app package (%1$s) has been downloaded and is ready to be installed.</string>
+    <string name="gui_app_version_invalid">Downloaded file contains mismatched version code: Actual = %1$s (%2$s)</string>
+    <string name="gui_app_new_available">There is a new software version: %1$s</string>
+    <string name="gui_app_reinstall">Reinstall</string>
+    <string name="gui_app_update">upgrade</string>
+    <string name="gui_app_update_check">Update</string>
+    <string name="gui_app_update_install">App update</string>
+    <string name="gui_app_update_none">No new version of the application</string>
+    <string name="gui_app_version_current">Current installed version: (%1$s-%2$s) are up to date. Version available online: %3$s.</string>
+    <string name="gui_app_version_new_available">New version %1$s available for downloaded:\n(%2$s-%3$s). Currently installed version: %4$s.</string>
+    <string name="gui_app_uninstall">App version v1.2.0 needs to be uninstalled first.\nThen manually install from the download directory:\n%1$s</string>
+
+    <string name="gui_download">Download</string>
+    <string name="gui_download_again">Download</string>
+    <string name="gui_download_completed">Download completed</string>
+    <string name="gui_download_failed">Failed to download new version! Please exit the app and try again.</string>
+    <string name="gui_download_in_progress">Downloading update.</string>
+
+    <string name="gui_download_remaining_time">Remaining time: %1$s</string>
+    <string name="gui_download_speed">Download speed: %1$s/sec (%2$s)</string>
+    <string name="gui_download_timeout_timer">Download timeout timer countdown: %1$02d seconds</string>
+    <string name="gui_download_wait">Please wait, file downloading is in progress.</string>
+    <string name="gui_in_progress">In progress</string>
+
+
+    <string name="gui_file_ACCESS_NO_PERMISSION">You do not have sufficient permissions to save or open file. Please check your app permissions and try again</string>
+    <string name="gui_file_DOES_NOT_EXIST">The specified file could not be found. The file may have been deleted or moved</string>
+    <string name="gui_file_DOWNLOAD_FAILED">An error occurred while downloading the file: %1$s</string>
+    <string name="gui_file_OPEN_NO_APPLICATION">App could not find an app associated with this file type</string>
+
+    <string name="password">Personal Password</string>
+    <string name="gui_PASSWORD">Password:</string>
+    <string name="gui_SIGN_IN">Login</string>
+    <string name="gui_USERNAME">User:</string>
+    <string name="gui_USER_LOGIN">Please log in</string>
+
+    <string name="gui_share_text">Share text&#8230;</string>
+    <string name="gui_share_file">Share file&#8230;</string>
+    <string name="gui_share_lyrics">Share lyrics&#8230;</string>
+    <string name="gui_share_file_missing">Reminder: You are sharing a URL with no actual media content: %1$s!</string>
+
+    <string name="hint_hymn_content_search">Auto TW&#x27A1;CN Hymns Search</string>
+    <string name="hint_hymn_history">&#11014; Hymns Log</string>
+    <string name="hint_hymn_number_enter">Enter HymnNo&#11015;</string>
+    <string name="hint_hymn_ui">Enter category or HymnNo\nClick DaBen, BuChong, XinGe…</string>
+
+    <!-- Logs -->
+    <string name="gui_SEND_LOGS">Bug Rpt</string>
+    <string name="gui_SEND_LOGS_SUBJECT">Hymncv bug report</string>
+    <string name="gui_SEND_LOGS_TITLE">Report Hymnch Errors by Email</string>
+    <string name="gui_SEND_LOGS_INFO">The following information you provide can help developers solve the problem:
+        \n\n1. What was the last thing you did before the problem occurred?
+        \n\n\n2. What problems do you see, if any, and a snapshot of the display?
+        \n\n\n3. Can or how can you reproduce the problem?</string>
+
+    <!-- hymnch main interface gui names -->
+    <string name="hymn_db">Da Ben</string>
+    <string name="hymn_content">Content</string>
+    <string name="hymn_er">Er Ge</string>
+    <string name="hymn_fu">FuGe</string>
+    <string name="hymn_lyrics">Lyrics</string>
+    <string name="hymn_xb">Xin Ge</string>
+    <string name="hymn_score">Score</string>
+    <string name="hymn_search">Search</string>
+    <string name="hymn_bb">Bu Chong</string>
+
+    <string name="hymn_toc">TOC</string>
+    <string name="hymn_category">Category</string>
+    <string name="hymn_stroke">Stroke</string>
+    <string name="hymn_pinyin">PinYin</string>
+    <string name="hymn_eng2ch">Eng2Ch</string>
+
+    <!-- Hymn title -->
+    <!--
+    <string name="hymn_title_bb">Hymn - BuChong</string>
+    <string name="hymn_title_db">Hymn - DaiBen</string>
+    <string name="hymn_title_er">Hymn - ErGe</string>
+    <string name="hymn_title_xb">Hymn - XinGe</string>
+    -->
+
+    <!-- hymnch media player interface gui names -->
+    <!--
+    <string name="hymn_media_banzou">BanZou</string>
+    <string name="hymn_media_changshi">ChangShi</string>
+    <string name="hymn_media_jiaochang">JiaChang</string>
+    <string name="hymn_media_media">Media</string>
+    -->
+    <!-- Hymn info for media controller title -->
+    <!--
+    <string name="hymn_title_mc_bb">BuChong %1$d: %2$s</string>
+    <string name="hymn_title_mc_db">DaBen %1$d: %2$s</string>
+    <string name="hymn_title_mc_dbs">DaBenFu %1$d: %2$s</string>
+    <string name="hymn_title_mc_er">ErGe %1$d: %2$s</string>
+    <string name="hymn_title_mc_xb">XinGe %1$d: %2$s</string>
+     -->
+
+    <!-- hymn search gui strings -->
+    <string name="hymn_match">Total %1$d matching records</string>
+    <string name="hymn_match_auto_create">%1$s/%2$s: Total of %3$d hymns were matched</string>
+    <string name="hymn_match_er">ErGe: No %1$d:\n%2$s</string>
+    <string name="hymn_match_xb">XinGe: No %1$d:\n%2$s</string>
+    <string name="hymn_match_bb">BuChong: No %1$d:\n%2$s</string>
+    <string name="hymn_match_db">DaBen: No %1$d:\n%2$s</string>
+    <string name="hymn_match_db_sp">DaBen: Fu %1$d:\n%2$s</string>
+    <string name="hymn_match_none">No match found</string>
+
+    <string name="menu_media_ui_default_show">Default Show Payback UI</string>
+    <string name="menu_media_ui_default_hide">Default Hide Playback UI</string>
+    <string name="menu_media_ui_toggle">Toggle on/off Playback UI</string>
+
+    <string name="nn0">0</string>
+    <string name="nn1">1</string>
+    <string name="nn2">2</string>
+    <string name="nn3">3</string>
+    <string name="nn4">4</string>
+    <string name="nn5">5</string>
+    <string name="nn6">6</string>
+    <string name="nn7">7</string>
+    <string name="nn8">8</string>
+    <string name="nn9">9</string>
+    <string name="nn10">Fu</string>
+    <string name="nn11">Del</string>
+
+    <string name="edit">Edit</string>
+    <string name="help">Help</string>
+    <string name="stop">Stop</string>
+    <string name="play">play</string>
+    <string name="home">home</string>
+
+    <string name="wall_paper">Wallpaper</string>
+    <string name="fontSize">Font Size</string>
+    <string name="small">Small</string>
+    <string name="lager">Big</string>
+    <string name="normal">Default</string>
+    <string name="xlager">Extra Large</string>
+    <string name="inc">Increase</string>
+    <string name="dec">Decrease</string>
+
+    <!--  text color -->
+    <string name="fontColor">Font Color</string>
+    <string name="red">Red</string>
+    <string name="blue">Blue</string>
+    <string name="grey">Grey</string>
+    <string name="black">Black</string>
+    <string name="white">White</string>
+    <string name="cyan">Cyan</string>
+    <string name="yellow">Yellow</string>
+    <string name="green">Green</string>
+
+    <!--  background color -->
+    <string name="sbg1">Light Orange</string>
+    <string name="sbg2">Light Blue</string>
+    <string name="sbg3">Green</string>
+    <string name="sbg4">Water Droplets Blue</string>
+    <string name="sbg5">Light Brown</string>
+    <string name="sbg6">Milky White</string>
+    <string name="sbg7">Hua XinZi</string>
+    <string name="sbg8">Bricks</string>
+    <string name="sbg9">Chrysanthemum</string>
+    <string name="sbg10">Green Water Droplets</string>
+    <string name="sbg11">Green</string>
+    <string name="sbg12">Lavender</string>
+    <string name="wallpaperUser">User-Defined Wallpaper</string>
+
+    <!-- Theme -->
+    <string name="theme_menu">Theme</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+
+    <!-- Locale -->
+    <string name="locale_menu">Language</string>
+    <string name="locale_chinese">中文(简体)</string>
+    <string name="locale_english">English</string>
+
+    <!--
+    * S2HK, Simplified Chinese to Traditional Chinese (Hong Kong Standard)簡體到香港繁體（香港小學學習字詞表標準）
+    * S2T, Simplified Chinese to Traditional Chinese 簡體到繁體
+    * S2TW, Simplified Chinese to Traditional Chinese (Taiwan Standard) 簡體到臺灣正體
+    * S2TWP, Simplified Chinese to Traditional Chinese (Taiwan Standard) with Taiwanese idiom 簡體到繁體（臺灣正體標準）並轉換爲臺灣常用詞彙
+    -->
+    <string name="STD">Word conversion standard table</string>
+    <string name="S2HK">Simplified to HongKong Traditional</string>
+    <string name="S2T">Simplified to Traditional</string>
+    <string name="S2TW">Simplified to Taiwan Traditional</string>
+    <string name="S2TWP">Simplified to Taiwanese traditional, and converted to Taiwanese common vocabulary</string>
+
+    <!--  ChangeLog parameters -->
+    <string name="changelog_full_title">Change History</string>
+    <string name="changelog_title">App New Features</string>
+    <string name="changelog_ok_button">Confirm</string>
+    <string name="changelog_show_full">More…</string>
+
+    <!-- Android Notification Channels -->
+    <string name="noti_channel_DEFAULT_GROUP">General Notification</string>
+    <string name="noti_channel_SILENT_GROUP">Silent Notification</string>
+
+    <string name="permission_notifications_request">Notification permission request</string>
+    <string name="permission_notifications_required">Notifications from Hymnch will be disabled until you grant the permission request</string>
+
+    <string name="permission_storage_required">The app requires storage permission to operate.</string>
+    <string name="permission_storage_request">Storage permission request</string>
+
+    <string name="permission_app_rational">%1$s was denied. App may be inoperation until you grant permission in [App info | Permissions]</string>
+
+    <string name="content_about">About Hymns Software:
+        &lt;br/>All media contents used in this application: lyrics and score text etc., are copyrighted by Taiwan Gospel Book Room.
+        &lt;br/>Sincere thanks to the brothers and sisters on providing the online source material and hymns lyrics. The original hymnch was developed by &lt;a href="http://shulami02.net/bbs">Shulamite Site&lt;/a>;
+        &lt;br/>&lt;br/>New developer: the whole app has been rewritten and improved, with new functions added. If you find any error or suggestion, please go to
+        &lt;a href="https://github.com/cmeng-git/hymnch/issues">Hymns URL&lt;/a> Suggestions.
+        &lt;br/>&lt;br/>New app resources come from Internet:
+        &lt;br/>https://heavenlyfood.cn/
+        &lt;br/>http://www.lshymn.net/
+        &lt;br/>https://www.hymnal.net/
+        &lt;br/>&lt;br/>All things work together for the good of those who love Him! Just like God free grace, so please don\'t use it for commercial purposes.
+        &lt;br/>I hope it will be useful for brothers\' and sisters\' sharings!</string>
+
+    <string name="content_help">Lyrics UI instructions:
+       &lt;br/>\u25AA Long press in Lyrics UI to access the menu.
+       &lt;br/>\u25AA Click the play button to start playing the media file.
+       &lt;br/>\u25AA Click the play button again to pause playback.
+       &lt;br/>\u25AA Click the play button again to resume playing from the pause position.
+       &lt;br/>\u25AA Long press the play button, you can restart playing back the media.
+       &lt;br/>\u25AA Put the phone in landscape mode for larger lyrics.</string>
+</resources>
