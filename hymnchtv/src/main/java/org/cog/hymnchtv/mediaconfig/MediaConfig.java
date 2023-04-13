@@ -80,7 +80,6 @@ import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNoValidate;
-import org.cog.hymnchtv.utils.ThemeHelper;
 import org.cog.hymnchtv.utils.TimberLog;
 import org.cog.hymnchtv.utils.ViewUtil;
 

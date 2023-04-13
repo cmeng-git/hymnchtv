@@ -16,6 +16,11 @@
  */
 package org.cog.hymnchtv.utils;
 
+import static org.cog.hymnchtv.MainActivity.PREF_BACKGROUND;
+import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+import static org.cog.hymnchtv.MainActivity.PREF_WALLPAPER;
+import static org.cog.hymnchtv.persistance.FileBackend.TMP;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
@@ -31,10 +36,10 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.fragment.app.FragmentActivity;
 
 import com.yalantis.ucrop.UCrop;
 
+import org.cog.hymnchtv.BaseActivity;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.FileBackend;
@@ -44,11 +49,6 @@ import java.io.File;
 
 import timber.log.Timber;
 
-import static org.cog.hymnchtv.MainActivity.PREF_BACKGROUND;
-import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
-import static org.cog.hymnchtv.MainActivity.PREF_WALLPAPER;
-import static org.cog.hymnchtv.persistance.FileBackend.TMP;
-
 /**
  * The class allows user to use own defined wallpaper for the main UI.
  * Embedded UCrop class to ease user zoom/crop etc
@@ -56,8 +56,7 @@ import static org.cog.hymnchtv.persistance.FileBackend.TMP;
  *
  * @author Eng Chong Meng
  */
-public class WallPaperUtil extends FragmentActivity implements View.OnClickListener
-{
+public class WallPaperUtil extends BaseActivity implements View.OnClickListener {
     public static final String DIR_WALLPAPER = "wallpaper/";
 
     private static final int CROP_MAX_SIZE_WIDTH = HymnsApp.screenWidth / 2;
@@ -69,10 +68,10 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
     private File wpFile;
     private boolean hasChanges = false;
 
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.wallpaper_editor);
+        setTitle(R.string.wallpaperUser);
 
         ActivityResultLauncher<String> mGetContent = getWallpaperContent();
         findViewById(R.id.btnRenew).setOnClickListener(view -> mGetContent.launch("image/*"));
@@ -94,8 +93,7 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
     }
 
     @Override
-    public void onClick(View v)
-    {
+    public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnOk:
                 updateWallPaperPref();
@@ -114,8 +112,7 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
      * @return an instant of ActivityResultLauncher<String>
      * @see ActivityResultCaller
      */
-    private ActivityResultLauncher<String> getWallpaperContent()
-    {
+    private ActivityResultLauncher<String> getWallpaperContent() {
         return registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
             if (uri == null) {
                 Timber.d("No image data selected: null!");
@@ -131,8 +128,7 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
      *
      * @param uri image file uri
      */
-    private void uCropWallpaper(Uri uri)
-    {
+    private void uCropWallpaper(Uri uri) {
         // get the proper filename and to allow crop itself
         inFile = new File(FilePathHelper.getFilePath(this, uri));
         String fileName = inFile.getName();
@@ -151,8 +147,7 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
      * @param resultCode the result code
      * @param data the source {@link Intent} that returns the result
      */
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK)
             return;
@@ -188,8 +183,7 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
     /**
      * Save the user defined image file to Preference Settings.
      */
-    private void updateWallPaperPref()
-    {
+    private void updateWallPaperPref() {
         if (hasChanges && (wpFile != null) && wpFile.exists() && wpFile.length() != 0) {
             hasChanges = false;
 
@@ -209,8 +203,7 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
     /**
      * Update the wallpaper preview with the user edited image file
      */
-    private void initWallpaperView()
-    {
+    private void initWallpaperView() {
         int imageWidth = 512;
         int imageHeight = 512;
 
@@ -238,22 +231,18 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
     /**
      * check for any unsaved changes and alert user before the exit.
      */
-    private void checkUnsavedChanges()
-    {
+    private void checkUnsavedChanges() {
         if (hasChanges) {
             DialogActivity.showConfirmDialog(this,
                     R.string.gui_to_be_added,
                     R.string.gui_unsaved_changes,
-                    R.string.gui_add_renew, new DialogActivity.DialogListener()
-                    {
-                        public boolean onConfirmClicked(DialogActivity dialog)
-                        {
+                    R.string.gui_add_renew, new DialogActivity.DialogListener() {
+                        public boolean onConfirmClicked(DialogActivity dialog) {
                             updateWallPaperPref();
                             return true;
                         }
 
-                        public void onDialogCancelled(DialogActivity dialog)
-                        {
+                        public void onDialogCancelled(DialogActivity dialog) {
                             finish();
                         }
                     });
@@ -263,8 +252,7 @@ public class WallPaperUtil extends FragmentActivity implements View.OnClickListe
         }
     }
 
-    private void showError()
-    {
+    private void showError() {
         HymnsApp.showToastMessage("wallpaer image  selection error");
     }
 }

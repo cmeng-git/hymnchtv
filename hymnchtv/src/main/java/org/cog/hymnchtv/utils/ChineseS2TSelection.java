@@ -26,10 +26,9 @@ import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import androidx.fragment.app.FragmentActivity;
-
 import com.zqc.opencc.android.lib.ConversionType;
 
+import org.cog.hymnchtv.BaseActivity;
 import org.cog.hymnchtv.ContentView;
 import org.cog.hymnchtv.R;
 
@@ -38,16 +37,15 @@ import org.cog.hymnchtv.R;
  *
  * @author Eng Chong Meng
  */
-public class ChineseS2TSelection extends FragmentActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener
-{
+public class ChineseS2TSelection extends BaseActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
     private SharedPreferences mSharedPref;
     private ConversionType mConversionType;
     private boolean mHasChanges = false;
 
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.chinese_t2s_selection);
+        setTitle(R.string.app_title_main);
 
         mSharedPref = getSharedPreferences(PREF_SETTINGS, 0);
         String cType = mSharedPref.getString(ContentView.PREF_CONVERSION_TYPE, ConversionType.S2T.toString());
@@ -63,8 +61,7 @@ public class ChineseS2TSelection extends FragmentActivity implements View.OnClic
     }
 
     @Override
-    public void onClick(View v)
-    {
+    public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnOk:
                 updateS2TSelection(mHasChanges);
@@ -81,8 +78,7 @@ public class ChineseS2TSelection extends FragmentActivity implements View.OnClic
      *
      * @param cType Enum type as string for matching
      */
-    private void checkRadioButton(String cType)
-    {
+    private void checkRadioButton(String cType) {
         switch (cType) {
             case "S2T":
                 ((RadioButton) findViewById(R.id.radioButtonS2T)).setChecked(true);
@@ -103,8 +99,7 @@ public class ChineseS2TSelection extends FragmentActivity implements View.OnClic
     }
 
     @Override
-    public void onCheckedChanged(RadioGroup group, int checkedId)
-    {
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
         RadioButton rb = group.findViewById(checkedId);
         mHasChanges = true;
 
@@ -132,8 +127,7 @@ public class ChineseS2TSelection extends FragmentActivity implements View.OnClic
     /**
      * Save the user defined ConversionType setting.
      */
-    private void updateS2TSelection(boolean hasChanges)
-    {
+    private void updateS2TSelection(boolean hasChanges) {
         if (hasChanges) {
             SharedPreferences.Editor editor = mSharedPref.edit();
             editor.putString(ContentView.PREF_CONVERSION_TYPE, mConversionType.toString());
@@ -151,22 +145,18 @@ public class ChineseS2TSelection extends FragmentActivity implements View.OnClic
     /**
      * check for any unsaved changes and alert user before the exit.
      */
-    private void checkUnsavedChanges()
-    {
+    private void checkUnsavedChanges() {
         if (mHasChanges) {
             DialogActivity.showConfirmDialog(this,
                     R.string.gui_to_be_added,
                     R.string.gui_unsaved_changes,
-                    R.string.gui_add_renew, new DialogActivity.DialogListener()
-                    {
-                        public boolean onConfirmClicked(DialogActivity dialog)
-                        {
+                    R.string.gui_add_renew, new DialogActivity.DialogListener() {
+                        public boolean onConfirmClicked(DialogActivity dialog) {
                             updateS2TSelection(true);
                             return true;
                         }
 
-                        public void onDialogCancelled(DialogActivity dialog)
-                        {
+                        public void onDialogCancelled(DialogActivity dialog) {
                             updateS2TSelection(false);
                             finish();
                         }

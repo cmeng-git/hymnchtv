@@ -2,7 +2,7 @@ Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
 Upload Date:    04/13/2023
-Version:        2.1.0 (201001)
+Version:        2.1.0 (201002)
 - Upgrade hymnchtv to support android Tiramisu API-33
 - Add user selectable UI Theme support: Theme.DARK and Theme.LIGHT; supporting also webView class.
 - Add user selectable Locale : Chinese Simplify and English;
@@ -17,6 +17,7 @@ Version:        2.1.0 (201001)
   b. distributionUrl=https\://services.gradle.org/distributions/gradle-7.5.1-bin.zip in gradle-wrapper.properties
   c. # deprecated android.enableDexingArtifactTransform=false in gradle.properties
 - Fix search string partially clipped under 1920x1080 screen size.
+- Application Theme and Locale not set properly for user-wallpaper and ChineseS2T option selection.
 
 =========================================================================
 Author:         cmeng
