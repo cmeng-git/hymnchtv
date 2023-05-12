@@ -115,6 +115,7 @@ public class LyricsEnglishRecord
                 showLyrics(mLyricsEnglish);
             }
             else {
+                Timber.d("No English lyrics found for: %s", hymnNo);
                 showLyrics(null);
             }
         });

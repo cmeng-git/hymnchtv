@@ -152,6 +152,9 @@ public class MediaConfig extends BaseActivity
     /* Flag indicates if there were any uncommitted changes that should be saved on-exit */
     private boolean hasChanges = false;
 
+    // Indicate this instance is trigger from share from
+    private boolean mShare = false;
+
     // Flag indicates the content is auto filled and may be overwritten when user changes the hymnNo ect.
     private boolean isAutoFilled = true;
     private int mVisibleItem = 0;
@@ -307,6 +310,7 @@ public class MediaConfig extends BaseActivity
         if (bundle != null) {
             String mediaUri = bundle.getString(ATTR_MEDIA_URI);
             if (!TextUtils.isEmpty(mediaUri)) {
+                mShare = true;
                 isAutoFilled = false;
                 tvMediaUri.setText(mediaUri);
                 if (mediaUri.contains("mp.weixin.qq.com") || mediaUri.contains(".notion.site")) {
@@ -322,6 +326,9 @@ public class MediaConfig extends BaseActivity
                 cbFu.setChecked(MediaRecord.isFu(hymnType, hymnNo));
                 setHymnTypeSpinner(hymnType);
                 tvHymnNo.setText(String.valueOf(hymnNo));
+            }
+            else {
+                mShare = false;
             }
         }
 
@@ -408,7 +415,17 @@ public class MediaConfig extends BaseActivity
 
             case R.id.button_Exit:
                 if (mListView.getVisibility() == View.GONE) {
-                    checkUnsavedChanges();
+                    if (mShare) {
+                        String hymnNo = ViewUtil.toString(tvHymnNo);
+                        if (hymnNo != null) {
+                            int nui = HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), cbFu.isChecked());
+                            MainActivity.showContent(this, mHymnType, nui, false);
+                            finish();
+                        }
+                    }
+                    else {
+                        checkUnsavedChanges();
+                    }
                 }
                 else {
                     setTitle(R.string.gui_media_config);

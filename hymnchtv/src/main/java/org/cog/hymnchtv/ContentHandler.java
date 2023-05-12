@@ -48,6 +48,7 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.PopupWindow;
 
 import androidx.viewpager2.widget.ViewPager2;
@@ -65,7 +66,6 @@ import org.cog.hymnchtv.utils.DepthPageTransformer;
 import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
 import org.cog.hymnchtv.utils.HymnNo2IdxConvert;
 import org.cog.hymnchtv.utils.HymnNoCh2EngXRef;
-import org.cog.hymnchtv.utils.ThemeHelper;
 import org.cog.hymnchtv.webview.WebViewFragment;
 import org.jetbrains.annotations.NotNull;
 
@@ -160,8 +160,8 @@ public class ContentHandler extends BaseActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        supportRequestWindowFeature(1);
-        getWindow().setFlags(1024, 1024);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        // getWindow().setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN); // will hide android notification bar
         setContentView(R.layout.content_main);
         registerForContextMenu(findViewById(R.id.linear));
         checkHFAvailability();
@@ -303,6 +303,8 @@ public class ContentHandler extends BaseActivity {
 
     public boolean onContextItemSelected(MenuItem item) {
         SharedPreferences.Editor editor = sPreference.edit();
+        ContentView contentView = (ContentView) mPagerAdapter.mFragments.get(mPager.getCurrentItem());
+
         switch (item.getItemId()) {
             case R.id.alwayshow:
                 isShowPlayerUi = true;
@@ -323,9 +325,13 @@ public class ContentHandler extends BaseActivity {
                 showPlayerUi(isShowPlayerUi);
                 return true;
 
+            case R.id.scoreColorChange:
+                if (contentView != null)
+                    contentView.toggleScoreColor();
+                return true;
+
             case R.id.lyrcsTextSizeInc:
             case R.id.lyrcsTextSizeDec:
-                ContentView contentView = (ContentView) mPagerAdapter.mFragments.get(mPager.getCurrentItem());
                 if (contentView != null)
                     contentView.setLyricsTextSize(item.getItemId() == R.id.lyrcsTextSizeInc);
                 return true;

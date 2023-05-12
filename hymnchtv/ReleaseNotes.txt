@@ -1,6 +1,15 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    05/13/2023
+Version:        2.1.1 (201010)
+- Provide user option to toggle 4 color settings for the hymn score view.
+- Make mediaConfig 'Exit' button returns to its parent on click i.e. contentView or Main UI.
+- Ensure main UI 'TOC' option button layout position and text color as per design intent.
+- Show android notification bar in hymn content view UI; fullScreen mode if enabled has blank taskbar
+
+=========================================================================
+Author:         cmeng
 Upload Date:    04/13/2023
 Version:        2.1.0 (201002)
 - Upgrade hymnchtv to support android Tiramisu API-33

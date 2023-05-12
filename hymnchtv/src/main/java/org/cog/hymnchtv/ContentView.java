@@ -28,6 +28,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -89,13 +92,13 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     public final static String LYRICS_INDEX = "lyricsIndex";
 
     public static final String EXTR_KEY_HAS_CHANGES = "hasChanges";
+    public final static String PREF_SCORE_COLOR = "ScoreColor";
     public static final String PREF_CONVERSION_TYPE = "ConversionType";
     public static final String PREF_SIMPLIFY = "LyricsSimplify";
     public static final String PREF_LYRICS_SCALE_P = "LyricsScaleP";
     public static final String PREF_LYRICS_SCALE_L = "LyricsScaleL";
     public static final String PREF_LYRICS_ENGLISH_SCALE_P = "LyricsScaleEP";
     public static final String PREF_LYRICS_ENGLISH_SCALE_L = "LyricsScaleEL";
-
     public ContentHandler mContext;
     private LyricsEnglishRecord mLyricsEnglishRecord;
     private ConversionType mConversionType = ConversionType.S2T;
@@ -109,22 +112,28 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
 
     private ImageView mContentView = null;
     private Integer mHymnNoEng = null;
-
     private boolean isSimplify;
     private boolean isErGe;
     private boolean mLyricsLoaded = false;
     private boolean hasEnglishLyrics = false;
+
+    private static final float[] mColorRange = new float[]{0, -0.9f, -0.8f, -0.7f};
+    private static int mScoreColor = 0;
+    private static ColorFilter mMatrix = null;
 
     private static float lyricsScaleP;
     private static float lyricsScaleL;
     private static float lyricsScaleEP;
     private static float lyricsScaleEL;
 
+    private String mResPrefix;
+    private int[] mHymnScoreInfo;
+
     private SharedPreferences mSharedPref;
     private SharedPreferences.Editor mEditor;
 
-    // Need this to prevent crash on rotation if there are other constructors implementation
-    // public ContentView() { }
+// Need this to prevent crash on rotation if there are other constructors implementation
+// public ContentView() { }
 
     @Override
     public void onAttach(@NonNull @NotNull Context context) {
@@ -166,6 +175,9 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
 
         isSimplify = mSharedPref.getBoolean(PREF_SIMPLIFY, true);
         mConversionType = ConversionType.valueOf(mSharedPref.getString(PREF_CONVERSION_TYPE, ConversionType.S2T.toString()));
+
+        mScoreColor = mSharedPref.getInt(PREF_SCORE_COLOR, 0);
+        mMatrix = (mScoreColor == 0) ? null : getColorMatrix(mColorRange[mScoreColor]);
 
         mLyricsLoaded = false;
         hasEnglishLyrics = false;
@@ -260,33 +272,31 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
      * @param hymnIndex hymn index provided by the page adapter when user scroll
      */
     private void updateHymnContent(String hymnType, int hymnIndex) {
-        String resPrefix;
         String resFName;
-
-        int[] hymnScoreInfo = HymnIdx2NoConvert.hymnIdx2NoConvert(hymnType, hymnIndex);
+        mHymnScoreInfo = HymnIdx2NoConvert.hymnIdx2NoConvert(hymnType, hymnIndex);
 
         // Chinese lyrics#
-        int lyricsNo = hymnScoreInfo[0];
+        int lyricsNo = mHymnScoreInfo[0];
         isErGe = HYMN_ER.equals(hymnType);
 
         switch (hymnType) {
             case HYMN_DB:
-                resPrefix = LYRICS_DB_SCORE + "db" + lyricsNo;
+                mResPrefix = LYRICS_DB_SCORE + "db" + lyricsNo;
                 resFName = LYRICS_DBS_TEXT + "db" + lyricsNo + ".txt";
                 break;
 
             case HYMN_BB:
-                resPrefix = LYRICS_BB_SCORE + "bb" + lyricsNo;
+                mResPrefix = LYRICS_BB_SCORE + "bb" + lyricsNo;
                 resFName = LYRICS_BBS_TEXT + "bb" + lyricsNo + ".txt";
                 break;
 
             case HYMN_XB:
-                resPrefix = LYRICS_XB_SCORE + "xb" + lyricsNo;
+                mResPrefix = LYRICS_XB_SCORE + "xb" + lyricsNo;
                 resFName = LYRICS_XB_TEXT + "xb" + lyricsNo + ".txt";
                 break;
 
             case HYMN_ER:
-                resPrefix = LYRICS_ER_SCORE + lyricsNo;
+                mResPrefix = LYRICS_ER_SCORE + lyricsNo;
                 resFName = LYRICS_ER_TEXT + "er" + lyricsNo + ".txt";
                 break;
 
@@ -296,12 +306,40 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         }
 
         // Show Hymn Lyric Scores for the selected hymnNo
-        showLyricsScore(resPrefix, hymnScoreInfo);
+        showLyricsScore(mResPrefix, mHymnScoreInfo);
 
         // Show Hymn Lyric Text for the selected hymnNo
         if (!TextUtils.isEmpty(resFName)) {
             showLyricsChText(resFName);
         }
+    }
+
+    /**
+     * <a href="https://medium.com/mobile-app-development-publication/android-image-color-change-with-colormatrix-e927d7fb6eb4">
+     * Android Image Color Change With ColorMatrix</a>
+     *
+     * @see ColorMatrix();
+     */
+    // Invert but make background color closer to theme dark with multiplier = -0.9f
+    private static ColorFilter getColorMatrix(float multiplier) {
+        return new ColorMatrixColorFilter(
+                new float[]{
+                        multiplier, .0f, .0f, .0f, 255.0f,  // red
+                        .0f, multiplier, .0f, .0f, 255.0f,  // green
+                        .0f, .0f, multiplier, .0f, 255.0f,  // blue
+                        .0f, .0f, .0f, 1.0f, .0f            // alpha
+                }
+        );
+    }
+
+    public void toggleScoreColor() {
+        mScoreColor = ++mScoreColor % mColorRange.length;
+        mMatrix = (mScoreColor == 0) ? null : getColorMatrix(mColorRange[mScoreColor]);
+        mEditor.putInt(PREF_SCORE_COLOR, mScoreColor);
+        mEditor.apply();
+
+        // Update Hymn Lyric Scores for the selected hymnNo with the new color inversion
+        showLyricsScore(mResPrefix, mHymnScoreInfo);
     }
 
     /**
@@ -316,14 +354,16 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         ImageView contentView;
         Context ctx = getContext();
 
+        mContentView.setColorFilter(mMatrix);
         String resName = resPrefix + ".png";
         // Uri resUri = Uri.fromFile(new File("//android_asset/", resName));
         // MyGlideApp.loadImage(ctx, mContentView, resUri);
-
         MyGlideApp.loadImage(ctx, mContentView, resName);
 
         if (pages > 1) {
             contentView = mConvertView.findViewById(R.id.contentView_a);
+            contentView.setColorFilter(mMatrix);
+
             resName = resPrefix + "a.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
             MyGlideApp.loadImage(ctx, contentView, resName);
@@ -334,6 +374,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
 
         if (pages > 2) {
             contentView = mConvertView.findViewById(R.id.contentView_b);
+            contentView.setColorFilter(mMatrix);
+
             resName = resPrefix + "b.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
             MyGlideApp.loadImage(ctx, contentView, resName);
@@ -344,6 +386,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
 
         if (pages > 3) {
             contentView = mConvertView.findViewById(R.id.contentView_c);
+            contentView.setColorFilter(mMatrix);
+
             resName = resPrefix + "c.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
             MyGlideApp.loadImage(ctx, contentView, resName);
@@ -353,7 +397,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         }
 
         if (pages > 4) {
-            contentView = mConvertView.findViewById(R.id.contentView_d);
+            contentView.setColorFilter(mMatrix);
+
             resName = resPrefix + "d.png";
             // resUri = Uri.fromFile(new File("//android_asset/", resName));
             MyGlideApp.loadImage(ctx, contentView, resName);

@@ -270,6 +270,7 @@
     <string name="theme_menu">Theme</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_light">Light</string>
+    <string name="score_color_change">score color change</string>
 
     <!-- Locale -->
     <string name="locale_menu">Language</string>

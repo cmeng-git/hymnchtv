@@ -266,6 +266,7 @@
     <string name="theme_menu">应用界面主题</string>
     <string name="theme_dark">深色</string>
     <string name="theme_light">浅色</string>
+    <string name="score_color_change">诗谱颜色切换</string>
 
     <!-- Locale -->
     <string name="locale_menu">应用界面语言</string>

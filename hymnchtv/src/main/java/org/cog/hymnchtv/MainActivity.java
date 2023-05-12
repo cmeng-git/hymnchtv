@@ -144,7 +144,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private Button btn_db;
     private Button btn_search;
 
-    private Spinner tocSpinner;
+    private Spinner mTocSpinner;
     private MySwipeListAdapter<HistoryRecord> mHistoryAdapter;
     private ListView mHistoryListView;
     private TextView mTocSpinnerItem;
@@ -160,11 +160,14 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private boolean isFu = false;
     private boolean isToc = false;
 
-    private int fontSize = FONT_SIZE_DEFAULT;
-    private int fontColor = Color.BLACK;
+    private int mFontSize = FONT_SIZE_DEFAULT;
+    private int mFsDelta = FONT_SIZE_DEFAULT - 10;
+
+    // Default to a valid COLOR just in case (see initUserSettings()).
+    private int mFontColor = Color.BLACK;
 
     private String sNumber = "";
-    private String tocPage;
+    private String mTocPage;
 
     private static MainActivity mInstance;
 
@@ -187,6 +190,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
         mHistoryListView = findViewById(R.id.historyListView);
         mHistoryListView.setVisibility(View.GONE);
+
         initButton();
         initUserSettings();
 
@@ -352,16 +356,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             // ensure actual logo size is ~64x64
             actionBar.setLogo(R.drawable.logo_hymnchtv);
             actionBar.setTitle(R.string.app_title_main);
-
-        /*
-           // actionBar.setTitle("");
-           // actionBar.setDisplayShowCustomEnabled(true);
-           // actionBar.setCustomView(R.layout.action_bar);
-           // ImageView logo = findViewById(R.id.logo);
-           // logo.setImageResource(R.drawable.logo_hymnchtv);
-           // TextView actionBarText = findViewById(R.id.actionBarTitle);
-           // actionBarText.setText(R.string.app_title_main);
-        */
         }
     }
 
@@ -383,26 +377,19 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     // 目录 Spinner selector handler
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        tocPage = hymnTocPage.get(position);
+        mTocPage = hymnTocPage.get(position);
         isToc = (position > 0);
 
         if (isToc) {
             sNumber = "";
             // mEntry.setFilters(new InputFilter[] { new InputFilter.LengthFilter(10) });
-            mEntry.setText(tocPage);
+            mEntry.setText(mTocPage);
         }
         else if (TextUtils.isEmpty(sNumber)) {
             // mEntry.setFilters(new InputFilter[] { new InputFilter.LengthFilter(4) });
             mEntry.setText("");
         }
-
-        // Need to re-init mTocSpinnerItem here whenever a new item is selected
-        mTocSpinnerItem = tocSpinner.findViewById(R.id.textItem);
-        mTocSpinnerItem.setTypeface(null, Typeface.BOLD);
-        mTocSpinnerItem.setGravity(Gravity.CENTER);
-
-        mTocSpinnerItem.setTextSize(fontSize - 10);
-        mTocSpinnerItem.setTextColor(fontColor);
+        initTocSpinnerItem();
     }
 
     @Override
@@ -427,7 +414,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
         // Re-init TOC and Search Fields to default on hymn number entry
         if (sNumber.length() == 1) {
-            tocSpinner.setSelection(0);
+            mTocSpinner.setSelection(0);
             tv_Search.setText("");
         }
     }
@@ -506,7 +493,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      */
     private void showHymnToc(String hymnType) {
         // "英中对照" not implemented for HYMN_ER or HYMN_XB
-        if (TOC_ENGLISH.equals(tocPage) && (HYMN_ER.equals(hymnType) || HYMN_XB.equals(hymnType))) {
+        if (TOC_ENGLISH.equals(mTocPage) && (HYMN_ER.equals(hymnType) || HYMN_XB.equals(hymnType))) {
             HymnsApp.showToastMessage(R.string.gui_en2ch_hymn_same);
             return;
         }
@@ -514,7 +501,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         Intent intent = new Intent(this, HymnToc.class);
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_HYMN_TYPE, hymnType);
-        bundle.putString(ATTR_PAGE, tocPage);
+        bundle.putString(ATTR_PAGE, mTocPage);
         intent.putExtras(bundle);
         startActivity(intent);
     }
@@ -616,33 +603,33 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
             // === Set font size ===
             case R.id.small:
-                fontSize = FONT_SIZE_DEFAULT - 5;
-                setFontSize(fontSize, true);
+                mFontSize = FONT_SIZE_DEFAULT - 5;
+                setFontSize(mFontSize, true);
                 return true;
 
             case R.id.middle:
-                fontSize = FONT_SIZE_DEFAULT;
-                setFontSize(fontSize, true);
+                mFontSize = FONT_SIZE_DEFAULT;
+                setFontSize(mFontSize, true);
                 return true;
 
             case R.id.lager:
-                fontSize = FONT_SIZE_DEFAULT + 5;
-                setFontSize(fontSize, true);
+                mFontSize = FONT_SIZE_DEFAULT + 5;
+                setFontSize(mFontSize, true);
                 return true;
 
             case R.id.xlager:
-                fontSize = FONT_SIZE_DEFAULT + 10;
-                setFontSize(fontSize, true);
+                mFontSize = FONT_SIZE_DEFAULT + 10;
+                setFontSize(mFontSize, true);
                 return true;
 
             case R.id.inc:
-                fontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT) + 2;
-                setFontSize(fontSize, true);
+                mFontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT) + 2;
+                setFontSize(mFontSize, true);
                 return true;
 
             case R.id.dec:
-                fontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT) - 2;
-                setFontSize(fontSize, true);
+                mFontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT) - 2;
+                setFontSize(mFontSize, true);
                 return true;
 
             // === Set font color ===
@@ -814,16 +801,12 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         // Specify the layout to use when the list of choices appears
         mAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_radio);
 
-        tocSpinner = findViewById(R.id.spinner_toc);
-        tocSpinner.setAdapter(mAdapter);
+        mTocSpinner = findViewById(R.id.spinner_toc);
+        mTocSpinner.setAdapter(mAdapter);
 
-        // to avoid onSelectedItem get triggered on first init and only then init mTocSpinnerItem (else null)
-        tocSpinner.setSelection(0, false);
-        tocSpinner.setOnItemSelectedListener(this);
-
-        mTocSpinnerItem = tocSpinner.findViewById(R.id.textItem);
-        mTocSpinnerItem.setTypeface(null, Typeface.BOLD);
-        mTocSpinnerItem.setGravity(Gravity.CENTER);
+        // Must allow to trigger onItemSelected() to show correct color on orientation change
+        mTocSpinner.setOnItemSelectedListener(this);
+        mTocSpinner.setSelection(0, false);
     }
 
     /**
@@ -832,12 +815,21 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private void initUserSettings() {
         setWallpaper();
 
-        fontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT);
-        setFontSize(fontSize, false);
+        mFontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT);
+        mFontColor = mSharedPref.getInt(PREF_TEXT_COLOR, getResources().getColor(R.color.grey900));
+        initTocSpinnerItem();
 
-        fontColor = mSharedPref.getInt(PREF_TEXT_COLOR, Color.BLACK);
-        setFontColor(fontColor, false);
+        setFontSize(mFontSize, false);
+        setFontColor(mFontColor, false);
+    }
 
+    // Must re-init mTocSpinnerItem reference here whenever a new item is selected
+    private void initTocSpinnerItem() {
+        mTocSpinnerItem = mTocSpinner.findViewById(R.id.textItem);
+        mTocSpinnerItem.setGravity(Gravity.CENTER);
+        mTocSpinnerItem.setTypeface(null, Typeface.BOLD);
+        mTocSpinnerItem.setTextSize(mFsDelta);
+        mTocSpinnerItem.setTextColor(mFontColor);
     }
 
     private void showHymn(HistoryRecord sRecord) {
@@ -1016,7 +1008,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             mEditor.putInt(PREF_TEXT_SIZE, size);
             mEditor.apply();
         }
-        int fs_delta = size - 10;
+        mFsDelta = size - 10;
 
         btn_n0.setTextSize(size);
         btn_n1.setTextSize(size);
@@ -1030,15 +1022,15 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         btn_n9.setTextSize(size);
         // mEntry.setTextSize(size);
 
-        btn_fu.setTextSize(fs_delta);
-        btn_del.setTextSize(fs_delta);
-        btn_er.setTextSize(fs_delta);
-        btn_xb.setTextSize(fs_delta);
-        btn_bb.setTextSize(fs_delta);
-        btn_db.setTextSize(fs_delta);
+        btn_fu.setTextSize(mFsDelta);
+        btn_del.setTextSize(mFsDelta);
+        btn_er.setTextSize(mFsDelta);
+        btn_xb.setTextSize(mFsDelta);
+        btn_bb.setTextSize(mFsDelta);
+        btn_db.setTextSize(mFsDelta);
 
-        btn_search.setTextSize(fs_delta);
-        mTocSpinnerItem.setTextSize(fs_delta);
+        btn_search.setTextSize(mFsDelta);
+        mTocSpinnerItem.setTextSize(mFsDelta);
     }
 
     /**
@@ -1048,7 +1040,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      * @param update true to update the preference settings
      */
     private void setFontColor(int color, boolean update) {
-        fontColor = color;
+        mFontColor = color;
         if (update) {
             mEditor.putInt(PREF_TEXT_COLOR, color);
             mEditor.apply();

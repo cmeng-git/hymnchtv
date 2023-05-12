@@ -99,7 +99,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:gravity="center_vertical"
-        android:paddingTop="20dp">
+        android:paddingTop="10dp"
+        android:paddingBottom="5dp">
 
         <Button
             android:id="@+id/history_log"

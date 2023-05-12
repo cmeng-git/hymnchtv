@@ -14,6 +14,10 @@
         android:title="@string/menu_media_ui_toggle" />
 
     <item
+        android:id="@+id/scoreColorChange"
+        android:title="@string/score_color_change" />
+
+    <item
         android:id="@+id/lyrcsTextSizeInc"
         android:title="@string/gui_lyrics_text_size_increase" />
 

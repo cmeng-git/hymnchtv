@@ -30,13 +30,12 @@ import timber.log.Timber;
  */
 public class AssetFile
 {
-    private final String path;
+    private final String mPath;
     private static AssetManager assetManager = null;
 
     public AssetFile(Context context, String path)
     {
-        this.path = path;
-
+        mPath = path;
         if (assetManager == null) {
             try {
                 Context ctx = context.createPackageContext("org.cog.hymnchtv", 0);
@@ -50,7 +49,7 @@ public class AssetFile
     public InputStream getInputStream()
     {
         try {
-            return (assetManager == null) ? null : assetManager.open(path);
+            return (assetManager == null) ? null : assetManager.open(mPath);
         } catch (Exception e) {
             Timber.w("AssetFile get inputStream exception: %s", e.getMessage());
             return null;
@@ -59,6 +58,6 @@ public class AssetFile
 
     public String getPath()
     {
-        return path;
+        return mPath;
     }
 }
