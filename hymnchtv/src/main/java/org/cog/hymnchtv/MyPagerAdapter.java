@@ -68,7 +68,8 @@ public class MyPagerAdapter extends FragmentStateAdapter
                 return HYMN_XB_ITEM_COUNT;
 
             case HYMN_BB:
-                return HYMN_BB_ITEM_COUNT;
+                // +1 to load image of non-existence hymn score number
+                return HYMN_BB_ITEM_COUNT + 1;
 
             case HYMN_DB:
                 return HYMN_DB_ITEM_COUNT;

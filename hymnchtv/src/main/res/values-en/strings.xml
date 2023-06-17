@@ -42,7 +42,7 @@
     <string name="gui_hymn_type">Hymn Category:</string>
     <string name="gui_in_development">Still under development</string>
     <string name="gui_lyrics_chinese_traditional">CN&#x2B0C;TW Lyrics</string>
-    <string name="gui_lyrics_english">English Lyrics</string>
+    <string name="gui_lyrics_chinese_english">CN&#x2B0C;ENG Lyrics</string>
     <string name="gui_lyrics_english_delete">Delete English lyrics</string>
     <string name="gui_lyrics_text_size_increase">Increase lyrics text</string>
     <string name="gui_lyrics_text_size_decrease">Lyrics text reduced</string>
@@ -146,7 +146,7 @@
     <string name="hint_hymn_content_search">Auto TW&#x27A1;CN Hymns Search</string>
     <string name="hint_hymn_history">&#11014; Hymns Log</string>
     <string name="hint_hymn_number_enter">Enter HymnNo&#11015;</string>
-    <string name="hint_hymn_ui">Enter category or HymnNo\nClick DaBen, BuChong, XinGe…</string>
+    <string name="hint_hymn_ui">Enter category or HymnNo, then click\nDaBen, BuChong, XinGe, ErGe or English</string>
 
     <!-- Logs -->
     <string name="gui_SEND_LOGS">Bug Rpt</string>
@@ -160,6 +160,7 @@
     <!-- hymnch main interface gui names -->
     <string name="hymn_db">Da Ben</string>
     <string name="hymn_content">Content</string>
+    <string name="hymn_english">English</string>
     <string name="hymn_er">Er Ge</string>
     <string name="hymn_fu">FuGe</string>
     <string name="hymn_lyrics">Lyrics</string>

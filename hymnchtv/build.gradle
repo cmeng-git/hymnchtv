@@ -14,8 +14,8 @@ android {
     defaultConfig {
         applicationId "org.cog.hymnchtv"
         // End digit - change to force update with same version number
-        versionCode 201010
-        versionName "2.1.1"
+        versionCode 201020
+        versionName "2.1.2"
 
         minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.compileSdk
@@ -79,10 +79,10 @@ android {
 dependencies {
     implementation project(':android-youtube-player:core')
 
-    implementation 'androidx.activity:activity-ktx:1.7.1'
+    implementation 'androidx.activity:activity-ktx:1.7.2'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.fragment:fragment-ktx:1.5.7'
+    implementation 'androidx.fragment:fragment-ktx:1.6.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
@@ -97,7 +97,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.13.2'
     implementation 'com.github.evgenyneu:js-evaluator-for-android:v5.0.0'
     implementation 'com.github.yalantis:ucrop:2.2.8'
-    implementation 'com.google.android.exoplayer:exoplayer:2.18.6'
+    implementation 'com.google.android.exoplayer:exoplayer:2.18.7'
     implementation 'com.github.qichuan:android-opencc:1.2.0'
 
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'

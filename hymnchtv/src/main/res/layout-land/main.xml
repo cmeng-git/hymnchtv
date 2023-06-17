@@ -27,7 +27,7 @@
             android:id="@+id/tv_entry"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:gravity="center"
             android:hint="@string/hint_hymn_number_enter"
             android:maxLength="4"
@@ -54,7 +54,8 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="0dp"
+            android:layout_weight="2.5">
 
             <Button
                 android:id="@+id/btn_search"
@@ -69,7 +70,8 @@
             <TextView
                 android:id="@+id/dummy"
                 android:layout_width="20dp"
-                android:layout_height="0dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
                 android:layout_centerInParent="true" />
 
             <Spinner
@@ -79,6 +81,16 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_toEndOf="@+id/dummy" />
+
+            <Button
+                android:id="@+id/btn_english"
+                style="@style/ButtonMain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@+id/dummy"
+                android:layout_below="@+id/spinner_toc"
+                android:text="@string/hymn_english"
+                android:textSize="25sp" />
         </RelativeLayout>
     </LinearLayout>
 

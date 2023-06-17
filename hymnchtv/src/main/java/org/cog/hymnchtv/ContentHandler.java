@@ -29,6 +29,7 @@ import static org.cog.hymnchtv.HymnToc.hymnCategoryDb;
 import static org.cog.hymnchtv.HymnToc.hymnCategoryEr;
 import static org.cog.hymnchtv.HymnToc.hymnCategoryXb;
 import static org.cog.hymnchtv.MainActivity.ATTR_AUTO_PLAY;
+import static org.cog.hymnchtv.MainActivity.ATTR_ENGLISH_NO;
 import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_NUMBER;
 import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_TYPE;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
@@ -37,6 +38,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.PREF_MENU_SHOW;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_DUMMY;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
 
@@ -120,6 +122,7 @@ public class ContentHandler extends BaseActivity {
 
     // Hymn Type and number selected by user
     private boolean mAutoPlay = false;
+    public boolean mAutoEnglish = false;
     public String mHymnType;
     private int mHymnNo;
     private int hymnIdx = -1;
@@ -192,7 +195,13 @@ public class ContentHandler extends BaseActivity {
         mHymnType = bundle.getString(ATTR_HYMN_TYPE);
         mHymnNo = bundle.getInt(ATTR_HYMN_NUMBER);
         mHymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mHymnType, mHymnNo);
+
         mAutoPlay = bundle.getBoolean(ATTR_AUTO_PLAY, false);
+        int tmpNo = bundle.getInt(ATTR_ENGLISH_NO, -1);
+        if (tmpNo != -1) {
+            mAutoEnglish = true;
+            mHymnNoEng = tmpNo;
+        }
 
         switch (mHymnType) {
             // Convert the user input hymn number i.e: hymn #1 => #0 i.e.index number
@@ -230,6 +239,7 @@ public class ContentHandler extends BaseActivity {
     protected void onResume() {
         super.onResume();
         showPlayerUi(isShowPlayerUi && HymnsApp.isPortrait);
+
     }
 
     /**
@@ -479,7 +489,9 @@ public class ContentHandler extends BaseActivity {
     public void updateMediaPlayerInfo() {
         // Update both mHymnType and mHymnNo for share auto-fill
         MainActivity.setHymnTypeNo(mHymnType, mHymnNo);
-        mHymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mHymnType, mHymnNo);
+        if (mHymnNo != HYMN_BB_DUMMY) {
+            mHymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mHymnType, mHymnNo);
+        }
 
         // Check to see if all the mediaTypes are defined/available for the current user selected HymnType/HymnNo
         boolean[] isAvailable = getHymnMediaState();
@@ -1059,6 +1071,10 @@ public class ContentHandler extends BaseActivity {
         String hymnInfo = "";
         String hymnTitle = "";
         Resources res = getResources();
+
+        if (mHymnNo == HYMN_BB_DUMMY) {
+            return String.format(Locale.CHINA, "英文 #%d: 这首英文诗歌没有匹配的中文歌词", mHymnNoEng);
+        }
 
         switch (mHymnType) {
             case HYMN_DB:

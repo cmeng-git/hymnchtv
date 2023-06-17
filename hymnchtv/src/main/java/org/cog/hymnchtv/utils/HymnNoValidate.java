@@ -52,6 +52,9 @@ public class HymnNoValidate {
     public static final int HYMN_BB_NO_MAX = 1005;
     public static final int HYMN_BB_ITEM_COUNT = 513;
 
+    // A dummy BB hymnNo for display of english lyrics with no matching chinese hymn no
+    public static final int HYMN_BB_DUMMY = 2000;
+
     /* Maximum HymnNo/HymnIndex: 新歌颂咏 */
     public static final int HYMN_XB_NO_MAX = 171;
     public static final int HYMN_XB_ITEM_COUNT = 168;

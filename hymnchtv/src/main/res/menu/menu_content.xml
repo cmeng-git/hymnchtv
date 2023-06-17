@@ -27,7 +27,7 @@
 
     <item
         android:id="@+id/lyrcsEnglish"
-        android:title="@string/gui_lyrics_english" />
+        android:title="@string/gui_lyrics_chinese_english" />
 
     <item
         android:id="@+id/lyrcsEnglishDelete"

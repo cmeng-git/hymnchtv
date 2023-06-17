@@ -161,7 +161,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         btn_english.setOnLongClickListener(this);
 
         lyricsView = mConvertView.findViewById(R.id.lyricsView);
-        lyricsSimplify = mConvertView.findViewById(R.id.lyrics_simplifiy);
+        lyricsSimplify = mConvertView.findViewById(R.id.lyrics_simplified);
         lyricsSimplify.registerZoomTextListener(this);
         lyricsTraditional = mConvertView.findViewById(R.id.lyrics_traditional);
 
@@ -204,6 +204,10 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         // get the corresponding English lyrics# or null if none
         mHymnNoEng = mContext.getHymnNoEng();
         btn_english.setVisibility((mHymnNoEng != null) ? View.VISIBLE : View.GONE);
+        if (mContext.mAutoEnglish) {
+            hasEnglishLyrics = true;
+            toggleLyricsView();
+        }
     }
 
     @Override

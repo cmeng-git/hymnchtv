@@ -27,6 +27,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_DUMMY;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_NO_MAX;
@@ -42,8 +43,7 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
  *
  * @author Eng Chong Meng
  */
-public class HymnNo2IdxConvert
-{
+public class HymnNo2IdxConvert {
     // Valid range for 補充本 per each 100 range
     public static final List<Range<Integer>> rangeBbValid = new ArrayList<>();
 
@@ -72,15 +72,13 @@ public class HymnNo2IdxConvert
      * @param hymnType Hymn type to be verify
      * @param maxNo max number for the hymnType
      */
-    public static void validateNo2IdxConversion(String hymnType, int maxNo)
-    {
+    public static void validateNo2IdxConversion(String hymnType, int maxNo) {
         for (int x = 1; x <= (maxNo + 1); x++) {
             hymnNo2IdxConvert(hymnType, x);
         }
     }
 
-    public static int hymnNo2IdxConvert(String hymnType, int hymnNo)
-    {
+    public static int hymnNo2IdxConvert(String hymnType, int hymnNo) {
         // default values set as invalid
         int hymnIdx = -1;
 
@@ -125,6 +123,9 @@ public class HymnNo2IdxConvert
                             break;
                         }
                     }
+                }
+                else if (hymnNo == HYMN_BB_DUMMY) {
+                    hymnIdx = HYMN_BB_DUMMY;
                 }
                 break;
 

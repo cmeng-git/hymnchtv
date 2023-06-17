@@ -19,6 +19,7 @@ package org.cog.hymnchtv;
 import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
 import static org.cog.hymnchtv.HymnToc.hymnTocPage;
 import static org.cog.hymnchtv.persistance.PermissionUtils.PRC_NOTIFICATIONS;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_DUMMY;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
 
@@ -62,6 +63,7 @@ import androidx.appcompat.app.ActionBar;
 import com.zqc.opencc.android.lib.ChineseConverter;
 import com.zqc.opencc.android.lib.ConversionType;
 
+import org.apache.http.util.EncodingUtils;
 import org.cog.hymnchtv.hymnhistory.HistoryRecord;
 import org.cog.hymnchtv.logutils.LogUploadServiceImpl;
 import org.cog.hymnchtv.mediaconfig.MediaConfig;
@@ -80,8 +82,11 @@ import org.cog.hymnchtv.utils.TouchListener;
 import org.cog.hymnchtv.utils.WallPaperUtil;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import de.cketti.library.changelog.ChangeLog;
 import timber.log.Timber;
@@ -103,6 +108,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     public static final String ATTR_SEARCH = "search";
     public static final String ATTR_PAGE = "page";
     public static final String ATTR_AUTO_PLAY = "autoPlay";
+    public static final String ATTR_ENGLISH_NO = "englishNo";
 
     public static final String HYMN_ER = "hymn_er";
     public static final String HYMN_XB = "hymn_xb";
@@ -119,6 +125,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     public static final String PREF_WALLPAPER = "WallPaper";
 
     public static final String PREF_MEDIA_HYMN = "MediaHymn";
+    private static final String mTocFile = "lyrics_toc/toc_all_eng2ch.txt";
     private static final int FONT_SIZE_DEFAULT = 35;
 
     private static String mHymnType = HYMN_DB;
@@ -143,6 +150,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private Button btn_bb;
     private Button btn_db;
     private Button btn_search;
+    private Button btn_eng;
 
     private Spinner mTocSpinner;
     private MySwipeListAdapter<HistoryRecord> mHistoryAdapter;
@@ -158,6 +166,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
     private boolean autoClear = false;
     private boolean isFu = false;
+    // Indicate that a TOC item has been selected
     private boolean isToc = false;
 
     private int mFontSize = FONT_SIZE_DEFAULT;
@@ -281,6 +290,15 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             }
             return true;
         });
+
+        btn_eng.setOnClickListener(v -> {
+            showHymnFromEng(false);
+        });
+        btn_eng.setOnLongClickListener(v -> {
+            showHymnFromEng(true);
+            return true;
+        });
+
         handleIntent(getIntent());
     }
 
@@ -470,7 +488,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      * @param hymnNo the content of hymnNo to display
      * @param autoPlay start media playback if true after the lyrics content is shown
      */
-    public static void showContent(Context ctx, String hymnType, int hymnNo, boolean autoPlay) {
+    public static void showContent(Context ctx, String hymnType, int hymnNo, boolean autoPlay, Integer... engNo) {
         // Save the user selection into history record
         boolean isFu = MediaRecord.isFu(hymnType, hymnNo);
         HistoryRecord historyRecord = new HistoryRecord(hymnType, hymnNo, isFu);
@@ -481,6 +499,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         bundle.putString(ATTR_HYMN_TYPE, hymnType);
         bundle.putInt(ATTR_HYMN_NUMBER, hymnNo);
         bundle.putBoolean(ATTR_AUTO_PLAY, autoPlay);
+        bundle.putInt(ATTR_ENGLISH_NO, engNo != null ? engNo[0] : -1);
 
         intent.putExtras(bundle);
         ctx.startActivity(intent);
@@ -504,6 +523,61 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         bundle.putString(ATTR_PAGE, mTocPage);
         intent.putExtras(bundle);
         startActivity(intent);
+    }
+
+    /**
+     * Generate the expandable TOC list from the given tocFile sorted by the stroke or pinyin
+     *
+     * @param dbPage true to access the DB page instead of BB if exist.
+     */
+    private void showHymnFromEng(boolean dbPage) {
+        if (isToc) {
+            return;
+        }
+
+        sNumber = mEntry.getText().toString();
+        if (TextUtils.isEmpty(sNumber)) {
+            sNumber = "0";
+        } else if (isFu) {
+            sNumber = sNumber.substring(1);
+        }
+
+        int hymnEng = Integer.parseInt(sNumber);
+        String sMatch = String.format(Locale.CHINA, "\\^ %04d:.+?", hymnEng);
+        try {
+            InputStream in2 = getResources().getAssets().open(mTocFile);
+            byte[] buffer2 = new byte[in2.available()];
+            if (in2.read(buffer2) == -1)
+                return;
+
+            String mResult = EncodingUtils.getString(buffer2, "utf-8");
+            String[] mList = mResult.split("\r\n|\n");
+
+            int idx = 0; // trace next mList index for access to DB page.
+            for (String item : mList) {
+                idx++;
+                if (item.matches(sMatch)) {
+                    String hymnTN = item.replaceAll(".+? #(.+?)", "$1");
+                    String hymnType = hymnTN.startsWith("db") ? HYMN_DB : HYMN_BB;
+                    int hymnNo = Integer.parseInt(hymnTN.substring(2));
+
+                    // Set up to display DB page if dbPage and content exist.
+                    if (dbPage && mList[idx].matches(sMatch)) {
+                        hymnTN = mList[idx].replaceAll(".+? #(.+?)", "$1");
+                        hymnType = hymnTN.startsWith("db") ? HYMN_DB : HYMN_BB;
+                        hymnNo = Integer.parseInt(hymnTN.substring(2));
+                    }
+
+                    showContent(this, hymnType, hymnNo, false, hymnEng);
+                    return;
+                }
+            }
+            // Pass in an non-existence HYMN_BB_DUMMY for chinese hymnNo
+            showContent(this, HYMN_BB, HYMN_BB_DUMMY, false, hymnEng);
+        } catch (IOException e) {
+            Timber.w("Content toc not available: %s", e.getMessage());
+            HymnsApp.showToastMessage(R.string.gui_in_development);
+        }
     }
 
     /**
@@ -795,6 +869,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         btn_db = findViewById(R.id.bs_db);
 
         btn_search = findViewById(R.id.btn_search);
+        btn_eng = findViewById(R.id.btn_english);
 
         // Create an ArrayAdapter using the string array and hymnApp default spinner layout
         ArrayAdapter<String> mAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, hymnTocPage);
@@ -1030,6 +1105,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         btn_db.setTextSize(mFsDelta);
 
         btn_search.setTextSize(mFsDelta);
+        btn_eng.setTextSize(mFsDelta);
         mTocSpinnerItem.setTextSize(mFsDelta);
     }
 
@@ -1073,6 +1149,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         btn_db.setTextColor(color);
 
         btn_search.setTextColor(color);
+        btn_eng.setTextColor(color);
         mTocSpinnerItem.setTextColor(color);
     }
 

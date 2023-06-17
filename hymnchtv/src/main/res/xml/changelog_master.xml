@@ -6,12 +6,17 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="2.1.2 (06/27/2023)" versioncode="201020">
+        <change>允许直接输入英文诗歌编号；显示相应的中文诗歌词（如果存在），否则只显示英文歌词。</change>
+        <change>短按“英文”按钮可显示英文歌词及相应的'补充本'诗歌词，或长按可访问相应的'大本'诗歌词（如果有）。</change>
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+    </release>
+
     <release version="2.1.1 (05/13/2023)" versioncode="201010">
         <change>提供用户选项来切换诗谱视图的 4 种颜色设置。</change>
         <change>使用户定义媒体设置的'退出'按钮在单击时返回到之前的状态，即诗歌内容显示或主页。</change>
         <change>确保主页'目录'选项按钮布局位置和文本颜色符合设计意图。</change>
         <change>在诗歌内容视图中显示安卓通知栏。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
     </release>
 
     <release version="2.1.0 (04/13/2023)" versioncode="201002">

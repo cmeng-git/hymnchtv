@@ -43,7 +43,7 @@
     <string name="gui_hymn_type">诗歌类别</string>
     <string name="gui_in_development">仍在开发中</string>
     <string name="gui_lyrics_chinese_traditional">简体&#x2B0C;繁体歌词</string>
-    <string name="gui_lyrics_english">英文歌词</string>
+    <string name="gui_lyrics_chinese_english">中文&#x2B0C;英文歌词</string>
     <string name="gui_lyrics_english_delete">英文歌词删除</string>
     <string name="gui_lyrics_text_size_increase">歌词文字加大</string>
     <string name="gui_lyrics_text_size_decrease">歌词文字减小</string>
@@ -147,7 +147,7 @@
     <string name="hint_hymn_content_search">自动繁体&#x27A1;简体歌词搜索</string>
     <string name="hint_hymn_history">&#11014;最近选择诗歌编号</string>
     <string name="hint_hymn_number_enter">输入诗歌编号&#11015;</string>
-    <string name="hint_hymn_ui">按目录选项，或输入(附)编号\n后按大本、补充、新颂或儿诗</string>
+    <string name="hint_hymn_ui">按目录选项，或输入(附)编号\n后按大本、补充、新颂、儿诗或英文</string>
 
     <!-- Logs -->
     <string name="gui_SEND_LOGS">提報错误</string>
@@ -161,6 +161,7 @@
     <!-- hymnchtv main interface gui names -->
     <string name="hymn_db">大本</string>
     <string name="hymn_content">内容</string>
+    <string name="hymn_english">英文</string>
     <string name="hymn_er">儿诗</string>
     <string name="hymn_fu">附歌</string>
     <string name="hymn_lyrics">歌词</string>

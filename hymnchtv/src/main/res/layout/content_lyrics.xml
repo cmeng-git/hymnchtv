@@ -66,12 +66,12 @@
                 style="@style/ButtonTop"
                 android:layout_weight="0.5"
                 android:layout_marginStart="4dp"
-                android:text="@string/gui_lyrics_english"
+                android:text="@string/gui_lyrics_chinese_english"
                 android:textSize="22sp" />
         </LinearLayout>
 
         <org.cog.hymnchtv.utils.ZoomTextView
-            android:id="@+id/lyrics_simplifiy"
+            android:id="@+id/lyrics_simplified"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/tv_border_bg_primary"
