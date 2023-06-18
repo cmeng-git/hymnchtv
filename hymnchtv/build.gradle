@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "org.cog.hymnchtv"
         // End digit - change to force update with same version number
-        versionCode 201020
+        versionCode 201021
         versionName "2.1.2"
 
         minSdkVersion rootProject.minSdk

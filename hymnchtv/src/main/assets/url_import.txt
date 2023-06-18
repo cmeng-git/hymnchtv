@@ -180,6 +180,7 @@ hymn_db,256,0,HYMN_MEDIA,https://youtu.be/jXWUwrHbALg,null
 hymn_db,257,0,HYMN_MEDIA,https://youtu.be/Adsi738gb40,null
 hymn_db,259,0,HYMN_MEDIA,https://youtu.be/ElEGN1NiX30,null
 hymn_db,262,0,HYMN_MEDIA,https://youtu.be/D1p3aN8A5ZE,null
+hymn_db,265,0,HYMN_MEDIA,https://youtube.com/watch?v=Phx0pEVCMWA&feature=share8,null
 hymn_db,269,0,HYMN_MEDIA,https://youtu.be/0e2oT2smqVU,null
 hymn_db,270,0,HYMN_MEDIA,https://youtu.be/2h3ngGZ2_O4,null
 hymn_db,282,0,HYMN_CHANGSHI,https://youtu.be/XhHCEXAJaQM,null
@@ -314,7 +315,7 @@ hymn_db,437,0,HYMN_MEDIA,https://youtu.be/6k79osBQa0k,null
 hymn_db,438,0,HYMN_MEDIA,https://youtu.be/r2mLbyCb490,null
 hymn_db,439,0,HYMN_MEDIA,https://youtu.be/F8tDWECRJB8,null
 hymn_db,440,0,HYMN_MEDIA,https://youtu.be/l0l1NpvhDqY,null
-hymn_db,441,0,HYMN_MEDIA,https://youtu.be/SshByXuAPUE,null
+hymn_db,441,0,HYMN_MEDIA,https://youtu.be/abjRlvMIUyU,null
 hymn_db,443,0,HYMN_MEDIA,https://youtu.be/ndcWdRk1Hrk,null
 hymn_db,444,0,HYMN_MEDIA,https://youtu.be/NuAk7Hx38e8,null
 hymn_db,445,0,HYMN_MEDIA,https://youtu.be/bNa-3YmXkJ0,null
@@ -337,6 +338,7 @@ hymn_db,465,0,HYMN_MEDIA,https://youtu.be/4mfgruke58U,null
 hymn_db,467,0,HYMN_MEDIA,https://youtu.be/IoPrfPhhLRc,null
 hymn_db,468,0,HYMN_BANZOU,https://youtu.be/IDEkWOKXfWA,null
 hymn_db,468,0,HYMN_MEDIA,https://youtu.be/WXCna5GRFOI,null
+hymn_db,469,0,HYMN_JIAOCHANG,https://youtube.com/watch?v=S0FJ282pAfg&feature=share8,null
 hymn_db,469,0,HYMN_MEDIA,https://youtu.be/wTWxwr1FCvg,null
 hymn_db,470,0,HYMN_MEDIA,https://youtu.be/Az6LE_DOUXg,null
 hymn_db,471,0,HYMN_MEDIA,https://youtu.be/yZoDZN4wQ_E,null
@@ -395,13 +397,18 @@ hymn_db,540,0,HYMN_MEDIA,https://youtu.be/HZcqfM_ABFI,null
 hymn_db,555,0,HYMN_MEDIA,https://youtu.be/GiT6wkUESs8,null
 hymn_db,563,0,HYMN_BANZOU,https://youtu.be/Gufgw97owEo,null
 hymn_db,563,0,HYMN_MEDIA,https://youtu.be/lZ-Nx4sSFB4,null
+hymn_db,565,0,HYMN_JIAOCHANG,https://youtube.com/watch?v=joFPJfJV4d4&feature=share8,null
+hymn_db,565,0,HYMN_MEDIA,https://youtube.com/watch?v=TPNxnmGAuL0&feature=share8,null
+hymn_db,568,0,HYMN_JIAOCHANG,https://youtu.be/YiMcZwJz0Jo,null
 hymn_db,569,0,HYMN_MEDIA,https://youtu.be/fTMTBY23rAQ,null
 hymn_db,571,0,HYMN_MEDIA,https://youtu.be/rQbRo5iJl8M,null
 hymn_db,576,0,HYMN_MEDIA,https://youtu.be/1nFV7yOUbKM,null
 hymn_db,586,0,HYMN_MEDIA,https://youtu.be/mJkv1Qqmg5c,null
 hymn_db,588,0,HYMN_MEDIA,https://youtu.be/zeGQ8pWFlKo,null
 hymn_db,591,0,HYMN_MEDIA,https://youtu.be/BSUywbLo0hI,null
+hymn_db,592,0,HYMN_MEDIA,https://youtube.com/watch?v=F2B5rcQDOdQ&feature=share8,null
 hymn_db,593,0,HYMN_MEDIA,https://youtu.be/EQI6lgZjHVc,null
+hymn_db,598,0,HYMN_MEDIA,https://youtube.com/watch?v=dU5d5h_90Zg&feature=share8,null
 hymn_db,601,0,HYMN_MEDIA,https://youtu.be/bm2dGEjiJHU,null
 hymn_db,602,0,HYMN_MEDIA,https://youtu.be/dkyyVeKNwsw,null
 hymn_db,603,0,HYMN_MEDIA,https://youtu.be/oehjXGKX5io,null
@@ -425,8 +432,12 @@ hymn_db,735,0,HYMN_MEDIA,https://youtu.be/SMKti4Lcec4,null
 hymn_db,745,0,HYMN_MEDIA,https://youtu.be/aoA7RzdeXhY,null
 hymn_db,746,0,HYMN_MEDIA,https://youtu.be/95JxTVlX8QM,null
 hymn_db,751,0,HYMN_MEDIA,https://youtu.be/pglIxTbDKWk,null
+hymn_db,755,0,HYMN_JIAOCHANG,https://youtube.com/watch?v=7Ogy73Do44g&feature=share8,null
 hymn_db,756,0,HYMN_MEDIA,https://youtu.be/ZwmW3G4yBVI,null
+hymn_db,764,0,HYMN_MEDIA,https://youtube.com/watch?v=5qL9rVRL708&feature=share8,null
 hymn_db,767,0,HYMN_MEDIA,https://youtu.be/HU9_O_--188,null
+hymn_db,771,0,HYMN_JIAOCHANG,https://youtube.com/watch?v=X6DJXQPe-TU&feature=share8,null
+hymn_db,771,0,HYMN_MEDIA,https://youtube.com/watch?v=1Ta_HtrEV8U&feature=share8,null
 hymn_db,785,1,HYMN_MEDIA,https://youtu.be/0qX9CwAHtco,null
 hymn_bb,1,0,HYMN_JIAOCHANG,https://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&amp;amp;mid=2247490830&amp;amp;idx=1&amp;amp;sn=1aee37483d4df182524f2b4477537440&amp;amp;chksm=e993c539dee44c2fc89dd4a91db172dd8471dc43876a7b2e28af951e558cbd3423b10b92a5c2&amp;amp;scene=21#wechat_redirect,null
 hymn_bb,2,0,HYMN_JIAOCHANG,https://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&amp;mid=2247490830&amp;idx=1&amp;sn=1aee37483d4df182524f2b4477537440&amp;chksm=e993c539dee44c2fc89dd4a91db172dd8471dc43876a7b2e28af951e558cbd3423b10b92a5c2&amp;scene=21#wechat_redirect,null
@@ -974,6 +985,7 @@ hymn_bb,829,0,HYMN_JIAOCHANG,https://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&a
 hymn_bb,830,0,HYMN_JIAOCHANG,https://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&amp;mid=2247489020&amp;idx=6&amp;sn=1baa41cc4832fd0edd0d42e7f9a25653&amp;chksm=e993cdcbdee444dd226b9a071374741f6969140c60432ed6d4a9e530aa84ea0c6499a910d4cd&amp;scene=21#wechat_redirect,null
 hymn_bb,831,0,HYMN_JIAOCHANG,https://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&amp;mid=2247491133&amp;idx=2&amp;sn=bd5806b270741b633dc35cbe80a434da&amp;chksm=e993c60adee44f1c8d82a468b499d2ffe87680127e55f5e35864f83e2c8df7ab0baea1bd86ae&amp;scene=21#wechat_redirect,null
 hymn_bb,832,0,HYMN_JIAOCHANG,https://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&amp;mid=2247491133&amp;idx=3&amp;sn=e1a68d7ea2b1f5a9f26a811685df0279&amp;chksm=e993c60adee44f1cd3963cf73924a921edfd486f587799400f24a98749d8320fee23a9043080&amp;scene=21#wechat_redirect,null
+hymn_bb,832,0,HYMN_MEDIA,https://youtube.com/watch?v=K4cormd1ph8&feature=share8,null
 hymn_bb,833,0,HYMN_JIAOCHANG,https://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&amp;mid=2247491133&amp;idx=4&amp;sn=5024b599176ac8efd112317d2bdf12e5&amp;chksm=e993c60adee44f1c59ee803e0a4fe7e39f5f6eeebf7034ee596c3ad2e69a6a799db14fa27948&amp;scene=21#wechat_redirect,null
 hymn_bb,834,0,HYMN_JIAOCHANG,https://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&amp;mid=2247491133&amp;idx=5&amp;sn=a7b2a6844e97d67d8b7231cc859e114b&amp;chksm=e993c60adee44f1c95c086043417ca7900b504c8b3a33b1b216b5086d6180f2358cc5236ca48&amp;scene=21#wechat_redirect,null
 hymn_bb,835,0,HYMN_JIAOCHANG,https://mp.weixin.qq.com/s?__biz=MzI0OTM2ODkyMA==&amp;mid=2247489045&amp;idx=3&amp;sn=ef8fe16de93ba5d033692dbe9fe358b4&amp;chksm=e993ce22dee44734bbcad115f5102cadef9673c7031f895ecd5adb4eea5f00c1896aabcfc66c&amp;scene=21#wechat_redirect,null

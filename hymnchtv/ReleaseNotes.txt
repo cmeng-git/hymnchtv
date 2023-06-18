@@ -1,12 +1,13 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    06/17/2023
-Version:        2.1.2 (201020)
+Upload Date:    06/18/2023
+Version:        2.1.2 (201021)
 - Allow direct entry of English hymn number; display the corresponding chinese hymn if exist,
   else just display the English lyrics.
 - Short press 'English' button to access to corresponding BB Chinese hymn lyrics,
   or long press to access to corresponding DB if exist.
+- showContent() optional item is empty and not null - check error.
 
 =========================================================================
 Author:         cmeng

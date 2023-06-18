@@ -499,7 +499,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         bundle.putString(ATTR_HYMN_TYPE, hymnType);
         bundle.putInt(ATTR_HYMN_NUMBER, hymnNo);
         bundle.putBoolean(ATTR_AUTO_PLAY, autoPlay);
-        bundle.putInt(ATTR_ENGLISH_NO, engNo != null ? engNo[0] : -1);
+        bundle.putInt(ATTR_ENGLISH_NO, engNo.length == 0 ? -1 : engNo[0]);
 
         intent.putExtras(bundle);
         ctx.startActivity(intent);
