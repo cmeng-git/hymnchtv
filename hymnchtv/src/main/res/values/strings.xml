@@ -18,13 +18,13 @@
     <string name="gui_copyright">Copyright@2020, Eng Chong Meng
         &lt;br/>&lt;a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0&lt;/a>
         &lt;br/>All rights reserved.</string>
-    <string name="gui_db_export">数库导出</string>
+    <string name="gui_db_export"><u>数库导出</u></string>
     <string name="gui_db_import">数库导入</string>
     <string name="gui_db_import_create">自建导入</string>
     <string name="gui_db_import_file">数据库导入文件</string>
     <string name="gui_db_import_record">数库导入共 %1$d 首诗歌</string>
     <string name="gui_db_import_start">开始将文件内容导入数据库媒体记录…</string>
-    <string name="gui_db_import_NQ">NQ&#x2B07;</string>
+    <string name="gui_db_import_NQ"><u>NQ&#x2B07;</u></string>
     <string name="gui_db_file_missing">请提供媒体内容真实路径！</string>
     <string name="gui_db_list">数库列项</string>
     <string name="gui_db_overwrite">覆盖现有</string>
@@ -42,8 +42,9 @@
     <string name="gui_hymn_sn_convert">诗歌数字转换测试</string>
     <string name="gui_hymn_type">诗歌类别</string>
     <string name="gui_in_development">仍在开发中</string>
-    <string name="gui_lyrics_chinese_traditional">简体&#x2B0C;繁体歌词</string>
-    <string name="gui_lyrics_chinese_english">中文&#x2B0C;英文歌词</string>
+    <string name="gui_lyrics_chinese_traditional"><u>简体&#x2B0C;繁体歌词</u></string>
+    <string name="gui_lyrics_chinese_english"><u>中文&#x2B0C;英文歌词</u></string>
+    <string name="gui_lyrics_english">在线英文歌词</string>
     <string name="gui_lyrics_english_delete">英文歌词删除</string>
     <string name="gui_lyrics_text_size_increase">歌词文字加大</string>
     <string name="gui_lyrics_text_size_decrease">歌词文字减小</string>
@@ -71,8 +72,8 @@
     <string name="gui_playback_rate">视频播放速率：%1$sx</string>
     <string name="gui_to_be_added">待加</string>
     <string name="gui_unsaved_changes">您尚未保存更改。保存或取消并退出。</string>
-    <string name="gui_version">程式版本: %1$s</string>
-    <string name="gui_show_history_log">历史记录</string>
+    <string name="gui_version">程式版本: %1$s-%2$d</string>
+    <string name="gui_show_history_log"><u>历史记录</u></string>
     <string name="gui_wp_size">壁纸像素尺寸 [宽x高]：[%1$dx%2$d]</string>
 
     <string name="gui_error">错误</string>
@@ -105,14 +106,15 @@
     <string name="gui_apk_install_completed">应用程序安装成功！</string>
     <string name="gui_app_install_ready">已下载应用程序包 (%1$s)，并准备进行安装。</string>
     <string name="gui_app_version_invalid">下载的文件包含不匹配的版本代码：实际 = %1$s (%2$s)</string>
-    <string name="gui_app_new_available">有新的软件版本: %1$s</string>
+    <string name="gui_app_new_available">在线新版本: %1$s-%2$s</string>
     <string name="gui_app_reinstall">重新安装</string>
     <string name="gui_app_update">升级</string>
+    <string name="gui_app_upgrade">程序更新</string>
     <string name="gui_app_update_check">更新</string>
     <string name="gui_app_update_install">应用程序更新</string>
     <string name="gui_app_update_none">没有应用程序新版本</string>
-    <string name="gui_app_version_current">您当前安装版本编号和代码：(%1$s-%2$s) 是最新的。在线可用版本：%3$s。</string>
-    <string name="gui_app_version_new_available">可下载新%1$s编号和代码：\n(%2$s-%3$s)。当前安装的版本：%4$s。</string>
+    <string name="gui_app_version_current">您当前安装版本;\n编号和代码：%1$s-%2$s 是最新的。\n在线可用版本：%3$s-%4$s。</string>
+    <string name="gui_app_version_new_available">可下载新%1$s;\n编号和代码：%2$s-%3$s。\n当前安装的版本：%4$s-%5$s。</string>
     <string name="gui_app_uninstall">您的版本 v1.2.0 需要先卸载再更新。\n然后从下载目录手动安装:\n%1$s</string>
 
     <string name="gui_download">下载</string>
@@ -167,7 +169,7 @@
     <string name="hymn_lyrics">歌词</string>
     <string name="hymn_xb">新颂</string>
     <string name="hymn_score">歌谱</string>
-    <string name="hymn_search">内容搜索</string>
+    <string name="hymn_search"><u>内容搜索</u></string>
     <string name="hymn_bb">补充</string>
 
     <string name="hymn_toc">目录</string>
@@ -185,8 +187,8 @@
     <!-- hymnchtv media player interface gui names -->
     <string name="hymn_media_banzou">伴奏</string>
     <string name="hymn_media_changshi">唱诗</string>
-    <string name="hymn_media_jiaochang">教唱</string>
-    <string name="hymn_media_media">媒体</string>
+    <string name="hymn_media_jiaochang"><u>教唱</u></string>
+    <string name="hymn_media_media"><u>媒体</u></string>
 
     <!-- Hymn info for media controller title -->
     <string name="hymn_title_mc_bb">补充 %1$d: %2$s</string>

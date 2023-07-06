@@ -418,6 +418,7 @@ hymn_db,607,0,HYMN_MEDIA,https://youtu.be/0L2I3ZnDKdE,null
 hymn_db,609,0,HYMN_JIAOCHANG,https://youtu.be/VQr3Q9dlqMI,null
 hymn_db,624,0,HYMN_MEDIA,https://youtu.be/zEPUotfhzLg,null
 hymn_db,628,0,HYMN_MEDIA,https://youtu.be/a3yFqqtFNZo,null
+hymn_db,640,0,HYMN_MEDIA,https://youtube.com/watch?v=1qjvkG_UA3c&feature=share8,null
 hymn_db,642,0,HYMN_MEDIA,https://youtu.be/ZfjcJfcJiUU,null
 hymn_db,655,0,HYMN_CHANGSHI,https://youtu.be/XfOF-03c67U,null
 hymn_db,655,0,HYMN_MEDIA,https://youtu.be/9f-LlaSbYBQ,null

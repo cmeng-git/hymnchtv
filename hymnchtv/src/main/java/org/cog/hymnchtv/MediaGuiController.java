@@ -41,9 +41,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -224,7 +224,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         playbackPlay.setOnLongClickListener(this);
 
         mPlayerAnimate = (AnimationDrawable) playbackPlay.getBackground();
-        ImageButton mBtnHymnSearch = convertView.findViewById(R.id.btn_hymnSearch);
+        Button mBtnHymnSearch = convertView.findViewById(R.id.btn_hymnSearch);
         // mBtnHymnSearch.setOnTouchListener(touchListener);
         mBtnHymnSearch.setOnClickListener(this);
         mBtnHymnSearch.setOnLongClickListener(this);

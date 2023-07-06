@@ -1,6 +1,17 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    07/06/2023
+Version:        2.1.3 (201030)
+- Provide user indication for button that has long press action with underlined text or '...'
+- Launch app update dialog once if a new version found, only if hymnchtv is in foreground with device is unlocked state.
+- Show app update button in main UI when a new version is found.
+- Always show app version with both apk Version and VersionCode.
+- Make mediaConfig BackKey event has similar action as the 'Exit" button.
+- Update matching Pattern in Web Scraping for English lyrics and minimize race condition.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    06/18/2023
 Version:        2.1.2 (201021)
 - Allow direct entry of English hymn number; display the corresponding chinese hymn if exist,

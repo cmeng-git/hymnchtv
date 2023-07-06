@@ -26,6 +26,7 @@ import android.webkit.WebViewClient;
 import org.apache.commons.text.StringEscapeUtils;
 import org.cog.hymnchtv.About;
 import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.utils.ThemeHelper;
 
@@ -115,8 +116,8 @@ public class LyricsEnglishRecord
                 showLyrics(mLyricsEnglish);
             }
             else {
-                Timber.d("No English lyrics found for: %s", hymnNo);
-                showLyrics(null);
+                Timber.d("No English lyrics found for: %s", webUrl);
+                showLyrics(toHtml("<h4>" + HymnsApp.getResString(R.string.gui_file_DOWNLOAD_FAILED, webUrl) + "</h4>"));
             }
         });
     }
@@ -145,7 +146,7 @@ public class LyricsEnglishRecord
         if (TextUtils.isEmpty(lyricsContent))
             return false;
 
-        Pattern pattern = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<table data-end=\"\" class=\"js-stanzas\">.+?table>).*?");
+        Pattern pattern = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<table data-end=\".*\" class=\"js-stanzas\">.+?table>).*?");
         Pattern patternExt = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"alert.+?(<a href=\".+?</a>).+?");
         mLyricsEnglish = null;
 
@@ -182,7 +183,6 @@ public class LyricsEnglishRecord
         Pattern pattern = Pattern.compile("<div class=\"row main-content\">(.+?</table>).+?");
 
         WebView webView = initWebView(mContext);
-        webView.loadUrl(urlToLoad);
         webView.setWebViewClient(new WebViewClient()
         {
             @Override
@@ -202,13 +202,16 @@ public class LyricsEnglishRecord
                                 valueCallback.onReceiveValue(null);
                             }
                         });
-                    } catch (RuntimeException e) {
+                    } catch (Exception e) {
                         Timber.e("Web scrapping failed: %s", e.getMessage());
                         valueCallback.onReceiveValue(null);
                     }
                 }
             }
         });
+
+        webView.loadUrl(urlToLoad);
+        Timber.e("Web scrapping started: %s", urlToLoad);
     }
 
     /**

@@ -27,6 +27,8 @@ import android.content.Intent;
 
 import androidx.core.app.NotificationCompat;
 
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MainActivity;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
 
@@ -51,6 +53,8 @@ public class OnlineUpdateService extends IntentService
     public static int CHECK_INTERVAL_ON_LAUNCH = 30;
     public static int CHECK_NEW_VERSION_INTERVAL = 24 * 60 * 60;
     private static final int UPDATE_AVAIL_NOTIFY_ID = 1;
+
+    private static boolean updateNotified = false;
 
     private NotificationManager mNotificationMgr;
 
@@ -77,7 +81,7 @@ public class OnlineUpdateService extends IntentService
                         checkAppUpdate();
                         break;
                     case ACTION_UPDATE_AVAILABLE:
-                        UpdateServiceImpl.getInstance().checkForUpdates(true);
+                        UpdateServiceImpl.getInstance().checkForUpdates();
                         break;
                     case ACTION_AUTO_UPDATE_START:
                         setNextAlarm(CHECK_INTERVAL_ON_LAUNCH);
@@ -98,20 +102,27 @@ public class OnlineUpdateService extends IntentService
             NotificationCompat.Builder nBuilder;
             nBuilder = new NotificationCompat.Builder(this, NotificationHelper.DEFAULT_GROUP);
 
-            String msgString = getString(R.string.gui_app_new_available, updateService.getLatestVersion());
+            String msgString = updateService.getLatestVersion();
             nBuilder.setSmallIcon(R.drawable.hymnchtv);
             nBuilder.setWhen(System.currentTimeMillis());
             nBuilder.setAutoCancel(true);
             nBuilder.setTicker(msgString);
-            nBuilder.setContentTitle(getString(R.string.app_title_main));
+            // Use HymnsApp.getResString to get locale string
+            nBuilder.setContentTitle(HymnsApp.getResString(R.string.app_title_main));
             nBuilder.setContentText(msgString);
 
-            Intent intent = new Intent(this.getApplicationContext(), OnlineUpdateService.class);
+            Intent intent = new Intent(getApplicationContext(), OnlineUpdateService.class);
             intent.setAction(ACTION_UPDATE_AVAILABLE);
             PendingIntent pending = PendingIntent.getService(this, 0, intent,
                         getPendingIntentFlag(false, true));
             nBuilder.setContentIntent(pending);
             mNotificationMgr.notify(UPDATE_AVAIL_TAG, UPDATE_AVAIL_NOTIFY_ID, nBuilder.build());
+
+            // Launch update dialog once if new version found.
+            if (!updateNotified && !MainActivity.isDeviceLocked() && MainActivity.isForeground) {
+                UpdateServiceImpl.getInstance().checkForUpdates();
+                updateNotified = true;
+            }
         }
         setNextAlarm(CHECK_NEW_VERSION_INTERVAL);
     }

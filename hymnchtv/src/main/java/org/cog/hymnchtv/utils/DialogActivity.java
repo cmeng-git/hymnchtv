@@ -180,10 +180,12 @@ public class DialogActivity extends BaseActivity {
         String confirmTxt = intent.getStringExtra(EXTRA_CONFIRM_TXT);
         if (confirmTxt != null) {
             ViewUtil.setTextViewValue(mContent, R.id.okButton, confirmTxt);
+            findViewById(R.id.okButton).setOnClickListener(this::onOkClicked);
         }
 
         // Show cancel button if confirm label is not null
         ViewUtil.ensureVisible(mContent, R.id.cancelButton, confirmTxt != null);
+        findViewById(R.id.cancelButton).setOnClickListener(this::onCancelClicked);
 
         // Sets the listener
         mListenerId = intent.getLongExtra(EXTRA_LISTENER_ID, -1);

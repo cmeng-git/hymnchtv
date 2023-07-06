@@ -128,7 +128,7 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
             PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
 
             TextView textView = findViewById(R.id.about_appVersion);
-            textView.setText(String.format(getString(R.string.gui_version), pi.versionName));
+            textView.setText(getString(R.string.gui_version, pi.versionName, pi.versionCode));
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -183,7 +183,7 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
         new Thread() {
             @Override
             public void run() {
-                UpdateServiceImpl.getInstance().checkForUpdates(true);
+                UpdateServiceImpl.getInstance().checkForUpdates();
             }
         }.start();
     }

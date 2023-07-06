@@ -126,12 +126,9 @@ public class UpdateServiceImpl {
     }
 
     /**
-     * Checks for updates and take necessary action.
-     *
-     * @param notifyAboutNewestVersion <code>true</code> if the user is to be notified if they have the
-     * newest version already; otherwise, <code>false</code>
+     * Checks for updates and notify user of any new version, and take necessary action.
      */
-    public void checkForUpdates(boolean notifyAboutNewestVersion) {
+    public void checkForUpdates() {
         // cmeng: reverse the logic to !isLatestVersion() for testing
         mIsLatest = isLatestVersion();
         Timber.i("Is latest: %s\nCurrent version: %s\nLatest version: %s\nDownload link: %s",
@@ -158,9 +155,9 @@ public class UpdateServiceImpl {
                             @Override
                             public void onDialogCancelled(DialogActivity dialog) {
                             }
-                        }, HymnsApp.getResString(R.string.app_title_main), latestVersion, latestVersionCode, currentVersion
+                        }, HymnsApp.getResString(R.string.app_title_main), latestVersion, latestVersionCode, currentVersion, currentVersionCode
                 );
-            } else if (notifyAboutNewestVersion) {
+            } else {
                 // Notify that running version is up to date
                 DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
                         R.string.gui_app_update_none,
@@ -179,7 +176,7 @@ public class UpdateServiceImpl {
                             @Override
                             public void onDialogCancelled(DialogActivity dialog) {
                             }
-                        }, currentVersion, currentVersionCode, latestVersion
+                        }, currentVersion, currentVersionCode, latestVersion, currentVersionCode
                 );
             }
         } else {
@@ -399,7 +396,7 @@ public class UpdateServiceImpl {
      * @return the latest (software) version
      */
     public String getLatestVersion() {
-        return latestVersion;
+        return HymnsApp.getResString(R.string.gui_app_new_available, latestVersion, latestVersionCode);
     }
 
     /**
@@ -432,7 +429,8 @@ public class UpdateServiceImpl {
                     String aLinkPrefix = aLink.substring(0, aLink.lastIndexOf("/"));
                     downloadLink = aLinkPrefix + fileNameApk;
                     if (isValidateLink(downloadLink)) {
-                        // return true is current running application is already the latest
+                        MainActivity.mHasUpdate = currentVersionCode < latestVersionCode;
+                        // return true if current running application is already the latest
                         return (currentVersionCode >= latestVersionCode);
                     } else {
                         downloadLink = null;

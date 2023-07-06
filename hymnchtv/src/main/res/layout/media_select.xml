@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/hymnsGroup"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/background_dark"
     android:layout_alignParentBottom="true"
-    android:orientation="horizontal" >
+    android:orientation="horizontal"
+    tools:ignore="ExtraText">
 
-    <ImageButton
+    <Button
         android:id="@+id/btn_hymnSearch"
         style="@style/ButtonTop"
+        android:paddingStart="6dp"
         android:layout_weight="0.7"
-        android:src="@drawable/ic_search" />
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="-12dp"
+        android:text="…"
+        tools:ignore="HardcodedText,RtlSymmetry" />"/>
 
     <RadioButton
         android:id="@+id/btn_media"

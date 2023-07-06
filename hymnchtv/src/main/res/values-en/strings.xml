@@ -17,13 +17,13 @@
     <string name="gui_copyright">Copyright@2020, Eng Chong Meng
         &lt;br/>&lt;a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0&lt;/a>
         &lt;br/>All rights reserved.</string>
-    <string name="gui_db_export">DB Expt</string>
+    <string name="gui_db_export"><u>DB Expt</u></string>
     <string name="gui_db_import">DB Impt</string>
     <string name="gui_db_import_create">Gen Impt</string>
     <string name="gui_db_import_file">DB import file</string>
     <string name="gui_db_import_record">The db imports a total of %1$d hymns</string>
     <string name="gui_db_import_start">Start importing file contents into database media records…</string>
-    <string name="gui_db_import_NQ">NQ&#x2B07;</string>
+    <string name="gui_db_import_NQ"><u>NQ&#x2B07;</u></string>
     <string name="gui_db_file_missing">Please provide the absolute path of the media content!</string>
     <string name="gui_db_list">DB List</string>
     <string name="gui_db_overwrite">Overwrite</string>
@@ -41,8 +41,9 @@
     <string name="gui_hymn_sn_convert">Hymn digital conversion test</string>
     <string name="gui_hymn_type">Hymn Category:</string>
     <string name="gui_in_development">Still under development</string>
-    <string name="gui_lyrics_chinese_traditional">CN&#x2B0C;TW Lyrics</string>
-    <string name="gui_lyrics_chinese_english">CN&#x2B0C;ENG Lyrics</string>
+    <string name="gui_lyrics_chinese_traditional"><u>CN&#x2B0C;TW Lyrics</u></string>
+    <string name="gui_lyrics_chinese_english"><u>CN&#x2B0C;ENG Lyrics</u></string>
+    <string name="gui_lyrics_english">Online English lyrics</string>
     <string name="gui_lyrics_english_delete">Delete English lyrics</string>
     <string name="gui_lyrics_text_size_increase">Increase lyrics text</string>
     <string name="gui_lyrics_text_size_decrease">Lyrics text reduced</string>
@@ -70,8 +71,8 @@
     <string name="gui_playback_rate">Video playback rate: %1$sx</string>
     <string name="gui_to_be_added">To be added</string>
     <string name="gui_unsaved_changes">You have unsaved changes. Save or cancel and exit.</string>
-    <string name="gui_version">Application version: %1$s</string>
-    <string name="gui_show_history_log">History</string>
+    <string name="gui_version">App version: %1$s-%2$d</string>
+    <string name="gui_show_history_log"><u>History</u></string>
     <string name="gui_wp_size">Wallpaper pixel size [width x height]: [%1$dx%2$d]</string>
 
     <string name="gui_error">Error</string>
@@ -104,14 +105,15 @@
     <string name="gui_apk_install_completed">The app was installed successfully!</string>
     <string name="gui_app_install_ready">The app package (%1$s) has been downloaded and is ready to be installed.</string>
     <string name="gui_app_version_invalid">Downloaded file contains mismatched version code: Actual = %1$s (%2$s)</string>
-    <string name="gui_app_new_available">There is a new software version: %1$s</string>
+    <string name="gui_app_new_available">Online new app version: %1$s-%2$s</string>
     <string name="gui_app_reinstall">Reinstall</string>
     <string name="gui_app_update">upgrade</string>
+    <string name="gui_app_upgrade">App update</string>
     <string name="gui_app_update_check">Update</string>
     <string name="gui_app_update_install">App update</string>
     <string name="gui_app_update_none">No new version of the application</string>
-    <string name="gui_app_version_current">Current installed version: (%1$s-%2$s) are up to date. Version available online: %3$s.</string>
-    <string name="gui_app_version_new_available">New version %1$s available for downloaded:\n(%2$s-%3$s). Currently installed version: %4$s.</string>
+    <string name="gui_app_version_current">Current installed version:\n%1$s-%2$s are up to date.\nVersion available online: %3$s-%4$s.</string>
+    <string name="gui_app_version_new_available">New version %1$s available;\nVersion-Code:%2$s-%3$s.\nInstalled version: %4$s-%5$s.</string>
     <string name="gui_app_uninstall">App version v1.2.0 needs to be uninstalled first.\nThen manually install from the download directory:\n%1$s</string>
 
     <string name="gui_download">Download</string>
@@ -166,7 +168,7 @@
     <string name="hymn_lyrics">Lyrics</string>
     <string name="hymn_xb">Xin Ge</string>
     <string name="hymn_score">Score</string>
-    <string name="hymn_search">Search</string>
+    <string name="hymn_search"><u>Search</u></string>
     <string name="hymn_bb">Bu Chong</string>
 
     <string name="hymn_toc">TOC</string>
@@ -187,8 +189,8 @@
     <!--
     <string name="hymn_media_banzou">BanZou</string>
     <string name="hymn_media_changshi">ChangShi</string>
-    <string name="hymn_media_jiaochang">JiaChang</string>
-    <string name="hymn_media_media">Media</string>
+    <string name="hymn_media_jiaochang"><u>JiaChang</u></string>
+    <string name="hymn_media_media"><u>Media</u></string>
     -->
     <!-- Hymn info for media controller title -->
     <!--

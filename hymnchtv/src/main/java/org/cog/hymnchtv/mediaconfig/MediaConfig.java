@@ -414,23 +414,7 @@ public class MediaConfig extends BaseActivity
                 break;
 
             case R.id.button_Exit:
-                if (mListView.getVisibility() == View.GONE) {
-                    if (mShare) {
-                        String hymnNo = ViewUtil.toString(tvHymnNo);
-                        if (hymnNo != null) {
-                            int nui = HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), cbFu.isChecked());
-                            MainActivity.showContent(this, mHymnType, nui, false);
-                            finish();
-                        }
-                    }
-                    else {
-                        checkUnsavedChanges();
-                    }
-                }
-                else {
-                    setTitle(R.string.gui_media_config);
-                    mListView.setVisibility(View.GONE);
-                }
+                checkExitAction(false);
                 break;
 
             // use Rich Text Editor to modify or view the import file content
@@ -966,8 +950,10 @@ public class MediaConfig extends BaseActivity
 
         boolean isFu = cbFu.isChecked();
         int nui = HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), isFu);
-        if (nui == -1)
+        if (nui == -1) {
+            tvMediaUri.setText("");
             return;
+        }
 
         MediaRecord mediaRecord = new MediaRecord(mHymnType, nui, isFu, mMediaType);
         if (mDB.getMediaRecord(mediaRecord, true)) {
@@ -1367,11 +1353,31 @@ public class MediaConfig extends BaseActivity
                 mPlayerView.setVisibility(View.GONE);
             }
             else {
-                finish();
+                checkExitAction(true);
             }
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    private void checkExitAction(boolean ignoreList) {
+        if (ignoreList ||  mListView.getVisibility() == View.GONE) {
+            if (mShare) {
+                String hymnNo = ViewUtil.toString(tvHymnNo);
+                if (hymnNo != null) {
+                    int nui = HymnNoValidate.validateHymnNo(mHymnType, Integer.parseInt(hymnNo), cbFu.isChecked());
+                    MainActivity.showContent(this, mHymnType, nui, false);
+                    finish();
+                }
+            }
+            else {
+                checkUnsavedChanges();
+            }
+        }
+        else {
+            setTitle(R.string.gui_media_config);
+            mListView.setVisibility(View.GONE);
+        }
     }
 
     /**

@@ -26,6 +26,7 @@ import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -38,6 +39,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.Gravity;
@@ -59,6 +61,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ProcessLifecycleOwner;
 
 import com.zqc.opencc.android.lib.ChineseConverter;
 import com.zqc.opencc.android.lib.ConversionType;
@@ -72,6 +78,7 @@ import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.persistance.PermissionUtils;
+import org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl;
 import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.HymnNoValidate;
 import org.cog.hymnchtv.utils.LocaleHelper;
@@ -97,7 +104,7 @@ import timber.log.Timber;
  * @author Eng Chong Meng
  * @author wayfarer
  */
-public class MainActivity extends BaseActivity implements AdapterView.OnItemSelectedListener {
+public class MainActivity extends BaseActivity implements AdapterView.OnItemSelectedListener, LifecycleEventObserver {
     public static String HYMNCHTV_FAQ = "https://cmeng-git.github.io/hymnchtv/faq.html";
     private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
@@ -131,6 +138,12 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private static String mHymnType = HYMN_DB;
     private static int mHymnNo = -1;
 
+    public static boolean mHasUpdate = false;
+    /**
+     * Indicate if aTalk is in the foreground (true) or background (false)
+     */
+    public static boolean isForeground = false;
+
     private Button btn_n0;
     private Button btn_n1;
     private Button btn_n2;
@@ -150,7 +163,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private Button btn_bb;
     private Button btn_db;
     private Button btn_search;
-    private Button btn_eng;
+    private Button btn_update;
+    private Button btn_english;
 
     private Spinner mTocSpinner;
     private MySwipeListAdapter<HistoryRecord> mHistoryAdapter;
@@ -194,6 +208,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         setAppTheme(theme, false);
 
         super.onCreate(savedInstanceState);
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
+
         setContentView(R.layout.main);
         registerForContextMenu(findViewById(R.id.viewMain));
 
@@ -291,10 +307,19 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             return true;
         });
 
-        btn_eng.setOnClickListener(v -> {
+        btn_update.setOnClickListener(v -> {
+            new Thread() {
+                @Override
+                public void run() {
+                    UpdateServiceImpl.getInstance().checkForUpdates();
+                }
+            }.start();
+        });
+
+        btn_english.setOnClickListener(v -> {
             showHymnFromEng(false);
         });
-        btn_eng.setOnLongClickListener(v -> {
+        btn_english.setOnLongClickListener(v -> {
             showHymnFromEng(true);
             return true;
         });
@@ -356,6 +381,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     protected void onResume() {
         super.onResume();
         autoClear = true;
+        mInstance.btn_update.setVisibility(mHasUpdate ? View.VISIBLE : View.GONE);
         configureToolBar();
     }
 
@@ -379,6 +405,42 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
     public static MainActivity getInstance() {
         return mInstance;
+    }
+
+    // ========= LifecycleEventObserver implementations ======= //
+    @Override
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+        if (Lifecycle.Event.ON_START == event) {
+            isForeground = true;
+            Timber.d("APP FOREGROUNDED");
+        }
+        else if (Lifecycle.Event.ON_STOP == event) {
+            isForeground = false;
+            Timber.d("APP BACKGROUNDED");
+        }
+    }
+
+    /**
+     * Returns true if the device is locked or screen turned off (in case password not set)
+     */
+    public static boolean isDeviceLocked() {
+        boolean isLocked;
+
+        // First we check the locked state
+        KeyguardManager keyguardManager = (KeyguardManager) mInstance.getSystemService(Context.KEYGUARD_SERVICE);
+        boolean inKeyguardRestrictedInputMode = keyguardManager.inKeyguardRestrictedInputMode();
+
+        if (inKeyguardRestrictedInputMode) {
+            isLocked = true;
+        }
+        else {
+            // If password is not set in the settings, the inKeyguardRestrictedInputMode() returns false,
+            // so we need to check if screen on for this case
+            PowerManager powerManager = (PowerManager) mInstance.getSystemService(Context.POWER_SERVICE);
+            isLocked = !powerManager.isInteractive();
+        }
+        Timber.d("Android device is %s.", isLocked ? "locked" : "unlocked");
+        return isLocked;
     }
 
     private String getFile(Uri uri) {
@@ -869,7 +931,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         btn_db = findViewById(R.id.bs_db);
 
         btn_search = findViewById(R.id.btn_search);
-        btn_eng = findViewById(R.id.btn_english);
+        btn_update = findViewById(R.id.btn_update);
+        btn_english = findViewById(R.id.btn_english);
 
         // Create an ArrayAdapter using the string array and hymnApp default spinner layout
         ArrayAdapter<String> mAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, hymnTocPage);
@@ -1105,7 +1168,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         btn_db.setTextSize(mFsDelta);
 
         btn_search.setTextSize(mFsDelta);
-        btn_eng.setTextSize(mFsDelta);
+        btn_update.setTextSize(mFsDelta);
+        btn_english.setTextSize(mFsDelta);
         mTocSpinnerItem.setTextSize(mFsDelta);
     }
 
@@ -1149,7 +1213,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         btn_db.setTextColor(color);
 
         btn_search.setTextColor(color);
-        btn_eng.setTextColor(color);
+        btn_update.setTextColor(color);
+        btn_english.setTextColor(color);
         mTocSpinnerItem.setTextColor(color);
     }
 
