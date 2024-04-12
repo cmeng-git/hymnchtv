@@ -9,6 +9,7 @@
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">witness-lee-hymns.org/</domain>
         <domain includeSubdomains="true">lightinnj.org</domain>
-        <domain includeSubdomains="true">cgbr.org</domain>
+        <domain includeSubdomains="true">g.cgbr.org</domain>
+        <domain includeSubdomains="true">mana.stmn1.com</domain>
     </domain-config>
 </network-security-config>

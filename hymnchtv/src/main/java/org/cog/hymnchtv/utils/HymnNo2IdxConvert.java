@@ -16,13 +16,6 @@
  */
 package org.cog.hymnchtv.utils;
 
-import android.util.Range;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import timber.log.Timber;
-
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
@@ -35,9 +28,15 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
 
+import android.util.Range;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import timber.log.Timber;
+
 /**
  * HymnNo2IdxConvert convert the hymn lyrics number to index for used by pagerAdapter.
- *
  * The class works on DB BB, NB and ER and valid for both hymn lyrics scores and midi files
  * All new releases v1.2.0 and above will be based on hymn lyrics numbering to fetch content files
  *

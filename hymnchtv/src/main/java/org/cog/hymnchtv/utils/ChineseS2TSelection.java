@@ -148,9 +148,9 @@ public class ChineseS2TSelection extends BaseActivity implements View.OnClickLis
     private void checkUnsavedChanges() {
         if (mHasChanges) {
             DialogActivity.showConfirmDialog(this,
-                    R.string.gui_to_be_added,
-                    R.string.gui_unsaved_changes,
-                    R.string.gui_add_renew, new DialogActivity.DialogListener() {
+                    R.string.to_be_added,
+                    R.string.unsaved_changes,
+                    R.string.add_renew, new DialogActivity.DialogListener() {
                         public boolean onConfirmClicked(DialogActivity dialog) {
                             updateS2TSelection(true);
                             return true;

@@ -28,7 +28,6 @@ public class BaseActivity extends AppCompatActivity {
     /**
      * Override AppCompatActivity#attachBaseContext() to support Locale setting.
      * Language value is already initialized in Hymnchtv Application class.
-     *
      */
     @Override
     protected void attachBaseContext(Context base) {

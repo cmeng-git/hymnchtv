@@ -18,8 +18,12 @@ package org.cog.hymnchtv;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,36 +33,31 @@ import java.util.List;
  *
  * @author Eng Chong Meng
  */
-public class HymnTocExpandableListAdapter extends BaseExpandableListAdapter
-{
+public class HymnTocExpandableListAdapter extends BaseExpandableListAdapter {
     private final Context context;
     private final List<String> expandableListTitle;
     private final HashMap<String, List<String>> expandableListDetail;
 
     public HymnTocExpandableListAdapter(Context context, List<String> expandableListTitle,
-            HashMap<String, List<String>> expandableListDetail)
-    {
+            HashMap<String, List<String>> expandableListDetail) {
         this.context = context;
         this.expandableListTitle = expandableListTitle;
         this.expandableListDetail = expandableListDetail;
     }
 
     @Override
-    public Object getChild(int listPosition, int expandedListPosition)
-    {
+    public Object getChild(int listPosition, int expandedListPosition) {
         return this.expandableListDetail.get(this.expandableListTitle.get(listPosition)).get(expandedListPosition);
     }
 
     @Override
-    public long getChildId(int listPosition, int expandedListPosition)
-    {
+    public long getChildId(int listPosition, int expandedListPosition) {
         return expandedListPosition;
     }
 
     @Override
     public View getChildView(int listPosition, final int expandedListPosition,
-            boolean isLastChild, View convertView, ViewGroup parent)
-    {
+            boolean isLastChild, View convertView, ViewGroup parent) {
         final String expandedListText = (String) getChild(listPosition, expandedListPosition);
         if (convertView == null) {
             LayoutInflater layoutInflater
@@ -71,32 +70,27 @@ public class HymnTocExpandableListAdapter extends BaseExpandableListAdapter
     }
 
     @Override
-    public int getChildrenCount(int listPosition)
-    {
+    public int getChildrenCount(int listPosition) {
         return this.expandableListDetail.get(this.expandableListTitle.get(listPosition)).size();
     }
 
     @Override
-    public Object getGroup(int listPosition)
-    {
+    public Object getGroup(int listPosition) {
         return this.expandableListTitle.get(listPosition);
     }
 
     @Override
-    public int getGroupCount()
-    {
+    public int getGroupCount() {
         return this.expandableListTitle.size();
     }
 
     @Override
-    public long getGroupId(int listPosition)
-    {
+    public long getGroupId(int listPosition) {
         return listPosition;
     }
 
     @Override
-    public View getGroupView(int listPosition, boolean isExpanded, View convertView, ViewGroup parent)
-    {
+    public View getGroupView(int listPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         String listTitle = (String) getGroup(listPosition);
         if (convertView == null) {
             LayoutInflater layoutInflater
@@ -115,14 +109,12 @@ public class HymnTocExpandableListAdapter extends BaseExpandableListAdapter
     }
 
     @Override
-    public boolean hasStableIds()
-    {
+    public boolean hasStableIds() {
         return false;
     }
 
     @Override
-    public boolean isChildSelectable(int listPosition, int expandedListPosition)
-    {
+    public boolean isChildSelectable(int listPosition, int expandedListPosition) {
         return true;
     }
 }

@@ -17,18 +17,24 @@
 package org.cog.hymnchtv.utils;
 
 import android.content.Context;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationUtils;
-import android.widget.*;
+import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.cog.hymnchtv.R;
 
-import java.util.*;
-
-public class MySwipeListAdapter<T> extends ArrayAdapter<T>
-{
+public class MySwipeListAdapter<T> extends ArrayAdapter<T> {
     private final Context mContext;
     private final LayoutInflater mInflater;
 
@@ -37,16 +43,14 @@ public class MySwipeListAdapter<T> extends ArrayAdapter<T>
      */
     Map<Integer, Boolean> mSelectStates = new HashMap<>();
 
-    public MySwipeListAdapter(@NonNull Context context, @NonNull List<T> objects)
-    {
+    public MySwipeListAdapter(@NonNull Context context, @NonNull List<T> objects) {
         super(context, R.layout.row_list, objects);
         mContext = context;
         mInflater = LayoutInflater.from(context);
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent)
-    {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         final ViewHolder viewHolder;
 
         if (convertView == null) {
@@ -101,11 +105,9 @@ public class MySwipeListAdapter<T> extends ArrayAdapter<T>
     }
 
     /**
-     *
      * @param item Object to be open
      */
-    public void open(T item)
-    {
+    public void open(T item) {
     }
 
     /**
@@ -114,8 +116,7 @@ public class MySwipeListAdapter<T> extends ArrayAdapter<T>
      * @param idx listView position
      * @param state set to true if AltDisplay is selected, else List item is removed
      */
-    public void setSelectState(int idx, boolean state)
-    {
+    public void setSelectState(int idx, boolean state) {
         if (state) {
             mSelectStates.put(idx, true);
         }
@@ -124,8 +125,7 @@ public class MySwipeListAdapter<T> extends ArrayAdapter<T>
         }
     }
 
-    private static class ViewHolder
-    {
+    private static class ViewHolder {
         ViewSwitcher viewSwitcher;
         TextView itemName;
         TextView itemName2;

@@ -32,20 +32,19 @@ import android.text.TextUtils;
 
 import androidx.annotation.RequiresApi;
 
+import java.util.ArrayList;
+
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
-
-import java.util.ArrayList;
 
 import timber.log.Timber;
 
 /**
  * @author Eng Chong Meng
  */
-public class ShareWith
-{
+public class ShareWith {
     private static final int REQUEST_CODE_SHARE = 500;
 
     /**
@@ -57,13 +56,12 @@ public class ShareWith
      * Share of both text and images with auto start of second intend with a timeDelay in between
      * OS >= VERSION_CODES.LOLLIPOP_MR1 uses pendingIntent call back (broadcast)
      *
-     * @param activity   a reference of the activity
+     * @param activity a reference of the activity
      * @param msgContent text content for sharing
-     * @param imageUris  array of image uris for sharing
+     * @param imageUris array of image uris for sharing
      */
     @SuppressLint("NewApi")
-    public static void share(final Activity activity, String msgContent, ArrayList<Uri> imageUris)
-    {
+    public static void share(final Activity activity, String msgContent, ArrayList<Uri> imageUris) {
         if (activity != null) {
             int timeDelay = 0;
 
@@ -75,7 +73,7 @@ public class ShareWith
                                 new Intent(activity, ShareBroadcastReceiver.class),
                                 NotificationHelper.getPendingIntentFlag(false, true));
                         activity.startActivity(Intent.createChooser(shareIntent,
-                                activity.getString(R.string.gui_share_text), pi.getIntentSender()));
+                                activity.getString(R.string.share_text), pi.getIntentSender()));
 
                         // setup up media file sending intent
                         ShareBroadcastReceiver.setShareIntent(activity, share(activity, imageUris));
@@ -85,10 +83,10 @@ public class ShareWith
                         // setting is used only when !imageUris.isEmpty()
                         timeDelay = TIME_DELAY;
                         activity.startActivity(Intent.createChooser(shareIntent,
-                                activity.getString(R.string.gui_share_text)));
+                                activity.getString(R.string.share_text)));
                     }
                 } catch (ActivityNotFoundException e) {
-                    Timber.w("%s", HymnsApp.getResString(R.string.gui_file_OPEN_NO_APPLICATION));
+                    Timber.w("%s", HymnsApp.getResString(R.string.file_open_no_application));
                 }
             }
 
@@ -97,7 +95,7 @@ public class ShareWith
                 new Handler().postDelayed(() -> {
                     Intent intent = share(activity, imageUris);
                     try {
-                        activity.startActivity(Intent.createChooser(intent, activity.getText(R.string.gui_share_file)));
+                        activity.startActivity(Intent.createChooser(intent, activity.getText(R.string.share_file)));
                     } catch (ActivityNotFoundException e) {
                         Timber.w("No application found to open file");
                     }
@@ -109,12 +107,12 @@ public class ShareWith
     /**
      * Generate a share intent with the given msgContent
      *
-     * @param activity   a reference of the activity
+     * @param activity a reference of the activity
      * @param msgContent text content for sharing
+     *
      * @return share intent of the given msgContent
      */
-    public static Intent share(Activity activity, String msgContent)
-    {
+    public static Intent share(Activity activity, String msgContent) {
         Intent shareIntent = null;
         if ((activity != null) && (!TextUtils.isEmpty(msgContent))) {
             shareIntent = new Intent();
@@ -134,12 +132,12 @@ public class ShareWith
     /**
      * Generate a share intent with the given imageUris
      *
-     * @param context   a reference context of the activity
+     * @param context a reference context of the activity
      * @param imageUris array of image uris for sharing
+     *
      * @return share intent of the given imageUris
      */
-    public static Intent share(Context context, ArrayList<Uri> imageUris)
-    {
+    public static Intent share(Context context, ArrayList<Uri> imageUris) {
         Intent shareIntent = null;
         if ((context != null) && !imageUris.isEmpty()) {
             shareIntent = new Intent();
@@ -155,12 +153,12 @@ public class ShareWith
     /**
      * Generate a common mime type for the given imageUris; reduce in resolution with more than one image types
      *
-     * @param context   a reference context of the activity
+     * @param context a reference context of the activity
      * @param imageUris array of image uris for sharing
+     *
      * @return th common mime type for the given imageUris
      */
-    private static String getMimeType(Context context, ArrayList<Uri> imageUris)
-    {
+    private static String getMimeType(Context context, ArrayList<Uri> imageUris) {
         String tmp;
         String[] mimeTmp;
         String[] mimeType = {"*", "*"};
@@ -185,23 +183,20 @@ public class ShareWith
     }
 
     /**
-     * Share BroadcastReceiver call back after user has chosen the share app
+     * Share BroadcastReceiver call back after user has chosen the share app.
      * Some delay is given for user to pick the buddy before starting the next share intent
      */
-    public static class ShareBroadcastReceiver extends BroadcastReceiver
-    {
+    public static class ShareBroadcastReceiver extends BroadcastReceiver {
         private static Intent mediaIntent;
 
-        public static void setShareIntent(Activity activity, Intent intent)
-        {
-            mediaIntent = Intent.createChooser(intent, activity.getText(R.string.gui_share_file));
+        public static void setShareIntent(Activity activity, Intent intent) {
+            mediaIntent = Intent.createChooser(intent, activity.getText(R.string.share_file));
             mediaIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP_MR1)
         @Override
-        public void onReceive(Context context, Intent intent)
-        {
+        public void onReceive(Context context, Intent intent) {
             ComponentName clickedComponent = intent.getParcelableExtra(Intent.EXTRA_CHOSEN_COMPONENT);
             if (mediaIntent == null)
                 return;

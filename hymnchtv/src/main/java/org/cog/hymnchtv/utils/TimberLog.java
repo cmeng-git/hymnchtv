@@ -1,7 +1,6 @@
 package org.cog.hymnchtv.utils;
 
-public class TimberLog
-{
+public class TimberLog {
     /**
      * Priority constant for the println method; use Timber.log; mainly for fine tracing debug messages
      */

@@ -18,36 +18,44 @@ package org.cog.hymnchtv.mediaplayer;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.*;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
+import android.media.PlaybackParams;
 import android.net.Uri;
-import android.os.*;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.SystemClock;
 import android.text.TextUtils;
 
 import androidx.core.app.JobIntentService;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.FileBackend;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 import timber.log.Timber;
 
 /**
  * Class provides the media playback service for the given media.
  * It also broadcasts the playback status to the broadcast listeners
- *
+ * <p>
  * Note: extends JobIntentService always call onDestroy for every new action
  * Must use static variables if need to keep values (not verified for recording)
  *
  * @author Eng Chong Meng
  */
-public class AudioBgService extends JobIntentService implements MediaPlayer.OnCompletionListener
-{
+public class AudioBgService extends JobIntentService implements MediaPlayer.OnCompletionListener {
     // ==== Media player actions ====
     public static final String ACTION_PLAYER_INIT = "player_init";
     public static final String ACTION_PLAYER_START = "player_start";
@@ -81,8 +89,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
     private static float playbackSpeed = 1.0f;
     private static int mLoopCount = 1;
 
-    public enum PlaybackState
-    {
+    public enum PlaybackState {
         init,
         play,
         pause,
@@ -128,14 +135,12 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      */
     static final int JOB_ID = 1000;
 
-    public static void enqueueWork(Context context, Intent work)
-    {
+    public static void enqueueWork(Context context, Intent work) {
         enqueueWork(context, AudioBgService.class, JOB_ID, work);
     }
 
     @Override
-    protected void onHandleWork(Intent intent)
-    {
+    protected void onHandleWork(Intent intent) {
         switch (intent.getAction()) {
             case ACTION_PLAYER_INIT:
                 fileUri = intent.getData();
@@ -241,10 +246,10 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      * Create a new media player instance for the specified uri
      *
      * @param uri Media file uri
+     *
      * @return true is creation is successful
      */
-    public boolean playerCreate(Uri uri)
-    {
+    public boolean playerCreate(Uri uri) {
         if (uri == null)
             return false;
 
@@ -262,7 +267,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
             }
             mPlayer.prepare();
         } catch (IOException | IllegalStateException e) {
-            HymnsApp.showToastMessage(R.string.gui_error_media_url_invalid, uri);
+            HymnsApp.showToastMessage(R.string.error_media_url_invalid, uri);
             Timber.e("Media player creation error for: %s", uri.getPath());
             playerRelease(uri);
             return false;
@@ -276,8 +281,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      *
      * @param uri the media file uri
      */
-    public void playerInit(Uri uri)
-    {
+    public void playerInit(Uri uri) {
         if (uri == null)
             return;
 
@@ -315,8 +319,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      *
      * @param uri the media file uri
      */
-    private void playerReInit(Uri uri)
-    {
+    private void playerReInit(Uri uri) {
         mPlayer = uriPlayers.get(uri);
         if (mPlayer != null) {
             mPlayer.seekTo(0);
@@ -331,8 +334,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      *
      * @param uri the media file uri
      */
-    public void playerPause(Uri uri)
-    {
+    public void playerPause(Uri uri) {
         if (uri == null)
             return;
 
@@ -352,8 +354,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      *
      * @param uri the media file uri
      */
-    public void playerStart(Uri uri)
-    {
+    public void playerStart(Uri uri) {
         if (uri == null)
             return;
 
@@ -390,8 +391,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      *
      * @param uri the media file uri
      */
-    public void playerSeek(Uri uri, int seekPosition)
-    {
+    public void playerSeek(Uri uri, int seekPosition) {
         if (uri == null)
             return;
 
@@ -412,8 +412,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
     /**
      * Setting of playback speed is only support in Android.M
      */
-    private void setPlaybackSpeed()
-    {
+    private void setPlaybackSpeed() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             for (Map.Entry<Uri, MediaPlayer> entry : uriPlayers.entrySet()) {
                 MediaPlayer player = entry.getValue();
@@ -439,8 +438,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      *
      * @param uri the media file uri
      */
-    private void playerRelease(Uri uri)
-    {
+    private void playerRelease(Uri uri) {
         if (uri == null)
             return;
 
@@ -468,8 +466,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      * @param mp Media Player instance
      */
     @Override
-    public void onCompletion(MediaPlayer mp)
-    {
+    public void onCompletion(MediaPlayer mp) {
         fileUri = getUriByPlayer(mp);
         if (fileUri == null) {
             mp.release();
@@ -486,8 +483,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      *
      * @param mp the mediaPlayer that has completed current loop playback
      */
-    private void checkLoopSyncAction(MediaPlayer mp)
-    {
+    private void checkLoopSyncAction(MediaPlayer mp) {
         // Decrement and update mp player loop counter in playbackCounts
         Integer count = playbackCounts.get(mp);
         if (count == null || count <= 0) {
@@ -532,10 +528,10 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      * Return the uri of the given mp
      *
      * @param mp the media player
+     *
      * @return Uri of the player
      */
-    private Uri getUriByPlayer(MediaPlayer mp)
-    {
+    private Uri getUriByPlayer(MediaPlayer mp) {
         for (Map.Entry<Uri, MediaPlayer> entry : uriPlayers.entrySet()) {
             if (entry.getValue().equals(mp)) {
                 return entry.getKey();
@@ -554,8 +550,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      * @param pState player state
      * @param uri media file uri
      */
-    private void playbackState(PlaybackState pState, Uri uri)
-    {
+    private void playbackState(PlaybackState pState, Uri uri) {
         MediaPlayer xPlayer = uriPlayers.get(uri);
         if (xPlayer != null) {
             Intent intent = new Intent(PLAYBACK_STATE);
@@ -575,10 +570,8 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      * b. playback position
      * c. uri playback duration
      */
-    private final Runnable playbackStatus = new Runnable()
-    {
-        public void run()
-        {
+    private final Runnable playbackStatus = new Runnable() {
+        public void run() {
             boolean hasActivePlayer = false;
 
             for (Map.Entry<Uri, MediaPlayer> entry : uriPlayers.entrySet()) {
@@ -607,8 +600,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      *
      * @param uri the audio file
      */
-    public void playerPlay(Uri uri)
-    {
+    public void playerPlay(Uri uri) {
         if (playerCreate(uri)) {
             mPlayer.start();
             uriPlayers.remove(uri);
@@ -619,8 +611,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
     /* =============================================================
      * Voice recording handlers
      * ============================================================= */
-    public void recordAudio()
-    {
+    public void recordAudio() {
         audioFile = createMediaVoiceFile();
         if (audioFile == null) {
             return;
@@ -645,8 +636,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
         mHandlerRecord.postDelayed(updateSPL, 0);
     }
 
-    private void stopRecording()
-    {
+    private void stopRecording() {
         if (mRecorder != null) {
             try {
                 mRecorder.stop();
@@ -664,26 +654,22 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
         }
     }
 
-    private void stopTimer()
-    {
+    private void stopTimer() {
         if (mHandlerRecord != null) {
             mHandlerRecord.removeCallbacks(updateSPL);
             mHandlerRecord = null;
         }
     }
 
-    private void sendBroadcast(String filePath)
-    {
+    private void sendBroadcast(String filePath) {
         Intent intent = new Intent(ACTION_AUDIO_RECORD);
         // intent.setDataAndType(uri, "video/3gp");
         intent.putExtra(URI, filePath);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
-    private final Runnable updateSPL = new Runnable()
-    {
-        public void run()
-        {
+    private final Runnable updateSPL = new Runnable() {
+        public void run() {
             long finalTime = SystemClock.uptimeMillis() - startTime;
             int seconds = (int) (finalTime / 1000);
             int minutes = seconds / 60;
@@ -706,16 +692,14 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
         }
     };
 
-    public double getAmplitudeEMA()
-    {
+    public double getAmplitudeEMA() {
         double amp = getAmplitude();
         // Compute a smoothed version for less flickering of the display.
         mEMA = EMA_FILTER * mEMA + (1.0 - EMA_FILTER) * amp;
         return mEMA;
     }
 
-    public double getAmplitude()
-    {
+    public double getAmplitude() {
         if (mRecorder != null)
             return (mRecorder.getMaxAmplitude());
         else
@@ -727,12 +711,11 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
      *
      * @return Voice file for saving audio
      */
-    private static File createMediaVoiceFile()
-    {
+    private static File createMediaVoiceFile() {
         File voiceFile = null;
         File mediaDir = FileBackend.getHymnchtvStore(FileBackend.MEDIA_VOICE_SEND, true);
         if (mediaDir == null) {
-            HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
+            HymnsApp.showToastMessage(R.string.file_access_no_permission);
             return null;
         }
 

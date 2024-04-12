@@ -24,15 +24,6 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 
 import android.text.TextUtils;
 
-import org.cog.hymnchtv.ContentHandler;
-import org.cog.hymnchtv.HymnsApp;
-import org.cog.hymnchtv.MediaType;
-import org.cog.hymnchtv.R;
-import org.cog.hymnchtv.persistance.DatabaseBackend;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -41,6 +32,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MediaType;
+import org.cog.hymnchtv.R;
+import org.cog.hymnchtv.persistance.DatabaseBackend;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import timber.log.Timber;
 
 /**
@@ -48,8 +47,7 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class NotionRecordScrape extends MediaRecord
-{
+public class NotionRecordScrape extends MediaRecord {
     public static final String NOTION = "Notion";
     //  Map defines the Notion categories for HymnType links access; must have exact match
     public static final List<String> nqHymnType = Arrays.asList("大本诗歌", "补充本诗歌", "儿童诗歌", "新歌颂咏");
@@ -71,8 +69,7 @@ public class NotionRecordScrape extends MediaRecord
     private static int mCount = 0;
 
     // Create a specific MediaRecord for the web url fetch
-    public NotionRecordScrape(String hymnType, int hymnNo)
-    {
+    public NotionRecordScrape(String hymnType, int hymnNo) {
         super(hymnType, hymnNo, isFu(hymnType, hymnNo), MediaType.HYMN_JIAOCHANG, null, null);
     }
 
@@ -80,7 +77,7 @@ public class NotionRecordScrape extends MediaRecord
      * Start the links extractions at Notion main page on new thread; All network access must not be on UI thread.
      * Fetch links only for the hymnType specified in nqHymn2Type[].
      * Need to clean up the title before the next stage fetch
-     *
+     * <p>
      * 【大本诗歌D】
      * 【补充本诗歌B】
      * 【儿童诗歌C】
@@ -91,13 +88,10 @@ public class NotionRecordScrape extends MediaRecord
      * 【擘饼专辑诗歌】
      * 【诗歌音频合辑】
      */
-    public static void fetchNotionLinks(final MediaConfig mediaConfig)
-    {
-        HymnsApp.showToastMessage(R.string.gui_nq_download_starting, NOTION);
-        new Thread()
-        {
-            public void run()
-            {
+    public static void fetchNotionLinks(final MediaConfig mediaConfig) {
+        HymnsApp.showToastMessage(R.string.nq_download_starting, NOTION);
+        new Thread() {
+            public void run() {
                 try {
                     JSONArray jsonArray = fetchJsonArray("诗歌（合辑）", NotionRecord.HYMNCHTV_NOTION);
                     if (jsonArray != null) {
@@ -115,11 +109,11 @@ public class NotionRecordScrape extends MediaRecord
                     }
                 } catch (JSONException e) {
                     Timber.e("URL get source exception: %s", e.getMessage());
-                    HymnsApp.showToastMessage(R.string.gui_nq_download_failed, NOTION);
+                    HymnsApp.showToastMessage(R.string.nq_download_failed, NOTION);
                     return;
                 }
-                Timber.d(HymnsApp.getResString(R.string.gui_nq_download_completed, NOTION, mCount));
-                HymnsApp.showToastMessage(R.string.gui_nq_download_completed, NOTION, mCount);
+                Timber.d(HymnsApp.getResString(R.string.nq_download_completed, NOTION, mCount));
+                HymnsApp.showToastMessage(R.string.nq_download_completed, NOTION, mCount);
             }
         }.start();
     }
@@ -127,7 +121,7 @@ public class NotionRecordScrape extends MediaRecord
     /**
      * Extract the hymnType Range and proceed all the hymn records in the range
      * Proceed to hymn records for【新歌颂咏】as it contains no range value
-     *
+     * <p>
      * 【大本诗歌】001一100首
      * 【大本诗歌】101一200首
      * 【大本诗歌】201一300首
@@ -137,16 +131,15 @@ public class NotionRecordScrape extends MediaRecord
      * 【大本诗歌】601一700首
      * 【大本诗歌】701一786+附6首
      * 【圣徒最喜爱的50首合并音频】
-     *
+     * <p>
      * 追求与长进┈┈401一470首
      * 圣灵的同在┈201一212首
      *
      * @param title as Prefix to get the valid Hymn Range links
      * @param url the Notion required site url
      */
-    private static void getNQHymnType(String title, String url)
-    {
-        HymnsApp.showToastMessage(R.string.gui_nq_download_in_progress, title);
+    private static void getNQHymnType(String title, String url) {
+        HymnsApp.showToastMessage(R.string.nq_download_in_progress, title);
         //【新歌颂咏】does not have hymnRange; so proceed to saveNQRecord
         if (title.contains("新歌颂咏")) {
             saveNQRecord(title, url);
@@ -170,10 +163,10 @@ public class NotionRecordScrape extends MediaRecord
 
     /**
      * Save all the Notion hymn links in the DB, if it passes the valid check in mDB.storeNQRecord()
-     *
+     * <p>
      * D33父神阿你在羔羊里
      * D34荣耀归于父神
-     *
+     * <p>
      * 附录 - 经历神
      * (附1)颂赞与尊贵与荣耀归
      * (附5)何大神迹！何深奥秘
@@ -184,8 +177,7 @@ public class NotionRecordScrape extends MediaRecord
      * @param title the title of the url link
      * @param url the Notion required site url
      */
-    private static void saveNQRecord(String title, String url)
-    {
+    private static void saveNQRecord(String title, String url) {
         try {
             JSONArray jsonArray = fetchJsonArray(title, url);
             if (jsonArray != null) {
@@ -207,8 +199,7 @@ public class NotionRecordScrape extends MediaRecord
      * b. valid hymnNo
      * c. isFu based on "(附1)颂赞与尊贵与荣耀归"
      */
-    private static void storeNQJObject(JSONObject jsonRecord)
-    {
+    private static void storeNQJObject(JSONObject jsonRecord) {
         final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
         Pattern pattern = Pattern.compile("[DBCX](\\d+)");
         Pattern patternFu = Pattern.compile("附([1-9])");
@@ -264,10 +255,10 @@ public class NotionRecordScrape extends MediaRecord
      *
      * @param title the title of the url link
      * @param url the remote url containing the required link info
+     *
      * @return JSON Array of the extracted info or null if none found
      */
-    private static JSONArray fetchJsonArray(String title, String url)
-    {
+    private static JSONArray fetchJsonArray(String title, String url) {
         JSONArray jsonArray = new JSONArray();
         // android does not allow cleartextTraffic access; must force to secure link
         url = url.replace("http:", "https:");
@@ -304,7 +295,7 @@ public class NotionRecordScrape extends MediaRecord
             }
         } catch (IOException e) {
             Timber.e("URL fetch Exception: %s", e.getMessage());
-            HymnsApp.showToastMessage(R.string.gui_nq_download_failed, title);
+            HymnsApp.showToastMessage(R.string.nq_download_failed, title);
         }
         return jsonArray;
     }

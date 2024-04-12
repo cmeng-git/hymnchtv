@@ -29,8 +29,7 @@ import org.cog.hymnchtv.HymnsApp;
  *
  * @author Eng Chong Meng
  */
-public class VersionServiceImpl
-{
+public class VersionServiceImpl {
     private static VersionServiceImpl mInstance;
 
     /**
@@ -43,15 +42,13 @@ public class VersionServiceImpl
      * Creates a new instance of <tt>VersionServiceImpl</tt> and parses the current version from
      * android:versionName attribute of the PackageInfo.
      */
-    public static VersionServiceImpl getInstance()
-    {
+    public static VersionServiceImpl getInstance() {
         if (mInstance == null)
             mInstance = new VersionServiceImpl();
         return mInstance;
     }
 
-    public VersionServiceImpl()
-    {
+    public VersionServiceImpl() {
         mInstance = this;
 
         Context ctx = HymnsApp.getGlobalContext();
@@ -78,13 +75,11 @@ public class VersionServiceImpl
      *
      * @return the <tt>Version</tt> of the current running hymntv app.
      */
-    public long getCurrentVersionCode()
-    {
+    public long getCurrentVersionCode() {
         return CURRENT_VERSION_CODE;
     }
 
-    public String getCurrentVersionName()
-    {
+    public String getCurrentVersionName() {
         return CURRENT_VERSION_NAME;
     }
 }

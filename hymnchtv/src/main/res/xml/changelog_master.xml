@@ -6,13 +6,29 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="2.2.0 (04/12/2024)" versioncode="202000">
+        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>提高英文歌词获取过程的可靠性。</change>
+        <change>修复内容处理程序仅在前3项上迭代，“唱诗”被排除在外。</change>
+        <change>重新排列搜索可用媒体文件播放的目录中的优先级。</change>
+        <change>检查应用程序目录中是否存在本地媒体文件，以进行可用性指示和播放。</change>
+        <change>添加新站点以在选择“唱诗”媒体类型时检查可用的 mp3 媒体文件以供下载和播放。</change>
+        <change>每当通过 ACTION_VIEW 播放所需媒体类型，必须检查并确保安卓已经定义了支持。</change>
+        <change>YouTube 播放器包含隐藏视频 UI 的选项；允许用户查看下面的歌词。按返回键再次显示 UI。</change>
+        <change>将 url 导入记录的副本保存到本地文件中以供用户以后使用。</change>
+        <change>在横向模式下，当“媒体播放器“停止时隐藏媒体播放用户界面，转换时需要 100ms 延迟。</change>
+        <change>主菜单添加安卓权限设置供用户选择，因为个安卓手机有不同的实现方案。</change>
+        <change>确保对话框活动“确定”按钮单击已正确定义。</change>
+        <change>将 exoplayer:2.19.1 迁移到 media3-exoplayer:1.3.0。</change>
+        <change>升级支持安卓 Tiramisu API-34，并添加新的所需权限请求。</change>
+    </release>
+
     <release version="2.1.3 (07/06/2023)" versioncode="201030">
         <change>在有长按操作的按钮上，提供带有下划线标签或“...”的用户指示。</change>
         <change>如果检测有新版本，并且诗歌本处于前台并且设备处于解锁状态，则启动应用程序更新对话框一次。</change>
         <change>检测有新版本时，在主页中显示应用程序更新按钮。</change>
         <change>使用户定义媒体设置返回键按下，与'退出'按钮类似的操作。</change>
         <change>更新网页抓取中英文歌词的匹配模式，并最大限度地减少竞争条件。</change>
-        <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
     </release>
 
     <release version="2.1.2 (06/18/2023)" versioncode="201021">

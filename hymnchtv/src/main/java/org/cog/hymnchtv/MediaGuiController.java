@@ -56,15 +56,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import org.cog.hymnchtv.mediaplayer.AudioBgService;
-import org.cog.hymnchtv.utils.ViewUtil;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import org.cog.hymnchtv.mediaplayer.AudioBgService;
+import org.cog.hymnchtv.utils.ViewUtil;
+import org.jetbrains.annotations.NotNull;
 
 import timber.log.Timber;
 
@@ -72,11 +72,11 @@ import timber.log.Timber;
  * Class implements the media player UI. It provides the full media playback control
  * e.g. play, pause, stop and select play position etc.
  * The UI also includes user selectable media options for the playback i.e. Midi, 教唱, 伴奏 and MP3
- *
+ * <p>
  * The UI hymn info and playback are synchronous with the user selected Hymn number.
  * The hymn playing continues, even as user slide to select new hymn; but get updated when the hymn ends or
  * stop by the user.
- *
+ * <p>
  * 播放按钮点一下，开始播放媒体档。
  * 再次点播放按钮，播放就会暂停。
  * 再次点播放按钮，从暂停位置继续播放。
@@ -85,8 +85,7 @@ import timber.log.Timber;
  * @author Eng Chong Meng
  */
 public class MediaGuiController extends Fragment implements AdapterView.OnItemSelectedListener,
-        SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, View.OnClickListener, View.OnLongClickListener
-{
+        SeekBar.OnSeekBarChangeListener, RadioGroup.OnCheckedChangeListener, View.OnClickListener, View.OnLongClickListener {
     /**
      * The state of a player where playback is stopped
      */
@@ -131,9 +130,9 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
 
     private RadioGroup mHymnTypesGroup;
     private RadioButton mBtnMedia;
-    private RadioButton mBtnBanZhou;
     private RadioButton mBtnJiaoChang;
     private RadioButton mBtnChangShi;
+    private RadioButton mBtnBanZhou;
 
     private final boolean isMediaAudio = true;
     private boolean isJiaoChangAvailable = false;
@@ -157,16 +156,14 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     // public MediaGuiController() { }
 
     @Override
-    public void onAttach(@NonNull @NotNull Context context)
-    {
+    public void onAttach(@NonNull @NotNull Context context) {
         super.onAttach(context);
         mContentHandler = (ContentHandler) context;
     }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
-    {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View convertView = inflater.inflate(R.layout.media_player_audio_ui, container, false);
         playerUi = convertView.findViewById(R.id.playerUi);
 
@@ -199,8 +196,10 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
             hymnInfo.setText(playerInfo);
 
             playerUris = savedInstanceState.getStringArrayList(PLAYER_URIS);
-            for (String uriString : playerUris) {
-                mediaHymns.add(Uri.parse(uriString));
+            if (playerUris != null) {
+                for (String uriString : playerUris) {
+                    mediaHymns.add(Uri.parse(uriString));
+                }
             }
         }
         else {
@@ -233,19 +232,21 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         mBtnMedia = convertView.findViewById(R.id.btn_media);
         mBtnMedia.setOnLongClickListener(this);
 
-        mBtnBanZhou = convertView.findViewById(R.id.btn_banzhou);
         mBtnJiaoChang = convertView.findViewById(R.id.btn_jiaochang);
+        mBtnJiaoChang.setOnClickListener(this);
         mBtnJiaoChang.setOnLongClickListener(this);
 
         mBtnChangShi = convertView.findViewById(R.id.btn_changshi);
         mBtnChangShi.setOnLongClickListener(this);
+
+        mBtnBanZhou = convertView.findViewById(R.id.btn_banzhou);
+
         return convertView;
     }
 
     @Override
     @SuppressLint("CommitPrefEdits")
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
 
         // init and prepare the mediaPlayer state receiver
@@ -301,8 +302,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
      * @param savedInstanceState for player states
      */
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState)
-    {
+    public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putInt(PLAYER_STATE, playerState);
         savedInstanceState.putString(PLAYER_INFO, hymnInfo.getText().toString());
 
@@ -319,26 +319,22 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
      *
      * @param isShow show player UI if true
      */
-    public void initPlayerUi(boolean isShow)
-    {
+    public void initPlayerUi(boolean isShow) {
         playerUi.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 
-    public boolean isShown()
-    {
+    public boolean isShown() {
         return (playerUi.getVisibility() == View.VISIBLE);
     }
 
-    public boolean isPlaying()
-    {
+    public boolean isPlaying() {
         return (playerState == STATE_PLAY);
     }
 
     /**
      * Initialize the Media Player playback speed to the user defined setting
      */
-    public void initPlaybackSpeed()
-    {
+    public void initPlaybackSpeed() {
         String speed = mSharedPref.getString(PREF_PLAYBACK_SPEED, "1.0");
         for (int i = 0; i < mpSpeedValues.length; i++) {
             if (mpSpeedValues[i].equals(speed)) {
@@ -356,23 +352,21 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
      * @param info player info
      * @param isAvailable true if use defined media is available
      */
-    public void initHymnInfo(String info, boolean[] isAvailable)
-    {
-        isJiaoChangAvailable = isAvailable[2];
+    public void initHymnInfo(String info, boolean[] isAvailable) {
+        isJiaoChangAvailable = isAvailable[1];
         if (STATE_STOP == playerState) {
             hymnInfo.setText(info);
             mBtnMedia.setTextColor(isAvailable[0] ? Color.BLACK : Color.GRAY);
-            mBtnBanZhou.setTextColor(isAvailable[1] ? Color.BLACK : Color.GRAY);
-            mBtnJiaoChang.setTextColor(isAvailable[2] ? Color.BLACK : Color.GRAY);
-            mBtnChangShi.setTextColor(isAvailable[3] ? Color.BLACK : Color.GRAY);
+            mBtnJiaoChang.setTextColor(isAvailable[1] ? Color.BLACK : Color.GRAY);
+            mBtnChangShi.setTextColor(isAvailable[2] ? Color.BLACK : Color.GRAY);
+            mBtnBanZhou.setTextColor(isAvailable[3] ? Color.BLACK : Color.GRAY);
         }
     }
 
     /**
      * This is activated by user; or automatic from mediaController when the downloaded uri is completed
      */
-    public void startPlay()
-    {
+    public void startPlay() {
         // Set true to test the getPlayHymn algorithms
         boolean test = false;
         if (test) {
@@ -400,8 +394,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         edLoopCount.clearFocus();
     }
 
-    public void stopPlay()
-    {
+    public void stopPlay() {
         for (Uri uri : mediaHymns) {
             mUri = uri;
             playerStop();
@@ -416,8 +409,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     }
 
     @Override
-    public void onCheckedChanged(RadioGroup group, int checkedId)
-    {
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
         RadioButton rb = group.findViewById(checkedId);
         if (null != rb) {
             // Must clear mediaHymns on Radio button change (only if no playing); else last fetched media will be used for playback
@@ -428,17 +420,17 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                 case R.id.btn_media:
                     mMediaType = MediaType.HYMN_MEDIA;
                     break;
+
                 case R.id.btn_jiaochang:
                     mMediaType = MediaType.HYMN_JIAOCHANG;
-                     if (!isJiaoChangAvailable) {
-                         mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
-                     }
                     break;
-                case R.id.btn_banzhou:
-                    mMediaType = MediaType.HYMN_BANZOU;
-                    break;
+
                 case R.id.btn_changshi:
                     mMediaType = MediaType.HYMN_CHANGSHI;
+                    break;
+
+                case R.id.btn_banzhou:
+                    mMediaType = MediaType.HYMN_BANZOU;
                     break;
             }
 
@@ -449,15 +441,10 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         }
     }
 
-    private void checkRadioButton(MediaType mediaType)
-    {
+    private void checkRadioButton(MediaType mediaType) {
         switch (mediaType) {
             case HYMN_MEDIA:
                 mBtnMedia.setChecked(true);
-                break;
-
-            case HYMN_BANZOU:
-                mBtnBanZhou.setChecked(true);
                 break;
 
             case HYMN_JIAOCHANG:
@@ -467,12 +454,15 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
             case HYMN_CHANGSHI:
                 mBtnChangShi.setChecked(true);
                 break;
+
+            case HYMN_BANZOU:
+                mBtnBanZhou.setChecked(true);
+                break;
         }
     }
 
     @Override
-    public void onClick(View v)
-    {
+    public void onClick(View v) {
         switch (v.getId()) {
             case R.id.playback_play:
                 startPlay();
@@ -481,12 +471,18 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
             case R.id.btn_hymnSearch:
                 mContentHandler.initWebView(ContentHandler.UrlType.hymnYoutubeSearch);
                 break;
+
+            case R.id.btn_jiaochang:
+                if (!isJiaoChangAvailable) {
+                    // mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch);
+                    mContentHandler.showNotionSite();
+                }
+                break;
         }
     }
 
     @Override
-    public boolean onLongClick(View v)
-    {
+    public boolean onLongClick(View v) {
         switch (v.getId()) {
             case R.id.playback_play:
                 stopPlay();
@@ -496,14 +492,13 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                 mContentHandler.initWebView(ContentHandler.UrlType.hymnGoogleSearch);
                 return true;
 
-            case R.id.btn_jiaochang:
+            case R.id.btn_media:
                 mContentHandler.initWebView(ContentHandler.UrlType.hymnQqSearch);
                 return true;
 
-            case R.id.btn_media:
+            case R.id.btn_jiaochang:
                 mContentHandler.initWebView(ContentHandler.UrlType.hymnNotionSearch);
                 return true;
-
         }
         return false;
     }
@@ -512,8 +507,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
      * Initialize the broadcast receiver for the media player (uri).
      * Keep the active bc receiver instance in bcRegisters list to ensure only one bc is registered
      */
-    private void bcReceiverInit()
-    {
+    private void bcReceiverInit() {
         if (playerState == STATE_STOP) {
             BroadcastReceiver bcReceiver;
             if ((bcReceiver = bcRegisters.get(mUri)) != null) {
@@ -525,8 +519,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         }
     }
 
-    private void registerMpBroadCastReceiver()
-    {
+    private void registerMpBroadCastReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(AudioBgService.PLAYBACK_STATE);
         filter.addAction(AudioBgService.PLAYBACK_STATUS);
@@ -537,8 +530,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
      * Get the active media player status or just media info for the view display;
      * update the view holder content via Broadcast receiver
      */
-    private boolean playerInit()
-    {
+    private boolean playerInit() {
         if (isMediaAudio) {
             if (playerState == STATE_STOP) {
                 Intent intent = new Intent(mContentHandler, AudioBgService.class);
@@ -555,8 +547,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     /**
      * Stop the current active media player playback
      */
-    private void playerStop()
-    {
+    private void playerStop() {
         if (isMediaAudio) {
             if ((playerState == STATE_PAUSE) || (playerState == STATE_PLAY)) {
 
@@ -573,11 +564,9 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
      * Toggle audio file playback states:
      * STOP -> PLAY -> PAUSE -> PLAY;
      * long press play button to STOP
-     *
      * Proceed to open the file for VIEW if this is not an audio file
      */
-    private void playStart()
-    {
+    private void playStart() {
         Intent intent = new Intent(mContentHandler, AudioBgService.class);
         if (isMediaAudio) {
             if (playerState == STATE_PLAY) {
@@ -608,7 +597,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         try {
             mContentHandler.startActivity(intent);
         } catch (ActivityNotFoundException e) {
-            HymnsApp.showToastMessage(R.string.gui_file_OPEN_NO_APPLICATION);
+            HymnsApp.showToastMessage(R.string.file_open_no_application);
         }
     }
 
@@ -617,8 +606,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
      *
      * @param position seek time position
      */
-    private void playerSeek(int position)
-    {
+    private void playerSeek(int position) {
         if (isMediaAudio) {
             bcReceiverInit();
 
@@ -631,8 +619,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         }
     }
 
-    private void setPlaybackSpeed(String speed)
-    {
+    private void setPlaybackSpeed(String speed) {
         Intent intent = new Intent(mContentHandler, AudioBgService.class);
         intent.setType(speed);
         intent.setAction(AudioBgService.ACTION_PLAYBACK_SPEED);
@@ -640,8 +627,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     }
 
     @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-    {
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         String speed = mpSpeedValues[position];
         setPlaybackSpeed(speed);
 
@@ -653,12 +639,10 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent)
-    {
+    public void onNothingSelected(AdapterView<?> parent) {
     }
 
-    private void onLoopClick()
-    {
+    private void onLoopClick() {
         boolean isLoop = cbPlaybackLoop.isChecked();
         edLoopCount.setVisibility(isLoop ? View.VISIBLE : View.GONE);
         if (isLoop)
@@ -673,8 +657,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         }
     }
 
-    private void onLoopValueChange()
-    {
+    private void onLoopValueChange() {
         String loopValue = ViewUtil.toString(edLoopCount);
         loopValue = (loopValue == null) ? "1" : loopValue;
 
@@ -687,8 +670,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         }
     }
 
-    private void setPlaybackLoopCount(String loopValue)
-    {
+    private void setPlaybackLoopCount(String loopValue) {
         if (!cbPlaybackLoop.isChecked() || (loopValue == null))
             loopValue = "1";
 
@@ -701,11 +683,9 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     /**
      * The Media player BroadcastReceiver to animate and update player view holder info
      */
-    private class MpBroadcastReceiver extends BroadcastReceiver
-    {
+    private class MpBroadcastReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive(Context context, Intent intent)
-        {
+        public void onReceive(Context context, Intent intent) {
             // proceed only if it is the playback of the current Uri
             Uri uri = intent.getParcelableExtra(AudioBgService.PLAYBACK_URI);
             // Timber.d("Audio playback state: %s: %s", intent.getAction(), uri.getPath());
@@ -789,15 +769,13 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
 
     /**
      * OnSeekBarChangeListener callback interface
-     *
      * A SeekBar callback that notifies clients when the progress level has been
      * changed. This includes changes that were initiated by the user through a
      * touch gesture or arrow key/trackball as well as changes that were initiated
      * programmatically.
      */
     @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
-    {
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser && (playbackSeekBar == seekBar)) {
             positionSeek = progress;
             playbackPosition.setText(formatTime(progress));
@@ -805,8 +783,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     }
 
     @Override
-    public void onStartTrackingTouch(SeekBar seekBar)
-    {
+    public void onStartTrackingTouch(SeekBar seekBar) {
         if (playbackSeekBar == seekBar) {
             isSeeking = true;
         }
@@ -814,8 +791,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     }
 
     @Override
-    public void onStopTrackingTouch(SeekBar seekBar)
-    {
+    public void onStopTrackingTouch(SeekBar seekBar) {
         if (playbackSeekBar == seekBar) {
             for (Uri uri : mediaHymns) {
                 mUri = uri;
@@ -829,10 +805,10 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
      * Format the given time to mm:ss
      *
      * @param time time is ms
+     *
      * @return the formatted time string in mm:ss
      */
-    private String formatTime(int time)
-    {
+    private String formatTime(int time) {
         // int ms = (time % 1000) / 10;
         int seconds = time / 1000;
         int minutes = seconds / 60;

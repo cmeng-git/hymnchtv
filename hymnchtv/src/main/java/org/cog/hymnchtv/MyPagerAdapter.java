@@ -16,15 +16,6 @@
  */
 package org.cog.hymnchtv;
 
-import android.os.Bundle;
-
-import androidx.collection.LongSparseArray;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
-
-import org.jetbrains.annotations.NotNull;
-
 import static org.cog.hymnchtv.ContentView.LYRICS_INDEX;
 import static org.cog.hymnchtv.ContentView.LYRICS_TYPE;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
@@ -36,6 +27,15 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_ITEM_COUNT;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_ITEM_COUNT;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_ITEM_COUNT;
 
+import android.os.Bundle;
+
+import androidx.collection.LongSparseArray;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+
+import org.jetbrains.annotations.NotNull;
+
 /**
  * The hymn lyrics implementation for the user page sliding and display update using
  * the latest FragmentStateAdapter to minimize OOM Exception:
@@ -44,22 +44,19 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_ITEM_COUNT;
  *
  * @author Eng Chong Meng
  */
-public class MyPagerAdapter extends FragmentStateAdapter
-{
+public class MyPagerAdapter extends FragmentStateAdapter {
     private final String mHymnType;
 
     // Map array of index to ContentView for correct Content reference during access
     public final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
 
-    public MyPagerAdapter(FragmentActivity fragmentActivity, String hymnType)
-    {
+    public MyPagerAdapter(FragmentActivity fragmentActivity, String hymnType) {
         super(fragmentActivity);
         mHymnType = hymnType;
     }
 
     @Override
-    public int getItemCount()
-    {
+    public int getItemCount() {
         switch (mHymnType) {
             case HYMN_ER:
                 return HYMN_ER_ITEM_COUNT;
@@ -80,8 +77,7 @@ public class MyPagerAdapter extends FragmentStateAdapter
     }
 
     @Override
-    public @NotNull Fragment createFragment(int index)
-    {
+    public @NotNull Fragment createFragment(int index) {
         // Timber.d("Get item fragment index @: %s", index);
         Bundle bundle = new Bundle();
         bundle.putString(LYRICS_TYPE, mHymnType);

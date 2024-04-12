@@ -22,12 +22,22 @@ import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.cog.hymnchtv.HymnsApp;
@@ -38,39 +48,116 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import timber.log.Timber;
 
 /**
- * The class provide handlers for the Notion record scraping;
+ * The class provide handlers for the Notion record fetching;
  *
  * @author Eng Chong Meng
  */
-public class NotionRecord extends MediaRecord
-{
-    public static String NOTION_SITE = "https://plume-click-f56.notion.site";
-    public static String HYMNCHTV_NOTION = NOTION_SITE + "/fb415473f9314610bbd6592ba647cdd4";
-
+public class NotionRecord extends MediaRecord {
+    // Site partial blocked for access.
+    // public static String NOTION_SITE = "https://plume-click-f56.notion.site";
+    // public static String HYMNCHTV_NOTION = "https://plume-click-f56.notion.site/fb415473f9314610bbd6592ba647cdd4";
+    public static String NOTION_SITE = "https://breakopen.notion.site";
+    public static String HYMNCHTV_NOTION = "https://breakopen.notion.site/BREAK-OPEN-2c52323fe4f9455cb93595f5dae95bf7";
     public static final String NOTION = "Notion";
     //  Map defines the Notion categories for HymnType links access; must have exact match
-    public static final List<String> nqHymnType = Arrays.asList("大本诗歌", "补充本诗歌", "儿童诗歌", "新歌颂咏");
+    public static final List<String> nqHymnType = Arrays.asList("大本诗歌（mp3+教唱+谱词+赏析）", "补充本诗歌", "儿童诗歌", "新歌颂咏");
 
     // Map use to translate Notion TITLE prefix to hymnType
-    public static final Map<String, String> nqHymn2Type = new HashMap<>();
+    public static final Map<String, String> nqHymn2Type = new HashMap<String, String>() {
+        {
+            put("D", HYMN_DB);  // D53哦主你是神的活道
+            put("附", HYMN_DB); // 附1  颂赞与尊贵与荣耀
+            put("B", HYMN_BB);
+            put("C", HYMN_ER);
+            put("X", HYMN_XB);
+        }
+    };
 
-    static {
-        nqHymn2Type.put("D", HYMN_DB);  // D53哦主你是神的活道
-        nqHymn2Type.put("(", HYMN_DB);  // (附1)颂赞与尊贵与荣耀归
-        nqHymn2Type.put("B", HYMN_BB);
-        nqHymn2Type.put("C", HYMN_ER);
-        nqHymn2Type.put("X", HYMN_XB);
-    }
+    /**
+     * Current webView cannot executed so many link at once. Manually select one for exec.
+     */
+    public static Map<String, String> NotionSites = new HashMap<String, String>() {
+        {
+            put(HYMN_ER, "https://breakopen.notion.site/E-T-fc5adc924ad04efeb7cd2f137f7cc2c1");
+            put(HYMN_XB, "https://breakopen.notion.site/c499d9182f4848039fe77fb602aa551e");
+            put(HYMN_BB, "https://breakopen.notion.site/588a3b12cb9a4ed999d5a4ced96bdc18");
+            put(HYMN_DB, "https://breakopen.notion.site/mp3-edf8337e94824147b45605c273350e34");
+        }
+    };
+
+    // 儿童诗歌 range url links.
+    public static Map<String, String> NotionERSites = new HashMap<String, String>() {{
+        put("神的创造(001一017)", "https://breakopen.notion.site/001-017-7258b21b74e64c3887ee9b2c3fa5f839?pvs=25");
+        put("主的爱(101一124)", "https://breakopen.notion.site/101-124-2275d95e31c54d42b44e6cd33d584785?pvs=25");
+        put("圣灵的同在(201一212)", "https://breakopen.notion.site/201-212-b258c624c66745539d2f4d35586d5db7?pvs=25");
+        put("主的看顾(301一323)", "https://breakopen.notion.site/301-323-74cac6b4764145968be8b1536d54db2a?pvs=25");
+        put("赞美与喜乐(401一445)", "https://breakopen.notion.site/401-445-0deb8f44f10b45e481d9913d4bbc0095?pvs=25");
+        put("祷告与读经(501一524)", "https://breakopen.notion.site/501-524-cee5d6d38d034e11ac281a656d2dd9f9?pvs=25");
+        put("爱主(601一621)", "https://breakopen.notion.site/601-621-7aa93947afbe4904a2f1735de5452d42?pvs=25");
+        put("亲近倚靠主(701一719)", "https://breakopen.notion.site/701-719-181446609743481baacb0ee6eb313f73?pvs=25");
+        put("彰显主(801一836)", "https://breakopen.notion.site/801-836-90168f76eb7c421cabe5845e993c7e36?pvs=25");
+        put("召会与聚会901一920)", "https://breakopen.notion.site/901-920-18887d1acaee47678b3d14c7b76f4301?pvs=25");
+        put("传扬福音(1001一1039)", "https://breakopen.notion.site/1001-1039-800acff9d4fa4d9590a3e4199280bb07?pvs=25");
+        put("发光并争战(1101一1118)", "https://breakopen.notion.site/1101-1118-4eb23d1bf07d4056a4b154b546b7ee91?pvs=25");
+        put("经文故事篇(1201一1232)", "https://breakopen.notion.site/1201-1232-9edf01acbfeb4b1087ee7278004ba5de?pvs=25");
+    }};
+
+    // 新歌颂咏 range url links.
+    public static Map<String, String> NotionXBSites = new HashMap<String, String>() {{
+        put("新歌颂咏", "https://breakopen.notion.site/c499d9182f4848039fe77fb602aa551e");
+    }};
+
+    // 补充本诗歌 range url links.
+    public static Map<String, String> NotionBBSites = new HashMap<String, String>() {{
+        put("补充本1-37首(赞美的话)", "https://breakopen.notion.site/1-37-317b423d06d74886b099232c3c6e2e0e?pvs=25");
+        put("补充本101-150首（灵与生命）", "https://breakopen.notion.site/101-150-0b6914285e7a43cfb36335d2dd70fdc4?pvs=25");
+        put("补充本201-258首（享受基督）", "https://breakopen.notion.site/201-258-ef4ecee9818c4b9ebed67e7c73059c18?pvs=25");
+        put("补充本301-349首（爱慕耶稣）", "https://breakopen.notion.site/301-349-a6aaf97ca5b643d3a290d76f2aac5aea?pvs=25");
+        put("补充本401-470首（追求与长进）", "https://breakopen.notion.site/401-470-f3f4525c128946869d6d09989b00ec81?pvs=25");
+        put("补充本501-543首（召会的异象）", "https://breakopen.notion.site/501-543-bef778d2efd74a2e8162884d094df2ff?pvs=25");
+        put("补充本601-629首（建造与合一）", "https://breakopen.notion.site/601-629-76e2f871e38d4382bce51fdb122e9abb?pvs=25");
+        put("补充本701-762首（召会的生活）", "https://breakopen.notion.site/701-762-d7a144b2cda7435da6402a801e58187f?pvs=25");
+        put("补充本801-880首（事奉与福音）", "https://breakopen.notion.site/801-880-b121da5c6efd4c7fae82ede8d187e622?pvs=25");
+        put("补充本901-930首（盼望与预备）", "https://breakopen.notion.site/901-930-b7ebcbb99d55413cb5eb24494aca1d4b?pvs=25");
+        put("补充本1001-1005首（神的经纶）", "https://breakopen.notion.site/1001-1005-a19c2647522c4586a1b4ac251cee6823?pvs=25");
+    }};
+
+    // 大本诗歌 range url links. webView still cannot all at once; need to break into two sections for manual download.
+    public static Map<String, String> NotionDBSites = new HashMap<String, String>() {{
+        put("颂赞三一神(1-6首)", "https://breakopen.notion.site/1-6-71d1d4b3f1ba4708b0a0987a8146676a?pvs=25");
+        put("敬拜父(7-52首)", "https://breakopen.notion.site/7-52-12777bbc1093427cb4ba0eced4f1bae4?pvs=25");
+        put("赞美主(53-193首)", "https://breakopen.notion.site/53-193-77959ba31a104c84ab5c530085be8fed?pvs=25");
+        put("圣灵的丰满(194-228首)", "https://breakopen.notion.site/194-228-54e3a783a98a4af2879bb91fdb3db968?pvs=25");
+        put("得救的证实与快乐(229-268首)", "https://breakopen.notion.site/229-268-dc17dad48fcb46c68131f332065baead?pvs=25");
+        put("羡慕(269-329首)", "https://breakopen.notion.site/269-329-8a015033187a44eeb0622b4d16d9783c?pvs=25");
+        put("奉献(330-355首)", "https://breakopen.notion.site/330-355-b382b9804cd04588b9333cdc7ac1acd9?pvs=25");
+        put("与基督的联合(356-366首)", "https://breakopen.notion.site/356-366-0d320646eabc4ed19cd441f5b22d065d?pvs=25");
+        put("经历基督(367-440首)", "https://breakopen.notion.site/367-440-20515a7881d94f5095c259ac337bc655?pvs=25");
+        put("经历神(441-453首)", "https://breakopen.notion.site/441-453-8550717f15ac4aa1bc14d3f5e3023561?pvs=25");
+        put("十字架的夸耀(454-457首)", "https://breakopen.notion.site/454-457-ade2957c7edb4330b9ead6bf190d44b9?pvs=25");
+        put("十字架的道路(458-471首)", "https://breakopen.notion.site/458-471-7ded7a1296e84ba9b282b122667e80a0?pvs=25");
+        put("复活的生命(472-473首)", "https://breakopen.notion.site/472-473-e3a36bae50a64081beb2c2a6511b928c?pvs=25");
+        put("鼓励(474-489首)", "https://breakopen.notion.site/474-489-5729d3e38028405e949c8ea2160df73d?pvs=25");
+        put("试炼中的安慰(490-528首)", "https://breakopen.notion.site/490-528-62577aa3ad2840eab50fdbe8b12e2403?pvs=25");
+        put("里面生命的各方面(529-547首)", "https://breakopen.notion.site/529-547-b51bca3d1c134c4dacd180b085b6224c?pvs=25");
+        put("神医(548-550首)", "https://breakopen.notion.site/548-550-a1cadff1735f49f4b03634b82ee04c49?pvs=25");
+        put("祷告(551-578首)", "https://breakopen.notion.site/551-578-1c1d7e5bf9254b858eec4446cff131c3?pvs=25");
+        put("读经(579-591首)", "https://breakopen.notion.site/579-591-6459deb692074e929c88fe34b3c01810?pvs=25");
+        put("召会(592-623首)", "https://breakopen.notion.site/592-623-8903b1009d9544519740502368a6267c?pvs=25");
+        put("聚会(624-631首)", "https://breakopen.notion.site/624-631-0c8eb00f32f840afa0a5bd3810558321?pvs=25");
+        put("属灵的争战(632-649首)", "https://breakopen.notion.site/632-649-df3e48314ef043faa3d3c3e955bad7a0?pvs=25");
+        put("事奉(650-661首)", "https://breakopen.notion.site/650-661-619435de8dae414aaad7484710fc7da7?pvs=25");
+        put("传扬福音(662-669首)", "https://breakopen.notion.site/662-669-a2e81d2ee9f948e49e5eb9602532d263?pvs=25");
+        put("福音(670-739首)", "https://breakopen.notion.site/670-739-df5e0fbf5fe948008b7b33a6d2d44f10?pvs=25");
+        put("受浸(740-744首)", "https://breakopen.notion.site/740-744-5b4d5a9c1019417cb02b6b7c1f31bb5e?pvs=25");
+        put("国度(745-751首)", "https://breakopen.notion.site/745-751-e3ea3aceaef14ad6850ba34e2728948b?pvs=25");
+        put("荣耀盼望(752-767首)", "https://breakopen.notion.site/752-767-4f8b5cf05ed14e15ad91b77a7701569e?pvs=25");
+        put("终极显出(768-780首)", "https://breakopen.notion.site/768-780-11cf36b7cc0a4107818cdacbbcb9cffa?pvs=25");
+        put("附录 1-6", "https://breakopen.notion.site/1-6-c13b78934c104bf0a461b06170bbde3b?pvs=25");
+    }};
 
     // Notion JSONObject key values for MediaRecord creation and saving
     public static final String NQ_TITLE = "title";
@@ -82,16 +169,72 @@ public class NotionRecord extends MediaRecord
     private static Context mContext;
 
     // Create a specific MediaRecord for the web url fetch
-    public NotionRecord(String hymnType, int hymnNo)
-    {
+    public NotionRecord(String hymnType, int hymnNo) {
         super(hymnType, hymnNo, isFu(hymnType, hymnNo), MediaType.HYMN_JIAOCHANG, null, null);
+    }
+
+    /**
+     * Use prefetch links for retrieve Notion records.
+     */
+    public static void fetchNotionRecords(final MediaConfig mediaConfig) {
+        mContext = mediaConfig;
+        webList.clear();
+
+        for (String hymnType : NotionSites.keySet()) {
+            HymnsApp.showToastMessage(R.string.nq_download_in_progress, hymnType);
+
+            Set<Map.Entry<String, String>> HymnSites = null;
+            switch (hymnType) {
+                case HYMN_ER:
+                    HymnSites = NotionERSites.entrySet();
+                    break;
+                case HYMN_XB:
+                    HymnSites = NotionXBSites.entrySet();
+                    break;
+                case HYMN_BB:
+                    HymnSites = NotionBBSites.entrySet();
+                    break;
+                case HYMN_DB:
+                    HymnSites = NotionDBSites.entrySet();
+                    break;
+            }
+
+            if (HymnSites != null) {
+                for (Map.Entry<String, String> hymnSite : HymnSites) {
+                    String title = hymnSite.getKey();
+                    String url = hymnSite.getValue();
+                    Timber.d("Notion HymnType Range: %s", title);
+                    try {
+                        JSONObject jsonObj = new JSONObject()
+                                .put(NQ_TITLE, title)
+                                .put(NQ_URL, url);
+                        saveNQRecord(jsonObj, null);
+                    } catch (JSONException e) {
+                        Timber.e("URL get source exception: %s", e.getMessage());
+                    }
+                }
+            }
+        }
+
+        // Check after 10 minutes to see if it has completed loading.
+        new Handler().postDelayed(() -> {
+            if (!webList.isEmpty()) {
+                Timber.d("Clear the incomplete web sites: %s", webList.size());
+                for (WebView webSet : webList.keySet()) {
+                    webSet.destroy();
+                }
+                webList.clear();
+            }
+            Timber.d(HymnsApp.getResString(R.string.nq_download_completed, NOTION, mCount));
+            HymnsApp.showToastMessage(R.string.nq_download_completed, NOTION, mCount);
+        }, 600000);
     }
 
     /**
      * Start the links extractions at Notion main page on new thread; All network access must not be on UI thread.
      * Fetch links only for the hymnType specified in nqHymn2Type[].
      * Need to clean up the title before the next stage fetch
-     *
+     * <p>
      * 【大本诗歌D】
      * 【补充本诗歌B】
      * 【儿童诗歌C】
@@ -102,15 +245,14 @@ public class NotionRecord extends MediaRecord
      * 【擘饼专辑诗歌】
      * 【诗歌音频合辑】
      */
-    public static void fetchNotionLinks(final MediaConfig mediaConfig)
-    {
+    public static void fetchNotionLinks(final MediaConfig mediaConfig) {
         mContext = mediaConfig;
-        HymnsApp.showToastMessage(R.string.gui_nq_download_starting, NOTION);
+        HymnsApp.showToastMessage(R.string.nq_download_starting, NOTION);
 
         final WebView webView = initWebView();
         getURLSource(webView, NOTION_SITE, HYMNCHTV_NOTION, data -> {
             try {
-                JSONArray jsonArray = fetchJsonArray(data);
+                JSONArray jsonArray = fetchJsonArray(data, true);
                 if (jsonArray != null && jsonArray.length() != 0) {
                     webView.destroy();
                     mCount = 0;
@@ -127,7 +269,7 @@ public class NotionRecord extends MediaRecord
                 }
             } catch (JSONException e) {
                 Timber.e("URL get source exception: %s", e.getMessage());
-                HymnsApp.showToastMessage(R.string.gui_nq_download_failed, NOTION);
+                HymnsApp.showToastMessage(R.string.nq_download_failed, NOTION);
             }
         });
 
@@ -144,8 +286,8 @@ public class NotionRecord extends MediaRecord
                 }
             }
             else {
-                Timber.d(HymnsApp.getResString(R.string.gui_nq_download_completed, NOTION, mCount));
-                HymnsApp.showToastMessage(R.string.gui_nq_download_completed, NOTION, mCount);
+                Timber.d(HymnsApp.getResString(R.string.nq_download_completed, NOTION, mCount));
+                HymnsApp.showToastMessage(R.string.nq_download_completed, NOTION, mCount);
             }
         }, 600000);
     }
@@ -153,7 +295,6 @@ public class NotionRecord extends MediaRecord
     /**
      * Extract the hymnType Range and proceed all the hymn records in the range
      * Proceed to hymn records for【新歌颂咏】as it contains no range value
-     *
      * 【大本诗歌】001一100首
      * 【大本诗歌】101一200首
      * 【大本诗歌】201一300首
@@ -163,19 +304,18 @@ public class NotionRecord extends MediaRecord
      * 【大本诗歌】601一700首
      * 【大本诗歌】701一786+附6首
      * 【圣徒最喜爱的50首合并音频】
-     *
+     * <p>
      * 追求与长进┈┈401一470首
      * 圣灵的同在┈201一212首
      *
      * @param jsonObj: containing title as Prefix to get the valid Hymn Range links,
      * and url the Notion required site url
      */
-    private static void getNQHymnType(JSONObject jsonObj) throws JSONException
-    {
+    private static void getNQHymnType(JSONObject jsonObj) throws JSONException {
         String title = jsonObj.getString(NQ_TITLE);
         String url = jsonObj.getString(NQ_URL);
 
-        HymnsApp.showToastMessage(R.string.gui_nq_download_in_progress, title);
+        HymnsApp.showToastMessage(R.string.nq_download_in_progress, title);
         //【新歌颂咏】does not have hymnRange; so proceed to saveNQRecord
         if (title.contains("新歌颂咏")) {
             saveNQRecord(jsonObj, null);
@@ -186,7 +326,7 @@ public class NotionRecord extends MediaRecord
         getURLSource(webView, title, url, data -> {
             webView.destroy();
             try {
-                JSONArray jsonArray = fetchJsonArray(data);
+                JSONArray jsonArray = fetchJsonArray(data, false);
                 if (jsonArray != null && jsonArray.length() != 0) {
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
@@ -203,10 +343,9 @@ public class NotionRecord extends MediaRecord
 
     /**
      * Save all the Notion hymn links in the DB, if it passes the valid check in mDB.storeNQRecord()
-     *
      * D33父神阿你在羔羊里
      * D34荣耀归于父神
-     *
+     * <p>
      * 附录 - 经历神
      * (附1)颂赞与尊贵与荣耀归
      * (附5)何大神迹！何深奥秘
@@ -218,8 +357,7 @@ public class NotionRecord extends MediaRecord
      * and url the Notion required site url
      * @param wView: Create new if pass in webView is null
      */
-    private static void saveNQRecord(JSONObject jsonObj, final WebView wView) throws JSONException
-    {
+    private static void saveNQRecord(JSONObject jsonObj, final WebView wView) throws JSONException {
         String title = jsonObj.getString(NQ_TITLE);
         String url = jsonObj.getString(NQ_URL);
 
@@ -230,7 +368,7 @@ public class NotionRecord extends MediaRecord
 
         getURLSource(webView, title, url, data -> {
             try {
-                JSONArray jsonArray = fetchJsonArray(data);
+                JSONArray jsonArray = fetchJsonArray(data, false);
                 if (jsonArray != null && jsonArray.length() != 0) {
                     webList.remove(webView);
                     webView.destroy();
@@ -238,8 +376,8 @@ public class NotionRecord extends MediaRecord
                         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                         storeNQJObject(jsonObject);
                     }
-                    Timber.d(HymnsApp.getResString(R.string.gui_nq_download_completed, title, mCount));
-                    HymnsApp.showToastMessage(R.string.gui_nq_download_completed, title, mCount);
+                    Timber.d(HymnsApp.getResString(R.string.nq_download_completed, title, mCount));
+                    HymnsApp.showToastMessage(R.string.nq_download_completed, title, mCount);
                 }
             } catch (JSONException e) {
                 Timber.e("URL get source exception: %s", e.getMessage());
@@ -254,8 +392,7 @@ public class NotionRecord extends MediaRecord
      * b. valid hymnNo
      * c. isFu based on "(附1)颂赞与尊贵与荣耀归"
      */
-    private static void storeNQJObject(JSONObject jsonRecord)
-    {
+    private static void storeNQJObject(JSONObject jsonRecord) {
         final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
         Pattern pattern = Pattern.compile("[DBCX](\\d+)");
         Pattern patternFu = Pattern.compile("附([1-9])");
@@ -304,7 +441,7 @@ public class NotionRecord extends MediaRecord
             else {
                 Timber.w("### Invalid QQ record HymnTitle: %s", jsonRecord);
             }
-        } catch (JSONException e) {
+        } catch (Exception e) {
             Timber.e("### Error in creating Notion record with json exception: %s", e.getMessage());
         }
     }
@@ -313,10 +450,10 @@ public class NotionRecord extends MediaRecord
      * Extra and phrase all the links info into JSONArray;
      *
      * @param htmlRaw the remote raw content containing the required link info
+     *
      * @return JSON Array of the extracted info or null if none found
      */
-    private static JSONArray fetchJsonArray(String htmlRaw)
-    {
+    private static JSONArray fetchJsonArray(String htmlRaw, boolean main) {
         JSONArray jsonArray = new JSONArray();
         String htmlSource = fromContent(htmlRaw);
         if (TextUtils.isEmpty(htmlSource))
@@ -327,9 +464,14 @@ public class NotionRecord extends MediaRecord
         if (matcher.find()) {
             String dataIdContent = matcher.group(1);
             if (!TextUtils.isEmpty(dataIdContent)) {
-                // For extracting title/HymnNo and url link; BQ is for xb i.e. "/X040-B840-Q012-a42843dc90984f638d90fc63343c641c"
-                pattern = Pattern.compile("<a href=\"(/[DBCX]*[-a-zBQ0-9]+)\".*?<div class=\"notranslate.*?>(.*?)</div></div></div><div contenteditable",
-                        Pattern.DOTALL);
+                if (main) {
+                    pattern = Pattern.compile("<a href=\"(/[-a-z0-9]+)\" style=\"cursor:pointer;.*?[0-9]+\"><span.*?>(.*?)</span></a>", Pattern.DOTALL);
+                }
+                else {
+                    // For extracting title/HymnNo and url link; BQ is for bb i.e.
+                    // <a href="https://breakopen.notion.site/B876-eccabf42d6434a1892777fd82448e48e?pvs=25"
+                    pattern = Pattern.compile("<a href=\"(https://breakopen.notion.site/[DBCX]*[-a-z0-9?]+?pvs=25)\".*?<div class=\"notranslate.*?>(.*?)</div></div></div><div contenteditable", Pattern.DOTALL);
+                }
                 matcher = pattern.matcher(dataIdContent);
                 while (matcher.find()) {
                     String strLink = matcher.group(1);
@@ -339,7 +481,7 @@ public class NotionRecord extends MediaRecord
                         try {
                             JSONObject jobject = new JSONObject()
                                     .put(NQ_TITLE, strHymnTitle)
-                                    .put(NQ_URL, NOTION_SITE + strLink);
+                                    .put(NQ_URL, strLink.startsWith("http") ? strLink : NOTION_SITE + strLink);
                             jsonArray.put(jobject);
                         } catch (JSONException e) {
                             Timber.w("Jason Exception: %s", e.getMessage());
@@ -351,8 +493,7 @@ public class NotionRecord extends MediaRecord
         return jsonArray;
     }
 
-    private static String fromContent(String content)
-    {
+    private static String fromContent(String content) {
         final String htmlContent = StringEscapeUtils.unescapeJava(content)
                 .trim()
                 .replaceAll("  ", " ")
@@ -361,24 +502,21 @@ public class NotionRecord extends MediaRecord
         return htmlContent;
     }
 
-    private static WebView initWebView()
-    {
+    @SuppressLint("SetJavaScriptEnabled")
+    private static WebView initWebView() {
         WebView webView = new WebView(mContext);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        // webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
         return webView;
     }
 
-    public static void getURLSource(final WebView webView, String title, String urlToLoad, final ValueCallback<String> valueCallback)
-    {
+    public static void getURLSource(final WebView webView, String title, String urlToLoad,
+            final ValueCallback<String> valueCallback) {
         // Timber.d("URl to load: %s", urlToLoad);
-        webView.loadUrl(urlToLoad);
-        webView.setWebViewClient(new WebViewClient()
-        {
+        webView.loadUrl(urlToLoad); // preload url and wait for 1.5 sec before checking.
+        webView.setWebViewClient(new WebViewClient() {
             @Override
-            public void onPageFinished(WebView view, String url)
-            {
+            public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 // Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
                 if (webView.getProgress() == 100) {
@@ -392,7 +530,7 @@ public class NotionRecord extends MediaRecord
                                 }
                                 else {
                                     Timber.w("Web scrapping failed: %s", urlToLoad);
-                                    HymnsApp.showToastMessage(R.string.gui_nq_download_failed, NOTION_SITE);
+                                    HymnsApp.showToastMessage(R.string.nq_download_failed, NOTION_SITE);
                                 }
                             });
                         } catch (RuntimeException e) {
@@ -404,6 +542,26 @@ public class NotionRecord extends MediaRecord
 //                    Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
 //                }
             }
+
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                Timber.e("### WebView Render Process Gone: %s", detail);
+                view.destroy();
+                HymnsApp.showToastMessage(R.string.nq_download_failed, NOTION);
+                return true;
+            }
         });
+    }
+
+    /**
+     * Return the Notion Url link based on given hymnType; hymnNo not use currently.
+     *
+     * @param hymnType: current user selected hymn Type
+     * @param hymnNo: current user selected hymn No
+     *
+     * @return the url link.
+     */
+    public static String getNotionSite(String hymnType, int hymnNo) {
+        return NotionSites.get(hymnType);
     }
 }

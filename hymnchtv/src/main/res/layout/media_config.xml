@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="2"
-            android:text="@string/gui_hymn_type" />
+            android:text="@string/hymn_type" />
 
         <TextView
             style="@style/MediumFont"
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="1"
-            android:text="@string/gui_hymn_no" />
+            android:text="@string/hymn_no" />
     </LinearLayout>
 
     <LinearLayout
@@ -62,7 +62,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:text="@string/gui_media_type" />
+        android:text="@string/media_type" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -98,14 +98,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="1"
-            android:text="@string/gui_media_link" />
+            android:text="@string/media_link" />
 
         <ImageButton
             android:id="@+id/help_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
-            android:contentDescription="@string/gui_help_online"
+            android:contentDescription="@string/help_online"
             android:src="@drawable/ic_help" />
 
         <ImageButton
@@ -113,7 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
-            android:contentDescription="@string/gui_share_lyrics"
+            android:contentDescription="@string/share_lyrics"
             android:src="@drawable/ic_share" />
 
         <ImageButton
@@ -121,14 +121,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="15dp"
-            android:contentDescription="@string/gui_media_link"
+            android:contentDescription="@string/media_link"
             android:src="@drawable/ic_uri_decode" />
 
         <ImageButton
             android:id="@+id/browseMediaUri"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/gui_media_link"
+            android:contentDescription="@string/media_link"
             android:src="@drawable/ic_folder" />
     </LinearLayout>
 
@@ -161,7 +161,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="@string/gui_media_file_not_found"
+        android:text="@string/media_file_not_found"
         android:textColor="@color/red" />
 
     <LinearLayout
@@ -172,7 +172,7 @@
         <Button
             android:id="@+id/button_Exit"
             style="@style/ButtonTop"
-            android:text="@string/gui_exit" />
+            android:text="@string/exit" />
 
         <Button
             android:id="@+id/button_play"
@@ -184,13 +184,13 @@
             android:id="@+id/button_delete"
             style="@style/ButtonTop"
             android:layout_marginStart="4dp"
-            android:text="@string/gui_delete" />
+            android:text="@string/delete" />
 
         <Button
             android:id="@+id/button_add"
             style="@style/ButtonTop"
             android:layout_marginStart="4dp"
-            android:text="@string/gui_add" />
+            android:text="@string/add" />
     </LinearLayout>
 
     <ListView
@@ -222,7 +222,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="1"
-                android:text="@string/gui_db_import_file"
+                android:text="@string/db_import_file"
                 android:textColor="@color/textColorBlack" />
 
             <ImageButton
@@ -245,7 +245,7 @@
                 android:id="@+id/browseImportFile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:contentDescription="@string/gui_db_import_file"
+                android:contentDescription="@string/db_import_file"
                 android:src="@drawable/ic_folder" />
         </LinearLayout>
 
@@ -268,20 +268,20 @@
                 android:id="@+id/button_NQ"
                 style="@style/ButtonTop"
                 android:layout_weight="0.7"
-                android:text="@string/gui_db_import_NQ" />
+                android:text="@string/db_import_NQ" />
 
             <CheckBox
                 android:id="@+id/recordOverwrite"
                 style="@style/ButtonTop"
                 android:layout_marginStart="4dp"
                 android:layout_weight="1.3"
-                android:text="@string/gui_db_overwrite" />
+                android:text="@string/db_overwrite" />
 
             <Button
                 android:id="@+id/button_import"
                 style="@style/ButtonTop"
                 android:layout_marginStart="4dp"
-                android:text="@string/gui_db_import" />
+                android:text="@string/db_import" />
         </LinearLayout>
 
         <LinearLayout
@@ -293,19 +293,19 @@
             <Button
                 android:id="@+id/button_db_records"
                 style="@style/ButtonTop"
-                android:text="@string/gui_db_list" />
+                android:text="@string/db_list" />
 
             <Button
                 android:id="@+id/button_import_create"
                 style="@style/ButtonTop"
                 android:layout_marginStart="4dp"
-                android:text="@string/gui_db_import_create" />
+                android:text="@string/db_import_create" />
 
             <Button
                 android:id="@+id/button_export"
                 style="@style/ButtonTop"
                 android:layout_marginStart="4dp"
-                android:text="@string/gui_db_export" />
+                android:text="@string/db_export" />
         </LinearLayout>
     </LinearLayout>
 

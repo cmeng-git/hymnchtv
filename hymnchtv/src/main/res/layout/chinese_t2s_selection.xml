@@ -55,14 +55,14 @@
         <Button
             android:id="@+id/btnCancel"
             style="@style/ButtonTop"
-            android:text="@string/gui_cancel"
+            android:text="@string/cancel"
             android:textSize="22sp" />
 
         <Button
             android:id="@+id/btnOk"
             style="@style/ButtonTop"
             android:layout_marginStart="4dp"
-            android:text="@string/gui_ok"
+            android:text="@string/ok"
             android:textSize="22sp" />
     </LinearLayout>
 </LinearLayout>

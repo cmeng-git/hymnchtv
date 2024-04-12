@@ -58,7 +58,7 @@
                 android:id="@+id/button_ts"
                 style="@style/ButtonTop"
                 android:layout_weight="0.5"
-                android:text="@string/gui_lyrics_chinese_traditional"
+                android:text="@string/lyrics_chinese_traditional"
                 android:textSize="22sp" />
 
             <Button
@@ -66,7 +66,7 @@
                 style="@style/ButtonTop"
                 android:layout_weight="0.5"
                 android:layout_marginStart="4dp"
-                android:text="@string/gui_lyrics_chinese_english"
+                android:text="@string/lyrics_chinese_english"
                 android:textSize="22sp" />
         </LinearLayout>
 

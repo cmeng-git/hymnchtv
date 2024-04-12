@@ -18,7 +18,7 @@
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:textColor="@color/textColorWhite"
-            android:text="@string/gui_USERNAME" />
+            android:text="@string/user_name" />
 
         <EditText
             android:id="@+id/username"
@@ -38,7 +38,7 @@
             android:layout_width="80dp"
             android:layout_height="wrap_content"
             android:textColor="@color/textColorWhite"
-            android:text="@string/gui_PASSWORD" />
+            android:text="@string/password" />
 
         <RelativeLayout
             android:id="@+id/pwdTypingArea"
@@ -51,7 +51,7 @@
                 android:id="@+id/passwordField"
                 style="@style/StyleTextView"
                 android:layout_width="match_parent"
-                android:hint="@string/password"
+                android:hint="@string/personal_password"
                 android:layout_gravity="center_vertical"
                 android:inputType="textPassword" />
 
@@ -78,7 +78,7 @@
             android:id="@+id/button_cancel"
             style="@style/ButtonTop"
             android:enabled="true"
-            android:text="@string/gui_cancel" />
+            android:text="@string/cancel" />
 
         <View
             android:id="@+id/centerShim"
@@ -91,6 +91,6 @@
             android:id="@+id/button_signin"
             style="@style/ButtonTop"
             android:enabled="true"
-            android:text="@string/gui_SIGN_IN" />
+            android:text="@string/sign_in" />
     </LinearLayout>
 </LinearLayout>

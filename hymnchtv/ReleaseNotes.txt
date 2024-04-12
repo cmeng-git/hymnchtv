@@ -1,6 +1,24 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    04/12/2024
+Version:        2.2.0 (202000)
+- Improve English lyrics fetching process reliability.
+- Fix ContentHandler#getHymnMediaState that iterates only the first 3 items i.e. missed out ChangShi.
+- Rearrange the priorities in directory searching for available media file playback.
+- Check existence of local media files in hymnchtv directory with Pattern.compile("[^1-9]" + hymnNo + "[^0-9]") for state indication and playback.
+- Add new sites to check for available mp3 media file for download and playback when ChangShi media Type is selected.
+- Migrate com.google.android.exoplayer:exoplayer:2.19.1 to androidx.media3:media3-exoplayer:1.3.0.
+- Must check and ensure android has defined activity that supports playback the required mimeType via ACTION_VIEW; MediaExoPlayerFragment#playVideoUrlExt().
+- Youtube player includes an option to hide video UI; allowing user to view the Lyrics below. Press Back key to show UI again.
+- Always save a copy of the url_import records into a local file for user later access.
+- When in landscape mode, hide media play UI when exoPlayer or Youtube player has stopped; Need 100ms delay onTransition.
+- Ensure DialogActivity OK_Button onClick listener is properly defined.
+- Add android Permission Settings to main menu for user selection; android hss really messed up the permissions.
+- Upgrade to support android Tiramisu API-34, and add new required permissions request.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    07/06/2023
 Version:        2.1.3 (201030)
 - Provide user indication for button that has long press action with underlined text or '...'

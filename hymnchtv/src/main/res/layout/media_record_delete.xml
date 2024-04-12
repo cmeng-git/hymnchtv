@@ -17,6 +17,6 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:checked="false"
-        android:text="@string/gui_media_content_remove" />
+        android:text="@string/media_content_remove" />
 
 </LinearLayout>

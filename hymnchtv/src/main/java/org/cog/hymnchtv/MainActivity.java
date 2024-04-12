@@ -18,7 +18,6 @@ package org.cog.hymnchtv;
 
 import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
 import static org.cog.hymnchtv.HymnToc.hymnTocPage;
-import static org.cog.hymnchtv.persistance.PermissionUtils.PRC_NOTIFICATIONS;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_DUMMY;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
@@ -40,6 +39,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.Gravity;
@@ -60,11 +60,20 @@ import android.widget.ViewSwitcher;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 import com.zqc.opencc.android.lib.ChineseConverter;
 import com.zqc.opencc.android.lib.ConversionType;
@@ -88,13 +97,6 @@ import org.cog.hymnchtv.utils.ThemeHelper.Theme;
 import org.cog.hymnchtv.utils.TouchListener;
 import org.cog.hymnchtv.utils.WallPaperUtil;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import de.cketti.library.changelog.ChangeLog;
 import timber.log.Timber;
 
@@ -104,7 +106,8 @@ import timber.log.Timber;
  * @author Eng Chong Meng
  * @author wayfarer
  */
-public class MainActivity extends BaseActivity implements AdapterView.OnItemSelectedListener, LifecycleEventObserver {
+public class MainActivity extends BaseActivity implements AdapterView.OnItemSelectedListener, LifecycleEventObserver,
+        ActivityCompat.OnRequestPermissionsResultCallback {
     public static String HYMNCHTV_FAQ = "https://cmeng-git.github.io/hymnchtv/faq.html";
     private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
@@ -198,6 +201,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     public static int[] bgResId = {R.drawable.bg0, R.drawable.bg1, R.drawable.bg2, R.drawable.bg3, R.drawable.bg4, R.drawable.bg5,
             R.drawable.bg20, R.drawable.bg21, R.drawable.bg22, R.drawable.bg23, R.drawable.bg24, R.drawable.bg25};
 
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     public void onCreate(Bundle savedInstanceState) {
         mInstance = this;
         // Must setTheme() before super.onCreate(), otherwise not working
@@ -218,15 +222,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
         initButton();
         initUserSettings();
-
-        // PermissionUtils.isPermissionGranted(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        PermissionUtils.hasWriteStoragePermission(this, true);
-
-        // POST_NOTIFICATIONS is need for api-13
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            PermissionUtils.hasPermission(this, true, PRC_NOTIFICATIONS,
-                    Manifest.permission.POST_NOTIFICATIONS);
-        }
+        // Request all the permissions required by Hymnchtv; only valid if user does not manually disallow it.
+        PermissionUtils.checkHymnPermissionAndRequest(this);
 
         // allow 15 seconds for first launch login to complete before showing history log if the activity is still active
         ChangeLog cl = new ChangeLog(this);
@@ -237,7 +234,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                 }
             }, 15000));
             // Not necessary for debug version; can rely on updateServiceImpl;
-            MediaConfig.importUrlRecords();
+            MediaConfig.importUrlAssetFile();
         }
 
         // 儿童诗歌
@@ -282,7 +279,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             String sValue = tv_Search.getText().toString();
             sValue = sValue.trim();
             if (TextUtils.isEmpty(sValue)) {
-                HymnsApp.showToastMessage(R.string.gui_error_search_empty);
+                HymnsApp.showToastMessage(R.string.error_search_empty);
                 return;
             }
             sValue = ChineseConverter.convert(sValue, ConversionType.T2S, this);
@@ -363,7 +360,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         }
         else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && (type != null)) {
             final ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
-            mediaLink = getFile(uris.get(0));
+            if (uris != null)
+                mediaLink = getFile(uris.get(0));
         }
 
         if (mediaLink != null) {
@@ -449,7 +447,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             return inFile.getPath();
         }
         else
-            HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
+            HymnsApp.showToastMessage(R.string.file_does_not_exist);
 
         return null;
     }
@@ -575,7 +573,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private void showHymnToc(String hymnType) {
         // "英中对照" not implemented for HYMN_ER or HYMN_XB
         if (TOC_ENGLISH.equals(mTocPage) && (HYMN_ER.equals(hymnType) || HYMN_XB.equals(hymnType))) {
-            HymnsApp.showToastMessage(R.string.gui_en2ch_hymn_same);
+            HymnsApp.showToastMessage(R.string.en2ch_hymn_same);
             return;
         }
 
@@ -600,7 +598,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         sNumber = mEntry.getText().toString();
         if (TextUtils.isEmpty(sNumber)) {
             sNumber = "0";
-        } else if (isFu) {
+        }
+        else if (isFu) {
             sNumber = sNumber.substring(1);
         }
 
@@ -638,7 +637,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             showContent(this, HYMN_BB, HYMN_BB_DUMMY, false, hymnEng);
         } catch (IOException e) {
             Timber.w("Content toc not available: %s", e.getMessage());
-            HymnsApp.showToastMessage(R.string.gui_in_development);
+            HymnsApp.showToastMessage(R.string.in_development);
         }
     }
 
@@ -705,7 +704,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      *
      * @return the handle state
      */
-    public boolean onContextItemSelected(MenuItem item) {
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
         return onOptionsItemSelected(item);
     }
 
@@ -865,6 +864,10 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                 startActivity(intent);
                 return true;
 
+            case R.id.permission_request:
+                onInfoButtonClicked();
+                return true;
+
             case R.id.online_help:
                 About.hymnUrlAccess(this, HYMNCHTV_FAQ);
                 return true;
@@ -985,7 +988,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         List<HistoryRecord> historyRecords = mDB.getHistoryRecords();
         mHistoryAdapter = new MySwipeListAdapter<HistoryRecord>(this, historyRecords) {
             @Override
-            public void remove(@NonNull HistoryRecord sRecord) {
+            public void remove(HistoryRecord sRecord) {
                 int count = mDB.deleteHymnHistory(sRecord);
                 if (count == 1) {
                     super.remove(sRecord);
@@ -1021,9 +1024,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                 return;
 
             DialogActivity.showConfirmDialog(MainActivity.this,
-                    R.string.gui_delete,
-                    R.string.gui_delete_history,
-                    R.string.gui_delete, new DialogActivity.DialogListener() {
+                    R.string.delete,
+                    R.string.delete_history,
+                    R.string.delete, new DialogActivity.DialogListener() {
                         public boolean onConfirmClicked(DialogActivity dialog) {
                             mHistoryAdapter.setSelectState(pos, false);
                             mHistoryAdapter.remove(sRecord);
@@ -1093,7 +1096,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     /**
      * Set HymnApp locale per user selected language.
      * Must commit preference change immediately before perform system restart.
-     *
      * Note: Restart MainActivity does not apply to HymnApp Application class.
      * HymnApp mBase Context can only be changed with Application restart.
      *
@@ -1222,12 +1224,12 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      * Set the main UI background wall paper
      *
      * @param bgMode the selected background wall paper
-     * @param resid the android drawable resource Id for the selected wall paper
+     * @param resId the android drawable resource Id for the selected wall paper
      */
-    private void setBgColor(int bgMode, int resid) {
+    private void setBgColor(int bgMode, int resId) {
         mEditor.putInt(PREF_BACKGROUND, bgMode);
         mEditor.apply();
-        background.setBackgroundResource(resid);
+        background.setBackgroundResource(resId);
     }
 
     /**
@@ -1247,7 +1249,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     ActivityResultLauncher<Intent> mStartForResult = registerForActivityResult(new StartActivityForResult(), result -> {
         if (result.getResultCode() == Activity.RESULT_OK) {
             Intent intent = result.getData();
-            Uri uri = intent.getData();
+            Uri uri = (intent == null) ? null : intent.getData();
             if (uri == null) {
                 Timber.d("No image data selected: %s", intent);
             }
@@ -1256,4 +1258,37 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             }
         }
     });
+
+    /**
+     * Checks if the result contains a {@link PackageManager#PERMISSION_GRANTED} result for a
+     * permission from a runtime permissions request.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        for (int i = 0; i < grantResults.length; i++) {
+            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                String permission = permissions[i];
+                String message = getResources().getString(R.string.permission_app_rational,
+                        permission.substring(permission.lastIndexOf(".") + 1));
+
+                if (Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permission)) {
+                    message = getResources().getString(R.string.permission_storage_required);
+                }
+                else if (Manifest.permission.POST_NOTIFICATIONS.equals(permission)) {
+                    message = getResources().getString(R.string.permission_notifications_required);
+                }
+                DialogActivity.showDialog(HymnsApp.getGlobalContext(),
+                        getResources().getString(R.string.permission_request), message);
+            }
+        }
+    }
+
+    public void onInfoButtonClicked() {
+        Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + getPackageName()));
+        myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+        myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(myAppSettings);
+    }
 }

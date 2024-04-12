@@ -75,7 +75,7 @@ public class LogUploadServiceImpl
             sendIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
             sendIntent.setType("application/zip");
             sendIntent.putExtra(Intent.EXTRA_STREAM, logsUri);
-            sendIntent.putExtra(Intent.EXTRA_TEXT, ctx.getString(R.string.gui_SEND_LOGS_INFO));
+            sendIntent.putExtra(Intent.EXTRA_TEXT, ctx.getString(R.string.semd_logs_info));
 
             Intent chooserIntent = Intent.createChooser(sendIntent, title);
             ctx.grantUriPermission("android", logsUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);

@@ -18,7 +18,9 @@ package org.cog.hymnchtv.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.view.*;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ListView;
 
 /**
@@ -28,8 +30,7 @@ import android.widget.ListView;
  *
  * @author Eng Chong Meng
  */
-public class TouchListener implements View.OnTouchListener
-{
+public class TouchListener implements View.OnTouchListener {
     private static final int SWIPE_THRESHOLD_DISTANCE = 120;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
@@ -39,31 +40,25 @@ public class TouchListener implements View.OnTouchListener
     // ListView item index else -1 for View
     private int mIndex;
 
-    public TouchListener(Context context)
-    {
-        gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener()
-        {
+    public TouchListener(Context context) {
+        gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
-            public boolean onSingleTapConfirmed(MotionEvent e)
-            {
+            public boolean onSingleTapConfirmed(MotionEvent e) {
                 return TouchListener.this.onSingleTap(mView, mIndex);
             }
 
             @Override
-            public boolean onDoubleTap(MotionEvent e)
-            {
+            public boolean onDoubleTap(MotionEvent e) {
                 return TouchListener.this.onDoubleTap(mView, mIndex);
             }
 
             @Override
-            public void onLongPress(MotionEvent e)
-            {
+            public void onLongPress(MotionEvent e) {
                 TouchListener.this.onLongPress(mView, mIndex);
             }
 
             @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY)
-            {
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
                 // "Left Swipe"
                 if (e1.getX() - e2.getX() > SWIPE_THRESHOLD_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                     return TouchListener.this.onSwipeLeft(mView, mIndex);
@@ -79,8 +74,7 @@ public class TouchListener implements View.OnTouchListener
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
-    public boolean onTouch(View v, MotionEvent event)
-    {
+    public boolean onTouch(View v, MotionEvent event) {
         mView = v;
         mIndex = (mView instanceof ListView) ? ((ListView) v).pointToPosition((int) event.getX(), (int) event.getY()) : -1;
         return gestureDetector.onTouchEvent(event);
@@ -93,10 +87,10 @@ public class TouchListener implements View.OnTouchListener
      *
      * @param v The View or ListView where the click happened.
      * @param idx ListView item index else -1 for View
+     *
      * @return true if the callback consumed the long click, false otherwise.
      */
-    public boolean onSingleTap(View v, int idx)
-    {
+    public boolean onSingleTap(View v, int idx) {
         return false;
     }
 
@@ -105,10 +99,10 @@ public class TouchListener implements View.OnTouchListener
      *
      * @param v The View or ListView where the click happened.
      * @param idx ListView item index else -1 for View
+     *
      * @return true if the callback consumed the double clicks, false otherwise.
      */
-    public boolean onDoubleTap(View v, int idx)
-    {
+    public boolean onDoubleTap(View v, int idx) {
         return false;
     }
 
@@ -118,8 +112,7 @@ public class TouchListener implements View.OnTouchListener
      * @param v The View or ListView where the click happened.
      * @param idx ListView item index else -1 for View
      */
-    public void onLongPress(View v, int idx)
-    {
+    public void onLongPress(View v, int idx) {
     }
 
     /**
@@ -127,10 +120,10 @@ public class TouchListener implements View.OnTouchListener
      *
      * @param v The ListView where the swipe happened.
      * @param idx ListView item index
+     *
      * @return true if the callback consumed the action, false otherwise.
      */
-    public boolean onSwipeLeft(View v, int idx)
-    {
+    public boolean onSwipeLeft(View v, int idx) {
         return false;
     }
 
@@ -139,10 +132,10 @@ public class TouchListener implements View.OnTouchListener
      *
      * @param v The ListView where the swipe happened.
      * @param idx ListView item index
+     *
      * @return true if the callback consumed the action, false otherwise.
      */
-    public boolean onSwipeRight(View v, int idx)
-    {
+    public boolean onSwipeRight(View v, int idx) {
         return false;
     }
 }

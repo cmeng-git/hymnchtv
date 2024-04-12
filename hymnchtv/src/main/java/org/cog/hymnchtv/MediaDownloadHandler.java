@@ -33,12 +33,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
-import org.cog.hymnchtv.persistance.FileBackend;
-import org.cog.hymnchtv.persistance.FilePathHelper;
-import org.cog.hymnchtv.utils.AndroidUtils;
-import org.cog.hymnchtv.utils.ByteFormat;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -46,18 +42,21 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import org.cog.hymnchtv.persistance.FileBackend;
+import org.cog.hymnchtv.persistance.FilePathHelper;
+import org.cog.hymnchtv.utils.AndroidUtils;
+import org.cog.hymnchtv.utils.ByteFormat;
+
 import timber.log.Timber;
 
 /**
  * Class implements the media content handler. It proceeds to download median from online source
  * if there is no local resource available.
- *
  * Must have only one instance of this class running at any one time; else UI display may have problem.
  *
  * @author Eng Chong Meng
  */
-public class MediaDownloadHandler extends Fragment
-{
+public class MediaDownloadHandler extends Fragment {
     public View fileXferUi;
     private TextView fileLabel = null;
     private TextView fileStatus = null;
@@ -82,8 +81,7 @@ public class MediaDownloadHandler extends Fragment
     // public MediaGuiController() { }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
-    {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View convertView = inflater.inflate(R.layout.file_xfer_ui, container, false);
 
         fileLabel = convertView.findViewById(R.id.filexferFileNameView);
@@ -102,8 +100,7 @@ public class MediaDownloadHandler extends Fragment
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         mContentHandler = (ContentHandler) getContext();
         if (mContentHandler == null)
@@ -114,8 +111,8 @@ public class MediaDownloadHandler extends Fragment
 
         if (downloadReceiver == null) {
             downloadReceiver = new DownloadReceiver();
-            HymnsApp.getGlobalContext().registerReceiver(downloadReceiver,
-                    new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+            ContextCompat.registerReceiver(HymnsApp.getGlobalContext(), downloadReceiver,
+                    new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), ContextCompat.RECEIVER_EXPORTED);
         }
     }
 
@@ -124,10 +121,10 @@ public class MediaDownloadHandler extends Fragment
      *
      * @param fileName the name of the file
      * @param fileSize the size of the file
+     *
      * @return the name of the given file
      */
-    protected String getFileLabel(String fileName, long fileSize)
-    {
+    protected String getFileLabel(String fileName, long fileSize) {
         String text = ByteFormat.format(fileSize);
         return fileName + " (" + text + ")";
     }
@@ -142,17 +139,16 @@ public class MediaDownloadHandler extends Fragment
      * @param dir the destination dir for the downloaded file.
      * @param fileName the downloaded filename.
      */
-    public void initHttpFileDownload(String dnLnk, String dir, String fileName)
-    {
+    public void initHttpFileDownload(String dnLnk, String dir, String fileName) {
         File subDir = FileBackend.getHymnchtvStore(dir, true);
         if (subDir == null) {
-            HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
+            HymnsApp.showToastMessage(R.string.file_access_no_permission);
             return;
         }
 
         File destFile = new File(subDir, fileName);
         if (fileDownloads.containsValue(destFile)) {
-            HymnsApp.showToastMessage(R.string.gui_download_wait);
+            HymnsApp.showToastMessage(R.string.download_wait);
             fileXferUi.setVisibility(View.VISIBLE);
             Timber.w("Skip duplicated download file request: %s", destFile.getAbsolutePath());
             return;
@@ -185,8 +181,7 @@ public class MediaDownloadHandler extends Fragment
     /**
      * Schedules media file download.
      */
-    private long download(Uri uri, String fileName)
-    {
+    private long download(Uri uri, String fileName) {
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
@@ -200,16 +195,14 @@ public class MediaDownloadHandler extends Fragment
             HymnsApp.showToastMessage(e.getMessage());
         } catch (Exception e) {
             Timber.w("Download Manager failed for: %s; %s", tmpFile.getAbsolutePath(), e.getMessage());
-            HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
+            HymnsApp.showToastMessage(R.string.file_does_not_exist);
         }
         return -1;
     }
 
-    private class DownloadReceiver extends BroadcastReceiver
-    {
+    private class DownloadReceiver extends BroadcastReceiver {
         @Override
-        public void onReceive(Context context, Intent intent)
-        {
+        public void onReceive(Context context, Intent intent) {
             // Fetching the download id received with the broadcast and
             // if the received broadcast is for our enqueued download by matching download id
             long downloadJobId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
@@ -243,14 +236,14 @@ public class MediaDownloadHandler extends Fragment
                             }
                         }
                         else {
-                            HymnsApp.showToastMessage(R.string.gui_file_DOWNLOAD_FAILED, dnLink);
+                            HymnsApp.showToastMessage(R.string.file_download_failed, dnLink);
                             Timber.d("Downloaded file failed: %s (size: %s) <= %s",
                                     inFile.getAbsolutePath(), mFileSize, dnLink);
                         }
                     }
                 }
                 else if (downloadJobStatus == DownloadManager.STATUS_FAILED) {
-                    onError(HymnsApp.getResString(R.string.gui_file_DOWNLOAD_FAILED, dnLink));
+                    onError(HymnsApp.getResString(R.string.file_download_failed, dnLink));
                 }
             }
             // Remove lastDownloadId from downloadManager record and delete the tmp file
@@ -264,8 +257,7 @@ public class MediaDownloadHandler extends Fragment
         }
     }
 
-    private void onError(String statusText)
-    {
+    private void onError(String statusText) {
         fileStatus.setVisibility(View.GONE);
         fileStatus.setText(statusText);
         mContentHandler.onError(statusText);
@@ -275,10 +267,10 @@ public class MediaDownloadHandler extends Fragment
      * Get the jobId for the given dnFile
      *
      * @param dnFile previously download File
+     *
      * @return jobId for the dnFile if available else -1
      */
-    private long getJobId(File dnFile)
-    {
+    private long getJobId(File dnFile) {
         for (Map.Entry<Long, File> entry : fileDownloads.entrySet()) {
             if (entry.getValue().equals(dnFile)) {
                 return entry.getKey();
@@ -329,11 +321,9 @@ public class MediaDownloadHandler extends Fragment
 
     /**
      * Starts monitoring the download progress.
-     *
      * This method is safe to call multiple times. Starting an already running progress checker is a no-op.
      */
-    private void startProgressChecker()
-    {
+    private void startProgressChecker() {
         if (!isProgressCheckerRunning) {
             isProgressCheckerRunning = true;
 
@@ -348,8 +338,7 @@ public class MediaDownloadHandler extends Fragment
     /**
      * Stops monitoring download progress.
      */
-    private void stopProgressChecker()
-    {
+    private void stopProgressChecker() {
         isProgressCheckerRunning = false;
         handler.removeCallbacks(progressChecker);
     }
@@ -357,11 +346,9 @@ public class MediaDownloadHandler extends Fragment
     /**
      * Checks download progress and updates status, then re-schedules itself.
      */
-    private final Runnable progressChecker = new Runnable()
-    {
+    private final Runnable progressChecker = new Runnable() {
         @Override
-        public void run()
-        {
+        public void run() {
             if (isProgressCheckerRunning) {
                 checkProgress();
                 handler.postDelayed(this, PROGRESS_DELAY);
@@ -373,12 +360,11 @@ public class MediaDownloadHandler extends Fragment
      * Queries the <tt>DownloadManager</tt> for the status of download job identified by the given <tt>id</tt>.
      *
      * @param id download identifier which status will be returned.
-     * @return download status of the job identified by given id. If the given job is not found
      *
+     * @return download status of the job identified by given id. If the given job is not found
      * {@link DownloadManager#STATUS_FAILED} will be returned.
      */
-    private int checkDownloadStatus(long id)
-    {
+    private int checkDownloadStatus(long id) {
         DownloadManager.Query query = new DownloadManager.Query();
         query.setFilterById(id);
 
@@ -394,8 +380,7 @@ public class MediaDownloadHandler extends Fragment
     /**
      * Checks and show to user download progress for the last file transfer task entry only
      */
-    private void checkProgress()
-    {
+    private void checkProgress() {
         if (fileDownloads.isEmpty()) {
             stopProgressChecker();
             return;
@@ -419,7 +404,7 @@ public class MediaDownloadHandler extends Fragment
             File tmpFile = new File(FileBackend.getHymnchtvStore(FileBackend.TMP, false), mFileName);
             Timber.d("Downloading file failed due to slow progress: %s (%s): %s",
                     tmpFile.length(), mFileSize, tmpFile.getAbsolutePath());
-            onError(HymnsApp.getResString(R.string.gui_file_DOWNLOAD_FAILED, tmpFile.getAbsolutePath()));
+            onError(HymnsApp.getResString(R.string.file_download_failed, tmpFile.getAbsolutePath()));
             return;
         }
 
@@ -442,7 +427,7 @@ public class MediaDownloadHandler extends Fragment
                 Timber.d("Downloading file countdown, jobId: %s; status: %s; dnProgress: %s (%s)",
                         lastDownloadId, lastJobStatus, previousProgress, waitTime);
                 if (waitTime < 50) {
-                    fileXferSpeed.setText(HymnsApp.getResString(R.string.gui_download_timeout_timer, waitTime));
+                    fileXferSpeed.setText(HymnsApp.getResString(R.string.download_timeout_timer, waitTime));
                 }
             }
             else {
@@ -461,8 +446,7 @@ public class MediaDownloadHandler extends Fragment
      * @param transferredBytes file size
      * @param progressTimestamp time stamp
      */
-    private void updateProgress(String fileName, long transferredBytes, long progressTimestamp)
-    {
+    private void updateProgress(String fileName, long transferredBytes, long progressTimestamp) {
         long SMOOTHING_FACTOR = 100;
 
         // before file transfer start is -1
@@ -506,7 +490,7 @@ public class MediaDownloadHandler extends Fragment
         if (mTransferSpeedAverage > 0) {
             fileXferSpeed.setVisibility(View.VISIBLE);
             fileXferSpeed.setText(
-                    HymnsApp.getResString(R.string.gui_download_speed, ByteFormat.format(mTransferSpeedAverage), bytesString));
+                    HymnsApp.getResString(R.string.download_speed, ByteFormat.format(mTransferSpeedAverage), bytesString));
         }
         Timber.d("%s RxByte = %s / %s; TimeLeft = %s; speed = %s", fileName, transferredBytes, mFileSize,
                 mEstimatedTimeLeft, mTransferSpeedAverage);
@@ -516,7 +500,7 @@ public class MediaDownloadHandler extends Fragment
         }
         else if (mEstimatedTimeLeft > 0) {
             estTimeRemain.setVisibility(View.VISIBLE);
-            estTimeRemain.setText(HymnsApp.getResString(R.string.gui_download_remaining_time,
+            estTimeRemain.setText(HymnsApp.getResString(R.string.download_remaining_time,
                     AndroidUtils.formatSeconds(mEstimatedTimeLeft * 1000)));
         }
     }

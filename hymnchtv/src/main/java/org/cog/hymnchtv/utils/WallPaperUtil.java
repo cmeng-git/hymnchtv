@@ -37,6 +37,8 @@ import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
+import java.io.File;
+
 import com.yalantis.ucrop.UCrop;
 
 import org.cog.hymnchtv.BaseActivity;
@@ -44,8 +46,6 @@ import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
-
-import java.io.File;
 
 import timber.log.Timber;
 
@@ -110,6 +110,7 @@ public class WallPaperUtil extends BaseActivity implements View.OnClickListener 
      * and produce an output of type O
      *
      * @return an instant of ActivityResultLauncher<String>
+     *
      * @see ActivityResultCaller
      */
     private ActivityResultLauncher<String> getWallpaperContent() {
@@ -225,7 +226,7 @@ public class WallPaperUtil extends BaseActivity implements View.OnClickListener 
         }
 
         TextView wallpaperSize = findViewById(R.id.wp_size);
-        wallpaperSize.setText(getString(R.string.gui_wp_size, imageWidth, imageHeight));
+        wallpaperSize.setText(getString(R.string.wp_size, imageWidth, imageHeight));
     }
 
     /**
@@ -234,9 +235,9 @@ public class WallPaperUtil extends BaseActivity implements View.OnClickListener 
     private void checkUnsavedChanges() {
         if (hasChanges) {
             DialogActivity.showConfirmDialog(this,
-                    R.string.gui_to_be_added,
-                    R.string.gui_unsaved_changes,
-                    R.string.gui_add_renew, new DialogActivity.DialogListener() {
+                    R.string.to_be_added,
+                    R.string.unsaved_changes,
+                    R.string.add_renew, new DialogActivity.DialogListener() {
                         public boolean onConfirmClicked(DialogActivity dialog) {
                             updateWallPaperPref();
                             return true;

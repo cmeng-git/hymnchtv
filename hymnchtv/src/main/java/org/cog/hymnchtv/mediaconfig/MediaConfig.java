@@ -67,6 +67,23 @@ import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
 import org.apache.http.util.EncodingUtils;
 import org.cog.hymnchtv.BaseActivity;
 import org.cog.hymnchtv.HymnsApp;
@@ -83,22 +100,6 @@ import org.cog.hymnchtv.utils.HymnNoValidate;
 import org.cog.hymnchtv.utils.TimberLog;
 import org.cog.hymnchtv.utils.ViewUtil;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
 import timber.log.Timber;
 
 /**
@@ -106,10 +107,10 @@ import timber.log.Timber;
  * a. a youtube url link etc via android share sheet (handle in MainActivity)
  * b. video or audio media file
  * and link it to a specific hymnType and hymnNo.
- *
+ * <p>
  * It includes the capability to import, export or auto generate the export file
  * based on all the media files saved in a specified HymnType/MediaType sub-directory
- *
+ * <p>
  * The format of the export record "," separated: hymnType, HymnNo, isFu, HymnMedia, urlLink, mediaUri
  * a. hymnType: HYMN_BB HYMN_DB, HYMN_ER, HYMN_XB
  * b. HymnNo: Hymn number
@@ -140,11 +141,13 @@ public class MediaConfig extends BaseActivity
     public static final String MEDIA_FILE_PATH = "mediaFilePath"; // set to null if none
 
     // The asset Url import file name
-    public static final String ASSET_IMPORT_URL_FILE = "url_import.txt";
+    public static final String ASSET_URL_IMPORT_FILE = "url_import.txt";
     // Import Url version preference parameter
     public static String PREF_VERSION_URL = "VersionUrlImport";
-    // current version
-    public static final int IMPORT_URL_VERSION = 101;
+
+    // current url_import version; set to the same as in build.gradle versionImport.
+    // Increase both values if there are new apk and url_import file released.
+    public static final int URL_IMPORT_VERSION = 102;
 
     // The default directory when import_export files are being saved
     public static final String DIR_IMPORT_EXPORT = "import_export/";
@@ -206,27 +209,27 @@ public class MediaConfig extends BaseActivity
 
     static {
         mediaTypeEntry.add("媒体");
-        mediaTypeEntry.add("伴奏");
         mediaTypeEntry.add("教唱");
         mediaTypeEntry.add("唱诗");
+        mediaTypeEntry.add("伴奏");
     }
 
     public static List<MediaType> mediaTypeValue = new ArrayList<>();
 
     static {
         mediaTypeValue.add(HYMN_MEDIA);
-        mediaTypeValue.add(HYMN_BANZOU);
         mediaTypeValue.add(HYMN_JIAOCHANG);
         mediaTypeValue.add(HYMN_CHANGSHI);
+        mediaTypeValue.add(HYMN_BANZOU);
     }
 
     public static Map<MediaType, String> mediaDir = new HashMap<>();
 
     static {
         mediaDir.put(HYMN_MEDIA, MEDIA_MEDIA);
-        mediaDir.put(HYMN_BANZOU, MEDIA_BANZOU);
         mediaDir.put(HYMN_JIAOCHANG, MEDIA_JIAOCHANG);
         mediaDir.put(HYMN_CHANGSHI, MEDIA_CHANGSHI);
+        mediaDir.put(HYMN_BANZOU, MEDIA_BANZOU);
     }
 
     private String mHymnType = hymnTypeValue.get(0);
@@ -242,7 +245,7 @@ public class MediaConfig extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.media_config);
-        setTitle(R.string.gui_media_config);
+        setTitle(R.string.media_config);
 
         // Create an ArrayAdapter using the string array and hymnApp default spinner layout
         ArrayAdapter<?> hymnTypeAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item_light, hymnTypeEntry);
@@ -314,7 +317,7 @@ public class MediaConfig extends BaseActivity
                 isAutoFilled = false;
                 tvMediaUri.setText(mediaUri);
                 if (mediaUri.contains("mp.weixin.qq.com") || mediaUri.contains(".notion.site")) {
-                    mediaTypeSpinner.setSelection(2);
+                    mediaTypeSpinner.setSelection(1);
                 }
                 else if (mediaUri.contains("youtube.com")
                         || mediaUri.contains("hymnal.net")) {
@@ -454,13 +457,13 @@ public class MediaConfig extends BaseActivity
     @Override
     public boolean onLongClick(View v) {
         switch (v.getId()) {
-            case R.id.button_import:
-                Timber.d("import Media Records from: %s", ASSET_IMPORT_URL_FILE);
-                importMediaRecords(ASSET_IMPORT_URL_FILE);
+            case R.id.button_NQ:
+                downloadNQRecord(3);
                 return true;
 
-            case R.id.button_NQ:
-                downloadNQRecord(1);
+            case R.id.button_import:
+                Timber.d("import Media Records from: %s", ASSET_URL_IMPORT_FILE);
+                importMediaRecords(ASSET_URL_IMPORT_FILE);
                 return true;
 
             case R.id.button_export:
@@ -512,7 +515,7 @@ public class MediaConfig extends BaseActivity
             }
         }
         else {
-            HymnsApp.showToastMessage(R.string.gui_error_playback, "url is null or not found!");
+            HymnsApp.showToastMessage(R.string.error_playback, "url is null or not found!");
         }
     }
 
@@ -521,12 +524,13 @@ public class MediaConfig extends BaseActivity
      * and produce an output of type O
      *
      * @return an instant of ActivityResultLauncher<String>
+     *
      * @see ActivityResultCaller
      */
     private ActivityResultLauncher<String> getFileUri() {
         return registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
             if (uri == null) {
-                HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
+                HymnsApp.showToastMessage(R.string.file_does_not_exist);
             }
             else {
                 File inFile = new File(FilePathHelper.getFilePath(this, uri));
@@ -637,9 +641,9 @@ public class MediaConfig extends BaseActivity
     private void checkUnsavedChanges() {
         if (hasChanges && !isAutoFilled) {
             DialogActivity.showConfirmDialog(this,
-                    R.string.gui_to_be_added,
-                    R.string.gui_unsaved_changes,
-                    R.string.gui_add, new DialogActivity.DialogListener() {
+                    R.string.to_be_added,
+                    R.string.unsaved_changes,
+                    R.string.add, new DialogActivity.DialogListener() {
                         /**
                          * Fired when user clicks the dialog's the confirm button.
                          *
@@ -680,9 +684,9 @@ public class MediaConfig extends BaseActivity
 
             if (mDB.getMediaRecord(mRecord, false)) {
                 DialogActivity.showConfirmDialog(this,
-                        R.string.gui_to_be_added,
-                        R.string.gui_db_overwrite_media,
-                        R.string.gui_overwrite, new DialogActivity.DialogListener() {
+                        R.string.to_be_added,
+                        R.string.db_overwrite_media,
+                        R.string.overwrite, new DialogActivity.DialogListener() {
                             /**
                              * Fired when user clicks the dialog's confirm button.
                              *
@@ -740,7 +744,7 @@ public class MediaConfig extends BaseActivity
             }
 
             if ((hymnNo == null) || (uriPath == null)) {
-                HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
+                HymnsApp.showToastMessage(R.string.error_hymn_config);
                 return null;
             }
             boolean isFu = cbFu.isChecked();
@@ -772,17 +776,17 @@ public class MediaConfig extends BaseActivity
 
                 File subDir = FileBackend.getHymnchtvStore(mHymnType + mediaDir.get(mMediaType), true);
                 if (subDir == null) {
-                    HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
+                    HymnsApp.showToastMessage(R.string.file_access_no_permission);
                     isSuccess = false;
                 }
                 File outFile = new File(subDir, inFile.getName());
 
                 try {
                     // return false if inFile rename and copy failed i.e. outFile does not exist
-                    if (!inFile.renameTo(outFile) && !outFile.exists()) {
+                    if (!outFile.exists() && !inFile.renameTo(outFile)) {
                         FilePathHelper.copy(HymnsApp.getGlobalContext(), Uri.fromFile(inFile), outFile);
                         if (!outFile.exists()) {
-                            HymnsApp.showToastMessage(R.string.gui_add_to_db_failed);
+                            HymnsApp.showToastMessage(R.string.add_to_db_failed);
                             isSuccess = false;
                         }
                     }
@@ -799,14 +803,14 @@ public class MediaConfig extends BaseActivity
 
         if (isSuccess) {
             mDB.storeMediaRecord(mRecord);
-            HymnsApp.showToastMessage(R.string.gui_add_to_db);
+            HymnsApp.showToastMessage(R.string.add_to_db);
             if (mListView.getVisibility() == View.VISIBLE) {
                 showMediaRecords(mVisibleItem);
             }
             isAutoFilled = true;
         }
         else {
-            HymnsApp.showToastMessage(R.string.gui_add_to_db_failed);
+            HymnsApp.showToastMessage(R.string.add_to_db_failed);
         }
         return isSuccess;
     }
@@ -818,7 +822,7 @@ public class MediaConfig extends BaseActivity
     private void deleteMediaRecord() {
         String hymnNo = ViewUtil.toString(tvHymnNo);
         if (hymnNo == null) {
-            HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
+            HymnsApp.showToastMessage(R.string.error_hymn_config);
             return;
         }
 
@@ -827,12 +831,12 @@ public class MediaConfig extends BaseActivity
         if (nui != -1) {
             Bundle args = new Bundle();
             args.putString(MediaRecordDeleteFragment.ARG_MESSAGE,
-                    getString(R.string.gui_delete_media, mHymnType, nui, mMediaType));
-            String title = getString(R.string.gui_delete);
+                    getString(R.string.delete_media, mHymnType, nui, mMediaType));
+            String title = getString(R.string.delete);
 
             // Displays the media record and content delete dialog and waits for user confirmation
             DialogActivity.showCustomDialog(this, title, MediaRecordDeleteFragment.class.getName(),
-                    args, getString(R.string.gui_delete), new DialogActivity.DialogListener() {
+                    args, getString(R.string.delete), new DialogActivity.DialogListener() {
                         @Override
                         public boolean onConfirmClicked(DialogActivity dialog) {
                             MediaRecord mRecord = new MediaRecord(mHymnType, nui, isFu, mMediaType);
@@ -844,14 +848,14 @@ public class MediaConfig extends BaseActivity
                                 if (filePath != null) {
                                     File mediaFile = new File(filePath);
                                     if (mediaFile.exists() && !mediaFile.delete()) {
-                                        Timber.w(getString(R.string.gui_delete_media_failed, mHymnType, nui));
+                                        Timber.w(getString(R.string.delete_media_failed, mHymnType, nui));
                                     }
                                 }
                             }
                             int row = mDB.deleteMediaRecord(mRecord);
                             HymnsApp.showToastMessage((row != 0)
-                                    ? getString(R.string.gui_delete_media_ok, mHymnType, nui)
-                                    : getString(R.string.gui_delete_media_failed, mHymnType, nui));
+                                    ? getString(R.string.delete_media_ok, mHymnType, nui)
+                                    : getString(R.string.delete_media_failed, mHymnType, nui));
 
                             if (mListView.getVisibility() == View.VISIBLE) {
                                 showMediaRecords(mVisibleItem);
@@ -890,7 +894,7 @@ public class MediaConfig extends BaseActivity
                     imageUris.add(FileBackend.getUriForFile(this, new File(mediaFile)));
                 }
                 else {
-                    HymnsApp.showToastMessage(R.string.gui_share_file_missing,
+                    HymnsApp.showToastMessage(R.string.share_file_missing,
                             mediaFile.substring(mediaFile.indexOf("Download")));
                 }
             }
@@ -987,9 +991,9 @@ public class MediaConfig extends BaseActivity
      */
     private void downloadNQRecord(final int mode) {
         DialogActivity.showConfirmDialog(this,
-                R.string.gui_nq_download,
-                R.string.gui_nq_download_proceed,
-                R.string.gui_download, new DialogActivity.DialogListener() {
+                R.string.nq_download,
+                R.string.nq_download_proceed,
+                R.string.download, new DialogActivity.DialogListener() {
                     public boolean onConfirmClicked(DialogActivity dialog) {
                         if (mode == 0) {
                             QQRecord.fetchQQLinks(MediaConfig.this);
@@ -999,6 +1003,9 @@ public class MediaConfig extends BaseActivity
                         }
                         else if (mode == 2) {
                             NotionRecordScrape.fetchNotionLinks(MediaConfig.this);
+                        }
+                        else if (mode == 3) {
+                            NotionRecord.fetchNotionRecords(MediaConfig.this);
                         }
                         return true;
                     }
@@ -1014,7 +1021,7 @@ public class MediaConfig extends BaseActivity
     private void importMediaRecords(String assetFile) {
         String importFile = ViewUtil.toString(tvImportFile);
         if (importFile == null && assetFile == null) {
-            HymnsApp.showToastMessage(R.string.gui_error_hymn_config);
+            HymnsApp.showToastMessage(R.string.error_hymn_config);
             return;
         }
 
@@ -1038,8 +1045,9 @@ public class MediaConfig extends BaseActivity
      * Import the url records into the database form the given inputStream
      */
     public static void importUrlRecords(InputStream inputStream, boolean isOverWrite) {
-        HymnsApp.showToastMessage(R.string.gui_db_import_start);
+        // HymnsApp.showToastMessage(R.string.db_import_start); not required.
         int record = 0;
+        int urlRecords = 0;
 
         try {
             byte[] buffer2 = new byte[inputStream.available()];
@@ -1064,32 +1072,62 @@ public class MediaConfig extends BaseActivity
                     mDB.storeMediaRecord(mediaRecord);
                     record++;
                 }
+                urlRecords++;
+
                 if (TimberLog.isFinestEnable)
                     Timber.d("Import media record: %s; %s(%s); %s", nui, hymnNo, record, mRecord);
             }
         } catch (IOException e) {
             Timber.w("Import file read error: %s", e.getMessage());
         }
-        HymnsApp.showToastMessage(R.string.gui_db_import_record, record);
+        HymnsApp.showToastMessage(R.string.db_import_record, record, urlRecords);
     }
 
     /**
      * Import the media records into the database on hymnchtv installation from the asset file;
      * Update preference setting: PREF_VERSION_URL to this app IMPORT_URL_VERSION.
      */
-    public static void importUrlRecords() {
+    public static void importUrlAssetFile() {
         try {
-            InputStream inputStream = HymnsApp.getAppResources().getAssets().open(ASSET_IMPORT_URL_FILE);
+            // opens input stream from the url_import asset file.
+            InputStream inputStream = HymnsApp.getAppResources().getAssets().open(ASSET_URL_IMPORT_FILE);
             MediaConfig.importUrlRecords(inputStream, false);
+
+            saveUrlImportFile(inputStream, URL_IMPORT_VERSION);
             inputStream.close();
 
-            SharedPreferences mSharedPref = HymnsApp.getGlobalContext().getSharedPreferences(PREF_SETTINGS, 0);
-            SharedPreferences.Editor mEditor = mSharedPref.edit();
-            mEditor.putInt(PREF_VERSION_URL, IMPORT_URL_VERSION);
-            mEditor.apply();
         } catch (IOException e) {
             Timber.w("Asset file not available: %s", e.getMessage());
         }
+    }
+
+    /**
+     * Save a copy of the given inputStream in hymn import_export directory for user later access.
+     *
+     * @param inputStream InputStream containing the media records.
+     * @param version Version for the url import records.
+     */
+    public static File saveUrlImportFile(InputStream inputStream, int version) {
+        String fileName = String.format("url_import-%s.txt",
+                new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
+        File file = MediaConfig.createFileIfNotExist(fileName, true);
+        try {
+            if (file != null) {
+                FileOutputStream outputStream = new FileOutputStream(file);
+                FileBackend.copy(inputStream, outputStream);
+                outputStream.close();
+            }
+        } catch (IOException e) {
+            Timber.e("%s", e.getMessage());
+        }
+
+        // Update urlImport version in pref.
+        SharedPreferences mSharedPref = HymnsApp.getGlobalContext().getSharedPreferences(PREF_SETTINGS, 0);
+        SharedPreferences.Editor mEditor = mSharedPref.edit();
+        mEditor.putInt(PREF_VERSION_URL, version);
+        mEditor.apply();
+
+        return file;
     }
 
     /**
@@ -1245,7 +1283,7 @@ public class MediaConfig extends BaseActivity
     public static File createFileIfNotExist(String fileName, boolean createNew) {
         File subDir = FileBackend.getHymnchtvStore(DIR_IMPORT_EXPORT, true);
         if (subDir == null) {
-            HymnsApp.showToastMessage(R.string.gui_file_ACCESS_NO_PERMISSION);
+            HymnsApp.showToastMessage(R.string.file_access_no_permission);
             return null;
         }
 
@@ -1361,7 +1399,7 @@ public class MediaConfig extends BaseActivity
     }
 
     private void checkExitAction(boolean ignoreList) {
-        if (ignoreList ||  mListView.getVisibility() == View.GONE) {
+        if (ignoreList || mListView.getVisibility() == View.GONE) {
             if (mShare) {
                 String hymnNo = ViewUtil.toString(tvHymnNo);
                 if (hymnNo != null) {
@@ -1375,7 +1413,7 @@ public class MediaConfig extends BaseActivity
             }
         }
         else {
-            setTitle(R.string.gui_media_config);
+            setTitle(R.string.media_config);
             mListView.setVisibility(View.GONE);
         }
     }

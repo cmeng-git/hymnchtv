@@ -18,10 +18,15 @@ package org.cog.hymnchtv.mediaconfig;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import java.util.WeakHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.cog.hymnchtv.About;
@@ -30,10 +35,6 @@ import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.utils.ThemeHelper;
 
-import java.util.WeakHashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import timber.log.Timber;
 
 /**
@@ -41,8 +42,7 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class LyricsEnglishRecord
-{
+public class LyricsEnglishRecord {
     // SQL database parameters for LyricsEnglishRecord
     public static final String TABLE_NAME = "lyrics_eng";
     public static final String HYMN_NO_ENG = "hymnNoEng";
@@ -76,8 +76,7 @@ public class LyricsEnglishRecord
     private EnglishLyricsListener mListener = null;
     private String mLyricsEnglish = null;
 
-    public static synchronized LyricsEnglishRecord getInstanceFor(Context context)
-    {
+    public static synchronized LyricsEnglishRecord getInstanceFor(Context context) {
         LyricsEnglishRecord lyricsEnglishRecord = INSTANCES.get(context);
         if (lyricsEnglishRecord == null) {
             lyricsEnglishRecord = new LyricsEnglishRecord(context);
@@ -86,8 +85,7 @@ public class LyricsEnglishRecord
         return lyricsEnglishRecord;
     }
 
-    public LyricsEnglishRecord(Context context)
-    {
+    public LyricsEnglishRecord(Context context) {
         mContext = context;
     }
 
@@ -95,11 +93,9 @@ public class LyricsEnglishRecord
      * Get the English lyrics from SQL DB if found, else retrieve it online; save to DB available.
      * mLyricsEnglish may only contain a link for external access. Currently the link is http i.e.
      * not secure ssl and will be blocked by android if proceed to access its content.
-     *
      * Note: ErGe hymnNo is with offset ER_GE_ENG_OFFSET for DB saving/retrieving.
      */
-    public void fetchLyrics(int hymnNoEng, boolean isErGe)
-    {
+    public void fetchLyrics(int hymnNoEng, boolean isErGe) {
         DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
         String webUrl = (isErGe ? HYMNAL_LINK_MAIN_ER : HYMNAL_LINK_MAIN) + hymnNoEng;
         final int hymnNo = hymnNoEng + (isErGe ? ER_GE_ENG_OFFSET : 0);
@@ -117,7 +113,7 @@ public class LyricsEnglishRecord
             }
             else {
                 Timber.d("No English lyrics found for: %s", webUrl);
-                showLyrics(toHtml("<h4>" + HymnsApp.getResString(R.string.gui_file_DOWNLOAD_FAILED, webUrl) + "</h4>"));
+                showLyrics(toHtml("<h4>" + HymnsApp.getResString(R.string.file_download_failed, webUrl) + "</h4>"));
             }
         });
     }
@@ -127,8 +123,7 @@ public class LyricsEnglishRecord
      *
      * @param lyrics English lyrics content; may just contains a href link
      */
-    private void showLyrics(String lyrics)
-    {
+    private void showLyrics(String lyrics) {
         if (mListener != null) {
             lyrics = (lyrics != null) ? toHtml(lyrics) : null;
             mListener.showLyricsEnglish(lyrics);
@@ -139,10 +134,10 @@ public class LyricsEnglishRecord
      * Extra and phrase the retrieved English title and lyrics or the href link.
      *
      * @param lyricsContent the remote raw content containing the required info
+     *
      * @return true if lyrics is found and not empty
      */
-    private boolean extraEnglishLyrics(String lyricsContent)
-    {
+    private boolean extraEnglishLyrics(String lyricsContent) {
         if (TextUtils.isEmpty(lyricsContent))
             return false;
 
@@ -164,8 +159,7 @@ public class LyricsEnglishRecord
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private WebView initWebView(Context context)
-    {
+    private WebView initWebView(Context context) {
         WebView webView = new WebView(context);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
@@ -173,39 +167,41 @@ public class LyricsEnglishRecord
     }
 
     /**
-     * Get the url source and return the required lyrics content.
+     * Get the url source and return the required lyrics content. Preload with loadUrl() to improve reliability.
      *
      * @param urlToLoad link to load the content
      * @param valueCallback callback to deliver the result
      */
-    private void getURLSource(String urlToLoad, final ValueCallback<String> valueCallback)
-    {
+    private void getURLSource(String urlToLoad, final ValueCallback<String> valueCallback) {
         Pattern pattern = Pattern.compile("<div class=\"row main-content\">(.+?</table>).+?");
 
         WebView webView = initWebView(mContext);
-        webView.setWebViewClient(new WebViewClient()
-        {
+        webView.loadUrl(urlToLoad); // preload url and wait for 1.5 sec before checking.
+        webView.setWebViewClient(new WebViewClient() {
             @Override
-            public void onPageFinished(WebView view, String url)
-            {
+            public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                // Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
                 if (webView.getProgress() == 100) {
-                    try {
-                        webView.evaluateJavascript("document.documentElement.outerHTML", data -> {
-                            data = cleanUpHtml(data);
-                            Matcher matcher = pattern.matcher(data);
-                            if (matcher.find()) {
-                                valueCallback.onReceiveValue(matcher.group(1));
-                            }
-                            else {
-                                Timber.w("Web scrapping failed: %s", urlToLoad);
-                                valueCallback.onReceiveValue(null);
-                            }
-                        });
-                    } catch (Exception e) {
-                        Timber.e("Web scrapping failed: %s", e.getMessage());
-                        valueCallback.onReceiveValue(null);
-                    }
+                    // Must give some time for js to populate the dynamic page content; else not working
+                    new Handler().postDelayed(() -> {
+                        try {
+                            webView.evaluateJavascript("document.documentElement.outerHTML", data -> {
+                                data = cleanUpHtml(data);
+                                Matcher matcher = pattern.matcher(data);
+                                if (matcher.find()) {
+                                    valueCallback.onReceiveValue(matcher.group(1));
+                                }
+                                else {
+                                    Timber.w("Web scrapping failed: %s", urlToLoad);
+                                    valueCallback.onReceiveValue(null);
+                                }
+                            });
+                        } catch (Exception e) {
+                            Timber.e("Web scrapping failed: %s", e.getMessage());
+                            valueCallback.onReceiveValue(null);
+                        }
+                    }, 1500);
                 }
             }
         });
@@ -218,10 +214,10 @@ public class LyricsEnglishRecord
      * Cleanup the stray content before any match.
      *
      * @param content url source content
+     *
      * @return clean up html content
      */
-    private String cleanUpHtml(String content)
-    {
+    private String cleanUpHtml(String content) {
         return StringEscapeUtils.unescapeJava(content)
                 .replaceAll("[\n]", "")
                 .replaceAll(" {2,}", " ")
@@ -235,10 +231,10 @@ public class LyricsEnglishRecord
      * Generate the full html formatted content with the given content
      *
      * @param content The lyrics table content
+     *
      * @return the html formatted string
      */
-    public static String toHtml(String content)
-    {
+    public static String toHtml(String content) {
         StringBuilder html = new StringBuilder()
                 .append("<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\"/>")
                 .append("<html><head>\n<style type=\"text/css\">\n")
@@ -247,7 +243,8 @@ public class LyricsEnglishRecord
         // Change text and ulr according to app theme
         if (ThemeHelper.isAppTheme(ThemeHelper.Theme.DARK)) {
             html.append(About.bodyTextLight);
-        } else {
+        }
+        else {
             html.append(About.bodyTextDark);
         }
 
@@ -260,16 +257,14 @@ public class LyricsEnglishRecord
     /***
      * @param listener for update display the English lyrics.
      */
-    public void registerLyricsListener(EnglishLyricsListener listener)
-    {
+    public void registerLyricsListener(EnglishLyricsListener listener) {
         mListener = listener;
     }
 
     /**
      * The listener that will be be to show the lyrics.
      */
-    public interface EnglishLyricsListener
-    {
+    public interface EnglishLyricsListener {
         /**
          * Show the lyrics content.
          *

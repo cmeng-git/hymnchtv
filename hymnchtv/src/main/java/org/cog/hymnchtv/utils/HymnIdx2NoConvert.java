@@ -35,9 +35,7 @@ import timber.log.Timber;
 /**
  * This class converts the give hymn index and hymnType to the actual hymn lyrics number.
  * It also checks for converted hymn lyrics number is within the supported ranges.
- *
  * Currently, the HymnTypes supported are 儿童诗歌, 新歌颂咏, 补充本 and 大本詩歌
- *
  * The returned result is used by the caller to create the reference and fetch the actual content file
  *
  * @author Eng Chong Meng

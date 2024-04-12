@@ -17,7 +17,9 @@
 package org.cog.hymnchtv.mediaconfig;
 
 import android.os.Bundle;
-import android.view.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -30,13 +32,11 @@ import org.cog.hymnchtv.utils.ViewUtil;
  *
  * @author Eng Chong Meng
  */
-public class MediaRecordDeleteFragment extends Fragment
-{
+public class MediaRecordDeleteFragment extends Fragment {
     public static final String ARG_MESSAGE = "dialog_message";
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View viewHistoryDelete = inflater.inflate(R.layout.media_record_delete, container, false);
         ViewUtil.setTextViewValue(viewHistoryDelete, R.id.textView, getArguments().getString(ARG_MESSAGE));
         return viewHistoryDelete;

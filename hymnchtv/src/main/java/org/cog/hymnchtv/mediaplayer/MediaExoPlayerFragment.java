@@ -25,27 +25,28 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.MimeTypes;
+import androidx.media3.common.PlaybackException;
+import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.Player;
+import androidx.media3.common.VideoSize;
+import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.ui.PlayerView;
 
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.PlaybackParameters;
-import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
-import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.video.VideoSize;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.HymnsApp;
@@ -53,20 +54,16 @@ import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.FileBackend;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * The class handles the actual content source address decoding for the user selected hymn
  * see https://developer.android.com/codelabs/exoplayer-intro#0
- *
+ * <p>
  * This MediaExoPlayerFragment requires its parent FragmentActivity to handle onConfigurationChanged()
  * It does not consider onSaveInstanceState(); it uses the speed in the user configuration setting.
  *
  * @author Eng Chong Meng
  */
-public class MediaExoPlayerFragment extends Fragment
-{
+public class MediaExoPlayerFragment extends Fragment {
     // Tag for the instance state bundle.
     public static final String ATTR_MEDIA_URL = "mediaUrl";
     public static final String ATTR_MEDIA_URLS = "mediaUrls";
@@ -84,30 +81,27 @@ public class MediaExoPlayerFragment extends Fragment
     private SharedPreferences mSharedPref;
 
     private ExoPlayer mExoPlayer = null;
-    private StyledPlayerView mPlayerView;
+    private PlayerView mPlayerView;
     private PlaybackStateListener playbackStateListener;
 
     /**
      * Create a new instance of MediaExoPlayerFragment, providing "bundle" as an argument.
      */
-    public static MediaExoPlayerFragment getInstance(Bundle args)
-    {
+    public static MediaExoPlayerFragment getInstance(Bundle args) {
         MediaExoPlayerFragment exoPlayerFragment = new MediaExoPlayerFragment();
         exoPlayerFragment.setArguments(args);
         return exoPlayerFragment;
     }
 
     @Override
-    public void onAttach(@NonNull @NotNull Context context)
-    {
+    public void onAttach(@NonNull @NotNull Context context) {
         super.onAttach(context);
         mContext = (FragmentActivity) context;
     }
 
     @SuppressLint("CommitPrefEdits")
     @Override
-    public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState)
-    {
+    public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Get the user defined mediaType for playback
@@ -121,41 +115,29 @@ public class MediaExoPlayerFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
-    {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View mConvertView = inflater.inflate(R.layout.media_player_exo_ui, container, false);
         mPlayerView = mConvertView.findViewById(R.id.exoplayerView);
 
         if (container != null)
             container.setVisibility(View.VISIBLE);
-
-        // Need to set text color in Hymnchtv; although ExoStyledControls.ButtonText specifies while
-        TextView rewindButtonTextView = mConvertView.findViewById(com.google.android.exoplayer2.ui.R.id.exo_rew_with_amount);
-        rewindButtonTextView.setTextColor(Color.WHITE);
-
-        TextView fastForwardButtonTextView = mConvertView.findViewById(com.google.android.exoplayer2.ui.R.id.exo_ffwd_with_amount);
-        fastForwardButtonTextView.setTextColor(Color.WHITE);
-
         return mConvertView;
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         // Load the media and start playback each time onResume() is called.
         initializePlayer();
     }
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         super.onPause();
         releasePlayer();
     }
 
-    public void initializePlayer()
-    {
+    public void initializePlayer() {
         if (mExoPlayer == null) {
             mExoPlayer = new ExoPlayer.Builder(mContext).build();
             mExoPlayer.addListener(playbackStateListener);
@@ -176,11 +158,9 @@ public class MediaExoPlayerFragment extends Fragment
      * Media play-back takes a lot of resources, so everything should be stopped and released at this time.
      * Release all media-related resources. In a more complicated app this
      * might involve unregistering listeners or releasing audio focus.
-     *
      * Save the user defined playback speed
      */
-    public void releasePlayer()
-    {
+    public void releasePlayer() {
         if (mExoPlayer != null) {
             mSpeed = mExoPlayer.getPlaybackParameters().speed;
 
@@ -204,8 +184,7 @@ public class MediaExoPlayerFragment extends Fragment
      *
      * @param mediaItem for playback
      */
-    private void playMedia(MediaItem mediaItem)
-    {
+    private void playMedia(MediaItem mediaItem) {
         if (mediaItem != null) {
             String speed = mSharedPref.getString(PREF_PLAYBACK_SPEED, "1.0");
             mSpeed = Float.parseFloat(speed);
@@ -220,8 +199,7 @@ public class MediaExoPlayerFragment extends Fragment
     /**
      * Prepare and playback a list of given video URLs if not empty
      */
-    private void playVideoUrls()
-    {
+    private void playVideoUrls() {
         if ((mediaUrls != null) && !mediaUrls.isEmpty()) {
             List<MediaItem> mediaItems = new ArrayList<>();
             for (String tmpUrl : mediaUrls) {
@@ -243,13 +221,16 @@ public class MediaExoPlayerFragment extends Fragment
      *
      * @param videoUrl videoUrl not playable by ExoPlayer
      */
-    private void playVideoUrlExt(String videoUrl)
-    {
+    private void playVideoUrlExt(String videoUrl) {
         // remove the exoPlayer fragment
         mContext.getSupportFragmentManager().beginTransaction().remove(this).commit();
+        Uri uri = Uri.parse(videoUrl);
+        String mimeType = FileBackend.getMimeType(mContext, uri);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl));
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(uri, mimeType);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivity(intent);
     }
 
@@ -258,8 +239,7 @@ public class MediaExoPlayerFragment extends Fragment
      *
      * @param speed playback speed: default 1.0f
      */
-    private void setPlaybackSpeed(float speed)
-    {
+    private void setPlaybackSpeed(float speed) {
         PlaybackParameters playbackParameters = new PlaybackParameters(speed, 1.0f);
         if (mExoPlayer != null) {
             mExoPlayer.setPlaybackParameters(playbackParameters);
@@ -271,10 +251,10 @@ public class MediaExoPlayerFragment extends Fragment
      * Proceed to play if it is a youtube link; return null;
      *
      * @param mediaUrl for building the mediaItem
+     *
      * @return built mediaItem
      */
-    private MediaItem buildMediaItem(String mediaUrl)
-    {
+    private MediaItem buildMediaItem(String mediaUrl) {
         if (TextUtils.isEmpty(mediaUrl))
             return null;
 
@@ -299,20 +279,17 @@ public class MediaExoPlayerFragment extends Fragment
     /**
      * ExoPlayer playback state listener
      */
-    private class PlaybackStateListener implements Player.Listener
-    {
+    private class PlaybackStateListener implements Player.Listener {
         @Override
-        public void onPlaybackStateChanged(int playbackState)
-        {
+        public void onPlaybackStateChanged(int playbackState) {
             switch (playbackState) {
                 case ExoPlayer.STATE_IDLE:
-                    HymnsApp.showToastMessage(R.string.gui_error_playback, "The player does not have any media to play.");
-                    // Attempt to use android player if exoplayer failed to play
+                    // Attempt to use android player if exoplayer failed to play.
                     playVideoUrlExt(mediaUrl);
                     break;
 
                 case ExoPlayer.STATE_ENDED:
-                    HymnsApp.showToastMessage(R.string.gui_playback_completed);
+                    HymnsApp.showToastMessage(R.string.playback_completed);
                     break;
 
                 case ExoPlayer.STATE_READY:
@@ -320,11 +297,29 @@ public class MediaExoPlayerFragment extends Fragment
                         float vHeight = 0.62f * HymnsApp.screenWidth;
                         mPlayerView.setLayoutParams(new LinearLayout.LayoutParams(HymnsApp.screenWidth, (int) vHeight));
                     }
+                    break;
+
                 case ExoPlayer.STATE_BUFFERING:
                 default:
                     break;
             }
         }
+
+        @Override
+        public void onPlayerError(PlaybackException error) {
+            Throwable cause = error.getCause();
+            String msg = cause != null ?
+                    cause.getMessage() : getString(R.string.error_playback, "No media for Exo-playback!");
+            HymnsApp.showToastMessage(msg);
+        }
+    }
+
+    public void setPlayerVisible(boolean show) {
+        mPlayerView.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    public boolean isPlayerVisible() {
+        return mPlayerView.getVisibility() == View.VISIBLE;
     }
 }
 

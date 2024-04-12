@@ -10,8 +10,7 @@ import androidx.fragment.app.FragmentActivity;
  * @author Pierfrancesco Soffritti
  * @author Eng Chong Meng
  */
-public class FullScreenHelper
-{
+public class FullScreenHelper {
     private final FragmentActivity context;
     private final View[] views;
 
@@ -19,8 +18,7 @@ public class FullScreenHelper
      * @param context FragmentActivity
      * @param views to hide/show
      */
-    public FullScreenHelper(FragmentActivity context, View... views)
-    {
+    public FullScreenHelper(FragmentActivity context, View... views) {
         this.context = context;
         this.views = views;
     }
@@ -28,8 +26,7 @@ public class FullScreenHelper
     /**
      * call this method to enter full screen
      */
-    public void enterFullScreen()
-    {
+    public void enterFullScreen() {
         View decorView = context.getWindow().getDecorView();
 
         hideSystemUi(decorView);
@@ -43,8 +40,7 @@ public class FullScreenHelper
     /**
      * call this method to exit full screen
      */
-    public void exitFullScreen()
-    {
+    public void exitFullScreen() {
         View decorView = context.getWindow().getDecorView();
         showSystemUi(decorView);
 
@@ -54,8 +50,7 @@ public class FullScreenHelper
         }
     }
 
-    private void hideSystemUi(View mDecorView)
-    {
+    private void hideSystemUi(View mDecorView) {
         mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -64,8 +59,7 @@ public class FullScreenHelper
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 
-    private void showSystemUi(View mDecorView)
-    {
+    private void showSystemUi(View mDecorView) {
         mDecorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
     }
 }

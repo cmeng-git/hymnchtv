@@ -7,7 +7,10 @@ package org.cog.hymnchtv.utils;
 
 import androidx.annotation.NonNull;
 
-import java.text.*;
+import java.text.DecimalFormat;
+import java.text.FieldPosition;
+import java.text.Format;
+import java.text.ParsePosition;
 
 /**
  * Acknowledgment: This file was originally provided by the Ignite Realtime community, and was part
@@ -19,22 +22,20 @@ import java.text.*;
  * @author Bill Lynch
  * @author Eng Chong Meng
  */
-public class ByteFormat extends Format
-{
+public class ByteFormat extends Format {
     private static final long serialVersionUID = 0;
 
-    public ByteFormat()
-    {
+    public ByteFormat() {
     }
 
     /**
      * Formats a long which represent a number of bytes to human readable form.
      *
      * @param bytes the value to format
+     *
      * @return formatted string
      */
-    public static String format(long bytes)
-    {
+    public static String format(long bytes) {
         long check = 1;
 
         // sizes
@@ -59,11 +60,11 @@ public class ByteFormat extends Format
      * @param obj assumed to be the number of bytes as a Long.
      * @param buf the StringBuffer to append to.
      * @param pos field position.
+     *
      * @return A formatted string representing the given bytes in more human-readable form.
      */
     @Override
-    public StringBuffer format(Object obj, @NonNull StringBuffer buf, @NonNull FieldPosition pos)
-    {
+    public StringBuffer format(Object obj, @NonNull StringBuffer buf, @NonNull FieldPosition pos) {
         if (obj instanceof Long) {
             long numBytes = (Long) obj;
             if (numBytes < 1024) {
@@ -91,11 +92,11 @@ public class ByteFormat extends Format
      *
      * @param source Source string to parse.
      * @param pos Position to parse from.
+     *
      * @return returns null in this implementation.
      */
     @Override
-    public Object parseObject(String source, @NonNull ParsePosition pos)
-    {
+    public Object parseObject(String source, @NonNull ParsePosition pos) {
         return null;
     }
 }

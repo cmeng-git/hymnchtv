@@ -35,7 +35,7 @@
                         android:id="@+id/hymnchtv_link"
                         android:layout_width="60dp"
                         android:layout_height="60dp"
-                        android:contentDescription="@string/gui_help_online"
+                        android:contentDescription="@string/help_online"
                         android:gravity="center_vertical"
                         android:src="@drawable/hymnchtv" />
 
@@ -60,7 +60,7 @@
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
-                            android:text="@string/gui_version" />
+                            android:text="@string/version" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -70,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:padding="10dp"
-                    android:text="@string/gui_copyright" />
+                    android:text="@string/copyright" />
 
                 <TextView
                     android:id="@+id/hymnchtv_help"
@@ -79,7 +79,7 @@
                     android:layout_marginBottom="16dp"
                     android:gravity="center_horizontal"
                     android:textColor="?android:attr/colorAccent"
-                    android:text="@string/gui_help_online"
+                    android:text="@string/help_online"
                     android:textSize="16sp" />
             </LinearLayout>
 
@@ -105,26 +105,26 @@
         <Button
             android:id="@+id/history_log"
             style="@style/Button"
-            android:text="@string/gui_show_history_log" />
+            android:text="@string/show_history_log" />
 
         <Button
             android:id="@+id/submit_logs"
             style="@style/Button"
             android:layout_marginStart="1dp"
-            android:text="@string/gui_SEND_LOGS" />
+            android:text="@string/send_logs" />
 
         <Button
             android:id="@+id/check_new_version"
             style="@style/Button"
             android:layout_marginStart="1dp"
             android:layout_weight="0.7"
-            android:text="@string/gui_app_update_check" />
+            android:text="@string/app_update_check" />
 
         <Button
             android:id="@+id/ok_button"
             style="@style/Button"
             android:layout_marginStart="1dp"
             android:layout_weight="0.7"
-            android:text="@string/gui_ok" />
+            android:text="@string/ok" />
     </LinearLayout>
 </RelativeLayout>

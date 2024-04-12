@@ -23,11 +23,11 @@ import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 
 import android.util.Range;
 
-import org.cog.hymnchtv.HymnsApp;
-import org.cog.hymnchtv.R;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.R;
 
 import timber.log.Timber;
 
@@ -112,6 +112,7 @@ public class HymnNoValidate {
      * @param hymnType The hymnTye
      * @param hymnNo The given hymnNo for validation
      * @param isFu true if the given hymnNo is Fu
+     *
      * @return the valid hymNo or -1 if invalid
      */
     public static int validateHymnNo(String hymnType, int hymnNo, boolean isFu) {
@@ -128,10 +129,12 @@ public class HymnNoValidate {
                 if (hymnNo > HYMN_ER_NO_MAX) {
                     HymnsApp.showToastMessage(R.string.hymn_info_er_max, HYMN_ER_NO_MAX, hymnNo);
                     isValid = false;
-                } else if (hymnNo < 1) {
-                    HymnsApp.showToastMessage(R.string.gui_error_invalid);
+                }
+                else if (hymnNo < 1) {
+                    HymnsApp.showToastMessage(R.string.error_invalid);
                     isValid = false;
-                } else {
+                }
+                else {
                     for (Range<Integer> rangeX : rangeErInvalid) {
                         if (rangeX.contains(hymnNo)) {
                             HymnsApp.showToastMessage(R.string.hymn_info_er_range_over, rangeX.getLower(), rangeX.getUpper(), hymnNo);
@@ -152,11 +155,13 @@ public class HymnNoValidate {
                 if (hymnNo > HYMN_XB_NO_MAX) {
                     HymnsApp.showToastMessage(R.string.hymn_info_xb_max, HYMN_XB_NO_MAX, hymnNo);
                     isValid = false;
-                } else if (rangeXbInvalid.contains(hymnNo)) {
+                }
+                else if (rangeXbInvalid.contains(hymnNo)) {
                     HymnsApp.showToastMessage(R.string.hymn_info_xb_invalid, rangeXbInvalid);
                     isValid = false;
-                } else if (hymnNo < 1) {
-                    HymnsApp.showToastMessage(R.string.gui_error_invalid);
+                }
+                else if (hymnNo < 1) {
+                    HymnsApp.showToastMessage(R.string.error_invalid);
                     isValid = false;
                 }
                 break;
@@ -171,10 +176,12 @@ public class HymnNoValidate {
                 if (hymnNo > HYMN_BB_NO_MAX) {
                     HymnsApp.showToastMessage(R.string.hymn_info_bb_max, HYMN_BB_NO_MAX, hymnNo);
                     isValid = false;
-                } else if (hymnNo < 1) {
-                    HymnsApp.showToastMessage(R.string.gui_error_invalid);
+                }
+                else if (hymnNo < 1) {
+                    HymnsApp.showToastMessage(R.string.error_invalid);
                     isValid = false;
-                } else {
+                }
+                else {
                     for (Range<Integer> rangeX : rangeBbInvalid) {
                         if (rangeX.contains(hymnNo)) {
                             HymnsApp.showToastMessage(R.string.hymn_info_bb_range_over, rangeX.getLower(), rangeX.getUpper(), hymnNo);
@@ -193,8 +200,9 @@ public class HymnNoValidate {
                 if (hymnNo > HYMN_DB_NO_TMAX) {
                     HymnsApp.showToastMessage(R.string.hymn_info_db_max, HYMN_DB_NO_MAX, hymnNo);
                     isValid = false;
-                } else if (hymnNo < 1) {
-                    HymnsApp.showToastMessage(R.string.gui_error_invalid);
+                }
+                else if (hymnNo < 1) {
+                    HymnsApp.showToastMessage(R.string.error_invalid);
                     isValid = false;
                 }
                 break;

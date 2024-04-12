@@ -16,16 +16,6 @@
  */
 package org.cog.hymnchtv.utils;
 
-import org.apache.http.util.EncodingUtils;
-import org.cog.hymnchtv.HymnsApp;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import timber.log.Timber;
-
 import static org.cog.hymnchtv.ContentView.LYRICS_TOC;
 import static org.cog.hymnchtv.HymnToc.TOC_BB;
 import static org.cog.hymnchtv.HymnToc.TOC_DB;
@@ -34,6 +24,16 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.http.util.EncodingUtils;
+import org.cog.hymnchtv.HymnsApp;
+
+import timber.log.Timber;
+
 /**
  * HymnNoCh2EngXRef translates the hymn lyrics number from Chinese to English hymn No
  *
@@ -41,8 +41,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_XB;
  *
  * @author Eng Chong Meng
  */
-public class HymnNoCh2EngXRef
-{
+public class HymnNoCh2EngXRef {
     private static final String CH2ENG_FILE = "_ch2eng.txt";
 
     // Map containing the Chinese to English hymn No cross-reference
@@ -55,8 +54,7 @@ public class HymnNoCh2EngXRef
         generateXRef(LYRICS_TOC + TOC_DB + CH2ENG_FILE, xRefCh2EngDb);
     }
 
-    public static Integer hymnNoCh2EngConvert(String hymnType, int hymnNo)
-    {
+    public static Integer hymnNoCh2EngConvert(String hymnType, int hymnNo) {
         // default values set as invalid
         Integer hymnNoEng = null;
 
@@ -89,8 +87,7 @@ public class HymnNoCh2EngXRef
      * @param xRefFile the file to extract info from
      * @param xRefDB the destination of the Map array to fill
      */
-    private static void generateXRef(String xRefFile, Map<Integer, Integer> xRefDB)
-    {
+    private static void generateXRef(String xRefFile, Map<Integer, Integer> xRefDB) {
         String[] xRef;
         try {
             InputStream in2 = HymnsApp.getAppResources().getAssets().open(xRefFile);

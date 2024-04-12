@@ -16,6 +16,7 @@
  */
 package org.cog.hymnchtv.utils;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -30,12 +31,12 @@ import android.view.View.OnTouchListener;
 
 import androidx.core.app.NotificationCompat;
 
-import org.cog.hymnchtv.HymnsApp;
-import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
+
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
 
 /**
  * The <tt>AndroidUtils</tt> class provides a set of utility methods allowing an easy way to show
@@ -48,7 +49,6 @@ import java.util.List;
 public class AndroidUtils {
     /**
      * Api level constant. Change it here to simulate lower api on new devices.
-     *
      * All API level decisions should be done based on {@link #hasAPI(int)} call result.
      */
     private static final int API_LEVEL = Build.VERSION.SDK_INT;
@@ -128,6 +128,7 @@ public class AndroidUtils {
      *
      * @param context the Android context
      * @param activityClass the activity class to check
+     *
      * @return <tt>true</tt> if the activity given by the class is running, <tt>false</tt> - otherwise
      */
     public static boolean isActivityRunning(Context context, Class<?> activityClass) {
@@ -145,6 +146,7 @@ public class AndroidUtils {
 
     public static void setOnTouchBackgroundEffect(View view) {
         view.setOnTouchListener(new OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
             public boolean onTouch(View v, MotionEvent event) {
                 if (!(v.getBackground() instanceof TransitionDrawable))
                     return false;
@@ -182,6 +184,7 @@ public class AndroidUtils {
      * Returns <tt>true</tt> if this device supports at least given API level.
      *
      * @param minApiLevel API level value to check
+     *
      * @return <tt>true</tt> if this device supports at least given API level.
      */
     public static boolean hasAPI(int minApiLevel) {
@@ -201,6 +204,7 @@ public class AndroidUtils {
      * Converts pixels to density independent pixels.
      *
      * @param px pixels value to convert.
+     *
      * @return density independent pixels value for given pixels value.
      */
     public static int pxToDp(int px) {
@@ -231,6 +235,7 @@ public class AndroidUtils {
      * Formats the given long to X hour, Y min, Z sec.
      *
      * @param millis the time in milliseconds to format
+     *
      * @return the formatted seconds
      */
     public static String formatSeconds(long millis) {
@@ -242,7 +247,7 @@ public class AndroidUtils {
 
         String[] fields = {" d ", " h ", " min ", " sec"};
 
-        StringBuffer buf = new StringBuffer(64);
+        StringBuilder buf = new StringBuilder(64);
         boolean valueOutput = false;
 
         for (int i = 0; i < 4; i++) {
@@ -251,7 +256,8 @@ public class AndroidUtils {
             if (value == 0) {
                 if (valueOutput)
                     buf.append('0').append(fields[i]);
-            } else {
+            }
+            else {
                 valueOutput = true;
                 buf.append(value).append(fields[i]);
             }

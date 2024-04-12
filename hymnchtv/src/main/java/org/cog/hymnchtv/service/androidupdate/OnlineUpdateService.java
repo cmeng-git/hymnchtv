@@ -27,20 +27,19 @@ import android.content.Intent;
 
 import androidx.core.app.NotificationCompat;
 
+import java.util.Calendar;
+
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.MainActivity;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.service.androidnotification.NotificationHelper;
-
-import java.util.Calendar;
 
 /**
  * Online Update Service started on first HymnApp launched. It is set to check for update every 24hours
  *
  * @author Eng Chong Meng
  */
-public class OnlineUpdateService extends IntentService
-{
+public class OnlineUpdateService extends IntentService {
     public static final String ACTION_AUTO_UPDATE_APP = "org.cog.hymnchtv.ACTION_AUTO_UPDATE_APP";
     public static final String ACTION_AUTO_UPDATE_START = "org.cog.hymnchtv.ACTION_AUTO_UPDATE_START";
     public static final String ACTION_AUTO_UPDATE_STOP = "org.cog.hymnchtv.ACTION_AUTO_UPDATE_STOP";
@@ -58,21 +57,18 @@ public class OnlineUpdateService extends IntentService
 
     private NotificationManager mNotificationMgr;
 
-    public OnlineUpdateService()
-    {
+    public OnlineUpdateService() {
         super(ONLINE_UPDATE_SERVICE);
     }
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         super.onCreate();
         mNotificationMgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
 
     @Override
-    protected void onHandleIntent(Intent intent)
-    {
+    protected void onHandleIntent(Intent intent) {
         if (intent != null) {
             String action = intent.getAction();
             if (action != null) {
@@ -94,8 +90,7 @@ public class OnlineUpdateService extends IntentService
         }
     }
 
-    private void checkAppUpdate()
-    {
+    private void checkAppUpdate() {
         UpdateServiceImpl updateService = UpdateServiceImpl.getInstance();
         boolean isLatest = updateService.isLatestVersion();
         if (!isLatest) {
@@ -114,7 +109,7 @@ public class OnlineUpdateService extends IntentService
             Intent intent = new Intent(getApplicationContext(), OnlineUpdateService.class);
             intent.setAction(ACTION_UPDATE_AVAILABLE);
             PendingIntent pending = PendingIntent.getService(this, 0, intent,
-                        getPendingIntentFlag(false, true));
+                    getPendingIntentFlag(false, true));
             nBuilder.setContentIntent(pending);
             mNotificationMgr.notify(UPDATE_AVAIL_TAG, UPDATE_AVAIL_NOTIFY_ID, nBuilder.build());
 
@@ -127,8 +122,7 @@ public class OnlineUpdateService extends IntentService
         setNextAlarm(CHECK_NEW_VERSION_INTERVAL);
     }
 
-    private void setNextAlarm(int nextAlarmTime)
-    {
+    private void setNextAlarm(int nextAlarmTime) {
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this.getApplicationContext(), OnlineUpdateService.class);
         intent.setAction(ACTION_AUTO_UPDATE_APP);
@@ -141,8 +135,7 @@ public class OnlineUpdateService extends IntentService
         alarmManager.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), pendingIntent);
     }
 
-    private void stopAlarm()
-    {
+    private void stopAlarm() {
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this.getApplicationContext(), OnlineUpdateService.class);
         intent.setAction(ACTION_AUTO_UPDATE_APP);

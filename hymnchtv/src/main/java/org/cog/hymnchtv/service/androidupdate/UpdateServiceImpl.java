@@ -17,10 +17,9 @@
 package org.cog.hymnchtv.service.androidupdate;
 
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
-import static org.cog.hymnchtv.mediaconfig.MediaConfig.IMPORT_URL_VERSION;
+import static org.cog.hymnchtv.mediaconfig.MediaConfig.URL_IMPORT_VERSION;
 import static org.cog.hymnchtv.mediaconfig.MediaConfig.PREF_VERSION_URL;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -34,6 +33,18 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.core.content.ContextCompat;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
 import org.cog.hymnchtv.BuildConfig;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.MainActivity;
@@ -43,20 +54,6 @@ import org.cog.hymnchtv.persistance.FileBackend;
 import org.cog.hymnchtv.persistance.FilePathHelper;
 import org.cog.hymnchtv.persistance.PermissionUtils;
 import org.cog.hymnchtv.utils.DialogActivity;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
 
 import timber.log.Timber;
 
@@ -80,6 +77,8 @@ public class UpdateServiceImpl {
      * Apk mime type constant.
      */
     private static final String APK_MIME_TYPE = "application/vnd.android.package-archive";
+
+    // path is case-sensitive
     private static final String fileNameApk = String.format("/hymnchtv-%s.apk", BuildConfig.BUILD_TYPE);
 
     /**
@@ -140,13 +139,13 @@ public class UpdateServiceImpl {
                     return;
 
                 DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
-                        R.string.gui_app_update_install,
-                        R.string.gui_app_version_new_available,
-                        R.string.gui_download,
+                        R.string.app_update_install,
+                        R.string.app_version_new_available,
+                        R.string.download,
                         new DialogActivity.DialogListener() {
                             @Override
                             public boolean onConfirmClicked(DialogActivity dialog) {
-                                if (PermissionUtils.hasWriteStoragePermission(MainActivity.getInstance(), true)) {
+                                if (PermissionUtils.checkWriteStoragePermission(MainActivity.getInstance())) {
                                     downloadApk();
                                 }
                                 return true;
@@ -155,18 +154,19 @@ public class UpdateServiceImpl {
                             @Override
                             public void onDialogCancelled(DialogActivity dialog) {
                             }
-                        }, HymnsApp.getResString(R.string.app_title_main), latestVersion, latestVersionCode, currentVersion, currentVersionCode
+                        }, fileNameApk, latestVersion, latestVersionCode, currentVersion, currentVersionCode
                 );
-            } else {
+            }
+            else {
                 // Notify that running version is up to date
                 DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
-                        R.string.gui_app_update_none,
-                        R.string.gui_app_version_current,
-                        R.string.gui_download_again,
+                        R.string.app_update_none,
+                        R.string.app_version_current,
+                        R.string.download_again,
                         new DialogActivity.DialogListener() {
                             @Override
                             public boolean onConfirmClicked(DialogActivity dialog) {
-                                if (PermissionUtils.hasWriteStoragePermission(MainActivity.getInstance(), true)) {
+                                if (PermissionUtils.checkWriteStoragePermission(MainActivity.getInstance())) {
                                     if (checkLastDLFileAction() >= DownloadManager.ERROR_UNKNOWN)
                                         downloadApk();
                                 }
@@ -176,11 +176,12 @@ public class UpdateServiceImpl {
                             @Override
                             public void onDialogCancelled(DialogActivity dialog) {
                             }
-                        }, currentVersion, currentVersionCode, latestVersion, currentVersionCode
+                        }, currentVersion, currentVersionCode, latestVersion, latestVersionCode
                 );
             }
-        } else {
-            HymnsApp.showToastMessage(R.string.gui_app_update_none);
+        }
+        else {
+            HymnsApp.showToastMessage(R.string.app_update_none);
         }
     }
 
@@ -206,16 +207,18 @@ public class UpdateServiceImpl {
                 if (isValidApkVersion(fileUri, latestVersionCode)) {
                     askInstallDownloadedApk(fileUri);
                 }
-            } else if (lastJobStatus != DownloadManager.STATUS_FAILED) {
+            }
+            else if (lastJobStatus != DownloadManager.STATUS_FAILED) {
                 // Download is in progress or scheduled for retry
                 DialogActivity.showDialog(HymnsApp.getGlobalContext(),
-                        R.string.gui_in_progress,
-                        R.string.gui_download_in_progress);
-            } else {
+                        R.string.in_progress,
+                        R.string.download_in_progress);
+            }
+            else {
                 // Download id return failed status, remove failed id and retry
                 removeOldDownloads();
                 DialogActivity.showDialog(HymnsApp.getGlobalContext(),
-                        R.string.gui_app_update_install, R.string.gui_download_failed);
+                        R.string.app_update_install, R.string.download_failed);
             }
         }
         return lastJobStatus;
@@ -228,9 +231,9 @@ public class UpdateServiceImpl {
      */
     private void askInstallDownloadedApk(Uri fileUri) {
         DialogActivity.showConfirmDialog(HymnsApp.getGlobalContext(),
-                R.string.gui_download_completed,
-                R.string.gui_app_install_ready,
-                mIsLatest ? R.string.gui_app_reinstall : R.string.gui_app_update,
+                R.string.download_completed,
+                R.string.app_install_ready,
+                mIsLatest ? R.string.app_reinstall : R.string.app_update,
                 new DialogActivity.DialogListener() {
                     @Override
                     public boolean onConfirmClicked(DialogActivity dialog) {
@@ -239,7 +242,8 @@ public class UpdateServiceImpl {
                         Intent intent;
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                             intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
-                        } else {
+                        }
+                        else {
                             intent = new Intent(Intent.ACTION_VIEW);
                         }
                         intent.setDataAndType(fileUri, APK_MIME_TYPE);
@@ -259,6 +263,7 @@ public class UpdateServiceImpl {
      * Queries the <code>DownloadManager</code> for the status of download job identified by given <code>id</code>.
      *
      * @param id download identifier which status will be returned.
+     *
      * @return download status of the job identified by given id. If given job is not found
      * {@link DownloadManager#STATUS_FAILED} will be returned.
      */
@@ -285,8 +290,8 @@ public class UpdateServiceImpl {
 
         if (downloadReceiver == null) {
             downloadReceiver = new DownloadReceiver();
-            HymnsApp.getGlobalContext().registerReceiver(downloadReceiver,
-                    new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+            ContextCompat.registerReceiver(HymnsApp.getGlobalContext(), downloadReceiver,
+                    new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), ContextCompat.RECEIVER_EXPORTED);
         }
 
         DownloadManager.Request request = new DownloadManager.Request(uri);
@@ -361,6 +366,7 @@ public class UpdateServiceImpl {
      *
      * @param fileUri apk Uri
      * @param versionCode use the given versionCode to check against the apk versionCode
+     *
      * @return true if apkFile has the specified versionCode
      */
     private boolean isValidApkVersion(Uri fileUri, long versionCode) {
@@ -382,7 +388,7 @@ public class UpdateServiceImpl {
 
                 isValid = (versionCode == apkVersionCode);
                 if (!isValid) {
-                    HymnsApp.showToastMessage(R.string.gui_app_version_invalid, apkVersionCode, versionCode);
+                    HymnsApp.showToastMessage(R.string.app_version_invalid, apkVersionCode, versionCode);
                     Timber.d("Downloaded apk actual version code: %s (%s)", apkVersionCode, versionCode);
                 }
             }
@@ -396,7 +402,7 @@ public class UpdateServiceImpl {
      * @return the latest (software) version
      */
     public String getLatestVersion() {
-        return HymnsApp.getResString(R.string.gui_app_new_available, latestVersion, latestVersionCode);
+        return HymnsApp.getResString(R.string.app_new_available, latestVersion, latestVersionCode);
     }
 
     /**
@@ -432,7 +438,8 @@ public class UpdateServiceImpl {
                         MainActivity.mHasUpdate = currentVersionCode < latestVersionCode;
                         // return true if current running application is already the latest
                         return (currentVersionCode >= latestVersionCode);
-                    } else {
+                    }
+                    else {
                         downloadLink = null;
                     }
                 }
@@ -447,29 +454,18 @@ public class UpdateServiceImpl {
     private void checkUrlImport(int version) {
         Context context = HymnsApp.getGlobalContext();
         SharedPreferences mSharedPref = context.getSharedPreferences(PREF_SETTINGS, 0);
-        int versionUrl = mSharedPref.getInt(PREF_VERSION_URL, IMPORT_URL_VERSION);
+        int versionUrl = mSharedPref.getInt(PREF_VERSION_URL, URL_IMPORT_VERSION);
 
         if ((version > versionUrl) && isValidateLink(urlImport)) {
             try {
-                // opens input stream from the HTTP connection
+                // Open input stream from the HTTP connection; save a local copy and
+                // use it for import url records. Cannot use http inputstream directly.
                 InputStream inputStream = mHttpConnection.getInputStream();
-
-                // Save a copy in hymn import_export directory for user later access
-                String fileName = String.format("url_import-%s.txt",
-                        new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
-                File file = MediaConfig.createFileIfNotExist(fileName, true);
+                File file = MediaConfig.saveUrlImportFile(inputStream, version);
                 if (file != null) {
-                    FileOutputStream outputStream = new FileOutputStream(file);
-                    FileBackend.copy(inputStream, outputStream);
-                    outputStream.close();
-
                     inputStream = new FileInputStream(file);
                     MediaConfig.importUrlRecords(inputStream, false);
                     inputStream.close();
-
-                    SharedPreferences.Editor mEditor = mSharedPref.edit();
-                    mEditor.putInt(PREF_VERSION_URL, version);
-                    mEditor.apply();
                 }
             } catch (IOException e) {
                 Timber.e("%s", e.getMessage());
@@ -481,6 +477,7 @@ public class UpdateServiceImpl {
      * Check if the given link is accessible.
      *
      * @param link the link to check
+     *
      * @return true if link is accessible
      */
     private boolean isValidateLink(String link) {

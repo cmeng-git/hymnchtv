@@ -29,6 +29,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.cog.hymnchtv.BuildConfig;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.MediaType;
@@ -39,9 +42,6 @@ import org.cog.hymnchtv.mediaconfig.MediaRecord;
 import org.cog.hymnchtv.persistance.migrations.Migrations;
 import org.cog.hymnchtv.persistance.migrations.MigrationsHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import timber.log.Timber;
 
 /**
@@ -50,8 +50,7 @@ import timber.log.Timber;
  * @author Eng Chong Meng
  */
 @SuppressLint("Range")
-public class DatabaseBackend extends SQLiteOpenHelper
-{
+public class DatabaseBackend extends SQLiteOpenHelper {
     /**
      * Name of the database and its version number
      * Increment DATABASE_VERSION when there is a change in database records
@@ -62,8 +61,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
     private static DatabaseBackend instance = null;
     private final Context mContext;
 
-    private DatabaseBackend(Context context)
-    {
+    private DatabaseBackend(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         mContext = context;
     }
@@ -72,10 +70,10 @@ public class DatabaseBackend extends SQLiteOpenHelper
      * Get an instance of the DataBaseBackend and create one if new
      *
      * @param context context
+     *
      * @return DatabaseBackend instance
      */
-    public static synchronized DatabaseBackend getInstance(Context context)
-    {
+    public static synchronized DatabaseBackend getInstance(Context context) {
         if (instance == null) {
             instance = new DatabaseBackend(context);
         }
@@ -83,8 +81,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
     }
 
     @Override
-    public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion)
-    {
+    public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion) {
         Timber.i("Upgrading database from version %s to version %s", oldVersion, newVersion);
 
         db.beginTransaction();
@@ -141,8 +138,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      * @param db SQLite database
      */
     @Override
-    public void onCreate(SQLiteDatabase db)
-    {
+    public void onCreate(SQLiteDatabase db) {
         // db.execSQL("PRAGMA foreign_keys=ON;");
         String query = String.format("PRAGMA foreign_keys =%s", "ON");
         db.execSQL(query);
@@ -162,8 +158,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
     /**
      * Initialize, migrate and fill the database from old data implementation
      */
-    private void initDatabase(SQLiteDatabase db)
-    {
+    private void initDatabase(SQLiteDatabase db) {
         Timber.i("### Starting Database migration! ###");
         db.beginTransaction();
         try {
@@ -179,8 +174,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      *
      * @param mRecord an instance of MediaRecord
      */
-    public long storeMediaRecord(MediaRecord mRecord)
-    {
+    public long storeMediaRecord(MediaRecord mRecord) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -202,10 +196,10 @@ public class DatabaseBackend extends SQLiteOpenHelper
      *
      * @param mRecord Media record to check for
      * @param update Update mRecord if true, else just return the status; i.e just to check if exist in DB
+     *
      * @return mRecord present status, and mRecord is updated if update is true;
      */
-    public boolean getMediaRecord(MediaRecord mRecord, boolean update)
-    {
+    public boolean getMediaRecord(MediaRecord mRecord, boolean update) {
         SQLiteDatabase db = getReadableDatabase();
         boolean hasRecord = false;
 
@@ -232,10 +226,10 @@ public class DatabaseBackend extends SQLiteOpenHelper
      * Force url to a secure access link, android does not allow clearText web access
      *
      * @param mRecord MediaRecord for URL fetch
+     *
      * @return URL for the given mediaRecord and the update mRecord
      */
-    public String getHymnUrl(MediaRecord mRecord)
-    {
+    public String getHymnUrl(MediaRecord mRecord) {
         String url = null;
         if (getMediaRecord(mRecord, true)) {
             url = mRecord.getMediaUri().replace("http:", "https:");
@@ -248,10 +242,10 @@ public class DatabaseBackend extends SQLiteOpenHelper
      * Delete the given mediaRecord
      *
      * @param mRecord mediaRecord to be deleted
+     *
      * @return No of matched records get deleted
      */
-    public int deleteMediaRecord(MediaRecord mRecord)
-    {
+    public int deleteMediaRecord(MediaRecord mRecord) {
         SQLiteDatabase db = this.getReadableDatabase();
         String[] args = {Integer.toString(mRecord.getHymnNo()), mRecord.isFu() ? "1" : "0", mRecord.getMediaType().toString()};
 
@@ -263,10 +257,10 @@ public class DatabaseBackend extends SQLiteOpenHelper
      * Get the media records for the given hymnType
      *
      * @param hymnType one of the MediaConfig.hymnTypeValue
+     *
      * @return List of mediaRecords for the given hymnType
      */
-    public List<MediaRecord> getMediaRecords(String hymnType)
-    {
+    public List<MediaRecord> getMediaRecords(String hymnType) {
         SQLiteDatabase db = this.getReadableDatabase();
         List<MediaRecord> mediaRecords = new ArrayList<>();
         String ORDER_ASC = MediaConfig.HYMN_NO + " ASC";
@@ -289,10 +283,10 @@ public class DatabaseBackend extends SQLiteOpenHelper
      * Get the media records which contain valid links
      *
      * @param hymnType one of the MediaConfig.hymnTypeValue
+     *
      * @return List of mediaRecords for the given hymnType
      */
-    public List<MediaRecord> getMediaLinks(String hymnType)
-    {
+    public List<MediaRecord> getMediaLinks(String hymnType) {
         SQLiteDatabase db = this.getReadableDatabase();
         List<MediaRecord> mediaRecords = new ArrayList<>();
         String ORDER_ASC = MediaConfig.HYMN_NO + " ASC";
@@ -320,8 +314,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      *
      * @param mRecord an instance of HistoryRecord
      */
-    public void storeHymnHistory(HistoryRecord mRecord)
-    {
+    public void storeHymnHistory(HistoryRecord mRecord) {
         SQLiteDatabase db = getWritableDatabase();
         String ORDER_ASC = TIME_STAMP + " ASC";
 
@@ -353,8 +346,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      *
      * @param mRecord an instance of HistoryRecord
      */
-    public int deleteHymnHistory(HistoryRecord mRecord)
-    {
+    public int deleteHymnHistory(HistoryRecord mRecord) {
         SQLiteDatabase db = getWritableDatabase();
         String[] args = {mRecord.getHymnType(), Integer.toString(mRecord.getHymnNo())};
 
@@ -367,8 +359,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      *
      * @return List of HistoryRecord
      */
-    public List<HistoryRecord> getHistoryRecords()
-    {
+    public List<HistoryRecord> getHistoryRecords() {
         SQLiteDatabase db = this.getReadableDatabase();
         List<HistoryRecord> historyRecords = new ArrayList<>();
         String ORDER_DESC = TIME_STAMP + " DESC";
@@ -393,8 +384,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      * @param hymnNoEng English hymnNo
      * @param lyrics string containing html lyrics
      */
-    public long storeLyricsEng(int hymnNoEng, String lyrics)
-    {
+    public long storeLyricsEng(int hymnNoEng, String lyrics) {
         SQLiteDatabase db = getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -413,8 +403,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      *
      * @param hymnNoEng English hymnNo
      */
-    public int deleteLyricsEng(int hymnNoEng)
-    {
+    public int deleteLyricsEng(int hymnNoEng) {
         SQLiteDatabase db = getWritableDatabase();
         String[] args = {String.valueOf(hymnNoEng)};
 
@@ -426,8 +415,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
      *
      * @param hymnNoEng English hymnNo
      */
-    public String getLyricsEnglish(int hymnNoEng)
-    {
+    public String getLyricsEnglish(int hymnNoEng) {
         SQLiteDatabase db = this.getReadableDatabase();
         String lyrics = null;
 
@@ -445,8 +433,7 @@ public class DatabaseBackend extends SQLiteOpenHelper
     }
 
     @Override
-    public SQLiteDatabase getWritableDatabase()
-    {
+    public SQLiteDatabase getWritableDatabase() {
         SQLiteDatabase db = super.getWritableDatabase();
         // db.execSQL("PRAGMA foreign_keys=ON;");
         String query = String.format("PRAGMA foreign_keys =%s", "ON");
@@ -454,15 +441,12 @@ public class DatabaseBackend extends SQLiteOpenHelper
         return db;
     }
 
-    private static class RealMigrationsHelper implements MigrationsHelper
-    {
-        public RealMigrationsHelper()
-        {
+    private static class RealMigrationsHelper implements MigrationsHelper {
+        public RealMigrationsHelper() {
         }
 
         @Override
-        public Context getContext()
-        {
+        public Context getContext() {
             return HymnsApp.getGlobalContext();
         }
     }

@@ -28,6 +28,13 @@ import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.text.StringEscapeUtils;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.MediaType;
@@ -36,13 +43,6 @@ import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import timber.log.Timber;
 
@@ -55,9 +55,9 @@ import timber.log.Timber;
 public class QQRecord extends MediaRecord {
     public static String HYMNCHTV_QQ_MAIN = "https://mp.weixin.qq.com/s/kgqBH0C_zgDaBnxbvC9wew";
     public static final String QQ = "QQ";
-    //  Map defines the QQ categories for HymnType links access; must have exact match
-    // Only 【补充本诗歌B】is available, other has been denied for access
+    // Map defines the QQ categories for HymnType links access; must have exact match
     // public static final List<String> qqHymnType = Arrays.asList("【大本诗歌D】", "【补充本诗歌B】", "【新歌颂咏X】", "【儿童诗歌C】");
+    // Only 【补充本诗歌B】is available, others have been denied access
     public static final List<String> qqHymnType = Arrays.asList("【补充本诗歌B】", " ");
 
     // Map use to translate QQ_TITLE prefix to hymnType
@@ -86,7 +86,6 @@ public class QQRecord extends MediaRecord {
      * Start the links extractions at QQ main page on new thread; All network access must not be on UI thread.
      * Fetch links only for the hymnType specified in qqHymn2Type[].
      * Need to clean up the title before the next stage fetch
-     *
      * 【大本诗歌D】
      * 【补充本诗歌B】
      * 【儿童诗歌C】
@@ -100,7 +99,7 @@ public class QQRecord extends MediaRecord {
     public static void fetchQQLinks(final MediaConfig mediaConfig) {
         String mTitle = "诗歌（合辑）";
         mContext = mediaConfig;
-        HymnsApp.showToastMessage(R.string.gui_nq_download_starting, QQ);
+        HymnsApp.showToastMessage(R.string.nq_download_starting, QQ);
 
         final WebView webView = initWebView();
         getURLSource(webView, mTitle, HYMNCHTV_QQ_MAIN, data -> {
@@ -122,7 +121,7 @@ public class QQRecord extends MediaRecord {
                 }
             } catch (JSONException e) {
                 Timber.e("URL get source exception: %s", e.getMessage());
-                HymnsApp.showToastMessage(R.string.gui_nq_download_failed, mTitle);
+                HymnsApp.showToastMessage(R.string.nq_download_failed, mTitle);
             }
         });
     }
@@ -130,7 +129,7 @@ public class QQRecord extends MediaRecord {
     /**
      * Extract the hymnType Range and proceed all the hymn records in the range
      * Proceed to hymn records for【新歌颂咏】as it contains no range value
-     *
+     * <p>
      * 【大本诗歌】1一100首
      * 【大本诗歌】101一200首
      * 【大本诗歌】201一300首
@@ -140,7 +139,7 @@ public class QQRecord extends MediaRecord {
      * 【大本诗歌】601一700首
      * 【大本诗歌】701一786+附6首
      * 【圣徒最喜爱的50首合并音频】
-     *
+     * <p>
      * 追求与长进┈┈401一470首
      * 圣灵的同在┈201一212首
      *
@@ -152,7 +151,7 @@ public class QQRecord extends MediaRecord {
         String title = jsonObj.getString(QQ_TITLE).replaceAll("[DBCX]", "");
         String url = jsonObj.getString(QQ_URL);
 
-        HymnsApp.showToastMessage(R.string.gui_nq_download_in_progress, title);
+        HymnsApp.showToastMessage(R.string.nq_download_in_progress, title);
         //【新歌颂咏】does not have hymnRange; so proceed to saveQQRecord
         if (title.contains("新歌颂咏")) {
             saveQQRecord(jsonObj);
@@ -183,14 +182,14 @@ public class QQRecord extends MediaRecord {
 
     /**
      * Save all the QQ hymn links in the DB, if it passes the valid check in mDB.storeQQRecord()
-     *
+     * <p>
      * D33父神阿你在羔羊里
      * D34荣耀归于父神
-     *
+     * <p>
      * 附录 - 经历神
      * D785(附5)何大神迹！何深奥秘
      * D786(附6)神,你生命所施拯救
-     *
+     * <p>
      * B23羔羊是配
      * C006朵朵小花含笑
      * X016小排聚会不可不去
@@ -211,8 +210,8 @@ public class QQRecord extends MediaRecord {
                         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                         storeQQJObject(jsonObject);
                     }
-                    Timber.d(HymnsApp.getResString(R.string.gui_nq_download_completed, title, mCount));
-                    HymnsApp.showToastMessage(R.string.gui_nq_download_completed, title, mCount);
+                    Timber.d(HymnsApp.getResString(R.string.nq_download_completed, title, mCount));
+                    HymnsApp.showToastMessage(R.string.nq_download_completed, title, mCount);
                 }
             } catch (JSONException e) {
                 Timber.e("URL get source exception: %s", e.getMessage());
@@ -225,7 +224,7 @@ public class QQRecord extends MediaRecord {
      * The JSONObject 'title' info must resolve to have:
      * a. valid hymnType
      * b. valid hymnNo
-     *
+     * <p>
      * Valid QQ JSONObject:
      * {
      * title: 'D1但愿荣耀归于圣父',
@@ -255,7 +254,8 @@ public class QQRecord extends MediaRecord {
                 if (TextUtils.isEmpty(noStr)) {
                     Timber.w("### Invalid QQ record HymnNo: %s", noStr);
                     return;
-                } else {
+                }
+                else {
                     hymnNo = Integer.parseInt(noStr);
                 }
 
@@ -264,12 +264,14 @@ public class QQRecord extends MediaRecord {
                 long row = mDB.storeMediaRecord(mRecord);
                 if (row < 0) {
                     Timber.e("### Error in creating QQ record for: %s", title);
-                } else {
+                }
+                else {
                     if ((mCount % 10) == 0)
                         Timber.d("QQ Hymn Record saved (%s): %s", mCount, jsonRecord);
                     mCount++;
                 }
-            } else {
+            }
+            else {
                 Timber.w("### Invalid QQ record HymnTitle: %s", jsonRecord);
             }
         } catch (JSONException e) {
@@ -281,6 +283,7 @@ public class QQRecord extends MediaRecord {
      * Extra and phrase the htmlRaw info into JSONArray;
      *
      * @param htmlRaw the remote raw content containing the required link info
+     *
      * @return JSON Array of the extracted info or null if none found
      */
     private static JSONArray createJsonArray(String title, String htmlRaw) {
@@ -310,7 +313,7 @@ public class QQRecord extends MediaRecord {
             }
         }
         if (jsonArray.length() == 0) {
-            Timber.d(HymnsApp.getResString(R.string.gui_nq_download_failed, title));
+            Timber.d(HymnsApp.getResString(R.string.nq_download_failed, title));
         }
 
         return jsonArray;
@@ -321,6 +324,7 @@ public class QQRecord extends MediaRecord {
      *
      * @param title the title of the url link
      * @param htmlRaw the remote raw content containing the required link info
+     *
      * @return JSON Array of the extracted info or null if none found
      */
     private static JSONArray fetchJsonArray(String title, String htmlRaw) {
@@ -339,7 +343,7 @@ public class QQRecord extends MediaRecord {
             }
         } catch (JSONException e) {
             Timber.e("URL JsonArray Exception: %s", e.getMessage());
-            HymnsApp.showToastMessage(R.string.gui_nq_download_failed, title);
+            HymnsApp.showToastMessage(R.string.nq_download_failed, title);
         }
         return null;
     }
@@ -350,6 +354,7 @@ public class QQRecord extends MediaRecord {
      * android does not allow cleartextTraffic access; must force to secure link i.e. https
      *
      * @param jsonStr JSONArray in string format
+     *
      * @return cleanup Json string
      */
     private static String toJsonString(String jsonStr) {
@@ -371,7 +376,7 @@ public class QQRecord extends MediaRecord {
 
     public static void getURLSource(final WebView webView, String title, String urlToLoad, final ValueCallback<String> valueCallback) {
         // Timber.d("URl to load: %s", urlToLoad);
-        webView.loadUrl(urlToLoad);
+        webView.loadUrl(urlToLoad); // preload url and wait for 1.0 sec before checking.
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -385,9 +390,10 @@ public class QQRecord extends MediaRecord {
                                 // webView.evaluateJavascript("document.documentElement.outerHTML", valueCallback);
                                 if (data.contains("rich_media_content")) {
                                     valueCallback.onReceiveValue(data);
-                                } else {
+                                }
+                                else {
                                     Timber.w("Web scrapping failed: %s", title);
-                                    HymnsApp.showToastMessage(R.string.gui_nq_download_failed, title);
+                                    HymnsApp.showToastMessage(R.string.nq_download_failed, title);
                                 }
                             });
                         } catch (RuntimeException e) {

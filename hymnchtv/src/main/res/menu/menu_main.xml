@@ -126,17 +126,20 @@
     <item
         android:id="@+id/sn_convert"
         android:visible="false"
-        android:title="@string/gui_hymn_sn_convert" />
+        android:title="@string/hymn_sn_convert" />
     <item
         android:id="@+id/media_config"
-        android:title="@string/gui_media_config" />
+        android:title="@string/media_config" />
+    <item
+        android:id="@+id/permission_request"
+        android:title="@string/permission_settings" />
     <item
         android:id="@+id/online_help"
-        android:title="@string/gui_help_online" />
+        android:title="@string/help_online" />
     <item
         android:id="@+id/about"
-        android:title="@string/gui_about" />
+        android:title="@string/about" />
     <item
         android:id="@+id/exit"
-        android:title="@string/gui_exit" />
+        android:title="@string/exit" />
 </menu>

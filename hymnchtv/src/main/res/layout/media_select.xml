@@ -27,13 +27,6 @@
         android:text="@string/hymn_media_media" />
 
     <RadioButton
-        android:id="@+id/btn_banzhou"
-        style="@style/ButtonRadio"
-        android:checked="true"
-        android:layout_marginStart="1dp"
-        android:text="@string/hymn_media_banzou" />
-
-    <RadioButton
         android:id="@+id/btn_jiaochang"
         style="@style/ButtonRadio"
         android:layout_marginStart="1dp"
@@ -44,4 +37,12 @@
         style="@style/ButtonRadio"
         android:layout_marginStart="1dp"
         android:text="@string/hymn_media_changshi" />
+
+    <RadioButton
+        android:id="@+id/btn_banzhou"
+        style="@style/ButtonRadio"
+        android:checked="true"
+        android:layout_marginStart="1dp"
+        android:text="@string/hymn_media_banzou" />
+
 </RadioGroup>

@@ -16,7 +16,6 @@
  */
 package org.cog.hymnchtv.persistance;
 
-import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
@@ -27,14 +26,21 @@ import android.webkit.MimeTypeMap;
 
 import androidx.core.content.FileProvider;
 
-import org.cog.hymnchtv.HymnsApp;
-import org.cog.hymnchtv.MainActivity;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MainActivity;
 
 import timber.log.Timber;
 
@@ -43,8 +49,7 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class FileBackend
-{
+public class FileBackend {
     private static final String FILE_PROVIDER = ".files";
 
     public static final int MEDIA_TYPE_IMAGE = 1;
@@ -61,8 +66,7 @@ public class FileBackend
     public static String MEDIA_VOICE_SEND = "Media/Voice_Send";
     public static String TMP = "tmp";
 
-    public static boolean IsExternalStorageWritable()
-    {
+    public static boolean IsExternalStorageWritable() {
         // boolean mExternalStorageAvailable = false;
         boolean mExternalStorageWriteable;
         String state = Environment.getExternalStorageState();
@@ -93,6 +97,7 @@ public class FileBackend
      * @param srcPath the full path of the file or directory to be copied
      * @param targetPath the full path of the target directory to which the file or directory should be copied
      * @param subFolder the new name of the file or directory
+     *
      * @throws IllegalArgumentException if an invalid source or destination path is provided
      * @throws FileNotFoundException if the source path cannot be found on the file system
      * @throws SecurityException if unable to create the new file or directory specified by destination path
@@ -100,8 +105,7 @@ public class FileBackend
      * source and destination paths are identical, or if a general error occurs
      */
     public static void copyRecursive(File srcPath, File targetPath, String subFolder)
-            throws IllegalArgumentException, SecurityException, IOException
-    {
+            throws IllegalArgumentException, SecurityException, IOException {
         // ensure source exists
         if ((srcPath == null) || !srcPath.exists()) {
             throw new FileNotFoundException("Source Path not found: " + srcPath);
@@ -172,11 +176,11 @@ public class FileBackend
      * directory, the deletion is recursive.
      *
      * @param filePath full path of file or directory to be deleted
+     *
      * @throws IOException throws exception if any
      */
     public static void deleteRecursive(File filePath)
-            throws IOException
-    {
+            throws IOException {
         if ((filePath != null) && filePath.exists()) {
             // If the file is a directory, we will recursively call deleteRecursive on it.
             if (filePath.isDirectory()) {
@@ -194,19 +198,19 @@ public class FileBackend
 
     /**
      * Copy bytes from a large (over 2GB) <code>InputStream</code> to an <code>OutputStream</code>.
-     *
      * This method buffers the input internally, so there is no need to use a <code>BufferedInputStream</code>.
      *
      * @param input the <code>InputStream</code> to read from
      * @param output the <code>OutputStream</code> to write to
+     *
      * @return the number of bytes copied
+     *
      * @throws NullPointerException if the input or output is null
      * @throws IOException if an I/O error occurs
      * @since Commons IO 1.3
      */
     public static long copy(InputStream input, OutputStream output)
-            throws IOException
-    {
+            throws IOException {
         byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
         long count = 0;
         int bytesRead;
@@ -222,11 +226,11 @@ public class FileBackend
      * create subFolder if none found and createNew is true
      *
      * @param subFolder subFolder to be created under hymnchtv downloadable directory, null if root
+     *
      * @return hymnchtv default directory
      */
-    public static File getHymnchtvStore(String subFolder, boolean createNew)
-    {
-        if (createNew && !PermissionUtils.hasWriteStoragePermission(MainActivity.getInstance(), true)) {
+    public static File getHymnchtvStore(String subFolder, boolean createNew) {
+        if (createNew && !PermissionUtils.checkWriteStoragePermission(MainActivity.getInstance())) {
             return null;
         }
 
@@ -248,8 +252,7 @@ public class FileBackend
     /**
      * Create a new File for saving image or video captured with camera
      */
-    public static File getOutputMediaFile(int type)
-    {
+    public static File getOutputMediaFile(int type) {
         File hymnchtvMediaDir = getHymnchtvStore(MEDIA_CAMERA, true);
 
         // Create a media file name
@@ -269,10 +272,10 @@ public class FileBackend
      *
      * @param context context
      * @param file the specific file path
+     *
      * @return the actual Uri
      */
-    public static Uri getUriForFile(Context context, File file)
-    {
+    public static Uri getUriForFile(Context context, File file) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             try {
                 String packageId = context.getPackageName();
@@ -315,10 +318,10 @@ public class FileBackend
      * @param ctx the reference Context
      * @param uri content:// or file:// or whatever suitable Uri you want.
      * @param mime a reference mime type (from attachment)
+     *
      * @return mime type of the given uri
      */
-    public static String getMimeType(final Context ctx, final Uri uri, final String mime)
-    {
+    public static String getMimeType(final Context ctx, final Uri uri, final String mime) {
         Timber.d("guessMimeTypeFromUriAndMime %s and mimeType = %s", uri, mime);
         if (mime == null || mime.equals("application/octet-stream")) {
             final String guess = getMimeType(ctx, uri);
@@ -336,16 +339,16 @@ public class FileBackend
      * To guess the mime type of the given uri using the mimeMap or from path name
      * Unicode uri string must be urlEncoded for android getFileExtensionFromUrl(),
      * else alwyas return ""
-     *
+     * <p>
      * Note: android returns *.mp3 file as audio/mpeg. See https://tools.ietf.org/html/rfc3003;
      * and returns as video/mpeg on re-submission with *.mpeg
      *
      * @param ctx the reference Context
      * @param uri content:// or file:// or whatever suitable Uri you want.
+     *
      * @return mime type of the given uri
      */
-    public static String getMimeType(Context ctx, Uri uri)
-    {
+    public static String getMimeType(Context ctx, Uri uri) {
         String mimeType = null;
         if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
             ContentResolver cr = ctx.getContentResolver();
@@ -385,10 +388,10 @@ public class FileBackend
      * Check if the file has media content
      *
      * @param file File to be check
+     *
      * @return true if the given file has media content
      */
-    public static boolean isMediaFile(File file)
-    {
+    public static boolean isMediaFile(File file) {
         Context ctx = HymnsApp.getGlobalContext();
         Uri uri = getUriForFile(ctx, file);
         String mimeType = getMimeType(ctx, uri);
@@ -416,24 +419,24 @@ public class FileBackend
 
     /**
      * cmeng: modified from URLConnection class
-     *
      * Try to determine the type of input stream based on the characters at the beginning of the input stream.
      * This method  be used by subclasses that override the {@code getContentType} method.
-     *
+     * <p>
      * Ideally, this routine would not be needed, but many {@code http} servers return the incorrect content type;
      * in addition, there are many nonstandard extensions. Direct inspection of the bytes to determine the content
      * type is often more accurate than believing the content type claimed by the {@code http} server.
      *
      * @param is an input stream that supports marks.
+     *
      * @return a guess at the content type, or {@code null} if none can be determined.
+     *
      * @throws IOException if an I/O error occurs while reading the input stream.
      * @see InputStream#mark(int)
      * @see InputStream#markSupported()
      * @see java.net.URLConnection#getContentType()
      */
     private static String guessContentTypeFromStream(InputStream is)
-            throws IOException
-    {
+            throws IOException {
         int c1 = is.read();
         int c2 = is.read();
         int c3 = is.read();

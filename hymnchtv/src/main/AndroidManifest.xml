@@ -10,7 +10,12 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- Required to download files from Google Play etc -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
@@ -18,6 +23,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!-- Required to read and write the expansion files on shared storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28"
         tools:ignore="ScopedStorage" />
 
     <queries>
@@ -33,8 +39,9 @@
         android:preserveLegacyExternalStorage="true"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme"
+        tools:ignore="DataExtractionRules"
         tools:replace="android:allowBackup,android:label"
-        tools:targetApi="r">
+        tools:targetApi="tiramisu">
 
         <activity
             android:name=".MainActivity"
@@ -86,7 +93,7 @@
 
         <activity
             android:name=".mediaconfig.MediaConfig"
-            android:label="@string/gui_media_config" />
+            android:label="@string/media_config" />
         <!-- android:windowSoftInputMode="stateAlwaysHidden" #  do this in mediaConfig-->
 
         <activity android:name=".RichTextEditor" />
@@ -105,7 +112,7 @@
 
         <activity
             android:name=".About"
-            android:label="@string/gui_about"
+            android:label="@string/about"
             android:theme="@android:style/Theme.Holo.Dialog.MinWidth" />
 
         <activity

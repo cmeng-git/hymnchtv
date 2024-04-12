@@ -50,6 +50,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import com.zqc.opencc.android.lib.ChineseConverter;
 import com.zqc.opencc.android.lib.ConversionType;
 
@@ -59,10 +63,6 @@ import org.cog.hymnchtv.utils.ChineseS2TSelection;
 import org.cog.hymnchtv.utils.HymnIdx2NoConvert;
 import org.cog.hymnchtv.utils.ZoomTextView;
 import org.jetbrains.annotations.NotNull;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 
 import timber.log.Timber;
 
@@ -512,7 +512,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
             Timber.d("Lyrics loaded: %s", mLyricsLoaded);
             if (!mLyricsLoaded) {
                 showLyricsEnglish(LyricsEnglishRecord
-                        .toHtml("<h3>" + getResources().getString(R.string.gui_download_wait) + "</h3>"));
+                        .toHtml("<h3>" + getResources().getString(R.string.download_wait) + "</h3>"));
             }
             mLyricsEnglishRecord.fetchLyrics(mHymnNoEng, isErGe);
         }

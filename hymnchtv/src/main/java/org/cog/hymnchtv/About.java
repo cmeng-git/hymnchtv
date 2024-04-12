@@ -83,7 +83,7 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
         // crash if enabled under FragmentActivity
         // requestWindowFeature(Window.FEATURE_LEFT_ICON);
         // setFeatureDrawableResource(Window.FEATURE_LEFT_ICON, android.R.drawable.ic_dialog_info);
-        setTitle(getString(R.string.gui_about));
+        setTitle(getString(R.string.about));
 
         View hymnchtvkUrl = findViewById(R.id.hymnchtv_link);
         hymnchtvkUrl.setOnClickListener(this);
@@ -94,10 +94,10 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
         TextView copyRight = findViewById(R.id.copyRight);
         copyRight.setMovementMethod(LinkMovementMethod.getInstance());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            copyRight.setText(Html.fromHtml(getString(R.string.gui_copyright), Html.FROM_HTML_MODE_LEGACY));
+            copyRight.setText(Html.fromHtml(getString(R.string.copyright), Html.FROM_HTML_MODE_LEGACY));
         }
         else {
-            copyRight.setText(Html.fromHtml(getString(R.string.gui_copyright)));
+            copyRight.setText(Html.fromHtml(getString(R.string.copyright)));
         }
 
         Button btn_HistoryLog = findViewById(R.id.history_log);
@@ -128,7 +128,7 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
             PackageInfo pi = getPackageManager().getPackageInfo(getPackageName(), 0);
 
             TextView textView = findViewById(R.id.about_appVersion);
-            textView.setText(getString(R.string.gui_version, pi.versionName, pi.versionCode));
+            textView.setText(getString(R.string.version, pi.versionName, pi.versionCode));
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -148,8 +148,8 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
 
             case R.id.submit_logs:
                 new LogUploadServiceImpl().sendLogs(new String[]{LOG_REPORT_EMAIL},
-                        getString(R.string.gui_SEND_LOGS_SUBJECT),
-                        getString(R.string.gui_SEND_LOGS_TITLE));
+                        getString(R.string.send_logs_subject),
+                        getString(R.string.send_logs_title));
                 break;
 
             case R.id.history_log:
@@ -228,7 +228,7 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
         html.append(getString(R.string.content_help))
                 .append("</p><hr/><p>");
 
-        html.append(String.format(getString(R.string.gui_app_libraries), libs))
+        html.append(String.format(getString(R.string.app_libraries), libs))
                 .append("</p><hr/><p>");
         html.append("</body></html>");
 

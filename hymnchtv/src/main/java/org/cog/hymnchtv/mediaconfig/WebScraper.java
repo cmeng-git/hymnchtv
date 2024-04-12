@@ -16,9 +16,6 @@
  */
 package org.cog.hymnchtv.mediaconfig;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +25,9 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -41,18 +41,15 @@ import okhttp3.ResponseBody;
  *
  * @author Eng Chong Meng
  */
-public class WebScraper
-{
-    public static String getURLSource(String url) throws IOException
-    {
+public class WebScraper {
+    public static String getURLSource(String url) throws IOException {
         URL urlObject = new URL(url);
         URLConnection urlConnection = urlObject.openConnection();
         urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
         return toString(urlConnection.getInputStream());
     }
 
-    public static String toString(InputStream inputStream) throws IOException
-    {
+    public static String toString(InputStream inputStream) throws IOException {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             String inputLine;
             StringBuilder stringBuilder = new StringBuilder();
@@ -64,8 +61,7 @@ public class WebScraper
         }
     }
 
-    public static String getURLSourceSoup(String url) throws IOException
-    {
+    public static String getURLSourceSoup(String url) throws IOException {
         Document document = Jsoup.connect(url).get();
         String content = document.outerHtml();
 
@@ -82,11 +78,12 @@ public class WebScraper
      * TODO: QQ site contain error i.e. // ====== OkHttpClient === ", }" json error
      *
      * @param url The site url
+     *
      * @return the site source
+     *
      * @throws IOException IO exception
      */
-    public static String getURLSourceOkHttp(String url) throws IOException
-    {
+    public static String getURLSourceOkHttp(String url) throws IOException {
         final OkHttpClient client = new OkHttpClient.Builder().build();
         final Request request = new Request.Builder().url(url).build();
         ResponseBody responseBody = client.newCall(request).execute().body();
@@ -105,11 +102,12 @@ public class WebScraper
      * Fetch site source via scrapingAnt via x-api-key; working OK for notion
      *
      * @param url The site url
+     *
      * @return the site source
+     *
      * @throws IOException IO exception
      */
-    public static String getURLSourceAnt(String url) throws IOException
-    {
+    public static String getURLSourceAnt(String url) throws IOException {
         String content;
         final OkHttpClient client = new OkHttpClient.Builder().build();
 

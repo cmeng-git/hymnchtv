@@ -38,10 +38,6 @@ import android.view.KeyEvent;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
-import org.apache.http.util.EncodingUtils;
-import org.apache.http.util.TextUtils;
-import org.cog.hymnchtv.utils.ThemeHelper;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -49,6 +45,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.http.util.EncodingUtils;
+import org.apache.http.util.TextUtils;
 
 import timber.log.Timber;
 

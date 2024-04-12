@@ -24,9 +24,15 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.*;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.View.OnKeyListener;
-import android.webkit.*;
+import android.view.ViewGroup;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 import android.widget.ProgressBar;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -34,14 +40,17 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import org.cog.hymnchtv.*;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Stack;
+
+import org.cog.hymnchtv.BuildConfig;
+import org.cog.hymnchtv.ContentHandler;
+import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.R;
+import org.jetbrains.annotations.NotNull;
 
 import timber.log.Timber;
 
@@ -52,8 +61,7 @@ import timber.log.Timber;
  * @author Eng Chong Meng
  */
 @SuppressLint("SetJavaScriptEnabled")
-public class WebViewFragment extends Fragment implements OnKeyListener
-{
+public class WebViewFragment extends Fragment implements OnKeyListener {
     private WebView webview;
     private ProgressBar progressbar;
     private static final Stack<String> urlStack = new Stack<>();
@@ -66,16 +74,14 @@ public class WebViewFragment extends Fragment implements OnKeyListener
     private ContentHandler mContentHandler;
 
     @Override
-    public void onAttach(@NonNull Context context)
-    {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         mContentHandler = (ContentHandler) context;
     }
 
     @SuppressLint("JavascriptInterface")
     @Override
-    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View contentView = inflater.inflate(R.layout.webview_main, container, false);
         progressbar = contentView.findViewById(R.id.progress);
         progressbar.setIndeterminate(true);
@@ -84,6 +90,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
         final WebSettings webSettings = webview.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 
         // https://developer.android.com/guide/webapps/webview#BindingJavaScript
         webview.addJavascriptInterface(HymnsApp.getGlobalContext(), "Android");
@@ -94,10 +101,8 @@ public class WebViewFragment extends Fragment implements OnKeyListener
         webSettings.setAllowUniversalAccessFromFileURLs(true);
 
         ActivityResultLauncher<String> mGetContents = getFileUris();
-        webview.setWebChromeClient(new WebChromeClient()
-        {
-            public void onProgressChanged(WebView view, int progress)
-            {
+        webview.setWebChromeClient(new WebChromeClient() {
+            public void onProgressChanged(WebView view, int progress) {
                 progressbar.setProgress(progress);
                 if (progress < 100 && progress > 0 && progressbar.getVisibility() == ProgressBar.GONE) {
                     progressbar.setIndeterminate(true);
@@ -110,8 +115,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
 
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> uploadMessageArray,
-                    FileChooserParams fileChooserParams)
-            {
+                    FileChooserParams fileChooserParams) {
                 if (mUploadMessageArray != null)
                     mUploadMessageArray.onReceiveValue(null);
 
@@ -136,8 +140,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
 
         // setup keyPress listener - must re-enable every time on resume
@@ -150,8 +153,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
      * Hymnchtv reuses the webView fragment. Keep if they are the same.
      * Init webView to download a new web page if it is not the same as last accessed page
      */
-    public void initWebView()
-    {
+    public void initWebView() {
         String tmp = mContentHandler.getWebUrl();
         if (webUrl == null || !webUrl.equals(tmp)) {
             urlStack.clear();
@@ -167,8 +169,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
      *
      * @param url loaded/user clicked url
      */
-    public void addLastUrl(String url)
-    {
+    public void addLastUrl(String url) {
         urlStack.push(url);
         isLoadFromStack = false;
     }
@@ -176,8 +177,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener
     /**
      * Opens a FileChooserDialog to let the user pick files for upload
      */
-    private ActivityResultLauncher<String> getFileUris()
-    {
+    private ActivityResultLauncher<String> getFileUris() {
         return registerForActivityResult(new ActivityResultContracts.GetMultipleContents(), uris -> {
             if (uris != null) {
                 if (mUploadMessageArray == null)
@@ -190,20 +190,18 @@ public class WebViewFragment extends Fragment implements OnKeyListener
                 mUploadMessageArray = null;
             }
             else {
-                HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
+                HymnsApp.showToastMessage(R.string.file_does_not_exist);
             }
         });
     }
 
     // Prevent the webView from reloading on device rotation
     @Override
-    public void onConfigurationChanged(@NotNull Configuration newConfig)
-    {
+    public void onConfigurationChanged(@NotNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
 
-    public static Bitmap getBitmapFromURL(String src)
-    {
+    public static Bitmap getBitmapFromURL(String src) {
         try {
             URL url = new URL(src);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -224,11 +222,11 @@ public class WebViewFragment extends Fragment implements OnKeyListener
      * @param v view
      * @param keyCode the entered key keycode
      * @param event the key Event
+     *
      * @return true if process
      */
     @Override
-    public boolean onKey(View v, int keyCode, KeyEvent event)
-    {
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
             // android OS will not pass in KEYCODE_MENU???
             if (keyCode == KeyEvent.KEYCODE_MENU) {

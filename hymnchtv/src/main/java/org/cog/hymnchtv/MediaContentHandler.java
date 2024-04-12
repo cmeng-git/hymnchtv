@@ -21,15 +21,18 @@ import static org.cog.hymnchtv.mediaplayer.MediaExoPlayerFragment.ATTR_MEDIA_URL
 import static org.cog.hymnchtv.mediaplayer.YoutubePlayerFragment.URL_YOUTUBE;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 
-import android.content.*;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.webkit.URLUtil;
 
-import androidx.fragment.app.Fragment;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.mediaconfig.MediaRecord;
@@ -38,16 +41,12 @@ import org.cog.hymnchtv.mediaplayer.YoutubePlayerFragment;
 import org.cog.hymnchtv.persistance.DatabaseBackend;
 import org.cog.hymnchtv.persistance.FileBackend;
 
-import java.io.File;
-import java.util.List;
-
 /**
  * The class handles the actual content source address decoding for the user selected hymn
  *
  * @author Eng Chong Meng
  */
-public class MediaContentHandler
-{
+public class MediaContentHandler {
     private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
     private final Context mContext = HymnsApp.getGlobalContext();
@@ -56,10 +55,26 @@ public class MediaContentHandler
     private MediaExoPlayerFragment mExoPlayer;
     private YoutubePlayerFragment mYoutubePlayer;
 
-    public static MediaContentHandler getInstance(ContentHandler contentHandler)
-    {
+    public static MediaContentHandler getInstance(ContentHandler contentHandler) {
         mContentHandler = contentHandler;
         return new MediaContentHandler();
+    }
+
+    /**
+     * Play via mediaPlayer is if uri mimeType is Video.
+     *
+     * @param uriList List of Uri
+     *
+     * @return Return an empty uriList if played, else the default.
+     */
+    public List<Uri> playIfVideo(List<Uri> uriList) {
+        Uri uri = uriList.get(0);
+        String mimeType = FileBackend.getMimeType(mContext, uri);
+        if (!TextUtils.isEmpty(mimeType) && (mimeType.contains("video"))) {
+            playMediaUrl(uriList.get(0).getPath());
+            return new ArrayList<>();
+        }
+        return uriList;
     }
 
     /**
@@ -69,8 +84,7 @@ public class MediaContentHandler
      *
      * @return true if already handled locally in playback or uriList is not empty
      */
-    public boolean getMediaUris(String hymnTable, int hymnNo, MediaType mediaType, List<Uri> uriList)
-    {
+    public boolean getMediaUris(String hymnTable, int hymnNo, MediaType mediaType, List<Uri> uriList) {
         boolean isHandled;
 
         boolean isFu = hymnTable.equals(HYMN_DB) && (hymnNo > HYMN_DB_NO_MAX);
@@ -92,10 +106,10 @@ public class MediaContentHandler
      *
      * @param mediaUrl for
      * @param uriList a url list to be populated for any unhandled link
+     *
      * @return true if given mediaUrl can be playback/a valid link; else false
      */
-    private boolean getUriList(String mediaUrl, List<Uri> uriList)
-    {
+    private boolean getUriList(String mediaUrl, List<Uri> uriList) {
         if (!TextUtils.isEmpty(mediaUrl)) {
             Uri uri = Uri.parse(mediaUrl);
             String mimeType = FileBackend.getMimeType(mContext, uri);
@@ -112,7 +126,6 @@ public class MediaContentHandler
                 return true;
             }
             else {
-
                 // Local media file playback
                 File uriFile = new File(mediaUrl);
                 if (uriFile.exists()) {
@@ -137,8 +150,7 @@ public class MediaContentHandler
      *
      * @param mediaUrl for playback
      */
-    public void playMediaUrl(String mediaUrl)
-    {
+    public void playMediaUrl(String mediaUrl) {
         Uri uri = Uri.parse(mediaUrl);
         String mimeType = FileBackend.getMimeType(mContext, uri);
         if ((!TextUtils.isEmpty(mimeType) && (mimeType.contains("video") || mimeType.contains("audio")))
@@ -170,8 +182,7 @@ public class MediaContentHandler
      *
      * @param videoUrl an video url for playback
      */
-    private void playViaEmbeddedPlayer(String videoUrl)
-    {
+    private void playViaEmbeddedPlayer(String videoUrl) {
         Bundle bundle = new Bundle();
         bundle.putString(ATTR_MEDIA_URL, videoUrl);
         mContentHandler.showMediaPlayerUi();
@@ -195,8 +206,7 @@ public class MediaContentHandler
     /**
      * Release the exoPlayer or youtube player resource on end
      */
-    public void releasePlayer()
-    {
+    public void releasePlayer() {
         if (mExoPlayer != null) {
             mExoPlayer.releasePlayer();
             mExoPlayer = null;
@@ -204,6 +214,25 @@ public class MediaContentHandler
         else if (mYoutubePlayer != null) {
             mYoutubePlayer.release();
             mYoutubePlayer = null;
+        }
+    }
+
+    public boolean isPlayerVisible() {
+        if (mExoPlayer != null) {
+            return mExoPlayer.isPlayerVisible();
+        }
+        else if (mYoutubePlayer != null) {
+            return mYoutubePlayer.isPlayerVisible();
+        }
+        return false;
+    }
+
+    public void setPlayerVisible(boolean show) {
+        if (mExoPlayer != null) {
+            mExoPlayer.setPlayerVisible(show);
+        }
+        else if (mYoutubePlayer != null) {
+            mYoutubePlayer.setPlayerVisible(show);
         }
     }
 }

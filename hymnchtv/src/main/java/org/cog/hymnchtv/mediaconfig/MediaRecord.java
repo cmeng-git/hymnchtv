@@ -16,46 +16,43 @@
  */
 package org.cog.hymnchtv.mediaconfig;
 
+import static org.cog.hymnchtv.MainActivity.HYMN_DB;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
+
 import android.os.Environment;
 import android.text.TextUtils;
-
-import org.cog.hymnchtv.MediaType;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Locale;
 
-import timber.log.Timber;
+import org.cog.hymnchtv.MediaType;
+import org.jetbrains.annotations.NotNull;
 
-import static org.cog.hymnchtv.MainActivity.HYMN_DB;
-import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
+import timber.log.Timber;
 
 /**
  * The class provide handlers for the media record
- * @see MediaConfig for the format of the media record
  *
  * @author Eng Chong Meng
+ * @see MediaConfig for the format of the media record
  */
-public class MediaRecord
-{
+public class MediaRecord {
     public static final String DOWNLOAD_FP = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
     public static final String DOWNLOAD_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getName();
 
     protected final String mHymnType;
     protected final int mHymnNo;
     protected final boolean mIsFu;
-    protected final MediaType mMediaType;
+    protected MediaType mMediaType;
     protected String mMediaUri;
     protected String mFilePath;
 
-    public MediaRecord(String hymnType, int hymnNo, boolean isFu, MediaType mediaType)
-    {
+    public MediaRecord(String hymnType, int hymnNo, boolean isFu, MediaType mediaType) {
         this(hymnType, hymnNo, isFu, mediaType, null, null);
     }
 
-    public MediaRecord(String hymnType, int hymnNo, boolean isFu, MediaType mediaType, String mediaUri, String filePath)
-    {
+    public MediaRecord(String hymnType, int hymnNo, boolean isFu, MediaType mediaType, String mediaUri, String filePath) {
         mHymnType = hymnType;
         mHymnNo = hymnNo;
         mIsFu = isFu;
@@ -64,51 +61,42 @@ public class MediaRecord
         mFilePath = filePath;
     }
 
-    public void setMediaUri(String mediaUri)
-    {
+    public void setMediaUri(String mediaUri) {
         mMediaUri = mediaUri;
     }
 
-    public void setFilePath(String filePath)
-    {
+    public void setFilePath(String filePath) {
         mFilePath = filePath;
     }
 
-    public String getHymnType()
-    {
+    public String getHymnType() {
         return mHymnType;
     }
 
-    public int getHymnNo()
-    {
+    public int getHymnNo() {
         return mHymnNo;
     }
 
-    public boolean isFu()
-    {
+    public boolean isFu() {
         return mIsFu;
     }
 
-    public static boolean isFu(String hymnType, int hymnNo)
-    {
+    public static boolean isFu(String hymnType, int hymnNo) {
         return HYMN_DB.equals(hymnType) && (hymnNo > HYMN_DB_NO_MAX);
     }
 
-    public MediaType getMediaType()
-    {
+    public MediaType getMediaType() {
         return mMediaType;
     }
 
-    public String getMediaUri()
-    {
+    public String getMediaUri() {
         if (TextUtils.isEmpty(mMediaUri) || "null".equalsIgnoreCase(mMediaUri))
             return null;
 
         return mMediaUri;
     }
 
-    public String getMediaFilePath()
-    {
+    public String getMediaFilePath() {
         if (TextUtils.isEmpty(mFilePath) || "null".equalsIgnoreCase(mFilePath))
             return null;
 
@@ -120,8 +108,7 @@ public class MediaRecord
      *
      * @return 附x or the actual hymno
      */
-    public String getHymnNoFu()
-    {
+    public String getHymnNoFu() {
         String hymnNo = String.format(Locale.CHINA, "%04d", mHymnNo);
         if (mIsFu && mHymnType.equals(HYMN_DB)) {
             hymnNo = "附" + (mHymnNo - HYMN_DB_NO_MAX);
@@ -131,21 +118,21 @@ public class MediaRecord
 
     /**
      * Convert the give string which containing full parameters for conversion to MediaRecord
-     *
+     * <p>
      * // ListView item for HYMN_JIAOCHANG and HYMN_MEDIA
      * hymn_db:#0001: HYMN_JIAOCHANG\n
      * uri: http://mp.weixin.qq.com/s?__biz=MzUwOTc2ODcxNA==&amp;amp;mid=2247486824&amp;amp;idx=5&amp;amp;sn=97d137a5a4ddb1b0b778087ac84770b7&amp;amp;chksm=f90c680dce7be11b4a3445af8dbe636b5a3d921ce910427609684bff2e5d95d0cda0696af419&amp;amp;scene=21#wechat_redirect\n
      * fp: null
-     *
+     * <p>
      * hymn_db:#0002: HYMN_MEDIA
      * uri: https://youtu.be/DDvUVzR2-_Q
      * fp: null
      *
      * @param mString can be the exported string or ListView string
+     *
      * @return the converted MediaRecord, or null for invalid mRecord string
      */
-    public static MediaRecord toRecord(String mString)
-    {
+    public static MediaRecord toRecord(String mString) {
         if (TextUtils.isEmpty(mString))
             return null;
 
@@ -169,7 +156,8 @@ public class MediaRecord
         int hymnNo = Integer.parseInt(sHymnNo);
         if (isFu && (hymnNo <= HYMN_DB_NO_MAX)) {
             hymnNo += HYMN_DB_NO_MAX;
-        } else {
+        }
+        else {
             isFu = isFu(hymnType, hymnNo);
         }
 
@@ -196,10 +184,9 @@ public class MediaRecord
      *
      * @return MediaRecord string for database export
      */
-    public String toExportString()
-    {
+    public String toExportString() {
         return String.format(Locale.CHINA, "%s,%d,%d,%s,%s,%s\r\n",
-                mHymnType, mHymnNo, mIsFu?1:0, mMediaType, getMediaUri(), getMediaFilePath());
+                mHymnType, mHymnNo, mIsFu ? 1 : 0, mMediaType, getMediaUri(), getMediaFilePath());
     }
 
     /**
@@ -207,8 +194,7 @@ public class MediaRecord
      *
      * @return MediaRecord in user readable String
      */
-    public @NotNull String toString()
-    {
+    public @NotNull String toString() {
         // Decode the uri link for friendly user UI
         String uriLink = getMediaUri();
         if (uriLink != null) {

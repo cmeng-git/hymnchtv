@@ -23,16 +23,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.apache.http.util.EncodingUtils;
-import org.cog.hymnchtv.utils.DialogActivity;
-import org.cog.hymnchtv.utils.ThemeHelper;
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.http.util.EncodingUtils;
+import org.cog.hymnchtv.utils.DialogActivity;
+import org.jetbrains.annotations.NotNull;
 
 import jp.wasabeef.richeditor.RichEditor;
 import timber.log.Timber;
@@ -200,9 +199,9 @@ public class RichTextEditor extends BaseActivity
     private void checkUnsavedChanges() {
         if (hasChanges) {
             DialogActivity.showConfirmDialog(this,
-                    R.string.gui_to_be_added,
-                    R.string.gui_unsaved_changes,
-                    R.string.gui_add, this);
+                    R.string.to_be_added,
+                    R.string.unsaved_changes,
+                    R.string.add, this);
         }
         else {
             finish();
@@ -244,7 +243,7 @@ public class RichTextEditor extends BaseActivity
 
         } catch (IOException e) {
             Timber.w("Content file not available: %s", e.getMessage());
-            HymnsApp.showToastMessage(R.string.gui_file_DOES_NOT_EXIST);
+            HymnsApp.showToastMessage(R.string.file_does_not_exist);
         }
     }
 
@@ -257,7 +256,7 @@ public class RichTextEditor extends BaseActivity
             FileWriter fileWriter = new FileWriter(outFile.getAbsolutePath());
             fileWriter.write(mEditor.getHtml());
             fileWriter.close();
-            HymnsApp.showToastMessage(R.string.gui_file_saved);
+            HymnsApp.showToastMessage(R.string.file_saved);
         } catch (IOException e) {
             Timber.w("Save file exception: %s", e.getMessage());
         }

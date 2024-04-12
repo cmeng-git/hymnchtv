@@ -17,25 +17,29 @@
 package org.cog.hymnchtv.service.androidnotification;
 
 import android.annotation.TargetApi;
-import android.app.*;
-import android.content.*;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
 import android.os.Build;
 import android.provider.Settings;
 
 import androidx.annotation.RequiresApi;
 
-import org.cog.hymnchtv.R;
-
 import java.util.Arrays;
 import java.util.List;
+
+import org.cog.hymnchtv.R;
 
 /**
  * Helper class to manage notification channels, and create notifications.
  *
  * @author Eng Chong Meng
  */
-public class NotificationHelper extends ContextWrapper
-{
+public class NotificationHelper extends ContextWrapper {
     /**
      * Default group uses hymnchtv icon for notifications
      */
@@ -47,7 +51,7 @@ public class NotificationHelper extends ContextWrapper
     public static final String SILENT_GROUP = "silent";
 
 
-    public static List<String> notificationIds = Arrays.asList( DEFAULT_GROUP, SILENT_GROUP);
+    public static List<String> notificationIds = Arrays.asList(DEFAULT_GROUP, SILENT_GROUP);
 
     private NotificationManager notificationManager = null;
 
@@ -58,8 +62,7 @@ public class NotificationHelper extends ContextWrapper
      *
      * @param ctx The application context
      */
-    public NotificationHelper(Context ctx)
-    {
+    public NotificationHelper(Context ctx) {
         super(ctx);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -93,8 +96,7 @@ public class NotificationHelper extends ContextWrapper
      * @param id The ID of the notification
      * @param notification The notification object
      */
-    public void notify(int id, Notification.Builder notification)
-    {
+    public void notify(int id, Notification.Builder notification) {
         notificationManager.notify(id, notification.build());
     }
 
@@ -102,8 +104,7 @@ public class NotificationHelper extends ContextWrapper
      * Send Intent to load system Notification Settings for this app.
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void goToNotificationSettings()
-    {
+    public void goToNotificationSettings() {
         Intent i = new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS);
         i.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
         startActivity(i);
@@ -115,8 +116,7 @@ public class NotificationHelper extends ContextWrapper
      * @param channel Name of notification channel.
      */
     @TargetApi(Build.VERSION_CODES.O)
-    public void goToNotificationSettings(String channel)
-    {
+    public void goToNotificationSettings(String channel) {
         Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS);
         intent.putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName());
         intent.putExtra(Settings.EXTRA_CHANNEL_ID, channel);
@@ -124,8 +124,7 @@ public class NotificationHelper extends ContextWrapper
     }
 
     @TargetApi(Build.VERSION_CODES.O)
-    private void deleteObsoletedChannelIds(boolean force)
-    {
+    private void deleteObsoletedChannelIds(boolean force) {
         List<NotificationChannel> channelGroups = notificationManager.getNotificationChannels();
         for (NotificationChannel nc : channelGroups) {
             if (force || !notificationIds.contains(nc.getId())) {
@@ -140,8 +139,7 @@ public class NotificationHelper extends ContextWrapper
      *
      * @return Pending Intent Flag based on API
      */
-    public static int getPendingIntentFlag(boolean isMutable, boolean isUpdate)
-    {
+    public static int getPendingIntentFlag(boolean isMutable, boolean isUpdate) {
         int flag = isUpdate ? PendingIntent.FLAG_UPDATE_CURRENT : PendingIntent.FLAG_CANCEL_CURRENT;
         if (isMutable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             flag |= PendingIntent.FLAG_MUTABLE;

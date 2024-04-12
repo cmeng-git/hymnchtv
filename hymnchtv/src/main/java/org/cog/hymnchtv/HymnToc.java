@@ -16,10 +16,6 @@
  */
 package org.cog.hymnchtv;
 
-import static org.cog.hymnchtv.ContentHandler.category_bb;
-import static org.cog.hymnchtv.ContentHandler.category_db;
-import static org.cog.hymnchtv.ContentHandler.category_er;
-import static org.cog.hymnchtv.ContentHandler.category_xb;
 import static org.cog.hymnchtv.ContentView.LYRICS_BBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_DBS_TEXT;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
@@ -45,9 +41,6 @@ import android.view.KeyEvent;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 
-import org.apache.http.util.EncodingUtils;
-import org.apache.http.util.TextUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -57,12 +50,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.http.util.EncodingUtils;
+import org.apache.http.util.TextUtils;
+
 import timber.log.Timber;
 
 /**
  * HymnToc: Generate the hymn Toc for the user selected hymnType and Toc Type.
  * i.e. 诗歌类别, 笔画索引, and 拼音索引
- *
+ * <p>
  * The result is displayed in Tree View structure allowing user to expand or collapse.
  * When user click on any hymn title the respective hymn contents are displayed.
  *
@@ -107,6 +103,7 @@ public class HymnToc extends BaseActivity {
 //    public static final String TOC_ENGLISH = HymnsApp.getResString(R.string.hymn_eng2ch);
 
     public static List<String> hymnTocPage = new ArrayList<>();
+
     static {
         hymnTocPage.add(TOC_TITLE);
         hymnTocPage.add(TOC_CATEGORY);
@@ -125,6 +122,18 @@ public class HymnToc extends BaseActivity {
     private static final String STROKE_FILE = "_stroke.txt";
     private static final String PINYIN_FILE = "_pinyin.txt";
     private static final String ENGLISH_FILE = "_eng2ch.txt";
+
+    /**
+     * Array contains the max hymnNo max (i.e. start number of next category) for each category
+     */
+    public static final int[] category_db = new int[]{1, 6, 53, 194, 229, 269, 330, 356, 367, 441, 454, 458, 472,
+            474, 490, 529, 548, 551, 579, 592, 624, 632, 650, 662, 670, 740, 745, 752, 768, 781, 787};
+
+    public static final int[] category_bb = new int[]{1, 101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101};
+
+    public static final int[] category_xb = new int[]{1, 40, 74, 110, 131, 143, 170};
+
+    public static final int[] category_er = new int[]{1, 101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101, 1201, 1301};
 
     // The treeView arrays for display
     private HashMap<String, List<String>> tocListDetail = new LinkedHashMap<>();
@@ -201,7 +210,7 @@ public class HymnToc extends BaseActivity {
     /**
      * Routine to generate all the various TOC type i.e. tocPage
      * The title will indicate the select hymn type: toc
-     *
+     * <p>
      * TocCategory: is generated from the various hymn lyrics files
      * TocStroke / TocPinyin: generate based on the respective toc text file
      *
@@ -472,7 +481,7 @@ public class HymnToc extends BaseActivity {
             }
         } catch (IOException e) {
             Timber.w("Content toc not available: %s", e.getMessage());
-            HymnsApp.showToastMessage(R.string.gui_in_development);
+            HymnsApp.showToastMessage(R.string.in_development);
         }
     }
 

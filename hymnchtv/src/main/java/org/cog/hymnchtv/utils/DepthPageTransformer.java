@@ -25,12 +25,10 @@ import androidx.viewpager2.widget.ViewPager2;
  *
  * @author Eng Chong Meng
  */
-public class DepthPageTransformer implements ViewPager2.PageTransformer
-{
+public class DepthPageTransformer implements ViewPager2.PageTransformer {
     private static final float MIN_SCALE = 0.75f;
 
-    public void transformPage(View view, float position)
-    {
+    public void transformPage(View view, float position) {
         int pageWidth = view.getWidth();
 
         if (position < -1) { // [-Infinity,-1)
