@@ -120,16 +120,8 @@
             android:id="@+id/decodeUri"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="15dp"
             android:contentDescription="@string/media_link"
             android:src="@drawable/ic_uri_decode" />
-
-        <ImageButton
-            android:id="@+id/browseMediaUri"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/media_link"
-            android:src="@drawable/ic_folder" />
     </LinearLayout>
 
     <EditText

@@ -6,6 +6,16 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="2.2.1 (05/22/2024)" versioncode="202010">
+        <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>诗歌本应用程将检查数据库中是否存在任何现有的媒体链接记录，包括诗歌本程序子目录中的本地媒体文件；并提醒用户在保存到数据库中时可能会覆盖记录。</change>
+        <change>删除用户定义媒体设置中的安卓本地媒体文件选项。安卓返回的文件链接是临时，保存在数据库中的链接对于以后访问无效。</change>
+        <change>用户在定义媒体设置界面中输入所有必需的诗歌项目后，媒体链接字段现在会自动填充数据库中的媒体记录或诗歌本目录中找到的本地媒体文件。</change>
+        <change>如果本地媒体文件被保存在数据库中的链接所掩盖，则以红色突出显示媒体链接文本。</change>
+        <change>如果检测到任何新应用程序，则使更新按钮可见并闪烁其文本颜色以提醒用户继续应用程序更新。</change>
+        <change>如果未选中记录覆盖选项，则导入媒体链接不会掩盖任何现有的本地文件。</change>
+    </release>
+
     <release version="2.2.0 (04/12/2024)" versioncode="202000">
         <change>请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
         <change>提高英文歌词获取过程的可靠性。</change>

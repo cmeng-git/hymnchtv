@@ -108,7 +108,7 @@
     <string name="app_new_available">Online new app version: %1$s-%2$s</string>
     <string name="app_reinstall">Reinstall</string>
     <string name="app_update">upgrade</string>
-    <string name="app_upgrade">App update</string>
+    <string name="app_upgrade">Update App</string>
     <string name="app_update_check">Update</string>
     <string name="app_update_install">App update</string>
     <string name="app_update_none">No new version of the application</string>

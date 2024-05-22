@@ -218,6 +218,7 @@ public class MediaExoPlayerFragment extends Fragment {
 
     /**
      * Play the specified videoUrl using android Intent.ACTION_VIEW
+     * Use setDataAndType(uri, mimeType) to ensure android has default defined.
      *
      * @param videoUrl videoUrl not playable by ExoPlayer
      */

@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- Required to check whether Wi-Fi is enabled -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <!-- Required to download files from Google Play etc -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -23,7 +24,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!-- Required to read and write the expansion files on shared storage -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28"
+        android:maxSdkVersion="29"
         tools:ignore="ScopedStorage" />
 
     <queries>

@@ -165,7 +165,7 @@ public class MediaContentHandler {
 
             PackageManager manager = mContext.getPackageManager();
             List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
-            if (info.size() == 0) {
+            if (info.isEmpty()) {
                 openIntent.setDataAndType(uri, "*/*");
             }
             try {

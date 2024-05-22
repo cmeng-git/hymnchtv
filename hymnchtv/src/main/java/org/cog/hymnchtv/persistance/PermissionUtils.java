@@ -50,8 +50,10 @@ public class PermissionUtils {
             permissionList.add(Manifest.permission.READ_MEDIA_IMAGES);
             permissionList.add(Manifest.permission.POST_NOTIFICATIONS);
         }
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+            permissionList.add(Manifest.permission.ACCESS_MEDIA_LOCATION);
+        }
+        else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
     }

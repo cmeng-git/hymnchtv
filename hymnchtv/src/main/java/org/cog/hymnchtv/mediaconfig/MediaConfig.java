@@ -44,6 +44,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -86,6 +87,7 @@ import java.util.Map;
 
 import org.apache.http.util.EncodingUtils;
 import org.cog.hymnchtv.BaseActivity;
+import org.cog.hymnchtv.ContentHandler;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.MainActivity;
 import org.cog.hymnchtv.MediaType;
@@ -145,9 +147,12 @@ public class MediaConfig extends BaseActivity
     // Import Url version preference parameter
     public static String PREF_VERSION_URL = "VersionUrlImport";
 
-    // current url_import version; set to the same as in build.gradle versionImport.
-    // Increase both values if there are new apk and url_import file released.
-    public static final int URL_IMPORT_VERSION = 102;
+    /*
+     * current default url_import version; always set the value to (build.gradle versionImport - 1)
+     * This is to force a new install apk will update the DB from asset file on first launch.
+     * Increase the build.gradle versionImport value if there is url_import file released.
+    */
+    public static final int URL_IMPORT_VERSION = 101;
 
     // The default directory when import_export files are being saved
     public static final String DIR_IMPORT_EXPORT = "import_export/";
@@ -238,7 +243,7 @@ public class MediaConfig extends BaseActivity
     private String sHymnType = hymnTypeEntry.get(0);
     private String sMediaType = mediaTypeEntry.get(0);
 
-    private final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
+    private static final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -291,13 +296,6 @@ public class MediaConfig extends BaseActivity
         cbFu = findViewById(R.id.cbFu);
         cbFu.setOnCheckedChangeListener((buttonView, isChecked) -> checkEntry());
 
-        ActivityResultLauncher<String> mGetContent = getFileUri();
-        /* The media uri is selected by user via file explorer */
-        findViewById(R.id.browseMediaUri).setOnClickListener(view -> {
-            mViewRequest = tvMediaUri;
-            mGetContent.launch("*/*");
-        });
-
         findViewById(R.id.shareMediaUri).setOnClickListener(this);
         findViewById(R.id.decodeUri).setOnClickListener(this);
 
@@ -343,6 +341,7 @@ public class MediaConfig extends BaseActivity
         cbOverwrite = findViewById(R.id.recordOverwrite);
 
         /* Use a file explorer to load in an import file */
+        ActivityResultLauncher<String> mGetContent = getFileUri();
         findViewById(R.id.browseImportFile).setOnClickListener(view -> {
             mViewRequest = tvImportFile;
             mGetContent.launch("*/*");
@@ -682,7 +681,7 @@ public class MediaConfig extends BaseActivity
                 return false;
             }
 
-            if (mDB.getMediaRecord(mRecord, false)) {
+            if (hasMediaRecord(mRecord)) {
                 DialogActivity.showConfirmDialog(this,
                         R.string.to_be_added,
                         R.string.db_overwrite_media,
@@ -959,27 +958,47 @@ public class MediaConfig extends BaseActivity
             return;
         }
 
+        String uriPath = null;
         MediaRecord mediaRecord = new MediaRecord(mHymnType, nui, isFu, mMediaType);
         if (mDB.getMediaRecord(mediaRecord, true)) {
-            String uriPath = mediaRecord.getMediaFilePath();
+            uriPath = mediaRecord.getMediaFilePath();
             if (TextUtils.isEmpty(uriPath)) {
                 uriPath = mediaRecord.getMediaUri();
             }
-
-            if (!TextUtils.isEmpty(uriPath)) {
-                // show the mediaUri EditText view
-                if (tvMediaUri.getVisibility() == View.GONE) {
-                    tvMediaUri.setVisibility(View.VISIBLE);
-                    tvUriDecode.setVisibility(View.GONE);
-                }
-
-                // force focus to tvHymnNo so isAutoFilled cannot be accidentally cleared
-                tvHymnNo.requestFocus();
-                tvMediaUri.setText(uriPath);
-                return;
+            tvMediaUri.setTextColor(ContentHandler.isFileExist(mediaRecord) ? Color.RED : Color.DKGRAY);
+        }
+        else {
+            List<Uri> uriList = new ArrayList<>();
+            String dir = mHymnType + mediaDir.get(mMediaType);
+            if (ContentHandler.isFileExist(dir, Integer.parseInt(hymnNo), uriList)) {
+                uriPath = uriList.get(0).getPath();
+                tvMediaUri.setTextColor(Color.DKGRAY);
             }
         }
+
+        if (!TextUtils.isEmpty(uriPath)) {
+            // show the mediaUri EditText view
+            if (tvMediaUri.getVisibility() == View.GONE) {
+                tvMediaUri.setVisibility(View.VISIBLE);
+                tvUriDecode.setVisibility(View.GONE);
+            }
+
+            // force focus to tvHymnNo so isAutoFilled cannot be accidentally cleared
+            tvHymnNo.requestFocus();
+            tvMediaUri.setText(uriPath);
+            return;
+        }
         tvMediaUri.setText("");
+    }
+
+    // Check for any existing mediaRecord in DB or as saved local file
+    private static boolean hasMediaRecord(MediaRecord mediaRecord) {
+        if (mDB.getMediaRecord(mediaRecord, false)) {
+            return true;
+        }
+        else {
+            return ContentHandler.isFileExist(mediaRecord);
+        }
     }
 
     // =============================== MediaRecord Database Handler ============================
@@ -1068,7 +1087,7 @@ public class MediaConfig extends BaseActivity
                 boolean isFu = mediaRecord.isFu();
                 int hymnNo = isFu ? (mediaRecord.getHymnNo() - HYMN_DB_NO_MAX) : mediaRecord.getHymnNo();
                 int nui = HymnNoValidate.validateHymnNo(mediaRecord.getHymnType(), hymnNo, isFu);
-                if ((nui != -1) && (isOverWrite || !mDB.getMediaRecord(mediaRecord, false))) {
+                if ((nui != -1) && (isOverWrite || !hasMediaRecord(mediaRecord))) {
                     mDB.storeMediaRecord(mediaRecord);
                     record++;
                 }

@@ -23,6 +23,8 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
 
 import android.Manifest;
+import android.animation.ArgbEvaluator;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.KeyguardManager;
@@ -47,6 +49,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -233,8 +236,12 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                     cl.getLogDialog().show();
                 }
             }, 15000));
-            // Not necessary for debug version; can rely on updateServiceImpl;
-            MediaConfig.importUrlAssetFile();
+            /*
+             * Disable importUrlAssetFile for debug version on start; rely on updateServiceImpl instead.
+             * Likely the DB has already been updated when user is prompt to update apk.
+             * See MediaConfig#URL_IMPORT_VERSION value setting.
+             */
+            // MediaConfig.importUrlAssetFile();
         }
 
         // 儿童诗歌
@@ -379,7 +386,22 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     protected void onResume() {
         super.onResume();
         autoClear = true;
-        mInstance.btn_update.setVisibility(mHasUpdate ? View.VISIBLE : View.GONE);
+        if (mHasUpdate) {
+            btn_update.setVisibility(View.VISIBLE);
+            // adding the color to be shown
+            ObjectAnimator animator = ObjectAnimator.ofInt(btn_update, "textColor", Color.BLUE, Color.RED, Color.GREEN);
+
+            // duration of one color
+            animator.setDuration(15000);
+            animator.setEvaluator(new ArgbEvaluator());
+            // color will be show in reverse manner
+            animator.setRepeatCount(Animation.REVERSE);
+            // It will be repeated up to infinite time
+            animator.setRepeatCount(Animation.INFINITE);
+            animator.start();
+        } else {
+            btn_update.setVisibility(View.GONE);
+        }
         configureToolBar();
     }
 

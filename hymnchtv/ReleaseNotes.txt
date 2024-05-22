@@ -1,6 +1,17 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    05/22/2024
+Version:        2.2.1 (202010)
+- Hymnchtv will check for any existing mediaRecord url link in DB, including the local media file in hymnchtv sub-directory; and alert user of possible record overwritten when saving in mediaConfig.
+- Remove android file picker option for local media file in mediaConfig. The file path returned by android is a temporary url, and the url link saved in DB is invalid for later access.
+- After user has entered all required hymn info in MediaConfig UI, the media url link field is now auto filled with media record in DB, or local local media file found in hymnchtv directory.
+- Highlight mediaConfig url link text in RED if there is local media file being overshadowed by the url link saved in DB.
+- Import of url links will not overshadow any existing local file if overwritten option is unchecked.
+- When a new apk is found, make Update button visible and flash its text color to alert user to proceed with the app update.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    04/12/2024
 Version:        2.2.0 (202000)
 - Improve English lyrics fetching process reliability.

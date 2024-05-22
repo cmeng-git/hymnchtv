@@ -176,7 +176,7 @@ public class LyricsEnglishRecord {
         Pattern pattern = Pattern.compile("<div class=\"row main-content\">(.+?</table>).+?");
 
         WebView webView = initWebView(mContext);
-        webView.loadUrl(urlToLoad); // preload url and wait for 1.5 sec before checking.
+        webView.loadUrl(urlToLoad); // preload url and wait for 2.0 sec before checking.
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
@@ -201,7 +201,7 @@ public class LyricsEnglishRecord {
                             Timber.e("Web scrapping failed: %s", e.getMessage());
                             valueCallback.onReceiveValue(null);
                         }
-                    }, 1500);
+                    }, 2000);
                 }
             }
         });

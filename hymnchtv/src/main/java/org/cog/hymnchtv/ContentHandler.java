@@ -65,6 +65,7 @@ import java.util.regex.Pattern;
 
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.TextUtils;
+import org.cog.hymnchtv.mediaconfig.MediaConfig;
 import org.cog.hymnchtv.mediaconfig.MediaRecord;
 import org.cog.hymnchtv.mediaconfig.NotionRecord;
 import org.cog.hymnchtv.mediaconfig.QQRecord;
@@ -416,7 +417,7 @@ public class ContentHandler extends BaseActivity {
             imageUris.add(FileBackend.getUriForFile(this, fileLyrics));
             ShareWith.share(this, getMediaUrl(), imageUris);
         } catch (IOException e) {
-            e.printStackTrace();
+            Timber.e("lyrics shared: %s", e.getMessage());
         }
     }
 
@@ -561,15 +562,15 @@ public class ContentHandler extends BaseActivity {
                 switch (mediaType) {
                     case HYMN_MEDIA:
                         dir = mHymnType + MEDIA_MEDIA;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                     case HYMN_JIAOCHANG:
                         dir = mHymnType + MEDIA_JIAOCHANG;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                     case HYMN_CHANGSHI:
                         dir = mHymnType + MEDIA_CHANGSHI;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                         if (proceedDownLoad) {
                             fileName = "C" + fileName + ".mp3";
@@ -580,7 +581,7 @@ public class ContentHandler extends BaseActivity {
 
                     case HYMN_BANZOU:
                         dir = mHymnType + MEDIA_BANZOU;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
                 }
                 break;
 
@@ -588,15 +589,15 @@ public class ContentHandler extends BaseActivity {
                 switch (mediaType) {
                     case HYMN_MEDIA:
                         dir = mHymnType + MEDIA_MEDIA;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                     case HYMN_JIAOCHANG:
                         dir = mHymnType + MEDIA_JIAOCHANG;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                     case HYMN_CHANGSHI:
                         dir = mHymnType + MEDIA_CHANGSHI;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                         if (proceedDownLoad) {
                             fileName = "X" + fileName + ".mp3";
@@ -607,7 +608,7 @@ public class ContentHandler extends BaseActivity {
 
                     case HYMN_BANZOU:
                         dir = mHymnType + MEDIA_BANZOU;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
                 }
                 break;
 
@@ -615,15 +616,15 @@ public class ContentHandler extends BaseActivity {
                 switch (mediaType) {
                     case HYMN_MEDIA:
                         dir = mHymnType + MEDIA_MEDIA;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                     case HYMN_JIAOCHANG:
                         dir = mHymnType + MEDIA_JIAOCHANG;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                     case HYMN_CHANGSHI:
                         dir = mHymnType + MEDIA_CHANGSHI;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                         if (proceedDownLoad) {
                             fileName = "B" + fileName + ".mp3";
@@ -642,7 +643,7 @@ public class ContentHandler extends BaseActivity {
                         }
 
                         dir = mHymnType + MEDIA_BANZOU;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                         if (proceedDownLoad) {
                             fileName = "B" + fileName + ".mid";
@@ -658,15 +659,15 @@ public class ContentHandler extends BaseActivity {
                 switch (mediaType) {
                     case HYMN_MEDIA:
                         dir = mHymnType + MEDIA_MEDIA;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                     case HYMN_JIAOCHANG:
                         dir = mHymnType + MEDIA_JIAOCHANG;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                     case HYMN_CHANGSHI:
                         dir = mHymnType + MEDIA_CHANGSHI;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                         if (proceedDownLoad) {
                             fileName = "D" + fileName + ".mp3";
@@ -685,7 +686,7 @@ public class ContentHandler extends BaseActivity {
                         }
 
                         dir = mHymnType + MEDIA_BANZOU;
-                        if (isExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
 
                         if (proceedDownLoad) {
                             fileName = "D" + fileName + ".mid";
@@ -714,7 +715,7 @@ public class ContentHandler extends BaseActivity {
      *
      * @return true if local media file is found else false
      */
-    private boolean isExist(String dir, int hymnNo, List<Uri> uriList) {
+    public static boolean isFileExist(String dir, int hymnNo, List<Uri> uriList) {
         File hymnDir = FileBackend.getHymnchtvStore(dir, true);
         if (hymnDir != null) {
             final Pattern pattern = Pattern.compile("[^1-9]" + hymnNo + "[^0-9]");
@@ -734,6 +735,11 @@ public class ContentHandler extends BaseActivity {
             }
         }
         return false;
+    }
+
+    public static boolean isFileExist(MediaRecord mediaRecord) {
+        String dir = mediaRecord.getHymnType() +  MediaConfig.mediaDir.get(mediaRecord.getMediaType());
+        return isFileExist(dir, mediaRecord.getHymnNo(), null);
     }
 
     /**
@@ -774,22 +780,22 @@ public class ContentHandler extends BaseActivity {
             switch (mediaType) {
                 case HYMN_MEDIA:
                     dir = mHymnType + MEDIA_MEDIA;
-                    isAvailable[0] = isExist(dir, mHymnNo, null);
+                    isAvailable[0] = isFileExist(dir, mHymnNo, null);
                     break;
 
                 case HYMN_JIAOCHANG:
                     dir = mHymnType + MEDIA_JIAOCHANG;
-                    isAvailable[1] = isExist(dir, mHymnNo, null);
+                    isAvailable[1] = isFileExist(dir, mHymnNo, null);
                     break;
 
                 case HYMN_CHANGSHI:
                     dir = mHymnType + MEDIA_CHANGSHI;
-                    isAvailable[2] = isExist(dir, mHymnNo, null);
+                    isAvailable[2] = isFileExist(dir, mHymnNo, null);
                     break;
 
                 case HYMN_BANZOU:
                     dir = mHymnType + MEDIA_BANZOU;
-                    isAvailable[3] |= isExist(dir, mHymnNo, null);
+                    isAvailable[3] |= isFileExist(dir, mHymnNo, null);
                     break;
             }
         }

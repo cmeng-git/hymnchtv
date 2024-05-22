@@ -19,7 +19,7 @@
         &lt;br/>&lt;a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0&lt;/a>
         &lt;br/>All rights reserved.</string>
     <string name="db_export"><u>数库导出</u></string>
-    <string name="db_import">数库导入</string>
+    <string name="db_import"><u>数库导入</u></string>
     <string name="db_import_create">自建导入</string>
     <string name="db_import_file">数据库导入文件</string>
     <string name="db_import_record">数库导入共 %1$d (%2$d) 首诗歌</string>
@@ -109,7 +109,7 @@
     <string name="app_new_available">在线新版本: %1$s-%2$s</string>
     <string name="app_reinstall">重新安装</string>
     <string name="app_update">升级</string>
-    <string name="app_upgrade">程序更新</string>
+    <string name="app_upgrade">点击更新程序</string>
     <string name="app_update_check">更新</string>
     <string name="app_update_install">应用程序更新</string>
     <string name="app_update_none">没有应用程序新版本</string>
