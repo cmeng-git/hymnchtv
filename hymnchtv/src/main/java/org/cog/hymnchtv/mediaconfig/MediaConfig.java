@@ -148,11 +148,11 @@ public class MediaConfig extends BaseActivity
     public static String PREF_VERSION_URL = "VersionUrlImport";
 
     /*
-     * current default url_import version; always set the value to (build.gradle versionImport - 1)
+     * current default url_import version; always set the value to - 1.
      * This is to force a new install apk will update the DB from asset file on first launch.
      * Increase the build.gradle versionImport value if there is url_import file released.
     */
-    public static final int URL_IMPORT_VERSION = 101;
+    public static final int URL_IMPORT_VERSION = -1;
 
     // The default directory when import_export files are being saved
     public static final String DIR_IMPORT_EXPORT = "import_export/";
@@ -327,6 +327,9 @@ public class MediaConfig extends BaseActivity
                 cbFu.setChecked(MediaRecord.isFu(hymnType, hymnNo));
                 setHymnTypeSpinner(hymnType);
                 tvHymnNo.setText(String.valueOf(hymnNo));
+
+                // Highlight if the new url link overwrites existing media record
+                tvMediaUri.setTextColor(hasMediaRecord(createMediaRecord()) ? Color.RED : Color.DKGRAY);
             }
             else {
                 mShare = false;
@@ -503,7 +506,7 @@ public class MediaConfig extends BaseActivity
 
                 PackageManager manager = getPackageManager();
                 List<ResolveInfo> info = manager.queryIntentActivities(openIntent, 0);
-                if (info.size() == 0) {
+                if (info.isEmpty()) {
                     openIntent.setDataAndType(uri, "*/*");
                 }
                 try {
@@ -944,6 +947,8 @@ public class MediaConfig extends BaseActivity
     private void checkEntry() {
         if (!isAutoFilled) {
             Timber.d("AutoFilled is false");
+            // Highlight if the new url link overwrites existing media record
+            tvMediaUri.setTextColor(hasMediaRecord(createMediaRecord()) ? Color.RED : Color.DKGRAY);
             return;
         }
 
@@ -993,6 +998,9 @@ public class MediaConfig extends BaseActivity
 
     // Check for any existing mediaRecord in DB or as saved local file
     private static boolean hasMediaRecord(MediaRecord mediaRecord) {
+        if (mediaRecord == null)
+            return false;
+
         if (mDB.getMediaRecord(mediaRecord, false)) {
             return true;
         }

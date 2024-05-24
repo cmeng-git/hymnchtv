@@ -738,8 +738,11 @@ public class ContentHandler extends BaseActivity {
     }
 
     public static boolean isFileExist(MediaRecord mediaRecord) {
-        String dir = mediaRecord.getHymnType() +  MediaConfig.mediaDir.get(mediaRecord.getMediaType());
-        return isFileExist(dir, mediaRecord.getHymnNo(), null);
+        if (mediaRecord != null) {
+            String dir = mediaRecord.getHymnType() + MediaConfig.mediaDir.get(mediaRecord.getMediaType());
+            return isFileExist(dir, mediaRecord.getHymnNo(), null);
+        }
+        return false;
     }
 
     /**

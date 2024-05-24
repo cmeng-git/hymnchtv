@@ -1,6 +1,14 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    05/24/2024
+Version:        2.2.2 (202020)
+- MediaConfig#hasMediaRecord must check null for mediaRecord before proceed.
+- when user share an external url link, highlight media url link in RED if it overwrites an existing record..
+- Must update media url link text color when user changes any of the hymn field entry i.e. HymnType/MediaType/HymnNo/Fu.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    05/22/2024
 Version:        2.2.1 (202010)
 - Hymnchtv will check for any existing mediaRecord url link in DB, including the local media file in hymnchtv sub-directory; and alert user of possible record overwritten when saving in mediaConfig.
