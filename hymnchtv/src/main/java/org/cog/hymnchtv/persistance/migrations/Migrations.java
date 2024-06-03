@@ -18,10 +18,12 @@ package org.cog.hymnchtv.persistance.migrations;
 
 import android.database.sqlite.SQLiteDatabase;
 
+import androidx.annotation.NonNull;
+
 public class Migrations
 {
     @SuppressWarnings("fallthrough")
-    public static void upgradeDatabase(SQLiteDatabase db, MigrationsHelper migrationsHelper) {
+    public static void upgradeDatabase(@NonNull SQLiteDatabase db, MigrationsHelper migrationsHelper) {
         switch (db.getVersion()) {
             case 1:
                 MigrationTo2.createHymnHistoryTable(db);
@@ -29,6 +31,8 @@ public class Migrations
                 // Purge and relocate all qq records; access via jiaoChang button for >= v1.7.6 release
                 MigrationTo3.purgeHymnUrl(db);
                 MigrationTo3.createHymnEnglishTable(db);
+            case 3:
+                MigrationTo4.addHymnXgTable(db);
         }
     }
 }

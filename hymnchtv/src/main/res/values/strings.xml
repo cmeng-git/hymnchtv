@@ -85,17 +85,20 @@
     <string name="error_file_not_found">（无法取得文件: %1$s）</string>
     <string name="error_english_lyrics_null">对不起！当诗歌 \'%1$d\' 首没有英文歌词</string>
 
-    <string name="hymn_info_er_max">儿童诗歌只有%1$d（%2$d）首</string>
-    <string name="hymn_info_er_range_over">儿童诗歌没有: %1$s~%2$s（%3$s）</string>
-
     <string name="hymn_info_bb_max">补充本诗歌只有%1$d（%2$d）首</string>
     <string name="hymn_info_bb_range_over">补充本诗歌没有: %1$s~%2$s（%3$s）</string>
 
     <string name="hymn_info_db_max">大本诗歌只有%1$d（%2$d）首，和附歌6首</string>
     <string name="hymn_info_db_range_fu">大本诗歌附歌只有1~6首</string>
 
+    <string name="hymn_info_er_max">儿童诗歌只有%1$d（%2$d）首</string>
+    <string name="hymn_info_er_range_over">儿童诗歌没有: %1$s~%2$s（%3$s）</string>
+
     <string name="hymn_info_xb_max">新歌颂咏只有%1$d（%2$d）首</string>
     <string name="hymn_info_xb_invalid">新歌颂咏诗歌没有: %1$s</string>
+
+    <string name="hymn_info_xg_max">新诗歌只有%1$d（%2$d）首</string>
+    <string name="hymn_info_xg_invalid">新诗歌本没有: %1$s</string>
 
     <string name="hymn_info_media_none">对不起！此项目前没有播放文件</string>
     <string name="hymn_info_sp_none">您选择的项目，没有附歌</string>
@@ -129,7 +132,6 @@
     <string name="download_wait">请稍候，文件下载已在进行中。</string>
     <string name="in_progress">进行中</string>
 
-
     <string name="file_access_no_permission">您没有足够的权限保存或打开文件。请检查您的读取权限，然后重试</string>
     <string name="file_does_not_exist">找不到指定的文件。已删除或移动了该文件</string>
     <string name="file_download_failed">下载文件时发生错误：%1$s</string>
@@ -161,16 +163,17 @@
         \n\n\n3.您能否或如何重现问题？</string>
 
     <!-- hymnchtv main interface gui names -->
+    <string name="hymn_bb">补充</string>
     <string name="hymn_db">大本</string>
     <string name="hymn_content">内容</string>
     <string name="hymn_english">英文</string>
     <string name="hymn_er">儿诗</string>
     <string name="hymn_fu">附歌</string>
     <string name="hymn_lyrics">歌词</string>
-    <string name="hymn_xb">新颂</string>
     <string name="hymn_score">歌谱</string>
     <string name="hymn_search"><u>内容搜索</u></string>
-    <string name="hymn_bb">补充</string>
+    <string name="hymn_xb">新颂</string>
+    <string name="hymn_xg">新诗</string>
 
     <string name="hymn_toc">目录</string>
     <string name="hymn_category">诗歌类别</string>
@@ -178,11 +181,12 @@
     <string name="hymn_pinyin">拼音索引</string>
     <string name="hymn_eng2ch">英中对照</string>
 
-    <!-- Hymn title-->
+    <!-- Hymn title -->
     <string name="hymn_title_bb">诗歌本－补充本</string>
     <string name="hymn_title_db">诗歌本－大本诗歌</string>
     <string name="hymn_title_er">诗歌本－儿童诗歌</string>
     <string name="hymn_title_xb">诗歌本－新歌颂咏</string>
+    <string name="hymn_title_xg">诗歌本－新诗歌本</string>
 
     <!-- hymnchtv media player interface gui names -->
     <string name="hymn_media_banzou">伴奏</string>
@@ -196,12 +200,14 @@
     <string name="hymn_title_mc_dbs">大本 附%1$d: %2$s</string>
     <string name="hymn_title_mc_er">儿诗 %1$d: %2$s</string>
     <string name="hymn_title_mc_xb">新颂 %1$d: %2$s</string>
+    <string name="hymn_title_mc_xg">新诗 %1$d: %2$s</string>
 
     <!-- hymn search gui strings -->
     <string name="hymn_match">共有匹配 %1$d 首诗歌</string>
     <string name="hymn_match_auto_create">%1$s/%2$s：共有匹配 %3$d 首诗歌</string>
     <string name="hymn_match_er">儿童诗歌: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_xb">新歌颂咏: 第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_xg">新诗歌本: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_bb">補充本诗歌: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_db">大本诗歌: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_db_sp">大本诗歌: 附歌第 %1$d 首：\n%2$s</string>

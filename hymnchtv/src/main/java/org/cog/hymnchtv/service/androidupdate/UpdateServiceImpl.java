@@ -70,6 +70,11 @@ public class UpdateServiceImpl {
             "https://atalk.sytes.net/releases/hymnchtv/version.properties"
     };
 
+    // filename is case-sensitive
+    private static final String fileNameApk = String.format("/hymnchtv-%s.apk", BuildConfig.BUILD_TYPE);
+    // github apk is in the release directory; for large apk size download
+    private static final String urlApk = "https://github.com/cmeng-git/hymnchtv/releases/download/%s";
+
     // Url import link file location
     private static final String urlImport = "https://raw.githubusercontent.com/cmeng-git/hymnchtv/master/hymnchtv/src/main/assets/url_import.txt";
 
@@ -77,9 +82,6 @@ public class UpdateServiceImpl {
      * Apk mime type constant.
      */
     private static final String APK_MIME_TYPE = "application/vnd.android.package-archive";
-
-    // path is case-sensitive
-    private static final String fileNameApk = String.format("/hymnchtv-%s.apk", BuildConfig.BUILD_TYPE);
 
     /**
      * The download link for the installed application
@@ -432,8 +434,12 @@ public class UpdateServiceImpl {
                         Timber.e("Url version unavailable: %s", e.getMessage());
                     }
 
-                    String aLinkPrefix = aLink.substring(0, aLink.lastIndexOf("/"));
-                    downloadLink = aLinkPrefix + fileNameApk;
+                    if (aLink.contains("github")) {
+                        downloadLink = urlApk.replace("%s", latestVersion) + fileNameApk;
+                    } else {
+                        String aLinkPrefix = aLink.substring(0, aLink.lastIndexOf("/"));
+                        downloadLink = aLinkPrefix + fileNameApk;
+                    }
                     if (isValidateLink(downloadLink)) {
                         MainActivity.mHasUpdate = currentVersionCode < latestVersionCode;
                         // return true if current running application is already the latest

@@ -197,6 +197,7 @@ public class MediaConfig extends BaseActivity
     static {
         hymnTypeEntry.add("大本诗歌");
         hymnTypeEntry.add("补充本");
+        hymnTypeEntry.add("新詩歌本");
         hymnTypeEntry.add("新歌颂咏");
         hymnTypeEntry.add("儿童诗歌");
     }

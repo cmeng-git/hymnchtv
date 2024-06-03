@@ -18,7 +18,7 @@
         &lt;br/>&lt;a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0&lt;/a>
         &lt;br/>All rights reserved.</string>
     <string name="db_export"><u>DB Expt</u></string>
-    <string name="db_import">DB Impt</string>
+    <string name="db_import"><u>DB Impt</u></string>
     <string name="db_import_create">Gen Impt</string>
     <string name="db_import_file">DB import file</string>
     <string name="db_import_record">The db imports a total of %1$d (%2$d) hymns</string>
@@ -84,17 +84,20 @@
     <string name="error_file_not_found"> (Unable to get file: %1$s)</string>
     <string name="error_english_lyrics_null">Sorry! Hymn \'%1$d\' has no English lyrics</string>
 
-    <string name="hymn_info_er_max">ErGe has only %1$d (%2$d)</string>
-    <string name="hymn_info_er_range_over">ErGe does not have: %1$s~%2$s (%3$s)</string>
-
     <string name="hymn_info_bb_max">FuGe has only %1$d (%2$d)</string>
     <string name="hymn_info_bb_range_over">BuChong does not have hymn: %1$s~%2$s (%3$s)</string>
 
     <string name="hymn_info_db_max">DaBen only has %1$d (%2$d), and 6 FuGe</string>
     <string name="hymn_info_db_range_fu">DaBen only has FuGe: 1~6</string>
 
-    <string name="hymn_info_xb_max">XinGe has only %1$d (%2$d)</string>
-    <string name="hymn_info_xb_invalid">XinGe does not have: %1$s</string>
+    <string name="hymn_info_er_max">ErGe has only %1$d (%2$d)</string>
+    <string name="hymn_info_er_range_over">ErGe does not have: %1$s~%2$s (%3$s)</string>
+
+    <string name="hymn_info_xb_max">XinSong has only %1$d (%2$d)</string>
+    <string name="hymn_info_xb_invalid">XinSong does not have: %1$s</string>
+
+    <string name="hymn_info_xg_max">XinShi has only %1$d (2$d)</string>
+    <string name="hymn_info_xg_invalid">XinShi does not have: %1$s</string>
 
     <string name="hymn_info_media_none">The selected item does not have playback media</string>
     <string name="hymn_info_sp_none">Selected item does not have FuGe</string>
@@ -128,7 +131,6 @@
     <string name="download_wait">Please wait, file downloading is in progress.</string>
     <string name="in_progress">In progress</string>
 
-
     <string name="file_access_no_permission">You do not have sufficient permissions to save or open file. Please check your app permissions and try again</string>
     <string name="file_does_not_exist">The specified file could not be found. The file may have been deleted or moved</string>
     <string name="file_download_failed">An error occurred while downloading the file: %1$s</string>
@@ -148,7 +150,7 @@
     <string name="hint_hymn_content_search">Auto TW&#x27A1;CN Hymns Search</string>
     <string name="hint_hymn_history">&#11014; Hymns Log</string>
     <string name="hint_hymn_number_enter">Enter HymnNo&#11015;</string>
-    <string name="hint_hymn_ui">Enter category or HymnNo, then click\nDaBen, BuChong, XinGe, ErGe or English</string>
+    <string name="hint_hymn_ui">Enter category or HymnNo, then click\nDaBen, BuChong, XinShi, XinGe, ErGe or English</string>
 
     <!-- Logs -->
     <string name="send_logs">Bug Rpt</string>
@@ -159,17 +161,18 @@
         \n\n\n2. What problems do you see, if any, and a snapshot of the display?
         \n\n\n3. Can or how can you reproduce the problem?</string>
 
-    <!-- hymnch main interface gui names -->
+    <!-- hymnchtv main interface gui names -->
+    <string name="hymn_bb">Bu Chong</string>
     <string name="hymn_db">Da Ben</string>
     <string name="hymn_content">Content</string>
     <string name="hymn_english">English</string>
     <string name="hymn_er">Er Ge</string>
     <string name="hymn_fu">FuGe</string>
     <string name="hymn_lyrics">Lyrics</string>
-    <string name="hymn_xb">Xin Ge</string>
     <string name="hymn_score">Score</string>
     <string name="hymn_search"><u>Search</u></string>
-    <string name="hymn_bb">Bu Chong</string>
+    <string name="hymn_xb">Xin Song</string>
+    <string name="hymn_xg">Xin Shi</string>
 
     <string name="hymn_toc">TOC</string>
     <string name="hymn_category">Category</string>
@@ -185,7 +188,7 @@
     <string name="hymn_title_xb">Hymn - XinGe</string>
     -->
 
-    <!-- hymnch media player interface gui names -->
+    <!-- hymnchtv media player interface gui names -->
     <!--
     <string name="hymn_media_banzou">BanZou</string>
     <string name="hymn_media_changshi">ChangShi</string>
@@ -205,7 +208,8 @@
     <string name="hymn_match">Total %1$d matching records</string>
     <string name="hymn_match_auto_create">%1$s/%2$s: Total of %3$d hymns were matched</string>
     <string name="hymn_match_er">ErGe: No %1$d:\n%2$s</string>
-    <string name="hymn_match_xb">XinGe: No %1$d:\n%2$s</string>
+    <string name="hymn_match_xb">XinSong: No %1$d:\n%2$s</string>
+    <string name="hymn_match_xg">XinShi: No %1$d:\n%2$s</string>
     <string name="hymn_match_bb">BuChong: No %1$d:\n%2$s</string>
     <string name="hymn_match_db">DaBen: No %1$d:\n%2$s</string>
     <string name="hymn_match_db_sp">DaBen: Fu %1$d:\n%2$s</string>

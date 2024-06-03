@@ -49,8 +49,9 @@ public class MySwipeListAdapter<T> extends ArrayAdapter<T> {
         mInflater = LayoutInflater.from(context);
     }
 
+    @NonNull
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, @NonNull ViewGroup parent) {
         final ViewHolder viewHolder;
 
         if (convertView == null) {

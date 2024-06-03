@@ -20,6 +20,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.MainActivity.HYMN_XG;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.utils.ZoomTextView.STEP_SCALE_FACTOR;
 
@@ -76,15 +77,17 @@ import timber.log.Timber;
  */
 public class ContentView extends Fragment implements ZoomTextView.ZoomTextListener, View.OnClickListener,
         View.OnLongClickListener, LyricsEnglishRecord.EnglishLyricsListener {
-    public static String LYRICS_ER_SCORE = "lyrics_er_score/";
-    public static String LYRICS_XB_SCORE = "lyrics_xb_score/";
-    public static String LYRICS_BB_SCORE = "lyrics_bb_score/";
     public static String LYRICS_DB_SCORE = "lyrics_db_score/";
+    public static String LYRICS_BB_SCORE = "lyrics_bb_score/";
+    public static String LYRICS_XB_SCORE = "lyrics_xb_score/";
+    public static String LYRICS_XG_SCORE = "lyrics_csr_score/";
+    public static String LYRICS_ER_SCORE = "lyrics_er_score/";
 
-    public static String LYRICS_ER_TEXT = "lyrics_er_text/";
+    public static String LYRICS_DB_TEXT = "lyrics_db_text/";
+    public static String LYRICS_BB_TEXT = "lyrics_bb_text/";
     public static String LYRICS_XB_TEXT = "lyrics_xb_text/";
-    public static String LYRICS_BBS_TEXT = "lyrics_bbs_text/";
-    public static String LYRICS_DBS_TEXT = "lyrics_dbs_text/";
+    public static String LYRICS_XG_TEXT = "lyrics_csr_text/";
+    public static String LYRICS_ER_TEXT = "lyrics_er_text/";
 
     public static String LYRICS_TOC = "lyrics_toc/";
 
@@ -266,10 +269,9 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     }
 
     /**
-     * The lyrics png file has the following formats: HYMN_ER, HYMN_XB, HYMN_BB, HYMN_DB
-     * i.e. er, xb, bb, db followed by the hymn number, a, b, c etc for more than one page;
+     * The lyrics png/jpg file has the following formats: HYMN_ER, HYMN_XB, HYMN_XG, HYMN_BB, HYMN_DB
+     * i.e. er, xb, csr, bb, db followed by the hymn number, a, b, c etc for more than one page;
      * The files are stored in asset respective sub-dir e.g. LYRICS_XB_SCORE
-     *
      * The content view can support up to 5 pages for user vertical scrolls
      *
      * @param hymnType see below cases
@@ -286,12 +288,17 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         switch (hymnType) {
             case HYMN_DB:
                 mResPrefix = LYRICS_DB_SCORE + "db" + lyricsNo;
-                resFName = LYRICS_DBS_TEXT + "db" + lyricsNo + ".txt";
+                resFName = LYRICS_DB_TEXT + "db" + lyricsNo + ".txt";
                 break;
 
             case HYMN_BB:
                 mResPrefix = LYRICS_BB_SCORE + "bb" + lyricsNo;
-                resFName = LYRICS_BBS_TEXT + "bb" + lyricsNo + ".txt";
+                resFName = LYRICS_BB_TEXT + "bb" + lyricsNo + ".txt";
+                break;
+
+            case HYMN_XG:
+                mResPrefix = LYRICS_XG_SCORE + "csr" + lyricsNo;
+                resFName = LYRICS_XG_TEXT + "csr" + lyricsNo + ".txt";
                 break;
 
             case HYMN_XB:

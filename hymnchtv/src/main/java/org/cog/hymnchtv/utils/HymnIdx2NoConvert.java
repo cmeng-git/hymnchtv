@@ -20,10 +20,12 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.MainActivity.HYMN_XG;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XG_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
 
@@ -35,7 +37,7 @@ import timber.log.Timber;
 /**
  * This class converts the give hymn index and hymnType to the actual hymn lyrics number.
  * It also checks for converted hymn lyrics number is within the supported ranges.
- * Currently, the HymnTypes supported are 儿童诗歌, 新歌颂咏, 补充本 and 大本詩歌
+ * Currently, the HymnTypes supported are 儿童诗歌, 新歌颂咏, 新詩歌本, 补充本 and 大本詩歌
  * The returned result is used by the caller to create the reference and fetch the actual content file
  *
  * @author Eng Chong Meng
@@ -158,6 +160,13 @@ public class HymnIdx2NoConvert {
                 }
                 // Timber.d("HYMN_XB: %s => %s", hymnIdx, hymnNo);
                 if (hymnNo <= HYMN_XB_NO_MAX) {
+                    hymn_No_Page = new int[]{hymnNo, 1};
+                }
+                break;
+
+            // 新詩歌本
+            case HYMN_XG:
+                if (hymnNo <= HYMN_XG_NO_MAX) {
                     hymn_No_Page = new int[]{hymnNo, 1};
                 }
                 break;

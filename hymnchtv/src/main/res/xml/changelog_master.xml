@@ -6,8 +6,11 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="2.2.3 (06/03/2024)" versioncode="202030">
+        <change>中间版本支持从 github 版本下载 >100MB apk。</change>
+    </release>
+
     <release version="2.2.2 (05/24/2024)" versioncode="202020">
-        <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
         <change>在继续检查任何现有记录之前，必须检查媒体记录项条目是否为空。</change>
         <change>当用户与诗歌本共享外部互联网链接时，如果覆盖现有记录，则以红色突出显示媒体链接。</change>
         <change>当用户更改定义媒体设置中任何字段条目时，即[诗歌类别|媒体类型|诗歌编号|附歌]，必须更新媒体链接文本颜色。</change>

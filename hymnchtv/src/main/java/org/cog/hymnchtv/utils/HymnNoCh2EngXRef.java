@@ -19,10 +19,12 @@ package org.cog.hymnchtv.utils;
 import static org.cog.hymnchtv.ContentView.LYRICS_TOC;
 import static org.cog.hymnchtv.HymnToc.TOC_BB;
 import static org.cog.hymnchtv.HymnToc.TOC_DB;
+import static org.cog.hymnchtv.HymnToc.TOC_XG;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.MainActivity.HYMN_XG;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,8 +38,7 @@ import timber.log.Timber;
 
 /**
  * HymnNoCh2EngXRef translates the hymn lyrics number from Chinese to English hymn No
- *
- * Current the class works only on DB and BB (not NB and ER); and valid for all hymn lyrics
+ * Current the class applies only on DB, BB and XG (not XB and ER); and valid for all hymn lyrics
  *
  * @author Eng Chong Meng
  */
@@ -45,11 +46,13 @@ public class HymnNoCh2EngXRef {
     private static final String CH2ENG_FILE = "_ch2eng.txt";
 
     // Map containing the Chinese to English hymn No cross-reference
+    public static final Map<Integer, Integer> xRefCh2EngXg = new HashMap<>();
     public static final Map<Integer, Integer> xRefCh2EngBb = new HashMap<>();
     public static final Map<Integer, Integer> xRefCh2EngDb = new HashMap<>();
 
     // Generate the cross-reference table Map
     static {
+        generateXRef(LYRICS_TOC + TOC_XG + CH2ENG_FILE, xRefCh2EngXg);
         generateXRef(LYRICS_TOC + TOC_BB + CH2ENG_FILE, xRefCh2EngBb);
         generateXRef(LYRICS_TOC + TOC_DB + CH2ENG_FILE, xRefCh2EngDb);
     }
@@ -66,6 +69,11 @@ public class HymnNoCh2EngXRef {
 
             // 新歌颂咏
             case HYMN_XB:
+                break;
+
+            // 新詩歌本
+            case HYMN_XG:
+                hymnNoEng = xRefCh2EngXg.get(hymnNo);
                 break;
 
             // 補充本

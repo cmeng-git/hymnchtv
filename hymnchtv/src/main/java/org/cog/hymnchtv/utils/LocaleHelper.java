@@ -1,3 +1,19 @@
+/*
+ * aTalk, android VoIP and Instant Messaging client
+ * Copyright 2014 Eng Chong Meng
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.cog.hymnchtv.utils;
 
 import android.content.Context;
@@ -10,38 +26,42 @@ import android.text.TextUtils;
 import java.util.Locale;
 
 /**
- * Implementation of ContextWrapper for Application class proper Locale setting
+ * Implementation of LocaleHelper to support proper Locale setting for Application/Activity classes.
+ *
+ * @author Eng Chong Meng
  */
-public class LocaleHelper extends ContextWrapper {
-
-    public LocaleHelper(Context base) {
-        super(base);
-    }
-
+public class LocaleHelper {
     public static final String LocaleChinese = "zh_CN";
     public static final String LocaleEnglish = "en";
 
     // Default to system locale language; get init from DB by aTalkApp first call
     private static String mLanguage = LocaleChinese;
 
+    // mLocale will have 'regional preference' value stripped off; mainly use for smack xml:lang
+    private static Locale xmlLocale = Locale.getDefault();
+
     /**
      * Set aTalk Locale to the current mLanguage
      *
      * @param ctx Context
      */
-    public static LocaleHelper setLocale(Context ctx) {
+    public static Context setLocale(Context ctx) {
         return wrap(ctx, mLanguage);
     }
 
     /**
      * Set the locale as per specified language; must use Application instance
      *
-     * @param ctx BaseContext
+     * @param ctx Base Context
      * @param language the new UI language
      */
-    public static LocaleHelper setLocale(Context ctx, String language) {
+    public static Context setLocale(Context ctx, String language) {
         mLanguage = language;
         return wrap(ctx, language);
+    }
+
+    public static Locale getXmlLocale() {
+        return xmlLocale;
     }
 
     public static String getLanguage() {
@@ -55,36 +75,39 @@ public class LocaleHelper extends ContextWrapper {
     /**
      * Update the app local as per specified language.
      *
-     * @param context context
+     * @param context Base Context (ContextImpl)
      * @param language the new UI language
-     * #return The new PbContext for use by caller
+     * #return The new ContextImpl for use by caller
      */
-    public static LocaleHelper wrap(Context context, String language) {
+    public static Context wrap(Context context, String language) {
         Configuration config = context.getResources().getConfiguration();
 
         Locale locale;
         if (TextUtils.isEmpty(language)) {
-            // System default
-            locale = Resources.getSystem().getConfiguration().locale;
-        }
-        else if (language.length() == 5 && language.charAt(2) == '_') {
-            // language is in the form: en_US
-            locale = new Locale(language.substring(0, 2), language.substring(3));
+            // System default may contain regional preference i.e. 'en-US-#u-fw-sun-mu-celsius'
+            locale = Resources.getSystem().getConfiguration().getLocales().get(0);
+
+            // Strip off any regional preferences in the language
+            language = locale.toString().split("_#")[0];
+            int idx = language.indexOf("_");
+            xmlLocale = (idx == -1) ? locale : new Locale(language.substring(0, idx), language.substring(idx + 1));
         }
         else {
-            locale = new Locale(language);
+            int idx = language.indexOf("_");
+            if (idx != -1) {
+                // language is in the form: en_US
+                locale = new Locale(language.substring(0, idx), language.substring(idx + 1));
+            }
+            else {
+                locale = new Locale(language);
+            }
+            xmlLocale = locale;
         }
 
-        Locale.setDefault(locale);
         config.setLayoutDirection(locale);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            config.setLocale(locale);
-        }
-        else {
-            config.locale = locale;
-        }
+        config.setLocale(locale);
 
-        context = context.createConfigurationContext(config);
-        return new LocaleHelper(context);
+        // Timber.d(new Exception(), "set locale: %s: %s", language, context);
+        return context.createConfigurationContext(config);
     }
 }

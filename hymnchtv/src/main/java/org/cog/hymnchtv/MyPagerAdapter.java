@@ -22,10 +22,12 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.MainActivity.HYMN_XG;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_ITEM_COUNT;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_ITEM_COUNT;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_ITEM_COUNT;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_ITEM_COUNT;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XG_ITEM_COUNT;
 
 import android.os.Bundle;
 
@@ -63,6 +65,9 @@ public class MyPagerAdapter extends FragmentStateAdapter {
 
             case HYMN_XB:
                 return HYMN_XB_ITEM_COUNT;
+
+            case HYMN_XG:
+                return HYMN_XG_ITEM_COUNT;
 
             case HYMN_BB:
                 // +1 to load image of non-existence hymn score number

@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg0"
+    android:baselineAligned="false"
     android:orientation="horizontal"
-    android:padding="5dp"
-    android:baselineAligned="false">
+    android:padding="5dp">
 
     <LinearLayout
+        android:layout_height="match_parent"
         android:layout_width="0dp"
-        android:layout_height="fill_parent"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -47,7 +47,7 @@
         <EditText
             android:id="@+id/tv_search"
             style="@style/XLargeFont"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="bottom"
             android:hint="@string/hint_hymn_content_search"
@@ -91,143 +91,160 @@
                 style="@style/ButtonMain"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/btn_search"
                 android:layout_alignParentStart="true"
                 android:layout_toStartOf="@+id/dummy"
-                android:layout_below="@+id/btn_search"
                 android:text="@string/app_upgrade"
                 android:textSize="25sp" />
 
             <Button
-                android:id="@+id/btn_english"
+                android:id="@+id/btn_englishx"
                 style="@style/ButtonMain"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_toEndOf="@+id/dummy"
                 android:layout_below="@+id/spinner_toc"
+                android:layout_toEndOf="@+id/dummy"
                 android:text="@string/hymn_english"
-                android:textSize="25sp" />
+                android:textSize="25sp"
+                android:visibility="gone" />
         </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout
+        android:layout_height="match_parent"
         android:layout_width="0dp"
-        android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
             android:layout_weight="1"
-            android:orientation="horizontal"
+            android:gravity="start"
+            android:orientation="vertical"
             tools:ignore="NestedWeights">
 
             <Button
                 android:id="@+id/n7"
-                style="@style/ButtonMain"
+                style="@style/ButtonKB"
                 android:text="@string/nn7" />
 
             <Button
-                android:id="@+id/n8"
-                style="@style/ButtonMain"
-                android:text="@string/nn8" />
-
-            <Button
-                android:id="@+id/n9"
-                style="@style/ButtonMain"
-                android:text="@string/nn9" />
-
-            <Button
-                android:id="@+id/bs_er"
-                style="@style/ButtonMain"
-                android:text="@string/hymn_er"
-                android:textSize="25sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-
-            <Button
                 android:id="@+id/n4"
-                style="@style/ButtonMain"
+                style="@style/ButtonKB"
                 android:text="@string/nn4" />
 
             <Button
-                android:id="@+id/n5"
-                style="@style/ButtonMain"
-                android:text="@string/nn5" />
-
-            <Button
-                android:id="@+id/n6"
-                style="@style/ButtonMain"
-                android:text="@string/nn6" />
-
-            <Button
-                android:id="@+id/bs_xb"
-                style="@style/ButtonMain"
-                android:text="@string/hymn_xb"
-                android:textSize="25sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="horizontal">
-
-            <Button
                 android:id="@+id/n1"
-                style="@style/ButtonMain"
+                style="@style/ButtonKB"
                 android:text="@string/nn1" />
 
             <Button
+                android:id="@+id/n10"
+                style="@style/ButtonKB"
+                android:text="@string/nn10"
+                android:textSize="25sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/n8"
+                style="@style/ButtonKB"
+                android:text="@string/nn8" />
+
+            <Button
+                android:id="@+id/n5"
+                style="@style/ButtonKB"
+                android:text="@string/nn5" />
+
+            <Button
                 android:id="@+id/n2"
-                style="@style/ButtonMain"
+                style="@style/ButtonKB"
                 android:text="@string/nn2" />
 
             <Button
+                android:id="@+id/n0"
+                style="@style/ButtonKB"
+                android:text="@string/nn0" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/n9"
+                style="@style/ButtonKB"
+                android:text="@string/nn9" />
+
+            <Button
+                android:id="@+id/n6"
+                style="@style/ButtonKB"
+                android:text="@string/nn6" />
+
+            <Button
                 android:id="@+id/n3"
-                style="@style/ButtonMain"
+                style="@style/ButtonKB"
                 android:text="@string/nn3" />
 
             <Button
-                android:id="@+id/bs_bb"
-                style="@style/ButtonMain"
-                android:text="@string/hymn_bb"
+                android:id="@+id/n11"
+                style="@style/ButtonKB"
+                android:text="@string/nn11"
                 android:textSize="25sp" />
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
             android:layout_weight="1"
-            android:orientation="horizontal">
+            android:orientation="vertical">
 
             <Button
-                android:id="@+id/n10"
-                style="@style/ButtonMain"
-                android:text="@string/nn10"
+                android:id="@+id/btn_english"
+                style="@style/ButtonKB"
+                android:text="@string/hymn_english"
                 android:textSize="25sp" />
 
             <Button
-                android:id="@+id/n0"
-                style="@style/ButtonMain"
-                android:text="@string/nn0" />
+                android:id="@+id/bs_er"
+                style="@style/ButtonKB"
+                android:text="@string/hymn_er"
+                android:textSize="25sp" />
 
             <Button
-                android:id="@+id/n11"
-                style="@style/ButtonMain"
-                android:text="@string/nn11"
+                android:id="@+id/bs_xb"
+                style="@style/ButtonKB"
+                android:text="@string/hymn_xb"
+                android:textSize="25sp" />
+
+            <Button
+                android:id="@+id/bs_xg"
+                style="@style/ButtonKB"
+                android:text="@string/hymn_xg"
+                android:textSize="25sp" />
+
+            <Button
+                android:id="@+id/bs_bb"
+                style="@style/ButtonKB"
+                android:text="@string/hymn_bb"
                 android:textSize="25sp" />
 
             <Button
                 android:id="@+id/bs_db"
-                style="@style/ButtonMain"
+                style="@style/ButtonKB"
                 android:text="@string/hymn_db"
                 android:textSize="25sp" />
+
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -123,10 +123,11 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     public static final String ATTR_AUTO_PLAY = "autoPlay";
     public static final String ATTR_ENGLISH_NO = "englishNo";
 
-    public static final String HYMN_ER = "hymn_er";
-    public static final String HYMN_XB = "hymn_xb";
-    public static final String HYMN_BB = "hymn_bb";
     public static final String HYMN_DB = "hymn_db";
+    public static final String HYMN_BB = "hymn_bb";
+    public static final String HYMN_XG = "hymn_xg";
+    public static final String HYMN_XB = "hymn_xb";
+    public static final String HYMN_ER = "hymn_er";
 
     public static final String PREF_MENU_SHOW = "MenuShow";
     public static final String PREF_SETTINGS = "Settings";
@@ -164,10 +165,11 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     private Button btn_fu;
     private Button btn_del;
 
-    private Button btn_er;
-    private Button btn_xb;
-    private Button btn_bb;
     private Button btn_db;
+    private Button btn_bb;
+    private Button btn_xg;
+    private Button btn_xb;
+    private Button btn_er;
     private Button btn_search;
     private Button btn_update;
     private Button btn_english;
@@ -244,17 +246,16 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             // MediaConfig.importUrlAssetFile();
         }
 
-        // 儿童诗歌
-        btn_er.setOnClickListener(v -> onHymnButtonClicked(HYMN_ER));
-
-        // 新歌颂咏
-        btn_xb.setOnClickListener(v -> onHymnButtonClicked(HYMN_XB));
-
-        // 补充本
-        btn_bb.setOnClickListener(v -> onHymnButtonClicked(HYMN_BB));
-
         // 大本诗歌
         btn_db.setOnClickListener(v -> onHymnButtonClicked(HYMN_DB));
+        // 补充本
+        btn_bb.setOnClickListener(v -> onHymnButtonClicked(HYMN_BB));
+        // 新詩歌本
+        btn_xg.setOnClickListener(v -> onHymnButtonClicked(HYMN_XG));
+        // 新歌颂咏
+        btn_xb.setOnClickListener(v -> onHymnButtonClicked(HYMN_XB));
+        // 儿童诗歌
+        btn_er.setOnClickListener(v -> onHymnButtonClicked(HYMN_ER));
 
         // Numeric number entry handlers for 0~9
         btn_n0.setOnClickListener(this::onNumberClick);
@@ -327,7 +328,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             showHymnFromEng(true);
             return true;
         });
-
         handleIntent(getIntent());
     }
 
@@ -399,7 +399,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             // It will be repeated up to infinite time
             animator.setRepeatCount(Animation.INFINITE);
             animator.start();
-        } else {
+        }
+        else {
             btn_update.setVisibility(View.GONE);
         }
         configureToolBar();
@@ -641,16 +642,15 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                 idx++;
                 if (item.matches(sMatch)) {
                     String hymnTN = item.replaceAll(".+? #(.+?)", "$1");
-                    String hymnType = hymnTN.startsWith("db") ? HYMN_DB : HYMN_BB;
+                    String hymnType = getHymnType(hymnTN);
                     int hymnNo = Integer.parseInt(hymnTN.substring(2));
 
                     // Set up to display DB page if dbPage and content exist.
                     if (dbPage && mList[idx].matches(sMatch)) {
                         hymnTN = mList[idx].replaceAll(".+? #(.+?)", "$1");
-                        hymnType = hymnTN.startsWith("db") ? HYMN_DB : HYMN_BB;
+                        hymnType = getHymnType(hymnTN);
                         hymnNo = Integer.parseInt(hymnTN.substring(2));
                     }
-
                     showContent(this, hymnType, hymnNo, false, hymnEng);
                     return;
                 }
@@ -660,6 +660,15 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         } catch (IOException e) {
             Timber.w("Content toc not available: %s", e.getMessage());
             HymnsApp.showToastMessage(R.string.in_development);
+        }
+    }
+
+    private String getHymnType(String hymnTN) {
+        if (hymnTN.startsWith("xg")) {
+            return HYMN_XG;
+        }
+        else {
+            return hymnTN.startsWith("db") ? HYMN_DB : HYMN_BB;
         }
     }
 
@@ -950,10 +959,11 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         btn_fu = findViewById(R.id.n10);
         btn_del = findViewById(R.id.n11);
 
-        btn_er = findViewById(R.id.bs_er);
-        btn_xb = findViewById(R.id.bs_xb);
-        btn_bb = findViewById(R.id.bs_bb);
         btn_db = findViewById(R.id.bs_db);
+        btn_bb = findViewById(R.id.bs_bb);
+        btn_xg = findViewById(R.id.bs_xg);
+        btn_xb = findViewById(R.id.bs_xb);
+        btn_er = findViewById(R.id.bs_er);
 
         btn_search = findViewById(R.id.btn_search);
         btn_update = findViewById(R.id.btn_update);
@@ -1186,14 +1196,16 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
         btn_fu.setTextSize(mFsDelta);
         btn_del.setTextSize(mFsDelta);
-        btn_er.setTextSize(mFsDelta);
-        btn_xb.setTextSize(mFsDelta);
-        btn_bb.setTextSize(mFsDelta);
+
         btn_db.setTextSize(mFsDelta);
+        btn_bb.setTextSize(mFsDelta);
+        btn_xg.setTextSize(mFsDelta);
+        btn_xb.setTextSize(mFsDelta);
+        btn_er.setTextSize(mFsDelta);
+        btn_english.setTextSize(mFsDelta);
 
         btn_search.setTextSize(mFsDelta);
         btn_update.setTextSize(mFsDelta);
-        btn_english.setTextSize(mFsDelta);
         mTocSpinnerItem.setTextSize(mFsDelta);
     }
 
@@ -1231,10 +1243,11 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         btn_fu.setTextColor(color);
         btn_del.setTextColor(color);
 
-        btn_er.setTextColor(color);
-        btn_xb.setTextColor(color);
-        btn_bb.setTextColor(color);
         btn_db.setTextColor(color);
+        btn_bb.setTextColor(color);
+        btn_xg.setTextColor(color);
+        btn_xb.setTextColor(color);
+        btn_er.setTextColor(color);
 
         btn_search.setTextColor(color);
         btn_update.setTextColor(color);

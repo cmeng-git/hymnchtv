@@ -1,6 +1,12 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    06/03/2024
+Version:        2.2.3 (202030)
+- Intermediate release to support >100MB apk download from github release.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    05/24/2024
 Version:        2.2.2 (202020)
 - MediaConfig#hasMediaRecord must check null for mediaRecord before proceed.
