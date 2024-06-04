@@ -6,6 +6,13 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
+    <release version="2.3.0 (06/04/2024)" versioncode="203000">
+        <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>新增新诗歌组，共收录 205 首诗歌。</change>
+        <change>为新添加的新诗组添加所有相关支持功能。</change>
+        <change>重新实现 LocaleHelper 以修复无法转换为 ContextImpl 的问题。</change>
+    </release>
+
     <release version="2.2.3 (06/04/2024)" versioncode="202031">
         <change>中间版本支持从 github 版本下载 >100MB apk。</change>
     </release>

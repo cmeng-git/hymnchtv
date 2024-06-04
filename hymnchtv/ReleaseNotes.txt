@@ -2,6 +2,14 @@ Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
 Upload Date:    06/04/2024
+Version:        2.3.0 (203000)
+- Add new XinShi 新诗 group with 205 hymn titles.
+- Add all associated support features for the new added XinShi group.
+- Reimplement LocaleHelper to fix cannot be cast to android.app.ContextImpl
+
+=========================================================================
+Author:         cmeng
+Upload Date:    06/04/2024
 Version:        2.2.3 (202031)
 - Intermediate release to support >100MB apk download from github release.
 
