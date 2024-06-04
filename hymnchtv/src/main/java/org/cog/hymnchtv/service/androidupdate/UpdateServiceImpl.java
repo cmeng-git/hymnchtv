@@ -78,6 +78,9 @@ public class UpdateServiceImpl {
     // Url import link file location
     private static final String urlImport = "https://raw.githubusercontent.com/cmeng-git/hymnchtv/master/hymnchtv/src/main/assets/url_import.txt";
 
+    // A transition apk in old release directory that is used for migration to allow download apk > 100MB
+    private static final int apkTransition = 202030;
+
     /**
      * Apk mime type constant.
      */
@@ -197,7 +200,7 @@ public class UpdateServiceImpl {
         int lastJobStatus = DownloadManager.ERROR_UNKNOWN;
 
         List<Long> previousDownloads = getOldDownloads();
-        if (previousDownloads.size() > 0) {
+        if (!previousDownloads.isEmpty()) {
             long lastDownload = previousDownloads.get(previousDownloads.size() - 1);
 
             lastJobStatus = checkDownloadStatus(lastDownload);
@@ -388,7 +391,8 @@ public class UpdateServiceImpl {
                 else
                     apkVersionCode = pckgInfo.getLongVersionCode();
 
-                isValid = (versionCode == apkVersionCode);
+                // Consider any transition apk to be valid for migration to fetach >100MB apk file
+                isValid = (versionCode == apkVersionCode || apkVersionCode >= apkTransition);
                 if (!isValid) {
                     HymnsApp.showToastMessage(R.string.app_version_invalid, apkVersionCode, versionCode);
                     Timber.d("Downloaded apk actual version code: %s (%s)", apkVersionCode, versionCode);
@@ -465,7 +469,7 @@ public class UpdateServiceImpl {
         if ((version > versionUrl) && isValidateLink(urlImport)) {
             try {
                 // Open input stream from the HTTP connection; save a local copy and
-                // use it for import url records. Cannot use http inputstream directly.
+                // use it for import url records. Cannot use http inputStream directly.
                 InputStream inputStream = mHttpConnection.getInputStream();
                 File file = MediaConfig.saveUrlImportFile(inputStream, version);
                 if (file != null) {

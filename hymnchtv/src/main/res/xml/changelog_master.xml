@@ -6,7 +6,7 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.2.3 (06/03/2024)" versioncode="202030">
+    <release version="2.2.3 (06/04/2024)" versioncode="202031">
         <change>中间版本支持从 github 版本下载 >100MB apk。</change>
     </release>
 
