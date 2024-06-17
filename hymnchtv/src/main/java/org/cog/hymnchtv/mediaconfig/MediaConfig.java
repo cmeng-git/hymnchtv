@@ -78,7 +78,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -110,16 +109,15 @@ import timber.log.Timber;
  * b. video or audio media file
  * and link it to a specific hymnType and hymnNo.
  * <p>
- * It includes the capability to import, export or auto generate the export file
- * based on all the media files saved in a specified HymnType/MediaType sub-directory
+ * It includes the capability to import url links from file, and export db url links to a file for sharing.
  * <p>
  * The format of the export record "," separated: hymnType, HymnNo, isFu, HymnMedia, urlLink, mediaUri
  * a. hymnType: HYMN_BB HYMN_DB, HYMN_ER, HYMN_XB
  * b. HymnNo: Hymn number
  * c. isFu: true if the hymnNo if Fu
- * d. HymnMedia: HYMN_BANZOU, HYMN_CHANGSHI, HYMN_JIAOCHANG, HYMN_MEDIA
+ * d. HymnMedia: HYMN_MEDIA, HYMN_JIAOCHANG, HYMN_CHANGSHI, and HYMN_BANZOU,
  * e. urlLink: e.g. youtube or https url
- * f. mediaUri: Local media file uri (priority over urlLink if not null)
+ * f. mediaUri: Local media file uri (priority over urlLink if not null) (not use since v2.2.0)
  *
  * @author Eng Chong Meng
  */
@@ -151,7 +149,7 @@ public class MediaConfig extends BaseActivity
      * current default url_import version; always set the value to - 1.
      * This is to force a new install apk will update the DB from asset file on first launch.
      * Increase the build.gradle versionImport value if there is url_import file released.
-    */
+     */
     public static final int URL_IMPORT_VERSION = -1;
 
     // The default directory when import_export files are being saved
@@ -173,6 +171,7 @@ public class MediaConfig extends BaseActivity
     private CheckBox cbFu;
     private CheckBox cbOverwrite;
     public Button cmdAdd;
+    public Button btnNQ;
 
     private EditText tvUriDecode;
     private EditText tvHymnNo;
@@ -238,12 +237,14 @@ public class MediaConfig extends BaseActivity
         mediaDir.put(HYMN_BANZOU, MEDIA_BANZOU);
     }
 
+    public enum Mode {
+        QQ_LINK,
+        NOTION_LINK,
+        NOTION_RECORD
+    }
+
     private String mHymnType = hymnTypeValue.get(0);
     private MediaType mMediaType = mediaTypeValue.get(0);
-
-    private String sHymnType = hymnTypeEntry.get(0);
-    private String sMediaType = mediaTypeEntry.get(0);
-
     private static final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
 
     @SuppressLint("ClickableViewAccessibility")
@@ -351,21 +352,16 @@ public class MediaConfig extends BaseActivity
             mGetContent.launch("*/*");
         });
 
-        findViewById(R.id.editFile).setOnClickListener(this);
-        findViewById(R.id.button_import).setOnClickListener(this);
-        findViewById(R.id.button_import).setOnLongClickListener(this);
-
-        Button btnNQ = findViewById(R.id.button_NQ);
+        btnNQ = findViewById(R.id.button_NQ);
         btnNQ.setOnClickListener(this);
         btnNQ.setOnLongClickListener(this);
-        // btnNQ.setOnTouchListener(touchListener);
 
-        Button btnExport = findViewById(R.id.button_export);
-        btnExport.setOnClickListener(this);
-        btnExport.setOnLongClickListener(this);
-
-        findViewById(R.id.button_import_create).setOnClickListener(this);
+        findViewById(R.id.editFile).setOnClickListener(this);
         findViewById(R.id.button_db_records).setOnClickListener(this);
+
+        findViewById(R.id.button_import).setOnClickListener(this);
+        findViewById(R.id.button_import).setOnLongClickListener(this);
+        findViewById(R.id.button_export).setOnClickListener(this);
 
         mPlayerView = findViewById(R.id.player_container);
         mPlayerView.setVisibility(View.GONE);
@@ -379,6 +375,7 @@ public class MediaConfig extends BaseActivity
     @Override
     protected void onResume() {
         super.onResume();
+        btnNQ.setTextColor(btnNQ.isEnabled() ? Color.DKGRAY : Color.LTGRAY);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
@@ -430,24 +427,19 @@ public class MediaConfig extends BaseActivity
                     editFile(filename);
                 break;
 
-            // Import to the DB database
+            case R.id.button_NQ:
+                downloadNQRecord(Mode.NOTION_RECORD);
+                break;
+
+            // Import the import file url links to the DB database
             case R.id.button_import:
                 Timber.d("import Media Records");
                 importMediaRecords(null);
                 break;
 
-            case R.id.button_NQ:
-                downloadNQRecord(0);
-                break;
-
-            // Export the database to a text file for sharing
+            // Generate a text import file for all links start with "http(s)" from database for sharing
             case R.id.button_export:
-                createExportFile();
-                break;
-
-            // Auto creates an export file based on the sub-directory media files
-            case R.id.button_import_create:
-                createAutoImportFile();
+                createExportLink();
                 break;
 
             // Show the DB content for all user defined media link
@@ -461,17 +453,12 @@ public class MediaConfig extends BaseActivity
     public boolean onLongClick(View v) {
         switch (v.getId()) {
             case R.id.button_NQ:
-                downloadNQRecord(3);
+                downloadNQRecord(Mode.QQ_LINK);
                 return true;
 
             case R.id.button_import:
                 Timber.d("import Media Records from: %s", ASSET_URL_IMPORT_FILE);
                 importMediaRecords(ASSET_URL_IMPORT_FILE);
-                return true;
-
-            case R.id.button_export:
-                // Generate an text import file for all URL link from database for sharing
-                createExportLink();
                 return true;
         }
         return false;
@@ -581,19 +568,21 @@ public class MediaConfig extends BaseActivity
         return uriPath;
     }
 
+    public boolean isOverWrite() {
+        return cbOverwrite.isChecked();
+    }
+
     // ================= User entry events ================
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         if (parent == hymnTypeSpinner) {
             mHymnType = hymnTypeValue.get(position);
-            sHymnType = hymnTypeEntry.get(position);
             if (mListView.getVisibility() == View.VISIBLE) {
                 showMediaRecords(-1);
             }
         }
         else if (parent == mediaTypeSpinner) {
             mMediaType = mediaTypeValue.get(position);
-            sMediaType = mediaTypeEntry.get(position);
         }
         checkEntry();
     }
@@ -998,7 +987,7 @@ public class MediaConfig extends BaseActivity
     }
 
     // Check for any existing mediaRecord in DB or as saved local file
-    private static boolean hasMediaRecord(MediaRecord mediaRecord) {
+    public static boolean hasMediaRecord(MediaRecord mediaRecord) {
         if (mediaRecord == null)
             return false;
 
@@ -1015,32 +1004,31 @@ public class MediaConfig extends BaseActivity
     /**
      * Wait for user confirmation before proceed with QQ links download
      *
-     * @param mode flag for either Notion (1 / 2) or QQ (0) site hymn link records fetch
+     * @param mode flag for either Notion or QQ site hymn link records fetch
      */
-    private void downloadNQRecord(final int mode) {
+    private void downloadNQRecord(final Mode mode) {
         DialogActivity.showConfirmDialog(this,
                 R.string.nq_download,
                 R.string.nq_download_proceed,
                 R.string.download, new DialogActivity.DialogListener() {
                     public boolean onConfirmClicked(DialogActivity dialog) {
-                        if (mode == 0) {
+                        if (Mode.QQ_LINK == mode) {
                             QQRecord.fetchQQLinks(MediaConfig.this);
                         }
-                        else if (mode == 1) {
+                        else if (Mode.NOTION_LINK == mode) {
                             NotionRecord.fetchNotionLinks(MediaConfig.this);
                         }
-                        else if (mode == 2) {
-                            NotionRecordScrape.fetchNotionLinks(MediaConfig.this);
-                        }
-                        else if (mode == 3) {
+                        else if (Mode.NOTION_RECORD == mode) {
                             NotionRecord.fetchNotionRecords(MediaConfig.this);
                         }
+                        btnNQ.setEnabled(false);
+                        btnNQ.setTextColor(Color.DKGRAY);
                         return true;
                     }
 
                     public void onDialogCancelled(DialogActivity dialog) {
                     }
-                }, (mode != 0) ? "Notion" : "QQ");
+                }, (Mode.QQ_LINK == mode ? "QQ" : "Notion"), HymnsApp.getResString(isOverWrite() ? R.string.db_overwrite : R.string.db_no_overwrite));
     }
 
     /**
@@ -1053,20 +1041,32 @@ public class MediaConfig extends BaseActivity
             return;
         }
 
-        try {
-            InputStream inputStream;
-            if (importFile != null) {
-                inputStream = new FileInputStream(importFile);
-            }
-            else {
-                inputStream = HymnsApp.getAppResources().getAssets().open(assetFile);
-            }
-            boolean isOverWrite = cbOverwrite.isChecked();
-            importUrlRecords(inputStream, isOverWrite);
-            inputStream.close();
-        } catch (IOException e) {
-            Timber.w("Input file not accessible: %s", e.getMessage());
-        }
+        DialogActivity.showConfirmDialog(this,
+                R.string.db_import,
+                R.string.db_import_proceed,
+                R.string.ok, new DialogActivity.DialogListener() {
+                    public boolean onConfirmClicked(DialogActivity dialog) {
+                        try {
+                            InputStream inputStream;
+                            if (assetFile != null) {
+                                inputStream = HymnsApp.getAppResources().getAssets().open(assetFile);
+                            }
+                            else {
+                                inputStream = new FileInputStream(importFile);
+                            }
+                            boolean isOverWrite = cbOverwrite.isChecked();
+                            importUrlRecords(inputStream, isOverWrite);
+                            inputStream.close();
+                        } catch (IOException e) {
+                            Timber.w("Input file not accessible: %s", e.getMessage());
+                        }
+                        return true;
+                    }
+
+                    public void onDialogCancelled(DialogActivity dialog) {
+                    }
+                }, assetFile != null ? assetFile : importFile.substring(importFile.lastIndexOf("/") + 1),
+                        HymnsApp.getResString(isOverWrite() ? R.string.db_overwrite : R.string.db_no_overwrite));
     }
 
     /**
@@ -1087,7 +1087,6 @@ public class MediaConfig extends BaseActivity
             String[] mList = mResult.split("\r\n|\n");
             // Timber.d("No of Records: %s", mList.length);
 
-            DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
             for (String mRecord : mList) {
                 MediaRecord mediaRecord = MediaRecord.toRecord(mRecord);
                 if (mediaRecord == null)
@@ -1159,52 +1158,11 @@ public class MediaConfig extends BaseActivity
     }
 
     /**
-     * Export the media records in database for all the HymnType and
-     * filename tagged with timeStamp e.g hymnsAll-20201212_092033
-     */
-    private void createExportFile() {
-        String fileName = String.format("hymnsAll-%s.txt",
-                new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
-
-        File exportFile = createFileIfNotExist(fileName, true);
-        if (exportFile != null) {
-            int recordSize = 0;
-            FileWriter fileWriter;
-            try {
-                fileWriter = new FileWriter(exportFile.getAbsolutePath());
-                for (String hymnType : hymnTypeValue) {
-                    List<MediaRecord> mediaRecords = mDB.getMediaRecords(hymnType);
-                    if (!mediaRecords.isEmpty()) {
-                        recordSize += mediaRecords.size();
-                        for (MediaRecord mediaRecord : mediaRecords) {
-                            String mRecord = mediaRecord.toExportString();
-                            if (mRecord != null)
-                                fileWriter.write(mRecord);
-                        }
-                    }
-                }
-                fileWriter.close();
-
-                if (recordSize != 0) {
-                    HymnsApp.showToastMessage(R.string.hymn_match, recordSize);
-                    tvImportFile.setText(exportFile.getPath());
-                    editFile(exportFile.getPath());
-                }
-                else {
-                    HymnsApp.showToastMessage(R.string.hymn_match_none);
-                }
-            } catch (IOException e) {
-                Timber.e("Export media record exception: %s", e.getMessage());
-            }
-        }
-    }
-
-    /**
      * Export the media records in database for the current selected mHymnType and
      * filename tagged with timeStamp e.g hymn_db-20201212_092033
      */
     private void createExportLink() {
-        String fileName = String.format("hymnsLink-%s.txt",
+        String fileName = String.format("hymn_link-%s.txt",
                 new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
 
         File exportFile = createFileIfNotExist(fileName, true);
@@ -1236,65 +1194,6 @@ public class MediaConfig extends BaseActivity
                 }
             } catch (IOException e) {
                 Timber.e("Export media record exception: %s", e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Auto creates the export file basing on all the media files reside in the MEDIA_MEDIA directory:
-     * a. mHymnType selected is used as the DB Table
-     * b. The only medias supported are in sub-dir: mHymnType + MEDIA_MEDIA
-     * c. The hymnNo is extracted from the fileName (without the ext), default to "0000" if none
-     * d. User must review and edit the generated text file to update Fu hymn
-     * <p>
-     * Export filename tagged with timeStamp e.g hymn_db-20201212_092033
-     */
-    private void createAutoImportFile() {
-        String mediaRecord;
-        String fileName = String.format("%s-%s.txt", mHymnType,
-                new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date()));
-
-        File importFile = createFileIfNotExist(fileName, true);
-        if (importFile != null) {
-            File srcPath = FileBackend.getHymnchtvStore(mHymnType + mediaDir.get(mMediaType), false);
-            if ((srcPath != null) && srcPath.isDirectory()) {
-                File[] files = srcPath.listFiles();
-                if ((files != null) && (files.length > 0)) {
-                    // Sort filename in ascending order i.e. so the export file has its hymnNo in ascending order
-                    Arrays.sort(files);
-                    try {
-                        FileWriter fileWriter = new FileWriter(importFile.getAbsolutePath());
-                        for (File file : files) {
-
-                            // Extract the hymnNo from the fileName with ext stripped
-                            String mFileName = file.getName();
-                            int idx = mFileName.lastIndexOf(".");
-                            if (idx != -1)
-                                mFileName = mFileName.substring(0, idx);
-                            String hymnNo = mFileName.replaceAll("\\D*", "");
-
-                            if (TextUtils.isEmpty(hymnNo)) {
-                                hymnNo = "0000";
-                            }
-                            mediaRecord = String.format(Locale.CHINA, "%s,%s,%d,%s,%s,%s\r\n",
-                                    mHymnType, hymnNo, 0, mMediaType, null, file.getAbsolutePath());
-                            fileWriter.write(mediaRecord);
-                        }
-                        fileWriter.close();
-                        HymnsApp.showToastMessage(R.string.hymn_match_auto_create, sHymnType, sMediaType, files.length);
-
-                        tvImportFile.setText(importFile.getPath());
-                        editFile(importFile.getPath());
-                    } catch (IOException e) {
-                        Timber.e("Create Import File exception: %s", e.getMessage());
-                    }
-                }
-                else {
-                    HymnsApp.showToastMessage(R.string.hymn_match_none);
-                }
-            }
-            else {
-                HymnsApp.showToastMessage(R.string.hymn_match_none);
             }
         }
     }

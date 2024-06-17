@@ -78,9 +78,6 @@ public class UpdateServiceImpl {
     // Url import link file location
     private static final String urlImport = "https://raw.githubusercontent.com/cmeng-git/hymnchtv/master/hymnchtv/src/main/assets/url_import.txt";
 
-    // A transition apk in old release directory that is used for migration to allow download apk > 100MB
-    private static final int apkTransition = 202030;
-
     /**
      * Apk mime type constant.
      */
@@ -391,8 +388,7 @@ public class UpdateServiceImpl {
                 else
                     apkVersionCode = pckgInfo.getLongVersionCode();
 
-                // Consider any transition apk to be valid for migration to fetach >100MB apk file
-                isValid = (versionCode == apkVersionCode || apkVersionCode >= apkTransition);
+                isValid = (versionCode == apkVersionCode);
                 if (!isValid) {
                     HymnsApp.showToastMessage(R.string.app_version_invalid, apkVersionCode, versionCode);
                     Timber.d("Downloaded apk actual version code: %s (%s)", apkVersionCode, versionCode);

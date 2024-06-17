@@ -60,11 +60,9 @@ public class DatabaseBackend extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 4;
 
     private static DatabaseBackend instance = null;
-    private final Context mContext;
 
     private DatabaseBackend(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        mContext = context;
     }
 
     /**

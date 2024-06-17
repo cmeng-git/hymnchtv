@@ -1,6 +1,21 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    06/17/2024
+Version:        2.4.0 (204000)
+- Clean and reformat XinShi lyrics text.
+- Remove '自建导入" auto import file creation option. Not required since v2.2.0
+- Remove option for export all url links and local file paths operation
+- Resolve NotionRecord download webView crash problem;
+  * using postDelayed (45 Sec) for each hymnType group url access
+  * update match pattern for url record extraction
+- Make 'Overwrite Existing Record' option apply to both the NQ download and Url import operations
+- Prompt user confirmation before proceed with the url file import.
+- Interchange Notion and QQ operation option between short and long press
+- Remove unused NotionRecordScrape and WebScraper java classes.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    06/04/2024
 Version:        2.3.0 (203000)
 - Add new XinShi 新诗 group with 205 hymn titles.

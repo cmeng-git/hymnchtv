@@ -18,16 +18,17 @@
     <string name="copyright">Copyright@2020, Eng Chong Meng
         &lt;br/>&lt;a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0&lt;/a>
         &lt;br/>All rights reserved.</string>
-    <string name="db_export"><u>数库导出</u></string>
+    <string name="db_export">数库导出</string>
     <string name="db_import"><u>数库导入</u></string>
-    <string name="db_import_create">自建导入</string>
     <string name="db_import_file">数据库导入文件</string>
+    <string name="db_import_proceed">开始将文件: \'%1$s\' 内容（%2$s），导入数据库媒体记录</string>
     <string name="db_import_record">数库导入共 %1$d (%2$d) 首诗歌</string>
     <string name="db_import_start">开始将文件内容导入数据库媒体记录…</string>
     <string name="db_import_NQ"><u>NQ&#x2B07;</u></string>
     <string name="db_file_missing">请提供媒体内容真实路径！</string>
     <string name="db_list">数库列项</string>
-    <string name="db_overwrite">覆盖现有</string>
+    <string name="db_no_overwrite">保留现有记录</string>
+    <string name="db_overwrite">覆盖现有记录</string>
     <string name="db_overwrite_media">是否覆盖数据库中的现有媒体记录？</string>
     <string name="delete">删除</string>
     <string name="delete_history">删除诗歌历史记录: %1$s？</string>
@@ -60,10 +61,10 @@
 
     <!-- Message for Notion / QQ links update -->
     <string name="nq_download">NQ－诗歌链接下载</string>
-    <string name="nq_download_completed">%1$s－诗歌链接：%2$s 下载完毕！</string>
+    <string name="nq_download_completed">%1$s－诗歌链接：%2$s 首下载完毕！</string>
     <string name="nq_download_failed">%1$s－诗歌链接下载失败！</string>
     <string name="nq_download_in_progress">%1$s－链接下载中…</string>
-    <string name="nq_download_proceed">执行 %1$s 诗歌链接下载？过程需要一些时间。进程将在后台进行，您可以继续使用应用程序。</string>
+    <string name="nq_download_proceed">执行 %1$s 诗歌链接下载 (%2$s)？\n过程需要一些时间。进程将在后台进行，您可以继续使用应用程序。</string>
     <string name="nq_download_starting">%1$s－诗歌链接下载开始…</string>
     <string name="nq_record_delete">删除NQ－媒体链接记录:\n%1$s?</string>
 

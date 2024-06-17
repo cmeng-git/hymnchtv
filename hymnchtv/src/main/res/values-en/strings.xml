@@ -17,16 +17,17 @@
     <string name="copyright">Copyright@2020, Eng Chong Meng
         &lt;br/>&lt;a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0&lt;/a>
         &lt;br/>All rights reserved.</string>
-    <string name="db_export"><u>DB Expt</u></string>
+    <string name="db_export">DB Expt</string>
     <string name="db_import"><u>DB Impt</u></string>
-    <string name="db_import_create">Gen Impt</string>
     <string name="db_import_file">DB import file</string>
+    <string name="db_import_proceed">Start import file: \'%1$s\' contents  (%2$s), into database media records</string>
     <string name="db_import_record">The db imports a total of %1$d (%2$d) hymns</string>
     <string name="db_import_start">Start importing file contents into database media records…</string>
     <string name="db_import_NQ"><u>NQ&#x2B07;</u></string>
     <string name="db_file_missing">Please provide the absolute path of the media content!</string>
     <string name="db_list">DB List</string>
-    <string name="db_overwrite">Overwrite</string>
+    <string name="db_no_overwrite">Retain Record</string>
+    <string name="db_overwrite">Overwrite Record</string>
     <string name="db_overwrite_media">Do you want to overwrite existing media records in the database?</string>
     <string name="delete">Delete</string>
     <string name="delete_history">Delete hymn history: %1$s?</string>
@@ -62,7 +63,7 @@
     <string name="nq_download_completed">%1$s－Hymns link: %2$s download completed!</string>
     <string name="nq_download_failed">%1$s－Hymns link download failed!</string>
     <string name="nq_download_in_progress">%1$s－Link downloading…</string>
-    <string name="nq_download_proceed">Proceed %1$s hymn link download? The process takes some time. The process will take place in the background and you can continue using the application.</string>
+    <string name="nq_download_proceed">Proceed %1$s hymn link download (%2$s)?\nThe process takes some time. The process will take place in the background and you can continue using the application.</string>
     <string name="nq_download_starting">%1$s－Hymns link downloading starts…</string>
     <string name="nq_record_delete">Delete NQ-media link record:\n%1$s?</string>
 
