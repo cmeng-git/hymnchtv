@@ -86,13 +86,11 @@ public class HymnNoValidate {
     }
 
     // 新歌颂咏 - invalid hymn number
-    public static final List<Integer> rangeXbInvalid = new ArrayList<>();
-
-    static {
-        rangeXbInvalid.add(167);
-        rangeXbInvalid.add(168);
-        rangeXbInvalid.add(170);
-    }
+    public static final List<Integer> rangeXbInvalid = new ArrayList<Integer>() {{
+        add(168);
+        add(169);
+        add(170);
+    }};
 
     // 新詩歌本 - invalid hymn number
     public static final List<Integer> rangeXgInvalid = new ArrayList<>();

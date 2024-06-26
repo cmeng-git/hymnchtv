@@ -6,8 +6,15 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.4.0 (06/17/2024)" versioncode="204000">
+    <release version="2.4.1 (06/26/2024)" versioncode="204010">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>创建主页用户界面壁纸时，添加用户可选择的按设备纵向和横向屏幕尺寸裁剪的纵横比。</change>
+        <change>修改 Notion 记录模式匹配来适应源文件的变化。</change>
+        <change>更改版本并更新资产 url_import 文件内容。</change>
+        <change>重新分配新歌颂咏歌曲编号 #169 至 #167，并更新相关支持的功能。</change>
+    </release>
+
+    <release version="2.4.0 (06/17/2024)" versioncode="204000">
         <change>清理并重新格式化新诗组歌词文本。</change>
         <change>删除 '自建导入' 文件创建选项，自 v2.2.0 起不再需要。</change>
         <change>解决 Notion 记录下载时，安卓‘网页视图’崩溃问题：使用安卓后期延迟（45 秒）对每个诗歌类型组网址访问，和更新网址记录提取的匹配模式</change>

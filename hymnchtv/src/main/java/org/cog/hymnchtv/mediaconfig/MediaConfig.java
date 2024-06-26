@@ -125,12 +125,10 @@ public class MediaConfig extends BaseActivity
         implements View.OnClickListener, View.OnLongClickListener, AdapterView.OnItemSelectedListener {
     // Online text and video playback help contents
     private static final String HYMNCHTV_FAQ_UDC_RECORD = "https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0070";
-    private static final ArrayList<String> videoUrls = new ArrayList<>();
-
-    static {
-        videoUrls.add("https:/cmeng-git.github.io/hymnchtv/video/mediaconfig_01.mp4");
-        videoUrls.add("https:/cmeng-git.github.io/hymnchtv/video/mediaconfig_02.mp4");
-    }
+    private static final ArrayList<String> videoUrls = new ArrayList<String>() {{
+        add("https:/cmeng-git.github.io/hymnchtv/video/mediaconfig_yt_search.mp4");
+        add("https:/cmeng-git.github.io/hymnchtv/video/mediaconfig_url_export.mp4");
+    }};
 
     public static final String HYMN_NO = "hymnNo";
     public static final String HYMN_FU = "isFu"; // set to 1 if fu else 0
@@ -1066,7 +1064,7 @@ public class MediaConfig extends BaseActivity
                     public void onDialogCancelled(DialogActivity dialog) {
                     }
                 }, assetFile != null ? assetFile : importFile.substring(importFile.lastIndexOf("/") + 1),
-                        HymnsApp.getResString(isOverWrite() ? R.string.db_overwrite : R.string.db_no_overwrite));
+                HymnsApp.getResString(isOverWrite() ? R.string.db_overwrite : R.string.db_no_overwrite));
     }
 
     /**

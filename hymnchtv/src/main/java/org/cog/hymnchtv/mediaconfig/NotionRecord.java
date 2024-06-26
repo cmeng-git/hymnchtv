@@ -109,11 +109,11 @@ public class NotionRecord extends MediaRecord {
         put("十字架的道路(458-471首)", "https://breakopen.notion.site/458-471-7ded7a1296e84ba9b282b122667e80a0");
         put("复活的生命(472-473首)", "https://breakopen.notion.site/472-473-e3a36bae50a64081beb2c2a6511b928c");
         put("鼓励(474-489首)", "https://breakopen.notion.site/474-489-5729d3e38028405e949c8ea2160df73d");
-        put("试炼中的安慰(490-528首)", "https://breakopen.notion.site/490-528-62577aa3ad2840eab50fdbe8b12e2403");
     }};
 
     // Break DB URL into smaller size for retrieval; else web access will fail.
     public static Map<String, String> NotionDBSites2 = new HashMap<String, String>() {{
+        put("试炼中的安慰(490-528首)", "https://breakopen.notion.site/490-528-62577aa3ad2840eab50fdbe8b12e2403");
         put("里面生命的各方面(529-547首)", "https://breakopen.notion.site/529-547-b51bca3d1c134c4dacd180b085b6224c");
         put("神医(548-550首)", "https://breakopen.notion.site/548-550-a1cadff1735f49f4b03634b82ee04c49");
         put("祷告(551-578首)", "https://breakopen.notion.site/551-578-1c1d7e5bf9254b858eec4446cff131c3");
@@ -239,7 +239,7 @@ public class NotionRecord extends MediaRecord {
 
         // Check after 10 minutes to see if it has completed loading.
         new Handler().postDelayed(() -> {
-            if (!webList.isEmpty()) {
+            if (webList.isEmpty()) {
                 Timber.d("Clear the incomplete web sites: %s", webList.size());
                 // Note10 complete all download in 5 min; Huawei 13.2 matePro in 3.5 min. Enough time given for 7.5 min?
                 // So clear unfinished url fetch, just leave it run in background; just report the current end result
@@ -497,14 +497,12 @@ public class NotionRecord extends MediaRecord {
                 else {
                     // For extracting title/HymnNo and url link; NQ is for bb i.e.
                     // <a href="/B876-eccabf42d6434a1892777fd82448e48e?pvs=25"
-                    pattern = Pattern.compile("<a href=\"(/[DBCX]*[-a-z0-9]+)\\?pvs=25\".*?<div class=\"notranslate.*?>(.*?)</div></div></div><div contenteditable", Pattern.DOTALL);
+                    pattern = Pattern.compile("<a href=\"(/[DBCX]*[-A-Za-z0-9]+)\\?pvs=25\".*?<div class=\"notranslate.*?>(.*?)</div>.+?</div><div contenteditable", Pattern.DOTALL);
                 }
                 matcher = pattern.matcher(dataIdContent);
                 while (matcher.find()) {
                     String strLink = matcher.group(1);
                     String strHymnTitle = matcher.group(2);
-                    if (strHymnTitle.startsWith("D0"))
-                        Timber.d("halt");
                     if (!TextUtils.isEmpty(strLink) && !TextUtils.isEmpty(strHymnTitle)) {
                         // Timber.d("%s => %s", strHymnTitle, strLink);
                         try {

@@ -40,6 +40,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import java.io.File;
 
 import com.yalantis.ucrop.UCrop;
+import com.yalantis.ucrop.model.AspectRatio;
 
 import org.cog.hymnchtv.BaseActivity;
 import org.cog.hymnchtv.HymnsApp;
@@ -135,9 +136,14 @@ public class WallPaperUtil extends BaseActivity implements View.OnClickListener 
         String fileName = inFile.getName();
         File outFile = new File(FileBackend.getHymnchtvStore(DIR_WALLPAPER, true), fileName);
 
+        UCrop.Options options = new UCrop.Options();
+        options.setAspectRatioOptions(0,
+                new AspectRatio("Portrait", HymnsApp.screenWidth, HymnsApp.screenHeight),
+                new AspectRatio("Landscape", HymnsApp.screenHeight, HymnsApp.screenWidth));
+        // options.withMaxResultSize(CROP_MAX_SIZE_WIDTH, CROP_MAX_SIZE_HEIGHT)
+
         UCrop.of(Uri.fromFile(inFile), Uri.fromFile(outFile))
-//                .withAspectRatio(9, 16)
-//                .withMaxResultSize(CROP_MAX_SIZE_WIDTH, CROP_MAX_SIZE_HEIGHT)
+                .withOptions(options)
                 .start(WallPaperUtil.this);
     }
 

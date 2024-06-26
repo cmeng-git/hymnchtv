@@ -93,8 +93,8 @@ public class HymnIdx2NoConvert {
     }
 
     // hymnIdx >= HYMN_IDX__XB_MAX uses table for translation
-    public static final int HYMN_IDX__XB_MAX = 166;
-    private static int[] hymnXbValid = new int[]{169, 171};
+    public static final int HYMN_IDX_XB_MAX = 167;
+    private static final int[] hymnXbValid = new int[]{171};
 
     /**
      * For verification of the conversion (+ limit test)
@@ -155,8 +155,8 @@ public class HymnIdx2NoConvert {
 
             // 新歌颂咏; will generate invalid hymnNo for hymnIdx > 166; so fetch from translated table
             case HYMN_XB:
-                if (hymnIdx >= HYMN_IDX__XB_MAX) {
-                    hymnNo = hymnXbValid[hymnIdx - HYMN_IDX__XB_MAX];
+                if (hymnIdx >= HYMN_IDX_XB_MAX) {
+                    hymnNo = hymnXbValid[hymnIdx - HYMN_IDX_XB_MAX];
                 }
                 // Timber.d("HYMN_XB: %s => %s", hymnIdx, hymnNo);
                 if (hymnNo <= HYMN_XB_NO_MAX) {

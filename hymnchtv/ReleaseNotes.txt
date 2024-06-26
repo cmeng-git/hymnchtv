@@ -1,6 +1,15 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    06/26/2024
+Version:        2.4.1 (204010)
+- Add user selectable crop aspect ratio per device portrait and landscape screen size when creating main UI wallpaper.
+- Modify Notion record pattern matching to cater for source file variations.
+- Change version and update asset url_import file content.
+- Reassign XB number number #169 to #167 and update relevant supported functions
+
+=========================================================================
+Author:         cmeng
 Upload Date:    06/17/2024
 Version:        2.4.0 (204000)
 - Clean and reformat XinShi lyrics text.

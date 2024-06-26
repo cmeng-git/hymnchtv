@@ -10,8 +10,8 @@ android {
         applicationId "org.cog.hymnchtv"
 
         // End digit - change to force update with same version number
-        versionCode 204000
-        versionName "2.4.0"
+        versionCode 204010
+        versionName "2.4.1"
 
         minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.compileSdk
@@ -110,7 +110,7 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.16.1'
     implementation 'commons-io:commons-io:2.16.0'
 
-    implementation 'com.google.android.play:core:1.10.3'
+    // implementation 'com.google.android.play:core:1.10.3'
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
 
     implementation 'jp.wasabeef:richeditor-android:2.0.0'
@@ -129,7 +129,7 @@ task updateVersionFile(type: Copy) {
     // media url record import version; To allow old hymnchtv version app to update url import,
     // then increase this value and check in version.properties.
     // Set to be the same as the one in MediaConfig#IMPORT_URL_VERSION for new apk release.
-    def versionImport = 103
+    def versionImport = 104
     def versionName = android.defaultConfig.versionName
     def versionCode = android.defaultConfig.versionCode
     def date = new Date()
