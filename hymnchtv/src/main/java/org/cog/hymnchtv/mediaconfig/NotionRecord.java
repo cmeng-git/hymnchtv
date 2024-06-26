@@ -239,7 +239,7 @@ public class NotionRecord extends MediaRecord {
 
         // Check after 10 minutes to see if it has completed loading.
         new Handler().postDelayed(() -> {
-            if (webList.isEmpty()) {
+            if (!webList.isEmpty()) {
                 Timber.d("Clear the incomplete web sites: %s", webList.size());
                 // Note10 complete all download in 5 min; Huawei 13.2 matePro in 3.5 min. Enough time given for 7.5 min?
                 // So clear unfinished url fetch, just leave it run in background; just report the current end result
