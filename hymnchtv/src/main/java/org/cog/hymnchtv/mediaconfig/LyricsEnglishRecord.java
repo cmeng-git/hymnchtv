@@ -66,7 +66,18 @@ public class LyricsEnglishRecord {
             " table tr td.chorus {padding-left: 15px }\n" +
             " table tr td.note { width: 320px; text-align: center; color: #707070; font-style: italic}\n" +
             " table tr td.copyright { width: 320px; padding-top: 10px; text-align: center; color:#707070 }\n" +
-            " table tr.stanza-num { left: -2 em; width: 1.5 em; padding: 2px; text-align: center; color: #444; background: #ddd }\n";
+            " table tr.stanza-num { left: -2 em; width: 1.5 em; padding: 2px; text-align: center; color: #444; background: #ddd }\n" +
+            " article { width: fit-content; margin: 0 auto; }\n" +
+            " article .verse { display: flex; vertical-align: text-top; }\n" +
+            " article .verse div:first-child { padding-right: 16px; }\n" +
+            " article .verse div { display: flex; padding-bottom: 20px; }\n" +
+            " article .verse div.verse-num { cursor: pointer; text-align: right; }\n" +
+            " article .verse div.verse-num span { border-radius: 50%; background: #2b2f31; color: #bdb7af; width: 28px; height: 28px; padding: 4px; text-align: center; }\n" +
+            " article .verse div.verse-num.highlight span { background: #010190; color: #e8ebe3; }\n" +
+            " article .verse div.empty-num { width: 28px; height: 28px; padding: 4px; }\n" +
+            " article .verse div.chorus { padding-left: 32px; }\n" +
+            " article .verse div.note { width: 320px; text-align: center; color: #e8e6e3; font-style: italic; }\n" +
+            " article .verse div.copyright { width: 320px; padding-top: 10px; text-align: center; color: #e8e6e3; }\n";
 
     public static String HYMNAL_LINK_MAIN = "https://www.hymnal.net/en/hymn/h/";
     public static String HYMNAL_LINK_MAIN_ER = "https://www.hymnal.net/en/hymn/c/";
@@ -141,7 +152,8 @@ public class LyricsEnglishRecord {
         if (TextUtils.isEmpty(lyricsContent))
             return false;
 
-        Pattern pattern = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<table data-end=\".*\" class=\"js-stanzas\">.+?table>).*?");
+        // Pattern pattern = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<table data-end=\".*\" class=\"js-stanzas\">.+?table>).*?");
+        Pattern pattern = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<article data-end=\".*\" class=\"js-stanzas\">.+?</article>).*?");
         Pattern patternExt = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"alert.+?(<a href=\".+?</a>).+?");
         mLyricsEnglish = null;
 
@@ -173,7 +185,7 @@ public class LyricsEnglishRecord {
      * @param valueCallback callback to deliver the result
      */
     private void getURLSource(String urlToLoad, final ValueCallback<String> valueCallback) {
-        Pattern pattern = Pattern.compile("<div class=\"row main-content\">(.+?</table>).+?");
+        Pattern pattern = Pattern.compile("<div class=\"row main-content\">(.+?</div></div></article>).+?");
 
         WebView webView = initWebView(mContext);
         webView.loadUrl(urlToLoad); // preload url and wait for 2.0 sec before checking.

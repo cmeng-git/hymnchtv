@@ -44,17 +44,23 @@ public class PermissionUtils {
 
     // Not all android devices follow this. Hymn allow app settings access via menu.
     static {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            permissionList.add(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionList.add(Manifest.permission.READ_MEDIA_AUDIO);
-            permissionList.add(Manifest.permission.READ_MEDIA_VIDEO);
-            permissionList.add(Manifest.permission.READ_MEDIA_IMAGES);
             permissionList.add(Manifest.permission.POST_NOTIFICATIONS);
+            permissionList.add(Manifest.permission.READ_MEDIA_AUDIO);
+            permissionList.add(Manifest.permission.READ_MEDIA_IMAGES);
+            permissionList.add(Manifest.permission.READ_MEDIA_VIDEO);
         }
-        else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
-            permissionList.add(Manifest.permission.ACCESS_MEDIA_LOCATION);
-        }
-        else if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        else {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+                permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+            else {
+                permissionList.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
         }
     }
 

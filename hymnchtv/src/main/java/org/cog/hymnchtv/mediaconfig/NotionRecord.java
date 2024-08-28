@@ -506,10 +506,10 @@ public class NotionRecord extends MediaRecord {
                     if (!TextUtils.isEmpty(strLink) && !TextUtils.isEmpty(strHymnTitle)) {
                         // Timber.d("%s => %s", strHymnTitle, strLink);
                         try {
-                            JSONObject jobject = new JSONObject()
+                            JSONObject jObject = new JSONObject()
                                     .put(NQ_TITLE, strHymnTitle)
                                     .put(NQ_URL, strLink.startsWith("http") ? strLink : NOTION_SITE + strLink);
-                            jsonArray.put(jobject);
+                            jsonArray.put(jObject);
                         } catch (JSONException e) {
                             Timber.w("Jason Exception: %s", e.getMessage());
                         }

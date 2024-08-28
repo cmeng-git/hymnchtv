@@ -1,6 +1,16 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    08/28/2024
+Version:        2.4.21 (2040210)
+- Update English lyrics scrapping matching patterns for new hymnal.net site UI design.
+- Need to close opened inputStream on end of http connection access.
+- Update permission request to include all API variations.
+- Cleanup XinShi 新诗 lyrics.
+- Update used libraries to latest releases.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    06/26/2024
 Version:        2.4.1 (204010)
 - Add user selectable crop aspect ratio per device portrait and landscape screen size when creating main UI wallpaper.

@@ -58,7 +58,7 @@ import org.cog.hymnchtv.utils.DialogActivity;
 import timber.log.Timber;
 
 /**
- * hymnchtv update service implementation. It checks for an update and schedules .apk download using android DownloadManager.
+ * hymnchtv update service implementation. It checks for an update and schedules .apk download using <code>DownloadManager</code>.
  * It is only activated for the debug version. Android initials the auto-update from PlayStore for release version.
  *
  * @author Eng Chong Meng
@@ -420,9 +420,10 @@ public class UpdateServiceImpl {
         for (String aLink : updateLinks) {
             try {
                 if (isValidateLink(aLink)) {
-                    InputStream in = mHttpConnection.getInputStream();
+                    InputStream inputStream = mHttpConnection.getInputStream();
                     Properties mProperties = new Properties();
-                    mProperties.load(in);
+                    mProperties.load(inputStream);
+                    inputStream.close();
 
                     latestVersion = mProperties.getProperty("last_version");
                     latestVersionCode = Long.parseLong(mProperties.getProperty("last_version_code"));
