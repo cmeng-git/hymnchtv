@@ -67,6 +67,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver {
      */
     public static boolean isForeground = false;
 
+    public static boolean updateServiceAllowed = true;
     private static boolean isUpdateServerStarted = false;
 
     // Use the clear current toast state so new one can be shown immediately
@@ -190,7 +191,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver {
      */
     private static void startUpdateService() {
         // Perform software version update check on first launch for both release and debug version
-        if (BuildConfig.DEBUG && !isUpdateServerStarted) {
+        if ((updateServiceAllowed || BuildConfig.DEBUG) && !isUpdateServerStarted) {
             ActivityManager manager = (ActivityManager) mInstance.getSystemService(Context.ACTIVITY_SERVICE);
             List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = manager.getRunningAppProcesses();
             if (runningAppProcesses != null) {

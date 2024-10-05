@@ -377,6 +377,7 @@ public class QQRecord extends MediaRecord {
     public static void getURLSource(final WebView webView, String title, String urlToLoad, final ValueCallback<String> valueCallback) {
         // Timber.d("URl to load: %s", urlToLoad);
         webView.loadUrl(urlToLoad); // preload url and wait for 1.0 sec before checking.
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {

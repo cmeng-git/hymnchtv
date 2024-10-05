@@ -6,14 +6,21 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.4.2 (08/28/2024)" versioncode="204020">
+    <release version="2.4.3 (10/05/2024)" versioncode="204030">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>在网页抓取英文歌词时，删除 setWebViewClient() 之后重复的 loadUrl()；这会触发 onPageFinished() &lt;100%。</change>
+        <change>根据歌词文本更新歌词乐谱措辞。</change>
+        <change>所有英文歌词显示文字均居中对齐。</change>
+        <change>在调试版本和发布版本上启用更新服务。</change>
+        <change>请参阅数据库升级&lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0080'&gt; [20240618] User defined media database configuration#数库导入:&lt;/a></change>
+    </release>
+
+    <release version="2.4.2 (08/28/2024)" versioncode="204020">
         <change>更新英文歌词抓取匹配模式，以适应新的 hymnal.net 网站用户界面设计。</change>
         <change>需要在网络连接访问结束时关闭打开的输入流。</change>
         <change>更新权限请求以包含所有 API 变体。</change>
         <change>清理新诗歌词文本内容。</change>
         <change>将使用的库更新至最新版本。</change>
-        <change>请参阅数据库升级&lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0080'&gt; [20240618] User defined media database configuration#数库导入:&lt;/a></change>
     </release>
 
     <release version="2.4.1 (06/26/2024)" versioncode="204010">

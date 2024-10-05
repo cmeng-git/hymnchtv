@@ -108,7 +108,7 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
         findViewById(R.id.ok_button).setOnClickListener(this);
 
         Button btn_chkNewVersion = findViewById(R.id.check_new_version);
-        if (BuildConfig.DEBUG) {
+        if (HymnsApp.updateServiceAllowed || BuildConfig.DEBUG) {
             btn_chkNewVersion.setVisibility(View.VISIBLE);
             btn_chkNewVersion.setOnClickListener(this);
         }

@@ -541,6 +541,7 @@ public class NotionRecord extends MediaRecord {
             final ValueCallback<String> valueCallback) {
         // Timber.d("URl to load: %s", urlToLoad);
         webView.loadUrl(urlToLoad); // preload url and wait for 1.5 sec before checking.
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {

@@ -59,7 +59,7 @@ public class LyricsEnglishRecord {
             " table { margin: 0;  height: auto; width: 100%; font-size: 1.2em }\n" +
             " table tr { vertical-align: text-top }\n" +
             " table tr td: first-child { padding-right: 15px }\n" +
-            " table tr td { padding-bottom: 20px }\n" +
+            " table tr td { padding-bottom: 20px; text-align: center; }\n" +
             " table tr td.verse-num { cursor: pointer }\n" +
             " table tr td.verse-num div { background: #ddd; color: #444 }\n" +
             " table tr td.verse-num.highlight div { background: #6363fe; color: #fff }\n" +
@@ -188,38 +188,34 @@ public class LyricsEnglishRecord {
         Pattern pattern = Pattern.compile("<div class=\"row main-content\">(.+?</div></div></article>).+?");
 
         WebView webView = initWebView(mContext);
-        webView.loadUrl(urlToLoad); // preload url and wait for 2.0 sec before checking.
+        webView.loadUrl(urlToLoad); // preload url and wait for 0.1 sec before checking onPageFinished().
+        Timber.d("Web scrapping started: %s", urlToLoad);
+
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                // Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
-                if (webView.getProgress() == 100) {
-                    // Must give some time for js to populate the dynamic page content; else not working
-                    new Handler().postDelayed(() -> {
-                        try {
-                            webView.evaluateJavascript("document.documentElement.outerHTML", data -> {
-                                data = cleanUpHtml(data);
-                                Matcher matcher = pattern.matcher(data);
-                                if (matcher.find()) {
-                                    valueCallback.onReceiveValue(matcher.group(1));
-                                }
-                                else {
-                                    Timber.w("Web scrapping failed: %s", urlToLoad);
-                                    valueCallback.onReceiveValue(null);
-                                }
-                            });
-                        } catch (Exception e) {
-                            Timber.e("Web scrapping failed: %s", e.getMessage());
-                            valueCallback.onReceiveValue(null);
-                        }
-                    }, 2000);
-                }
+                Timber.d("On Page Finished Call: %s: %s", webView.getProgress(), url);
+                new Handler().postDelayed(() -> {
+                    try {
+                        webView.evaluateJavascript("document.documentElement.outerHTML", data -> {
+                            data = cleanUpHtml(data);
+                            Matcher matcher = pattern.matcher(data);
+                            if (matcher.find()) {
+                                valueCallback.onReceiveValue(matcher.group(1));
+                            }
+                            else {
+                                Timber.w("Web scrapping failed: %s", urlToLoad);
+                                valueCallback.onReceiveValue(null);
+                            }
+                        });
+                    } catch (Exception e) {
+                        Timber.e("Web scrapping failed: %s", e.getMessage());
+                        valueCallback.onReceiveValue(null);
+                    }
+                }, 100);
             }
         });
-
-        webView.loadUrl(urlToLoad);
-        Timber.e("Web scrapping started: %s", urlToLoad);
     }
 
     /**
