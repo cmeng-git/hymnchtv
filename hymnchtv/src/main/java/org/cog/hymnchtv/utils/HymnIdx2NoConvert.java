@@ -61,6 +61,7 @@ public class HymnIdx2NoConvert {
     private static final Map<Integer, Integer> hymn_pages_db = new HashMap<Integer, Integer>() {{
         put(128, 2);
         put(152, 5);
+        put(164, 1);
         put(188, 2);
         put(310, 2);
         put(316, 2);

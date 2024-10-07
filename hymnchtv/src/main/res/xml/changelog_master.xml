@@ -6,7 +6,7 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.4.3 (10/05/2024)" versioncode="204030">
+    <release version="2.4.3 (10/08/2024)" versioncode="204031">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
         <change>在网页抓取英文歌词时，删除 setWebViewClient() 之后重复的 loadUrl()；这会触发 onPageFinished() &lt;100%。</change>
         <change>根据歌词文本更新歌词乐谱措辞。</change>

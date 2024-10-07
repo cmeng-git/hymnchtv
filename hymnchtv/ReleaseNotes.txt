@@ -1,8 +1,8 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    10/05/2024
-Version:        2.4.3 (2040300)
+Upload Date:    10/08/2024
+Version:        2.4.3 (204031)
 - Remove repeated loadUrl() after setWebViewClient() in English lyrics Web scrapping; it triggers onPageFinished() < 100%
   Web scrapping for English lyrics onPageFinished to ignore progress check
 - Update lyrics score wording as per lyrics text
@@ -12,7 +12,7 @@ Version:        2.4.3 (2040300)
 =========================================================================
 Author:         cmeng
 Upload Date:    08/28/2024
-Version:        2.4.2 (2040210)
+Version:        2.4.2 (204021)
 - Update English lyrics scrapping matching patterns for new hymnal.net site UI design.
 - Need to close opened inputStream on end of http connection access.
 - Update permission request to include all API variations.
