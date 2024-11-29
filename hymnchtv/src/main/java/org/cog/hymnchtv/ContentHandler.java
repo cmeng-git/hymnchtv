@@ -16,16 +16,17 @@
  */
 package org.cog.hymnchtv;
 
-import static org.cog.hymnchtv.ContentView.LYRICS_BB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_BB_SCORE;
-import static org.cog.hymnchtv.ContentView.LYRICS_DB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_DB_SCORE;
-import static org.cog.hymnchtv.ContentView.LYRICS_ER_SCORE;
-import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_XB_SCORE;
-import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_XG_SCORE;
-import static org.cog.hymnchtv.ContentView.LYRICS_XG_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_BB_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_BB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_DB_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_DB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_ER_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_ER_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_XB_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_XB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_XG_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_XG_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_YB_DIR;
 import static org.cog.hymnchtv.MainActivity.ATTR_AUTO_PLAY;
 import static org.cog.hymnchtv.MainActivity.ATTR_ENGLISH_NO;
 import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_NUMBER;
@@ -35,6 +36,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
 import static org.cog.hymnchtv.MainActivity.PREF_MENU_SHOW;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_DUMMY;
@@ -203,6 +205,7 @@ public class ContentHandler extends BaseActivity {
             case HYMN_ER:
             case HYMN_XB:
             case HYMN_XG:
+            case HYMN_YB:
             case HYMN_BB:
             case HYMN_DB:
                 hymnIdx = HymnNo2IdxConvert.hymnNo2IdxConvert(mHymnType, mHymnNo);
@@ -215,7 +218,7 @@ public class ContentHandler extends BaseActivity {
         // Instantiate a ViewPager2 and a PagerAdapter.
         mPager = findViewById(R.id.viewPager);
         // FragmentStatePagerAdapter default seems to create only 2, so omit this statement, otherwise 9 items get created
-        // FragmentStateAdapter default created 9, setOffscreenPageLimit has no effet
+        // FragmentStateAdapter default created 9, setOffscreenPageLimit has no effect
         // mPager.setOffscreenPageLimit(1);
         // mPager.setCurrentItem(hymnIdx, false) will force it to load only user selected page
         mPager.setAdapter(mPagerAdapter);
@@ -376,29 +379,34 @@ public class ContentHandler extends BaseActivity {
         String resFName = "";
 
         switch (mHymnType) {
-            case HYMN_DB:
-                resPrefix = LYRICS_DB_SCORE + "db" + mHymnNo;
-                resFName = LYRICS_DB_TEXT + "db" + mHymnNo;
-                break;
-
-            case HYMN_BB:
-                resPrefix = LYRICS_BB_SCORE + "bb" + mHymnNo;
-                resFName = LYRICS_BB_TEXT + "bb" + mHymnNo;
-                break;
-
-            case HYMN_XG:
-                resPrefix = LYRICS_XG_SCORE + "csr" + mHymnNo;
-                resFName = LYRICS_XG_TEXT + "csr" + mHymnNo;
+            case HYMN_ER:
+                resPrefix = SCORE_ER_DIR + mHymnNo;
+                resFName = LYRICS_ER_DIR + "er" + mHymnNo;
                 break;
 
             case HYMN_XB:
-                resPrefix = LYRICS_XB_SCORE + "xb" + mHymnNo;
-                resFName = LYRICS_XB_TEXT + "xb" + mHymnNo;
+                resPrefix = SCORE_XB_DIR + "xb" + mHymnNo;
+                resFName = LYRICS_XB_DIR + "xb" + mHymnNo;
                 break;
 
-            case HYMN_ER:
-                resPrefix = LYRICS_ER_SCORE + mHymnNo;
-                resFName = LYRICS_ER_TEXT + "er" + mHymnNo;
+            case HYMN_XG:
+                resPrefix = SCORE_XG_DIR + "xg" + mHymnNo;
+                resFName = LYRICS_XG_DIR + "xg" + mHymnNo;
+                break;
+
+            case HYMN_YB:
+                resPrefix = SCORE_XB_DIR + "yb" + mHymnNo;
+                resFName = LYRICS_XB_DIR + "yb" + mHymnNo;
+                break;
+
+            case HYMN_BB:
+                resPrefix = SCORE_BB_DIR + "bb" + mHymnNo;
+                resFName = LYRICS_BB_DIR + "bb" + mHymnNo;
+                break;
+
+            case HYMN_DB:
+                resPrefix = SCORE_DB_DIR + "db" + mHymnNo;
+                resFName = LYRICS_DB_DIR + "db" + mHymnNo;
                 break;
         }
 
@@ -611,7 +619,8 @@ public class ContentHandler extends BaseActivity {
                         if (proceedDownLoad) {
                             fileName = "X" + fileName + ".mp3";
                             // fbLink = String.format(Locale.US, "http://g.cgbr.org/music/x/media/%03d.mp3", mHymnNo);
-                            fbLink = String.format(Locale.US, "http://mana.stmn1.com/sg/xin/mp3/X%d.mp3", mHymnNo);
+                            // fbLink = String.format(Locale.US, "http://mana.stmn1.com/sg/xin/mp3/X%d.mp3", mHymnNo);
+                            fbLink = String.format(Locale.US, "http://four.soqimp.com/sg/xin/mp3/X%d.mp3", mHymnNo);
                             break;
                         }
 
@@ -636,9 +645,36 @@ public class ContentHandler extends BaseActivity {
                         if (isFileExist(dir, mHymnNo, uriList)) break;
 
                         if (proceedDownLoad) {
-                            fileName = "csr" + fileName + ".mp3";
+                            fileName = "xg" + fileName + ".mp3";
                             // http://mana.stmn1.com/sg/csr/mp3/csr20.mp3
-                            fbLink = String.format(Locale.US, "http://mana.stmn1.com/sg/csr/mp3/csr%d.mp3", mHymnNo);
+                            // fbLink = String.format(Locale.US, "http://mana.stmn1.com/sg/csr/mp3/csr%d.mp3", mHymnNo);
+                            fbLink = String.format(Locale.US, "http://four.soqimp.com/sg/csr/mp3/csr%d.mp3", mHymnNo);
+                            break;
+                        }
+
+                    case HYMN_BANZOU:
+                        dir = mHymnType + MEDIA_BANZOU;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
+                }
+                break;
+
+            case HYMN_YB:
+                switch (mediaType) {
+                    case HYMN_MEDIA:
+                        dir = mHymnType + MEDIA_MEDIA;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
+
+                    case HYMN_JIAOCHANG:
+                        dir = mHymnType + MEDIA_JIAOCHANG;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
+
+                    case HYMN_CHANGSHI:
+                        dir = mHymnType + MEDIA_CHANGSHI;
+                        if (isFileExist(dir, mHymnNo, uriList)) break;
+
+                        if (proceedDownLoad) {
+                            fileName = "xg" + fileName + ".mp3";
+                            // fbLink = String.format(Locale.US, "http://mana.stmn1.com/sg/yb/mp3/csr%d.mp3", mHymnNo);
                             break;
                         }
 
@@ -666,6 +702,7 @@ public class ContentHandler extends BaseActivity {
                             fileName = "B" + fileName + ".mp3";
                             // https://www.hymnal.net/Hymns/Chinese/mp3/ch_0048_vocal.mp3
                             // fbLink = String.format(Locale.US, "https://www.hymnal.net/cn/hymn/ts/%d/f=sing", mHymnNo);
+                            // fbLink = String.format(Locale.US, "http://four.soqimp.com/sg/bu/mp3/B%d.mp3", mHymnNo);
                             fbLink = String.format(Locale.US, "http://mana.stmn1.com/sg/bu/mp3/B%d.mp3", mHymnNo);
                             break;
                         }
@@ -796,6 +833,7 @@ public class ContentHandler extends BaseActivity {
             case HYMN_ER:
             case HYMN_XB:
             case HYMN_XG:
+            case HYMN_YB:
                 break;
 
             case HYMN_BB:
@@ -874,24 +912,37 @@ public class ContentHandler extends BaseActivity {
         }
 
         switch (mHymnType) {
-            case HYMN_DB:
-                fileName = LYRICS_DB_TEXT + "db" + mHymnNo + ".txt";
-                break;
-
-            case HYMN_BB:
-                fileName = LYRICS_BB_TEXT + "bb" + mHymnNo + ".txt";
+            case HYMN_ER:
+                fileName = LYRICS_ER_DIR + "er" + mHymnNo + ".txt";
                 break;
 
             case HYMN_XG:
-                fileName = LYRICS_XG_TEXT + "csr" + mHymnNo + ".txt";
+                fileName = LYRICS_XG_DIR + "xg" + mHymnNo + ".txt";
                 break;
 
             case HYMN_XB:
-                fileName = LYRICS_XB_TEXT + "xb" + mHymnNo + ".txt";
+                fileName = LYRICS_XB_DIR + "xb" + mHymnNo + ".txt";
                 break;
 
-            case HYMN_ER:
-                fileName = LYRICS_ER_TEXT + "er" + mHymnNo + ".txt";
+            case HYMN_YB:
+                String hymnTN = mPagerAdapter.ybXTable.get(mHymnNo);
+                if (hymnTN != null) {
+                    String hymnType = MainActivity.getHymnType(hymnTN);
+                    String hymnDir = getHymnDir(hymnTN);
+                    fileName = hymnDir + hymnTN + ".txt";
+                    Timber.w("YB Fragment: %s %s", hymnType, hymnDir);
+                }
+                else {
+                    fileName = LYRICS_YB_DIR + "yb" + mHymnNo + ".txt";
+                }
+                break;
+
+            case HYMN_BB:
+                fileName = LYRICS_BB_DIR + "bb" + mHymnNo + ".txt";
+                break;
+
+            case HYMN_DB:
+                fileName = LYRICS_DB_DIR + "db" + mHymnNo + ".txt";
                 break;
         }
 
@@ -943,6 +994,9 @@ public class ContentHandler extends BaseActivity {
             case HYMN_XG:
                 resId = R.string.hymn_title_mc_xg;
                 break;
+            case HYMN_YB:
+                resId = R.string.hymn_title_mc_yb;
+                break;
             case HYMN_BB:
                 resId = R.string.hymn_title_mc_bb;
                 break;
@@ -958,6 +1012,24 @@ public class ContentHandler extends BaseActivity {
 
     public Integer getHymnNoEng() {
         return mHymnNoEng;
+    }
+
+    public static String getHymnDir(String hymnTN) {
+        if (hymnTN.startsWith("er")) {
+            return LYRICS_ER_DIR;
+        }
+        if (hymnTN.startsWith("xb")) {
+            return LYRICS_XB_DIR;
+        }
+        else if (hymnTN.startsWith("xg")) {
+            return LYRICS_XG_DIR;
+        }
+        else if (hymnTN.startsWith("yb")) {
+            return LYRICS_YB_DIR;
+        }
+        else {
+            return hymnTN.startsWith("db") ? LYRICS_DB_DIR : LYRICS_BB_DIR;
+        }
     }
 
     public void showNotionSite() {

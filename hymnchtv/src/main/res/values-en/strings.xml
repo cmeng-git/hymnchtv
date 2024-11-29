@@ -100,6 +100,9 @@
     <string name="hymn_info_xg_max">XinShi has only %1$d (2$d)</string>
     <string name="hymn_info_xg_invalid">XinShi does not have: %1$s</string>
 
+    <string name="hymn_info_yb_max">QingNian has only %1$d (2$d)</string>
+    <string name="hymn_info_yb_invalid">QingNian does not have: %1$s</string>
+
     <string name="hymn_info_media_none">The selected item does not have playback media</string>
     <string name="hymn_info_sp_none">Selected item does not have FuGe</string>
 
@@ -174,6 +177,7 @@
     <string name="hymn_search"><u>Search</u></string>
     <string name="hymn_xb">Xin Song</string>
     <string name="hymn_xg">Xin Shi</string>
+    <string name="hymn_yb"><u>Qing Nian</u></string>
 
     <string name="hymn_toc">TOC</string>
     <string name="hymn_category">Category</string>
@@ -187,6 +191,8 @@
     <string name="hymn_title_db">Hymn - DaiBen</string>
     <string name="hymn_title_er">Hymn - ErGe</string>
     <string name="hymn_title_xb">Hymn - XinGe</string>
+    <string name="hymn_title_xg">Hymn - XinShi</string>
+    <string name="hymn_title_yb">Hymn - QingNian</string>
     -->
 
     <!-- hymnchtv media player interface gui names -->
@@ -203,6 +209,8 @@
     <string name="hymn_title_mc_dbs">DaBenFu %1$d: %2$s</string>
     <string name="hymn_title_mc_er">ErGe %1$d: %2$s</string>
     <string name="hymn_title_mc_xb">XinGe %1$d: %2$s</string>
+    <string name="hymn_title_mc_xg">XinShi %1$d: %2$s</string>
+    <string name="hymn_title_mc_yb">QingNian %1$d: %2$s</string>
      -->
 
     <!-- hymn search gui strings -->
@@ -211,6 +219,7 @@
     <string name="hymn_match_er">ErGe: No %1$d:\n%2$s</string>
     <string name="hymn_match_xb">XinSong: No %1$d:\n%2$s</string>
     <string name="hymn_match_xg">XinShi: No %1$d:\n%2$s</string>
+    <string name="hymn_match_yb">QingNian: No %1$d:\n%2$s</string>
     <string name="hymn_match_bb">BuChong: No %1$d:\n%2$s</string>
     <string name="hymn_match_db">DaBen: No %1$d:\n%2$s</string>
     <string name="hymn_match_db_sp">DaBen: Fu %1$d:\n%2$s</string>

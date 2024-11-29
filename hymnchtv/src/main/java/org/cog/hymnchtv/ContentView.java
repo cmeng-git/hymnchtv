@@ -21,6 +21,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.utils.ZoomTextView.STEP_SCALE_FACTOR;
 
@@ -77,17 +78,19 @@ import timber.log.Timber;
  */
 public class ContentView extends Fragment implements ZoomTextView.ZoomTextListener, View.OnClickListener,
         View.OnLongClickListener, LyricsEnglishRecord.EnglishLyricsListener {
-    public static String LYRICS_DB_SCORE = "lyrics_db_score/";
-    public static String LYRICS_BB_SCORE = "lyrics_bb_score/";
-    public static String LYRICS_XB_SCORE = "lyrics_xb_score/";
-    public static String LYRICS_XG_SCORE = "lyrics_csr_score/";
-    public static String LYRICS_ER_SCORE = "lyrics_er_score/";
+    public static String SCORE_DB_DIR = "lyrics_db_score/";
+    public static String SCORE_BB_DIR = "lyrics_bb_score/";
+    public static String SCORE_ER_DIR = "lyrics_er_score/";
+    public static String SCORE_XB_DIR = "lyrics_xb_score/";
+    public static String SCORE_XG_DIR = "lyrics_xg_score/";
+    public static String SCORE_YB_DIR = "lyrics_yb_score/";
 
-    public static String LYRICS_DB_TEXT = "lyrics_db_text/";
-    public static String LYRICS_BB_TEXT = "lyrics_bb_text/";
-    public static String LYRICS_XB_TEXT = "lyrics_xb_text/";
-    public static String LYRICS_XG_TEXT = "lyrics_csr_text/";
-    public static String LYRICS_ER_TEXT = "lyrics_er_text/";
+    public static String LYRICS_DB_DIR = "lyrics_db_text/";
+    public static String LYRICS_BB_DIR = "lyrics_bb_text/";
+    public static String LYRICS_ER_DIR = "lyrics_er_text/";
+    public static String LYRICS_XB_DIR = "lyrics_xb_text/";
+    public static String LYRICS_XG_DIR = "lyrics_xg_text/";
+    public static String LYRICS_YB_DIR = "lyrics_yb_text/";
 
     public static String LYRICS_TOC = "lyrics_toc/";
 
@@ -269,8 +272,8 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     }
 
     /**
-     * The lyrics png/jpg file has the following formats: HYMN_ER, HYMN_XB, HYMN_XG, HYMN_BB, HYMN_DB
-     * i.e. er, xb, csr, bb, db followed by the hymn number, a, b, c etc for more than one page;
+     * The lyrics png/jpg file has the following formats: HYMN_ER, HYMN_XB, HYMN_XG, HYMN_YB, HYMN_BB, HYMN_DB
+     * i.e. er, xb, xg, yb, bb, db followed by the hymn number, a, b, c etc for more than one page;
      * The files are stored in asset respective sub-dir e.g. LYRICS_XB_SCORE
      * The content view can support up to 5 pages for user vertical scrolls
      *
@@ -286,29 +289,34 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         isErGe = HYMN_ER.equals(hymnType);
 
         switch (hymnType) {
-            case HYMN_DB:
-                mResPrefix = LYRICS_DB_SCORE + "db" + lyricsNo;
-                resFName = LYRICS_DB_TEXT + "db" + lyricsNo + ".txt";
-                break;
-
-            case HYMN_BB:
-                mResPrefix = LYRICS_BB_SCORE + "bb" + lyricsNo;
-                resFName = LYRICS_BB_TEXT + "bb" + lyricsNo + ".txt";
-                break;
-
-            case HYMN_XG:
-                mResPrefix = LYRICS_XG_SCORE + "csr" + lyricsNo;
-                resFName = LYRICS_XG_TEXT + "csr" + lyricsNo + ".txt";
+            case HYMN_ER:
+                mResPrefix = SCORE_ER_DIR + lyricsNo;
+                resFName = LYRICS_ER_DIR + "er" + lyricsNo + ".txt";
                 break;
 
             case HYMN_XB:
-                mResPrefix = LYRICS_XB_SCORE + "xb" + lyricsNo;
-                resFName = LYRICS_XB_TEXT + "xb" + lyricsNo + ".txt";
+                mResPrefix = SCORE_XB_DIR + "xb" + lyricsNo;
+                resFName = LYRICS_XB_DIR + "xb" + lyricsNo + ".txt";
                 break;
 
-            case HYMN_ER:
-                mResPrefix = LYRICS_ER_SCORE + lyricsNo;
-                resFName = LYRICS_ER_TEXT + "er" + lyricsNo + ".txt";
+            case HYMN_XG:
+                mResPrefix = SCORE_XG_DIR + "xg" + lyricsNo;
+                resFName = LYRICS_XG_DIR + "xg" + lyricsNo + ".txt";
+                break;
+
+            case HYMN_YB:
+                mResPrefix = SCORE_YB_DIR + "yb" + lyricsNo;
+                resFName = LYRICS_YB_DIR + "yb" + lyricsNo + ".txt";
+                break;
+
+            case HYMN_BB:
+                mResPrefix = SCORE_BB_DIR + "bb" + lyricsNo;
+                resFName = LYRICS_BB_DIR + "bb" + lyricsNo + ".txt";
+                break;
+
+            case HYMN_DB:
+                mResPrefix = SCORE_DB_DIR + "db" + lyricsNo;
+                resFName = LYRICS_DB_DIR + "db" + lyricsNo + ".txt";
                 break;
 
             default:

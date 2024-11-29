@@ -21,12 +21,14 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_DUMMY;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XG_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_YB_NO_TMAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
 
@@ -112,6 +114,13 @@ public class HymnNo2IdxConvert {
             // 新詩歌本
             case HYMN_XG:
                 if (hymnNo <= HYMN_XG_NO_MAX) {
+                    hymnIdx = hymnNo - 1;
+                }
+                break;
+
+            // 青年诗歌
+            case HYMN_YB:
+                if (hymnNo <= HYMN_YB_NO_TMAX) {
                     hymnIdx = hymnNo - 1;
                 }
                 break;

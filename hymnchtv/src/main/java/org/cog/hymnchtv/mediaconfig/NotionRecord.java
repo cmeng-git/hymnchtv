@@ -20,7 +20,10 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB_ALT;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_YB_NO_MAX;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -73,8 +76,9 @@ public class NotionRecord extends MediaRecord {
         {
             put("D", HYMN_DB);  // D53哦主你是神的活道
             put("附", HYMN_DB); // 附1  颂赞与尊贵与荣耀
-            put("B", HYMN_BB);
-            put("X", HYMN_XB);
+            put("B", HYMN_BB);  // 补充本
+            put("X", HYMN_XB);  // 新歌颂咏
+            put("Q", HYMN_YB);  // 青年诗歌
             put("C", HYMN_ER);
         }
     };
@@ -87,8 +91,9 @@ public class NotionRecord extends MediaRecord {
             put(HYMN_DB, "https://breakopen.notion.site/mp3-edf8337e94824147b45605c273350e34");
             put(HYMN_DB2, "https://breakopen.notion.site/mp3-edf8337e94824147b45605c273350e34");
             put(HYMN_BB, "https://breakopen.notion.site/588a3b12cb9a4ed999d5a4ced96bdc18");
-            // put(HYMN_XG, "https://breakopen.notion.site/219c0f3b696c46cda5131c1507d7152d");
+            // put(HYMN_XG, "https://breakopen.notion.site/219c0f3b696c46cda5131c1507d7152d"); // not available for XG
             put(HYMN_XB, "https://breakopen.notion.site/c499d9182f4848039fe77fb602aa551e");
+            put(HYMN_YB, "https://breakopen.notion.site/Q-N-42c9b64b703444f1bb2ae45b47c230d4");
             put(HYMN_ER, "https://breakopen.notion.site/E-T-fc5adc924ad04efeb7cd2f137f7cc2c1");
         }
     };
@@ -149,6 +154,13 @@ public class NotionRecord extends MediaRecord {
     // 新歌颂咏 range url links.
     public static Map<String, String> NotionXBSites = new HashMap<String, String>() {{
         put("新歌颂咏", "https://breakopen.notion.site/c499d9182f4848039fe77fb602aa551e");
+    }};
+
+    // 青年诗歌 range url links.
+    public static Map<String, String> NotionYBSites = new HashMap<String, String>() {{
+        put("1-100", "https://breakopen.notion.site/1-100-4e0d6a6fbeaa49669f64854bb63652cb");
+        put("101-200", "https://breakopen.notion.site/101-200-e04884e68919460fb2d11d5563258465");
+        put("201-217", "https://breakopen.notion.site/201-271-f8b5b00eb9294dac8c168d8e6e58167f");
     }};
 
     // 儿童诗歌 range url links.
@@ -212,6 +224,9 @@ public class NotionRecord extends MediaRecord {
                         break;
                     case HYMN_XB:
                         HymnSites = NotionXBSites.entrySet();
+                        break;
+                    case HYMN_YB:
+                        HymnSites = NotionYBSites.entrySet();
                         break;
                     case HYMN_ER:
                         HymnSites = NotionERSites.entrySet();
@@ -420,8 +435,9 @@ public class NotionRecord extends MediaRecord {
      */
     private static void storeNQJObject(JSONObject jsonRecord) {
         final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
-        Pattern pattern = Pattern.compile("[DBCX](\\d+)");
-        Pattern patternFu = Pattern.compile("附([1-9])");
+        Pattern pattern = Pattern.compile("[DBCQX](\\d+)");
+        Pattern patternFu = Pattern.compile("[Q]附([1-9])");
+        Pattern patternYb = Pattern.compile("Q(\\d+)(首B|\\(B\\))+");
 
         try {
             String title = jsonRecord.getString(NQ_TITLE);
@@ -435,7 +451,7 @@ public class NotionRecord extends MediaRecord {
             int hymnNo = 0;
             Matcher matcher;
             if (title.contains("附")) {
-                hymnNo = HYMN_DB_NO_MAX;
+                hymnNo = title.startsWith("Q") ? HYMN_YB_NO_MAX : HYMN_DB_NO_MAX;
                 matcher = patternFu.matcher(title);
             }
             else {
@@ -451,9 +467,16 @@ public class NotionRecord extends MediaRecord {
                 else {
                     hymnNo += Integer.parseInt(noStr);
                 }
+                // renumber 青年诗歌 alternate hymn No,
+                if (HYMN_YB.equals(hymnType) && patternYb.matcher(title).find()) {
+                    Integer altNo = HYMN_YB_ALT.get(hymnNo);
+                    if (altNo != null)
+                        hymnNo = altNo;
+                }
 
                 NotionRecord mRecord = new NotionRecord(hymnType, hymnNo);
                 mRecord.setMediaUri(jsonRecord.getString(NQ_URL));
+                Timber.d("Notion Hymn Record processing (%s): %s", mCount, title);
                 if (isOverWrite || !MediaConfig.hasMediaRecord(mRecord)) {
                     long row = mDB.storeMediaRecord(mRecord);
                     if (row < 0) {
@@ -523,7 +546,7 @@ public class NotionRecord extends MediaRecord {
     private static String fromContent(String content) {
         final String htmlContent = StringEscapeUtils.unescapeJava(content)
                 .trim()
-                .replaceAll("  ", " ")
+                .replaceAll("\\s\\s", " ")
                 .replaceAll("\\n", "")
                 .replaceAll("\\\\\"", "\"");
         return htmlContent;
@@ -540,35 +563,33 @@ public class NotionRecord extends MediaRecord {
     public static void getURLSource(final WebView webView, String title, String urlToLoad,
             final ValueCallback<String> valueCallback) {
         // Timber.d("URl to load: %s", urlToLoad);
-        webView.loadUrl(urlToLoad); // preload url and wait for 1.5 sec before checking.
+        // preload url and wait for some time before checking onPageFinished().
+        webView.loadUrl(urlToLoad);
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                // Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
-                if (webView.getProgress() == 100) {
-                    // Must give some time for js to populate the dynamic page content; else not working
-                    new Handler().postDelayed(() -> {
-                        try {
-                            webView.evaluateJavascript("document.documentElement.outerHTML", data -> {
-                                // webView.evaluateJavascript("document.documentElement.outerHTML", valueCallback);
-                                if (data.contains("notion-page-content")) {
-                                    valueCallback.onReceiveValue(data);
-                                }
-                                else {
-                                    Timber.w("Web scrapping failed: %s", urlToLoad);
-                                    HymnsApp.showToastMessage(R.string.nq_download_failed, NOTION_SITE);
-                                }
-                            });
-                        } catch (RuntimeException e) {
-                            valueCallback.onReceiveValue(null);
-                        }
-                    }, 1500);
-                }
-//                else {
-//                    Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
-//                }
+                new Handler().postDelayed(() -> {
+                    try {
+                        // Must give some time for js to populate the dynamic page content; else not working properly
+                        // Timber.w("On Page Finished Call: %s: %s", view.getProgress(), url);
+
+                        view.evaluateJavascript("document.documentElement.outerHTML", data -> {
+                            // view.evaluateJavascript("document.documentElement.outerHTML", valueCallback);
+                            if (data.contains("notion-page-content")) {
+                                valueCallback.onReceiveValue(data);
+                            }
+                            else {
+                                Timber.w("Web scrapping failed: %s", urlToLoad);
+                                HymnsApp.showToastMessage(R.string.nq_download_failed, NOTION_SITE);
+                            }
+                        });
+                    } catch (RuntimeException e) {
+                        Timber.e("Web scrapping failed: %s %s", title, e.getMessage());
+                        valueCallback.onReceiveValue(null);
+                    }
+                }, 1500);
             }
 
             @Override

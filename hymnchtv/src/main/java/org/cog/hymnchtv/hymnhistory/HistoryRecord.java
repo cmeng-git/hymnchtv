@@ -16,16 +16,17 @@
  */
 package org.cog.hymnchtv.hymnhistory;
 
-import static org.cog.hymnchtv.ContentView.LYRICS_BB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_DB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_XG_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_BB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_DB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_ER_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_XB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_XG_DIR;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 
 import android.content.res.Resources;
@@ -45,7 +46,7 @@ import timber.log.Timber;
 /**
  * The class provide handlers for the HistoryRecord
  * The format of the history record consists of: hymnType, HymnNo, isFu, hymnTitle, timeStamp
- * a. hymnType: HYMN_DB HYMN_BB, HYMN_XG, HYMN_XB, HYMN_ER
+ * a. hymnType: HYMN_DB HYMN_BB, HYMN_XG, HYMN_XB, HYMN_YB, HYMN_ER
  * b. HymnNo: Hymn number
  * c. isFu: true if the hymnNo if Fu
  * d. hymnTile: extract from the lyrics file
@@ -139,24 +140,28 @@ public class HistoryRecord
         String lyricsPhrase = "";
 
         switch (hymnType) {
-            case HYMN_DB:
-                fileName = LYRICS_DB_TEXT + "db" + hymnNo + ".txt";
-                break;
-
-            case HYMN_BB:
-                fileName = LYRICS_BB_TEXT + "bb" + hymnNo + ".txt";
+            case HYMN_ER:
+                fileName = LYRICS_ER_DIR + "er" + hymnNo + ".txt";
                 break;
 
             case HYMN_XG:
-                fileName = LYRICS_XG_TEXT + "csr" + hymnNo + ".txt";
+                fileName = LYRICS_XG_DIR + "xg" + hymnNo + ".txt";
                 break;
 
             case HYMN_XB:
-                fileName = LYRICS_XB_TEXT + "xb" + hymnNo + ".txt";
+                fileName = LYRICS_XB_DIR + "xb" + hymnNo + ".txt";
                 break;
 
-            case HYMN_ER:
-                fileName = LYRICS_ER_TEXT + "er" + hymnNo + ".txt";
+            case HYMN_YB:
+                fileName = LYRICS_XB_DIR + "yb" + hymnNo + ".txt";
+                break;
+
+            case HYMN_BB:
+                fileName = LYRICS_BB_DIR + "bb" + hymnNo + ".txt";
+                break;
+
+            case HYMN_DB:
+                fileName = LYRICS_DB_DIR + "db" + hymnNo + ".txt";
                 break;
         }
 
@@ -214,6 +219,9 @@ public class HistoryRecord
                 break;
             case HYMN_XG:
                 hymnInfo = res.getString(R.string.hymn_title_mc_xg, mHymnNo, mHymnTitle);
+                break;
+            case HYMN_YB:
+                hymnInfo = res.getString(R.string.hymn_title_mc_yb, mHymnNo, mHymnTitle);
                 break;
             case HYMN_BB:
                 hymnInfo = res.getString(R.string.hymn_title_mc_bb, mHymnNo, mHymnTitle);

@@ -25,6 +25,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,8 +68,9 @@ public class HymnNoCh2EngXRef {
                 hymnNoEng = hymnNo;
                 break;
 
-            // 新歌颂咏
+            // 新歌颂咏, 青年诗歌
             case HYMN_XB:
+            case HYMN_YB:
                 break;
 
             // 新詩歌本

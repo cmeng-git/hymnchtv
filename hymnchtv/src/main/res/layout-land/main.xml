@@ -10,8 +10,8 @@
     android:padding="5dp">
 
     <LinearLayout
-        android:layout_height="match_parent"
         android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="vertical">
 
@@ -64,16 +64,14 @@
             <Button
                 android:id="@+id/btn_search"
                 style="@style/ButtonMain"
-                android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_toStartOf="@+id/dummy"
-                android:text="@string/hymn_search"
-                android:textSize="25sp" />
+                android:layout_toStartOf="@id/dummy"
+                android:text="@string/hymn_search" />
 
             <TextView
                 android:id="@+id/dummy"
-                android:layout_width="20dp"
+                android:layout_width="5dp"
                 android:layout_height="match_parent"
                 android:layout_alignParentTop="true"
                 android:layout_centerInParent="true" />
@@ -81,44 +79,38 @@
             <Spinner
                 android:id="@+id/spinner_toc"
                 style="@style/ButtonMain"
-                android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_toEndOf="@+id/dummy" />
+                android:layout_alignBottom="@id/btn_search"
+                android:layout_toEndOf="@id/dummy" />
 
             <Button
                 android:id="@+id/btn_update"
                 style="@style/ButtonMain"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/btn_search"
+                android:layout_below="@id/btn_search"
                 android:layout_alignParentStart="true"
-                android:layout_toStartOf="@+id/dummy"
-                android:text="@string/app_upgrade"
-                android:textSize="25sp" />
+                android:layout_toStartOf="@id/dummy"
+                android:text="@string/app_upgrade" />
 
             <Button
-                android:id="@+id/btn_englishx"
+                android:id="@+id/btn_english"
                 style="@style/ButtonMain"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/spinner_toc"
-                android:layout_toEndOf="@+id/dummy"
-                android:text="@string/hymn_english"
-                android:textSize="25sp"
-                android:visibility="gone" />
+                android:layout_below="@id/spinner_toc"
+                android:layout_toEndOf="@id/dummy"
+                android:layout_alignParentEnd="true"
+                android:text="@string/hymn_english" />
         </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout
-        android:layout_height="match_parent"
         android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_height="match_parent"
             android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="start"
             android:orientation="vertical"
@@ -148,8 +140,8 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_height="match_parent"
             android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -176,8 +168,8 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_height="match_parent"
             android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -204,16 +196,10 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_height="match_parent"
             android:layout_width="0dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:orientation="vertical">
-
-            <Button
-                android:id="@+id/btn_english"
-                style="@style/ButtonKB"
-                android:text="@string/hymn_english"
-                android:textSize="25sp" />
 
             <Button
                 android:id="@+id/bs_er"
@@ -231,6 +217,12 @@
                 android:id="@+id/bs_xg"
                 style="@style/ButtonKB"
                 android:text="@string/hymn_xg"
+                android:textSize="25sp" />
+
+            <Button
+                android:id="@+id/bs_yb"
+                style="@style/ButtonKB"
+                android:text="@string/hymn_yb"
                 android:textSize="25sp" />
 
             <Button

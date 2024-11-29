@@ -23,11 +23,15 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB_ALT;
+import static org.cog.hymnchtv.MainActivity.mTocYB;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_ITEM_COUNT;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_ITEM_COUNT;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_ITEM_COUNT;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_ITEM_COUNT;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XG_ITEM_COUNT;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_YB_ITEM_COUNT;
 
 import android.os.Bundle;
 
@@ -36,7 +40,16 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.http.util.EncodingUtils;
+import org.cog.hymnchtv.utils.HymnNo2IdxConvert;
 import org.jetbrains.annotations.NotNull;
+
+import timber.log.Timber;
 
 /**
  * The hymn lyrics implementation for the user page sliding and display update using
@@ -51,10 +64,36 @@ public class MyPagerAdapter extends FragmentStateAdapter {
 
     // Map array of index to ContentView for correct Content reference during access
     public final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
+    // The treeView arrays for display
+    public final Map<Integer, String> ybXTable = new HashMap<>();
 
     public MyPagerAdapter(FragmentActivity fragmentActivity, String hymnType) {
         super(fragmentActivity);
         mHymnType = hymnType;
+        ybXTable.clear();
+
+        // Generate 青年诗歌 hymn cross reference table to other hymnType
+        if (HYMN_YB.equals(hymnType)) {
+            try {
+                InputStream in2 = HymnsApp.getInstance().getResources().getAssets().open(mTocYB);
+                byte[] buffer2 = new byte[in2.available()];
+                if (in2.read(buffer2) == -1)
+                    return;
+
+                String mResult = EncodingUtils.getString(buffer2, "utf-8");
+                String[] mList = mResult.split("\r\n|\n");
+                for (String record : mList) {
+                    String[] token = record.split("\\s");
+                    String hymnTN = token[2].substring(1);
+                    if (!hymnTN.startsWith("yb")) {
+                        int hymnNo = Integer.parseInt(token[0].substring(1));
+                        ybXTable.put(hymnNo, hymnTN);
+                    }
+                }
+            } catch (IOException e) {
+                Timber.w("Content toc not available: %s", e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -68,6 +107,9 @@ public class MyPagerAdapter extends FragmentStateAdapter {
 
             case HYMN_XG:
                 return HYMN_XG_ITEM_COUNT;
+
+            case HYMN_YB:
+                return HYMN_YB_ITEM_COUNT;
 
             case HYMN_BB:
                 // +1 to load image of non-existence hymn score number
@@ -83,16 +125,34 @@ public class MyPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public @NotNull Fragment createFragment(int index) {
-        // Timber.d("Get item fragment index @: %s", index);
-        Bundle bundle = new Bundle();
-        bundle.putString(LYRICS_TYPE, mHymnType);
-        bundle.putInt(LYRICS_INDEX, index);
+        Bundle bundle = getHymnFragment(index);
 
         ContentView mContentView = new ContentView();
+        mContentView.setArguments(bundle);
         // Save a copy of reference content view for local access
         mFragments.put(index, mContentView);
 
-        mContentView.setArguments(bundle);
         return mContentView;
     }
+
+    // get the hymnType and hymnNo from cross reference table for HYMN_YB if any or use the default
+    private Bundle getHymnFragment(int index) {
+        Bundle bundle = new Bundle();
+        String hymnTN = ybXTable.get(index + 1);
+        if (HYMN_YB.equals(mHymnType) && hymnTN != null) {
+            String hymnType = MainActivity.getHymnType(hymnTN);
+            int hymnNo = Integer.parseInt(hymnTN.substring(2));
+            int hymnIdx = HymnNo2IdxConvert.hymnNo2IdxConvert(hymnType, hymnNo);
+
+            bundle.putString(LYRICS_TYPE, hymnType);
+            bundle.putInt(LYRICS_INDEX, hymnIdx);
+            Timber.w("YB Fragment: %s %s %s", index, hymnNo, hymnType);
+        }
+        else {
+            bundle.putString(LYRICS_TYPE, mHymnType);
+            bundle.putInt(LYRICS_INDEX, index);
+        }
+        return bundle;
+    }
 }
+

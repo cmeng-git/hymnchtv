@@ -21,13 +21,16 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
 
 import android.util.Range;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MainActivity;
 import org.cog.hymnchtv.R;
 
 import timber.log.Timber;
@@ -64,6 +67,13 @@ public class HymnNoValidate {
     public static final int HYMN_XB_NO_MAX = 171;
     public static final int HYMN_XB_ITEM_COUNT = 168;
 
+    /* Maximum HymnNo/HymnIndex: 青年诗歌  */
+    public static final int HYMN_YB_NO_MAX = 275;
+    public static final int HYMN_YBS_ITEM_COUNT = 2;
+
+    public static final int HYMN_YB_NO_TMAX = 277;
+    public static final int HYMN_YB_ITEM_COUNT = 277;
+
     /* Maximum HymnNo/HymnIndex: 儿童诗歌 */
     public static final int HYMN_ER_NO_MAX = 1232;
     public static final int HYMN_ER_ITEM_COUNT = 330;
@@ -98,7 +108,6 @@ public class HymnNoValidate {
     static {
         rangeXgInvalid.add(34);
     }
-
 
     // ======================================================== //
     // 儿童诗歌 range parameters for page number (i.e. less than in each 100 range)
@@ -189,6 +198,22 @@ public class HymnNoValidate {
                 }
                 else if (rangeXgInvalid.contains(hymnNo)) {
                     HymnsApp.showToastMessage(R.string.hymn_info_xg_invalid, rangeXgInvalid);
+                    isValid = false;
+                }
+                else if (hymnNo < 1) {
+                    HymnsApp.showToastMessage(R.string.error_invalid);
+                    isValid = false;
+                }
+                break;
+
+            case HYMN_YB:
+                // Fu hymnNo continues from HYMN_YB_NO_MAX
+                if (isFu && hymnNo <= HYMN_YBS_ITEM_COUNT) {
+                    hymnNo += HYMN_YB_NO_MAX;
+                }
+
+                if (hymnNo > HYMN_YB_NO_TMAX) {
+                    HymnsApp.showToastMessage(R.string.hymn_info_yb_max, HYMN_YB_NO_MAX, hymnNo);
                     isValid = false;
                 }
                 else if (hymnNo < 1) {

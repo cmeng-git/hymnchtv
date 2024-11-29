@@ -33,6 +33,8 @@ public class Migrations
                 MigrationTo3.createHymnEnglishTable(db);
             case 3:
                 MigrationTo4.addHymnXgTable(db);
+            case 4:
+                MigrationTo5.addHymnYbTable(db);
         }
     }
 }

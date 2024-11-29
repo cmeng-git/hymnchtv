@@ -21,6 +21,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
 import static org.cog.hymnchtv.hymnhistory.HistoryRecord.TIME_STAMP;
 
 import android.annotation.SuppressLint;
@@ -57,7 +58,7 @@ public class DatabaseBackend extends SQLiteOpenHelper {
      * Increment DATABASE_VERSION when there is a change in database records
      */
     public static final String DATABASE_NAME = "dbHymnApp.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     private static DatabaseBackend instance = null;
 
@@ -143,9 +144,10 @@ public class DatabaseBackend extends SQLiteOpenHelper {
 
         db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_DB));
         db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_BB));
-        db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_XG));
-        db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_XB));
         db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_ER));
+        db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_XB));
+        db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_XG));
+        db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_YB));
 
         db.execSQL(CREATE_HYMN_HISTORY);
         db.execSQL(CREATE_HYMN_ENGLISH);

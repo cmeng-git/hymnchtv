@@ -16,12 +16,12 @@
  */
 package org.cog.hymnchtv;
 
-import static org.cog.hymnchtv.ContentView.LYRICS_BB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_DB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_BB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_DB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_ER_DIR;
 import static org.cog.hymnchtv.ContentView.LYRICS_TOC;
-import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_XG_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_XB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_XG_DIR;
 import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_TYPE;
 import static org.cog.hymnchtv.MainActivity.ATTR_PAGE;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
@@ -29,12 +29,15 @@ import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
+import static org.cog.hymnchtv.MainActivity.mTocYB;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XG_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_YB_NO_TMAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
 
@@ -90,6 +93,10 @@ public class HymnToc extends BaseActivity {
             = new String[]{"新诗歌"
     };
 
+    public static final String[] hymnCategoryyb
+            = new String[]{"青年诗歌"
+    };
+
     /* 新歌颂咏 xb toc category */
     public static final String[] hymnCategoryXb
             = new String[]{"新路实行", "福音喜信", "生命与灵", "召会生活", "新耶路撒冷", "新诗歌"
@@ -128,6 +135,7 @@ public class HymnToc extends BaseActivity {
     public static final String TOC_ER = "toc_er";
     public static final String TOC_XB = "toc_xb";
     public static final String TOC_XG = "toc_xg";
+    public static final String TOC_YB = "toc_yb";
     public static final String TOC_BB = "toc_bb";
     public static final String TOC_DB = "toc_db";
 
@@ -142,12 +150,11 @@ public class HymnToc extends BaseActivity {
     public static final int[] category_db = new int[]{1, 6, 53, 194, 229, 269, 330, 356, 367, 441, 454, 458, 472,
             474, 490, 529, 548, 551, 579, 592, 624, 632, 650, 662, 670, 740, 745, 752, 768, 781, 787};
 
-    public static final int[] category_bb = new int[]{1, 101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101};
-
-    public static final int[] category_xg = new int[]{1, 207};
-    public static final int[] category_xb = new int[]{1, 40, 74, 110, 131, 143, 170};
-
     public static final int[] category_er = new int[]{1, 101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101, 1201, 1301};
+    public static final int[] category_bb = new int[]{1, 101, 201, 301, 401, 501, 601, 701, 801, 901, 1001, 1101};
+    public static final int[] category_xg = new int[]{1, 300};
+    public static final int[] category_xb = new int[]{1, 40, 74, 110, 131, 143, 170};
+    public static final int[] category_yb = new int[]{1, 300};
 
     // The treeView arrays for display
     private HashMap<String, List<String>> tocListDetail = new LinkedHashMap<>();
@@ -267,7 +274,7 @@ public class HymnToc extends BaseActivity {
 
                             while (hymnNo <= HYMN_DB_NO_TMAX) {
                                 if (rangeToc.contains(hymnNo)) {
-                                    fname = LYRICS_DB_TEXT + "db" + hymnNo + ".txt";
+                                    fname = LYRICS_DB_DIR + "db" + hymnNo + ".txt";
 
                                     String hymnTitle = getHymnTitle(hymnNo, fname);
                                     if (hymnNo > HYMN_DB_NO_MAX) {
@@ -318,7 +325,7 @@ public class HymnToc extends BaseActivity {
                                 }
 
                                 if (rangeToc.contains(hymnNo)) {
-                                    fname = LYRICS_BB_TEXT + "bb" + hymnNo + ".txt";
+                                    fname = LYRICS_BB_DIR + "bb" + hymnNo + ".txt";
                                     tocItems.add(getHymnTitle(hymnNo, fname));
                                     hymnNo++;
                                 }
@@ -327,6 +334,43 @@ public class HymnToc extends BaseActivity {
                                 }
                             }
                             tocListDetail.put(hymnCategoryBb[x], tocItems);
+                        }
+                        break;
+                }
+                break;
+
+            // 新歌颂咏 in LYRICS_XB_TEXT
+            case HYMN_XB:
+                setTitle(getString(R.string.hymn_title_xb) + "：" + tocPage);
+
+                switch (tocPage) {
+                    case TOC_STROKE:
+                        fname = LYRICS_TOC + TOC_XB + STROKE_FILE;
+                        getHymnTocType(fname);
+                        break;
+
+                    case TOC_PINYIN:
+                        fname = LYRICS_TOC + TOC_XB + PINYIN_FILE;
+                        getHymnTocType(fname);
+                        break;
+
+                    case TOC_CATEGORY:
+                        hymnNo = 1;
+                        for (int x = 0; x < category_xb.length - 1; x++) {
+                            List<String> tocItems = new ArrayList<>();
+                            rangeToc = new Range<>(category_xb[x], category_xb[x + 1] - 1);
+
+                            while (hymnNo <= HYMN_XB_NO_MAX) {
+                                if (rangeToc.contains(hymnNo)) {
+                                    fname = LYRICS_XB_DIR + "xb" + hymnNo + ".txt";
+                                    tocItems.add(getHymnTitle(hymnNo, fname));
+                                    hymnNo++;
+                                }
+                                else {
+                                    break;
+                                }
+                            }
+                            tocListDetail.put(hymnCategoryXb[x], tocItems);
                         }
                         break;
                 }
@@ -362,7 +406,7 @@ public class HymnToc extends BaseActivity {
 
                             while (hymnNo <= HYMN_XG_NO_MAX) {
                                 if (rangeToc.contains(hymnNo)) {
-                                    fname = LYRICS_XG_TEXT + "csr" + hymnNo + ".txt";
+                                    fname = LYRICS_XG_DIR + "xg" + hymnNo + ".txt";
                                     tocItems.add(getHymnTitle(hymnNo, fname));
                                     hymnNo++;
                                 }
@@ -376,41 +420,58 @@ public class HymnToc extends BaseActivity {
                 }
                 break;
 
-            // 新歌颂咏 in LYRICS_XB_TEXT
-            case HYMN_XB:
-                setTitle(getString(R.string.hymn_title_xb) + "：" + tocPage);
+            // 青年诗歌  in LYRICS_YB_TEXT
+            case HYMN_YB:
+                setTitle(getString(R.string.hymn_title_yb) + "：" + tocPage);
 
                 switch (tocPage) {
                     case TOC_STROKE:
-                        fname = LYRICS_TOC + TOC_XB + STROKE_FILE;
+                        fname = LYRICS_TOC + TOC_YB + STROKE_FILE;
                         getHymnTocType(fname);
+                        // tocToStroke(LYRICS_TOC + TOC_YB + "_toc.txt");
                         break;
 
                     case TOC_PINYIN:
-                        fname = LYRICS_TOC + TOC_XB + PINYIN_FILE;
+                        fname = LYRICS_TOC + TOC_YB + PINYIN_FILE;
                         getHymnTocType(fname);
+                        // tocToPinyin(LYRICS_TOC + TOC_YB + "_toc.txt");
+                        break;
+
+                    case TOC_ENGLISH:
+                        // 青年诗歌 does not have ch2eng toc
                         break;
 
                     case TOC_CATEGORY:
-                        hymnNo = 1;
-                        for (int x = 0; x < category_xb.length - 1; x++) {
-                            List<String> tocItems = new ArrayList<>();
-                            rangeToc = new Range<>(category_xb[x], category_xb[x + 1] - 1);
+                        try {
+                            InputStream in2 = HymnsApp.getInstance().getResources().getAssets().open(mTocYB);
+                            byte[] buffer2 = new byte[in2.available()];
 
-                            while (hymnNo <= HYMN_XB_NO_MAX) {
+                            if (in2.read(buffer2) != -1) {
+                                String mResult = EncodingUtils.getString(buffer2, "utf-8");
+                                String[] mList = mResult.split("\r\n|\n");
 
-                                if (rangeToc.contains(hymnNo)) {
-                                    fname = LYRICS_XB_TEXT + "xb" + hymnNo + ".txt";
-                                    tocItems.add(getHymnTitle(hymnNo, fname));
-                                    hymnNo++;
-                                }
-                                else {
-                                    break;
+                                hymnNo = 1;
+                                for (int x = 0; x < category_yb.length - 1; x++) {
+                                    List<String> tocItems = new ArrayList<>();
+                                    rangeToc = new Range<>(category_yb[x], category_yb[x + 1] - 1);
+                                    while (hymnNo <= HYMN_YB_NO_TMAX) {
+                                        if (rangeToc.contains(hymnNo)) {
+                                            // remove last # to avoid onHymnTitleClick() incorrect interpretation
+                                            fname = mList[hymnNo - 1].replaceAll("^#([0-9]+) (.+?) #([xyb]b[0-9]+[ab]*)", "$1: $2 ($3)");
+                                            // Timber.w("Filename: %s: %s %s", hymnNo, mList[hymnNo-1], fname);
+                                            tocItems.add(fname);
+                                            hymnNo++;
+                                        }
+                                        else {
+                                            break;
+                                        }
+                                    }
+                                    tocListDetail.put(hymnCategoryyb[x], tocItems);
                                 }
                             }
-                            tocListDetail.put(hymnCategoryXb[x], tocItems);
+                        } catch (IOException e) {
+                            Timber.w("Content toc not available: %s", e.getMessage());
                         }
-                        break;
                 }
                 break;
 
@@ -440,7 +501,7 @@ public class HymnToc extends BaseActivity {
                                 }
 
                                 if (rangeToc.contains(hymnNo)) {
-                                    fname = LYRICS_ER_TEXT + "er" + hymnNo + ".txt";
+                                    fname = LYRICS_ER_DIR + "er" + hymnNo + ".txt";
                                     tocItems.add(getHymnTitle(hymnNo, fname));
                                     hymnNo++;
                                 }
@@ -587,10 +648,10 @@ public class HymnToc extends BaseActivity {
 
     // ===============================
     // Tools to generate toc of various type form toc file
-    // Manually copy and cleanup logcat file
 
     /**
      * Generate the pinyin table from TOC list
+     * use Logcat messages to create the toc_xx_pinyin.txt file
      *
      * @param tocFile the toc file to extract info from
      */
@@ -611,7 +672,7 @@ public class HymnToc extends BaseActivity {
                 String hymnNo = hymnInfo.split(" ")[0];
                 String hymnTitle = hymnInfo.split(" ")[1];
 
-                String pinyin = py.translate(hymnTitle);
+                String pinyin = py.translate(hymnTitle).substring(0, 1).toUpperCase();
                 pinyinList.add(pinyin + "^ " + hymnTitle + " " + hymnNo);
             }
             Collections.sort(pinyinList);
@@ -626,7 +687,8 @@ public class HymnToc extends BaseActivity {
     }
 
     /**
-     * Generate the stroke table from TOC list
+     * Generate the stroke table from TOC list;
+     * use Logcat messages to create the toc_xx_stroke.txt file
      *
      * @param tocFile the toc file to extract info from
      */
@@ -664,18 +726,18 @@ public class HymnToc extends BaseActivity {
     static {
         stroke.put("一画", "一");
         stroke.put("二画", "人十又");
-        stroke.put("三画", "三夕大已广小");
-        stroke.put("四画", "不与为互井今仍从勿历天引无日比父长云");
-        stroke.put("五画", "世主乐他以出加务北去古叩只四圣外失宁平必旧永生用由禾召立");
-        stroke.put("六画", "争交仰任众传充光全兴再冲创合后回因在多如字安当早有欢此死自至行那邪团向伊宇");
-        stroke.put("七画", "但住何你吩听吸吹完应弟快我时旷更来步每求没灵祂身近这进远阿把花陈还芦投抓");
-        stroke.put("八画", "事凭咒哎国坦夜奇宝屈建怜或所现空耶若贫转迫降非奔彼呼享取话拣朋知终");
-        stroke.put("九画", "亲保信前受变哪城复带战既昨是活盼看神绝美荡荣要重除相标思珍拯");
-        stroke.put("十画", "凉哦宴恩流爱真破紧莫被请诸谁赶速都颂高啊哦乘家陪涌借");
-        stroke.put("十一画", "基常得惊惟惨接救教深甜祭祷脱随领第清唯");
-        stroke.put("十二画", "喂喜曾最焚等联谦释遇答葡");
-        stroke.put("十三画", "意慈摸数新暗照福罪跟路献蓝");
-        stroke.put("十四画", "儆愿模稳需歌");
+        stroke.put("三画", "三夕大已广小上马");
+        stroke.put("四画", "不与为互井今仍从勿历天引无日比父长云什仅切瓦");
+        stroke.put("五画", "世主乐他以出加务北去古叩只四圣外失宁平必旧永生用由禾召立发甲让");
+        stroke.put("六画", "争交仰任众传充光全兴再冲创合后回因在多如字安当早有欢此死自至行那邪团向伊宇同守寻托西达过");
+        stroke.put("七画", "但住何你吩听吸吹完应弟快我时旷更来步每求没灵祂身近这进远阿把花陈还芦投抓作忘极沉");
+        stroke.put("八画", "事凭咒哎国坦夜奇宝屈建怜或所现空耶若贫转迫降非奔彼呼享取话拣朋知终佳单奉担经");
+        stroke.put("九画", "亲保信前受变哪城复带战既昨是活盼看神绝美荡荣要重除相标思珍拯将显毗轻选");
+        stroke.put("十画", "凉哦宴恩流爱真破紧莫被请诸谁赶速都颂高啊哦乘家陪涌借桃起难");
+        stroke.put("十一画", "基常得惊惟惨接救教深甜祭祷脱随领第清唯唱隐婚");
+        stroke.put("十二画", "喂喜曾最焚等联谦释遇答葡善就属筑谢雅道");
+        stroke.put("十三画", "意慈摸数新暗照福罪跟路献蓝感盟蒙锡");
+        stroke.put("十四画", "儆愿模稳需歌滴竭");
         stroke.put("十五画", "撒靠飘黎踩箭");
         stroke.put("十六画", "嘴赞禧");
         stroke.put("十七画", "藉繁");

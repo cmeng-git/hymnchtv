@@ -5,10 +5,8 @@ import static org.cog.hymnchtv.persistance.DatabaseBackend.HYMN_CONTENT_STATEMEN
 
 import android.database.sqlite.SQLiteDatabase;
 
-public class MigrationTo4
-{
-    public static void addHymnXgTable(SQLiteDatabase db)
-    {
+public class MigrationTo4 {
+    public static void addHymnXgTable(SQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS " + HYMN_XG);
         db.execSQL(HYMN_CONTENT_STATEMENT.replace("%s", HYMN_XG));
     }

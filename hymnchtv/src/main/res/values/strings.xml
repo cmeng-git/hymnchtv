@@ -101,6 +101,9 @@
     <string name="hymn_info_xg_max">新诗歌只有%1$d（%2$d）首</string>
     <string name="hymn_info_xg_invalid">新诗歌本没有: %1$s</string>
 
+    <string name="hymn_info_yb_max">青年诗歌只有%1$d（%2$d）首</string>
+    <string name="hymn_info_yb_invalid">青年诗歌没有: %1$s</string>
+
     <string name="hymn_info_media_none">对不起！此项目前没有播放文件</string>
     <string name="hymn_info_sp_none">您选择的项目，没有附歌</string>
 
@@ -175,6 +178,7 @@
     <string name="hymn_search"><u>内容搜索</u></string>
     <string name="hymn_xb">新颂</string>
     <string name="hymn_xg">新诗</string>
+    <string name="hymn_yb"><u>青年</u></string>
 
     <string name="hymn_toc">目录</string>
     <string name="hymn_category">诗歌类别</string>
@@ -188,6 +192,7 @@
     <string name="hymn_title_er">诗歌本－儿童诗歌</string>
     <string name="hymn_title_xb">诗歌本－新歌颂咏</string>
     <string name="hymn_title_xg">诗歌本－新诗歌本</string>
+    <string name="hymn_title_yb">诗歌本－青年诗歌 </string>
 
     <!-- hymnchtv media player interface gui names -->
     <string name="hymn_media_banzou">伴奏</string>
@@ -202,6 +207,7 @@
     <string name="hymn_title_mc_er">儿诗 %1$d: %2$s</string>
     <string name="hymn_title_mc_xb">新颂 %1$d: %2$s</string>
     <string name="hymn_title_mc_xg">新诗 %1$d: %2$s</string>
+    <string name="hymn_title_mc_yb">青年 %1$d: %2$s</string>
 
     <!-- hymn search gui strings -->
     <string name="hymn_match">共有匹配 %1$d 首诗歌</string>
@@ -209,6 +215,7 @@
     <string name="hymn_match_er">儿童诗歌: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_xb">新歌颂咏: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_xg">新诗歌本: 第 %1$d 首：\n%2$s</string>
+    <string name="hymn_match_yb">青年诗歌: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_bb">補充本诗歌: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_db">大本诗歌: 第 %1$d 首：\n%2$s</string>
     <string name="hymn_match_db_sp">大本诗歌: 附歌第 %1$d 首：\n%2$s</string>

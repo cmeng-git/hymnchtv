@@ -16,23 +16,26 @@
  */
 package org.cog.hymnchtv;
 
-import static org.cog.hymnchtv.ContentView.LYRICS_BB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_DB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_ER_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_XB_TEXT;
-import static org.cog.hymnchtv.ContentView.LYRICS_XG_TEXT;
+import static org.cog.hymnchtv.ContentView.LYRICS_BB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_DB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_ER_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_XB_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_XG_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_YB_DIR;
 import static org.cog.hymnchtv.MainActivity.ATTR_SEARCH;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_ER_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_XG_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_YB_NO_TMAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
 
@@ -100,7 +103,7 @@ public class ContentSearch extends BaseActivity {
         // 大本詩歌: Simplified Chinese entry search in LYRICS_DBS_TEXT
         int hymnNo = 1;
         while (hymnNo <= HYMN_DB_NO_TMAX) {
-            fname = LYRICS_DB_TEXT + "db" + hymnNo + ".txt";
+            fname = LYRICS_DB_DIR + "db" + hymnNo + ".txt";
             result = getMatchResult(fname, searchString);
             if (result != null) {
                 mHymnNo[mCount] = hymnNo;
@@ -135,7 +138,7 @@ public class ContentSearch extends BaseActivity {
                     }
                 }
 
-                fname = LYRICS_BB_TEXT + "bb" + hymnNo + ".txt";
+                fname = LYRICS_BB_DIR + "bb" + hymnNo + ".txt";
                 result = getMatchResult(fname, searchString);
                 if (result != null) {
                     mHymnNo[mCount] = hymnNo;
@@ -154,11 +157,34 @@ public class ContentSearch extends BaseActivity {
             }
         }
 
+        // 新歌颂咏: Simplified Chinese text entry search in LYRICS_XB_TEXT
+        if (mCount < HYMN_COUNT_MAX) {
+            hymnNo = 1;
+            while (hymnNo <= HYMN_XB_NO_MAX) {
+                fname = LYRICS_XB_DIR + "xb" + hymnNo + ".txt";
+                result = getMatchResult(fname, searchString);
+                if (result != null) {
+                    mHymnNo[mCount] = hymnNo;
+                    mHmynNoType.put(hymnNo, HYMN_XB);
+
+                    Map<String, Object> item_xb = new HashMap<>();
+                    item_xb.put("match", getString(R.string.hymn_match_xb, hymnNo, result));
+                    data.add(item_xb);
+
+                    mCount++;
+                    if (mCount >= HYMN_COUNT_MAX) {
+                        break;
+                    }
+                }
+                hymnNo++;
+            }
+        }
+
         // 新詩歌本: Simplified Chinese text entry search in LYRICS_XG_TEXT
         if (mCount < HYMN_COUNT_MAX) {
             hymnNo = 1;
             while (hymnNo <= HYMN_XG_NO_MAX) {
-                fname = LYRICS_XG_TEXT + "csr" + hymnNo + ".txt";
+                fname = LYRICS_XG_DIR + "xg" + hymnNo + ".txt";
                 result = getMatchResult(fname, searchString);
                 if (result != null) {
                     mHymnNo[mCount] = hymnNo;
@@ -177,19 +203,19 @@ public class ContentSearch extends BaseActivity {
             }
         }
 
-        // 新歌颂咏: Simplified Chinese text entry search in LYRICS_XB_TEXT
+        // 青年诗歌: Simplified Chinese text entry search in LYRICS_XB_TEXT
         if (mCount < HYMN_COUNT_MAX) {
             hymnNo = 1;
-            while (hymnNo <= HYMN_XB_NO_MAX) {
-                fname = LYRICS_XB_TEXT + "xb" + hymnNo + ".txt";
+            while (hymnNo <= HYMN_YB_NO_TMAX) {
+                fname = LYRICS_YB_DIR + "yb" + hymnNo + ".txt";
                 result = getMatchResult(fname, searchString);
                 if (result != null) {
                     mHymnNo[mCount] = hymnNo;
-                    mHmynNoType.put(hymnNo, HYMN_XB);
+                    mHmynNoType.put(hymnNo, HYMN_YB);
 
-                    Map<String, Object> item_xb = new HashMap<>();
-                    item_xb.put("match", getString(R.string.hymn_match_xb, hymnNo, result));
-                    data.add(item_xb);
+                    Map<String, Object> item_yb = new HashMap<>();
+                    item_yb.put("match", getString(R.string.hymn_match_yb, hymnNo, result));
+                    data.add(item_yb);
 
                     mCount++;
                     if (mCount >= HYMN_COUNT_MAX) {
@@ -211,7 +237,7 @@ public class ContentSearch extends BaseActivity {
                     }
                 }
 
-                fname = LYRICS_ER_TEXT + "er" + hymnNo + ".txt";
+                fname = LYRICS_ER_DIR + "er" + hymnNo + ".txt";
                 result = getMatchResult(fname, searchString);
                 if (result != null) {
                     mHymnNo[mCount] = hymnNo;

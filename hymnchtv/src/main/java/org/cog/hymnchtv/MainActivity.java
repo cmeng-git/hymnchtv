@@ -20,6 +20,7 @@ import static org.cog.hymnchtv.HymnToc.TOC_ENGLISH;
 import static org.cog.hymnchtv.HymnToc.hymnTocPage;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_DUMMY;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
+import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_YB_NO_MAX;
 import static org.cog.hymnchtv.utils.WallPaperUtil.DIR_WALLPAPER;
 
 import android.Manifest;
@@ -77,6 +78,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import com.zqc.opencc.android.lib.ChineseConverter;
 import com.zqc.opencc.android.lib.ConversionType;
@@ -125,9 +127,10 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
     public static final String HYMN_DB = "hymn_db";
     public static final String HYMN_BB = "hymn_bb";
-    public static final String HYMN_XG = "hymn_xg";
-    public static final String HYMN_XB = "hymn_xb";
     public static final String HYMN_ER = "hymn_er";
+    public static final String HYMN_XB = "hymn_xb";
+    public static final String HYMN_XG = "hymn_xg";
+    public static final String HYMN_YB = "hymn_yb";
 
     public static final String PREF_MENU_SHOW = "MenuShow";
     public static final String PREF_SETTINGS = "Settings";
@@ -139,8 +142,17 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
     public static final String PREF_WALLPAPER = "WallPaper";
 
     public static final String PREF_MEDIA_HYMN = "MediaHymn";
-    private static final String mTocFile = "lyrics_toc/toc_all_eng2ch.txt";
+    private static final String mTocECFile = "lyrics_toc/toc_all_eng2ch.txt";
+    public static final String mTocYB = "lyrics_toc/toc_yb_toc.txt";
+
     private static final int FONT_SIZE_DEFAULT = 35;
+
+    public static Map<Integer, Integer> HYMN_YB_ALT = Map.of(
+            104, 272,
+            148, 273,
+            150, 274,
+            151, 275
+    );
 
     private static String mHymnType = HYMN_DB;
     private static int mHymnNo = -1;
@@ -167,9 +179,11 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
     private Button btn_db;
     private Button btn_bb;
-    private Button btn_xg;
-    private Button btn_xb;
     private Button btn_er;
+    private Button btn_xb;
+    private Button btn_xg;
+    private Button btn_yb;
+
     private Button btn_search;
     private Button btn_update;
     private Button btn_english;
@@ -246,16 +260,32 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             // MediaConfig.importUrlAssetFile();
         }
 
-        // 大本诗歌
-        btn_db.setOnClickListener(v -> onHymnButtonClicked(HYMN_DB));
-        // 补充本
-        btn_bb.setOnClickListener(v -> onHymnButtonClicked(HYMN_BB));
-        // 新詩歌本
-        btn_xg.setOnClickListener(v -> onHymnButtonClicked(HYMN_XG));
-        // 新歌颂咏
-        btn_xb.setOnClickListener(v -> onHymnButtonClicked(HYMN_XB));
         // 儿童诗歌
-        btn_er.setOnClickListener(v -> onHymnButtonClicked(HYMN_ER));
+        btn_er.setOnClickListener(v -> onHymnButtonClicked(HYMN_ER, false));
+        // 补充本
+        btn_bb.setOnClickListener(v -> onHymnButtonClicked(HYMN_BB, false));
+        // 大本诗歌
+        btn_db.setOnClickListener(v -> onHymnButtonClicked(HYMN_DB, false));
+        // 新歌颂咏
+        btn_xb.setOnClickListener(v -> onHymnButtonClicked(HYMN_XB, false));
+        // 新詩歌本
+        btn_xg.setOnClickListener(v -> onHymnButtonClicked(HYMN_XG, false));
+        // 青年诗歌
+        btn_yb.setOnClickListener(v -> onHymnButtonClicked(HYMN_YB, false));
+
+        btn_yb.setOnLongClickListener(v -> {
+            onHymnButtonClicked(HYMN_YB, true);
+            return true;
+        });
+
+        // English Hymn
+        btn_english.setOnClickListener(v -> {
+            showHymnFromEng(false);
+        });
+        btn_english.setOnLongClickListener(v -> {
+            showHymnFromEng(true);
+            return true;
+        });
 
         // Numeric number entry handlers for 0~9
         btn_n0.setOnClickListener(this::onNumberClick);
@@ -321,13 +351,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             }.start();
         });
 
-        btn_english.setOnClickListener(v -> {
-            showHymnFromEng(false);
-        });
-        btn_english.setOnLongClickListener(v -> {
-            showHymnFromEng(true);
-            return true;
-        });
         handleIntent(getIntent());
     }
 
@@ -526,7 +549,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      *
      * @param hymnType the button being clicked
      */
-    private void onHymnButtonClicked(String hymnType) {
+    private void onHymnButtonClicked(String hymnType, boolean altSelect) {
         if (!isToc) {
             sNumber = mEntry.getText().toString();
             if (isFu) {
@@ -538,7 +561,14 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
             int hymnNo = Integer.parseInt(sNumber);
             if (isFu) {
-                hymnNo += HYMN_DB_NO_MAX;
+                hymnNo += HYMN_DB.equals(hymnType) ? HYMN_DB_NO_MAX : HYMN_YB_NO_MAX;
+            }
+
+            if (HYMN_YB.equals(hymnType) && altSelect) {
+                Integer hymnNoAlt = HYMN_YB_ALT.get(hymnNo);
+                if (hymnNoAlt != null) {
+                    hymnNo = hymnNoAlt;
+                }
             }
 
             int nui = HymnNoValidate.validateHymnNo(hymnType, hymnNo, isFu);
@@ -575,7 +605,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         // Save the user selection into history record
         boolean isFu = MediaRecord.isFu(hymnType, hymnNo);
         HistoryRecord historyRecord = new HistoryRecord(hymnType, hymnNo, isFu);
-        DatabaseBackend.getInstance(ctx).storeHymnHistory(historyRecord);
+        if (HYMN_BB_DUMMY != hymnNo) {
+            DatabaseBackend.getInstance(ctx).storeHymnHistory(historyRecord);
+        }
 
         Intent intent = new Intent(ctx, ContentHandler.class);
         Bundle bundle = new Bundle();
@@ -627,9 +659,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         }
 
         int hymnEng = Integer.parseInt(sNumber);
-        String sMatch = String.format(Locale.CHINA, "\\^ %04d:.+?", hymnEng);
+        String sEngNo = String.format(Locale.CHINA, "\\^ %04d:.+?", hymnEng);
         try {
-            InputStream in2 = getResources().getAssets().open(mTocFile);
+            InputStream in2 = getResources().getAssets().open(mTocECFile);
             byte[] buffer2 = new byte[in2.available()];
             if (in2.read(buffer2) == -1)
                 return;
@@ -640,13 +672,13 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
             int idx = 0; // trace next mList index for access to DB page.
             for (String item : mList) {
                 idx++;
-                if (item.matches(sMatch)) {
+                if (item.matches(sEngNo)) {
                     String hymnTN = item.replaceAll(".+? #(.+?)", "$1");
                     String hymnType = getHymnType(hymnTN);
                     int hymnNo = Integer.parseInt(hymnTN.substring(2));
 
                     // Set up to display DB page if dbPage and content exist.
-                    if (dbPage && mList[idx].matches(sMatch)) {
+                    if (dbPage && mList[idx].matches(sEngNo)) {
                         hymnTN = mList[idx].replaceAll(".+? #(.+?)", "$1");
                         hymnType = getHymnType(hymnTN);
                         hymnNo = Integer.parseInt(hymnTN.substring(2));
@@ -663,9 +695,18 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         }
     }
 
-    private String getHymnType(String hymnTN) {
-        if (hymnTN.startsWith("xg")) {
+    public static String getHymnType(String hymnTN) {
+        if (hymnTN.startsWith("er")) {
+            return HYMN_ER;
+        }
+        if (hymnTN.startsWith("xb")) {
+            return HYMN_XB;
+        }
+        else if (hymnTN.startsWith("xg")) {
             return HYMN_XG;
+        }
+        else if (hymnTN.startsWith("yb")) {
+            return HYMN_YB;
         }
         else {
             return hymnTN.startsWith("db") ? HYMN_DB : HYMN_BB;
@@ -961,9 +1002,10 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
         btn_db = findViewById(R.id.bs_db);
         btn_bb = findViewById(R.id.bs_bb);
-        btn_xg = findViewById(R.id.bs_xg);
-        btn_xb = findViewById(R.id.bs_xb);
         btn_er = findViewById(R.id.bs_er);
+        btn_xb = findViewById(R.id.bs_xb);
+        btn_xg = findViewById(R.id.bs_xg);
+        btn_yb = findViewById(R.id.bs_yb);
 
         btn_search = findViewById(R.id.btn_search);
         btn_update = findViewById(R.id.btn_update);
@@ -1299,7 +1341,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      * permission from a runtime permissions request.
      */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         for (int i = 0; i < grantResults.length; i++) {
             if (grantResults[i] == PackageManager.PERMISSION_DENIED) {

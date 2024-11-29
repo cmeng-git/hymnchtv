@@ -272,13 +272,13 @@ public class HymnsApp extends Application implements LifecycleEventObserver {
     }
 
     public static Uri getRawUri(String filename) {
-        int resId = HymnsApp.getFileResId(filename, "raw");
+        int resId = getFileResId(filename, "raw");
         return (resId != 0) ? Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
                 + mInstance.getPackageName() + "/raw/" + resId) : null;
     }
 
     public static Uri getDrawableUri(String filename) {
-        int resId = HymnsApp.getFileResId(filename, "drawable");
+        int resId = getFileResId(filename, "drawable");
         return (resId != 0) ? Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
                 + mInstance.getPackageName() + "/drawable/" + resId) : null;
     }

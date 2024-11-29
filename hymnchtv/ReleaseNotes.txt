@@ -1,7 +1,18 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    10/08/2024
+Upload Date:    11/29/2024
+Version:        2.5.0 (205000)
+- Add support for 青年诗歌 including new database creation.
+- Add Notion links download support for 青年诗歌.
+- Use the same font size for displaying both the old and newly retrieved english lyrics text.
+- Correct mismatch in mediaConfig Category name and Index.
+- Change all 新诗歌 related files/directory from prefix/name csr to xg; use a consistent/common double letters prefix;
+  User need to change all ChangShi media files name prefix from csr to xg.
+- Change ChangShi download links for XG and YB to use "http://four.soqimp.com"
+- Do not save history record for hymnNo = 2000
+
+=========================================================================
 Version:        2.4.3 (204031)
 - Remove repeated loadUrl() after setWebViewClient() in English lyrics Web scrapping; it triggers onPageFinished() < 100%
   Web scrapping for English lyrics onPageFinished to ignore progress check

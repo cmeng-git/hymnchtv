@@ -11,5 +11,6 @@
         <domain includeSubdomains="true">lightinnj.org</domain>
         <domain includeSubdomains="true">g.cgbr.org</domain>
         <domain includeSubdomains="true">mana.stmn1.com</domain>
+        <domain includeSubdomains="true">four.soqimp.com</domain>
     </domain-config>
 </network-security-config>

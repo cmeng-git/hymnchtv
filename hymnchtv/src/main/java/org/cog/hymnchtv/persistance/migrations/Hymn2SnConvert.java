@@ -28,9 +28,9 @@ import java.io.File;
 
 import timber.log.Timber;
 
-import static org.cog.hymnchtv.ContentView.LYRICS_BB_SCORE;
-import static org.cog.hymnchtv.ContentView.LYRICS_DB_SCORE;
-import static org.cog.hymnchtv.ContentView.LYRICS_XB_SCORE;
+import static org.cog.hymnchtv.ContentView.SCORE_BB_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_DB_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_XB_DIR;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
@@ -54,7 +54,6 @@ public class Hymn2SnConvert
 
     /* Maximum number of lyrics in BB */
     private static final int HYMN_BB_MAX = 1006;
-
 
     /* Maximum number of lyrics in BB */
     private static final int HYMN_XB_MAX = 157;  // old content max
@@ -89,7 +88,7 @@ public class Hymn2SnConvert
         for (String hymnType : hymns) {
             switch (hymnType) {
                 case HYMN_XB:
-                    File lyricsSubDir = FileBackend.getHymnchtvStore(LYRICS_XB_SCORE, true);
+                    File lyricsSubDir = FileBackend.getHymnchtvStore(SCORE_XB_DIR, true);
                     hymnNo = 1;
 
                     while (hymnNo < HYMN_XB_MAX) {
@@ -113,7 +112,7 @@ public class Hymn2SnConvert
                     break;
 
                 case HYMN_BB:
-                    lyricsSubDir = FileBackend.getHymnchtvStore(LYRICS_BB_SCORE, true);
+                    lyricsSubDir = FileBackend.getHymnchtvStore(SCORE_BB_DIR, true);
                     File midiSubDir = FileBackend.getHymnchtvStore(HYMN_BB_MIDI, true);
                     hymnNo = 1;
                     int nuiNext = bbSkip + 1;
@@ -279,7 +278,7 @@ public class Hymn2SnConvert
                     break;
 
                 case HYMN_DB:
-                    lyricsSubDir = FileBackend.getHymnchtvStore(LYRICS_DB_SCORE, true);
+                    lyricsSubDir = FileBackend.getHymnchtvStore(SCORE_DB_DIR, true);
                     midiSubDir = FileBackend.getHymnchtvStore(HYMN_DB_MIDI, true);
                     hymnNo = 1;
                     nuiNext = dbSkip + 1;

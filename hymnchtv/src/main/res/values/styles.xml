@@ -24,8 +24,9 @@
 
     <style name="ButtonMain" parent="@style/Button">
         <item name="android:background">@drawable/btn_transparent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:textSize">35sp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:textSize">25sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 

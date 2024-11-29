@@ -56,7 +56,7 @@ public class LyricsEnglishRecord {
      */
     public static final String DEFAULT_CSS = "\n" +
             " h1 { margin-bottom: 20px; text-align: center; font-size: 1.2em; }\n" +
-            " table { margin: 0;  height: auto; width: 100%; font-size: 1.2em }\n" +
+            " table { margin: 0;  height: auto; width: 100%; font-size: 1.1em;}\n" +
             " table tr { vertical-align: text-top }\n" +
             " table tr td: first-child { padding-right: 15px }\n" +
             " table tr td { padding-bottom: 20px; text-align: center; }\n" +
@@ -67,7 +67,7 @@ public class LyricsEnglishRecord {
             " table tr td.note { width: 320px; text-align: center; color: #707070; font-style: italic}\n" +
             " table tr td.copyright { width: 320px; padding-top: 10px; text-align: center; color:#707070 }\n" +
             " table tr.stanza-num { left: -2 em; width: 1.5 em; padding: 2px; text-align: center; color: #444; background: #ddd }\n" +
-            " article { width: fit-content; margin: 0 auto; }\n" +
+            " article { width: fit-content; margin: 0 auto; font-size: 1.1em; }\n" +
             " article .verse { display: flex; vertical-align: text-top; }\n" +
             " article .verse div:first-child { padding-right: 16px; }\n" +
             " article .verse div { display: flex; padding-bottom: 20px; }\n" +

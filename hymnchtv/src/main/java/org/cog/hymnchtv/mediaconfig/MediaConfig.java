@@ -27,6 +27,8 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.MainActivity.HYMN_XG;
+import static org.cog.hymnchtv.MainActivity.HYMN_YB;
 import static org.cog.hymnchtv.MainActivity.PREF_MEDIA_HYMN;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.MediaType.HYMN_BANZOU;
@@ -112,7 +114,7 @@ import timber.log.Timber;
  * It includes the capability to import url links from file, and export db url links to a file for sharing.
  * <p>
  * The format of the export record "," separated: hymnType, HymnNo, isFu, HymnMedia, urlLink, mediaUri
- * a. hymnType: HYMN_BB HYMN_DB, HYMN_ER, HYMN_XB
+ * a. hymnType: HYMN_BB HYMN_DB, HYMN_ER, HYMN_XB, HYMN_XG, HYMN_YB
  * b. HymnNo: Hymn number
  * c. isFu: true if the hymnNo if Fu
  * d. HymnMedia: HYMN_MEDIA, HYMN_JIAOCHANG, HYMN_CHANGSHI, and HYMN_BANZOU,
@@ -194,8 +196,9 @@ public class MediaConfig extends BaseActivity
     static {
         hymnTypeEntry.add("大本诗歌");
         hymnTypeEntry.add("补充本");
-        hymnTypeEntry.add("新詩歌本");
         hymnTypeEntry.add("新歌颂咏");
+        hymnTypeEntry.add("新詩歌本");
+        hymnTypeEntry.add("青年诗歌 ");
         hymnTypeEntry.add("儿童诗歌");
     }
 
@@ -205,6 +208,8 @@ public class MediaConfig extends BaseActivity
         hymnTypeValue.add(HYMN_DB);
         hymnTypeValue.add(HYMN_BB);
         hymnTypeValue.add(HYMN_XB);
+        hymnTypeValue.add(HYMN_XG);
+        hymnTypeValue.add(HYMN_YB);
         hymnTypeValue.add(HYMN_ER);
     }
 
