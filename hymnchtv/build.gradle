@@ -10,7 +10,7 @@ android {
         applicationId "org.cog.hymnchtv"
 
         // End digit - change to force update with same version number
-        versionCode 205000
+        versionCode 205001
         versionName "2.5.0"
 
         minSdkVersion rootProject.minSdk
@@ -127,10 +127,10 @@ dependencies {
 task updateVersionFile(type: Copy) {
     description '<!-- Generate version.properties file -->'
 
-    // media url record import version; To allow old hymnchtv version app to update url import,
-    // then increase this value and check in version.properties.
-    // Set to be the same as the one in MediaConfig#IMPORT_URL_VERSION for new apk release.
-    def versionImport = 104
+    // Media url record import version; the value must be increased if there is an update to url_import file,
+    // even for new apk release. To allow existing installed hymnchtv version app to update url import,
+    // increase this value and git check in both the version.properties and new url_import file.
+    def versionImport = 105
     def versionName = android.defaultConfig.versionName
     def versionCode = android.defaultConfig.versionCode
     def date = new Date()

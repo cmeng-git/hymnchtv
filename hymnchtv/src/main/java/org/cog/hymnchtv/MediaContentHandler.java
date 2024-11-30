@@ -68,11 +68,15 @@ public class MediaContentHandler {
      * @return Return an empty uriList if played, else the default.
      */
     public List<Uri> playIfVideo(List<Uri> uriList) {
-        Uri uri = uriList.get(0);
-        String mimeType = FileBackend.getMimeType(mContext, uri);
-        if (!TextUtils.isEmpty(mimeType) && (mimeType.contains("video"))) {
-            playMediaUrl(uriList.get(0).getPath());
-            return new ArrayList<>();
+        if (!uriList.isEmpty()) {
+            Uri uri = uriList.get(0);
+            String mimeType = FileBackend.getMimeType(mContext, uri);
+            if (!TextUtils.isEmpty(mimeType) && (mimeType.contains("video"))) {
+                playMediaUrl(uriList.get(0).getPath());
+                return new ArrayList<>();
+            }
+        } else {
+            HymnsApp.showToastMessage(R.string.error_playback, "");
         }
         return uriList;
     }

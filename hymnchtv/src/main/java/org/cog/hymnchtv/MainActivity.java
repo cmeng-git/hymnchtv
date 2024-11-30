@@ -252,8 +252,9 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                     cl.getLogDialog().show();
                 }
             }, 15000));
+
             /*
-             * Disable importUrlAssetFile for debug version on start; rely on updateServiceImpl instead.
+             * Disable importUrlAssetFile for on start; rely on updateServiceImpl instead.
              * Likely the DB has already been updated when user is prompt to update apk.
              * See MediaConfig#URL_IMPORT_VERSION value setting.
              */

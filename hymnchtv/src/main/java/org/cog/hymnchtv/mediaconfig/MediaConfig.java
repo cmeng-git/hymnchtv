@@ -147,7 +147,7 @@ public class MediaConfig extends BaseActivity
 
     /*
      * current default url_import version; always set the value to - 1.
-     * This is to force a new install apk will update the DB from asset file on first launch.
+     * This is to force a newly install apk will update the DB from asset file on first launch.
      * Increase the build.gradle versionImport value if there is url_import file released.
      */
     public static final int URL_IMPORT_VERSION = -1;
