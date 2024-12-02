@@ -76,6 +76,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -147,12 +148,15 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
     private static final int FONT_SIZE_DEFAULT = 35;
 
-    public static Map<Integer, Integer> HYMN_YB_ALT = Map.of(
+    public static final Map<Integer, Integer> HYMN_YB_ALT = Map.of(
             104, 272,
             148, 273,
             150, 274,
             151, 275
     );
+
+    // A cross reference table for YB hymn
+    public static final Map<Integer, String> ybXTable = new HashMap<>();
 
     private static String mHymnType = HYMN_DB;
     private static int mHymnNo = -1;
@@ -241,6 +245,8 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
         initButton();
         initUserSettings();
+        createYbXTable();
+
         // Request all the permissions required by Hymnchtv; only valid if user does not manually disallow it.
         PermissionUtils.checkHymnPermissionAndRequest(this);
 
@@ -1046,6 +1052,30 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         mTocSpinnerItem.setTypeface(null, Typeface.BOLD);
         mTocSpinnerItem.setTextSize(mFsDelta);
         mTocSpinnerItem.setTextColor(mFontColor);
+    }
+
+    // Create the YB hymn cross reference table for use in History record and PagerSlider
+    private void createYbXTable() {
+        ybXTable.clear();
+        try {
+            InputStream in2 = HymnsApp.getInstance().getResources().getAssets().open(mTocYB);
+            byte[] buffer2 = new byte[in2.available()];
+            if (in2.read(buffer2) == -1)
+                return;
+
+            String mResult = EncodingUtils.getString(buffer2, "utf-8");
+            String[] mList = mResult.split("\r\n|\n");
+            for (String record : mList) {
+                String[] token = record.split("\\s");
+                String hymnTN = token[2].substring(1);
+                if (!hymnTN.startsWith("yb")) {
+                    int hymnNo = Integer.parseInt(token[0].substring(1));
+                    ybXTable.put(hymnNo, hymnTN);
+                }
+            }
+        } catch (IOException e) {
+            Timber.w("Content toc not available: %s", e.getMessage());
+        }
     }
 
     private void showHymn(HistoryRecord sRecord) {

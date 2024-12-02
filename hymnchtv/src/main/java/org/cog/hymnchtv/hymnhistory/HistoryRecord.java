@@ -21,12 +21,14 @@ import static org.cog.hymnchtv.ContentView.LYRICS_DB_DIR;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_DIR;
 import static org.cog.hymnchtv.ContentView.LYRICS_XB_DIR;
 import static org.cog.hymnchtv.ContentView.LYRICS_XG_DIR;
+import static org.cog.hymnchtv.ContentView.LYRICS_YB_DIR;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
 import static org.cog.hymnchtv.MainActivity.HYMN_XG;
 import static org.cog.hymnchtv.MainActivity.HYMN_YB;
+import static org.cog.hymnchtv.MainActivity.ybXTable;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 
 import android.content.res.Resources;
@@ -38,6 +40,7 @@ import java.util.Date;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.HymnsApp;
+import org.cog.hymnchtv.MainActivity;
 import org.cog.hymnchtv.R;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,8 +57,7 @@ import timber.log.Timber;
  *
  * @author Eng Chong Meng
  */
-public class HistoryRecord
-{
+public class HistoryRecord {
     public static final int NUMBER_OF_RECORDS_IN_HISTORY = 200;
 
     public static final String TABLE_NAME = "hymnHistory";
@@ -71,15 +73,21 @@ public class HistoryRecord
     private final String mHymnTitle;
     private final Long mTimeStamp;
 
-    public HistoryRecord(String hymnType, int hymnNo, boolean isFu)
-    {
+    public HistoryRecord(String hymnType, int hymnNo, boolean isFu) {
         this(hymnType, hymnNo, isFu, null, -1);
     }
 
-    public HistoryRecord(String hymnType, int hymnNo, boolean isFu, String title, long timeStamp)
-    {
-        if (TextUtils.isEmpty(title))
+    public HistoryRecord(String hymnType, int hymnNo, boolean isFu, String title, long timeStamp) {
+        if (TextUtils.isEmpty(title)) {
+            if (HYMN_YB.equals(hymnType)) {
+                String hymnTN = ybXTable.get(hymnNo);
+                if (hymnTN != null) {
+                    hymnType = MainActivity.getHymnType(hymnTN);
+                    hymnNo = Integer.parseInt(hymnTN.substring(2));
+                }
+            }
             title = getHymnInfoFromFile(hymnType, hymnNo);
+        }
 
         if (timeStamp == -1)
             timeStamp = new Date().getTime();
@@ -91,33 +99,27 @@ public class HistoryRecord
         mTimeStamp = timeStamp;
     }
 
-    public String getHymnType()
-    {
+    public String getHymnType() {
         return mHymnType;
     }
 
-    public int getHymnNo()
-    {
+    public int getHymnNo() {
         return mHymnNo;
     }
 
-    public boolean isFu()
-    {
+    public boolean isFu() {
         return mIsFu;
     }
 
-    public String getHymnTitle()
-    {
+    public String getHymnTitle() {
         return mHymnTitle;
     }
 
-    public Long getTimeStamp()
-    {
+    public Long getTimeStamp() {
         return mTimeStamp;
     }
 
-    public String getHymnNoFu()
-    {
+    public String getHymnNoFu() {
         String hymnNo = Integer.toString(mHymnNo);
         if (mIsFu && mHymnType.equals(HYMN_DB)) {
             hymnNo = "附" + (mHymnNo - HYMN_DB_NO_MAX);
@@ -131,12 +133,11 @@ public class HistoryRecord
      *
      * @param hymnType The given hymnType
      * @param hymnNo The given hymnNo
+     *
      * @return the hymn title with category stripped off
      */
-    private String getHymnInfoFromFile(String hymnType, int hymnNo)
-    {
+    private String getHymnInfoFromFile(String hymnType, int hymnNo) {
         String fileName = "";
-        String hymnTitle = "";
         String lyricsPhrase = "";
 
         switch (hymnType) {
@@ -153,7 +154,7 @@ public class HistoryRecord
                 break;
 
             case HYMN_YB:
-                fileName = LYRICS_XB_DIR + "yb" + hymnNo + ".txt";
+                fileName = LYRICS_YB_DIR + "yb" + hymnNo + ".txt";
                 break;
 
             case HYMN_BB:
@@ -174,8 +175,8 @@ public class HistoryRecord
             String mResult = EncodingUtils.getString(buffer2, "utf-8");
             String[] mList = mResult.split("\r\n|\n");
 
-            // fetch the hymn title with the category stripped off
-            hymnTitle = mList[1];
+            // fetch the hymn title with the category stripped off (not further use)
+            String hymnTitle = mList[1];
             int idx = hymnTitle.lastIndexOf("－");
             if (idx != -1) {
                 hymnTitle = hymnTitle.substring(idx + 1);
@@ -184,7 +185,7 @@ public class HistoryRecord
             // Do the best guess to find the first phrase from lyrics
             idx = 4;
             String tmp = "";
-            while (tmp.length() < 6) {
+            while (tmp.length() < 6 && idx < mList.length) {
                 tmp = mList[idx++];
             }
 
@@ -195,7 +196,7 @@ public class HistoryRecord
                 }
             }
         } catch (IOException e) {
-            Timber.w("Content search error: %s", e.getMessage());
+            Timber.w("Content search error: %s \n%s", fileName, e.getMessage());
         }
         return lyricsPhrase;
     }
@@ -205,8 +206,7 @@ public class HistoryRecord
      *
      * @return HistoryRecord in user readable String
      */
-    public @NotNull String toString()
-    {
+    public @NotNull String toString() {
         Resources res = HymnsApp.getAppResources();
         String hymnInfo = "";
 
@@ -242,10 +242,10 @@ public class HistoryRecord
      * Convert a given string to the HistoryRecord
      *
      * @param historyString history record string with defined seperator
+     *
      * @return the derived History record.
      */
-    public static HistoryRecord toRecord(String historyString)
-    {
+    public static HistoryRecord toRecord(String historyString) {
         historyString = historyString.trim().replaceAll("[ ]*[,\t][ ]*", ",");
         String[] recordItem = historyString.split(",");
 

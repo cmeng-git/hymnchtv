@@ -6,17 +6,24 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.5.0 (11/30/2024)" versioncode="205001">
+    <release version="2.5.1 (12/02/2024)" versioncode="205010">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>将'青年诗歌'交叉引用表创建重新定位到主页；用于历史记录和诗歌词页面滑块。</change>
+        <change>需要专门为'青年诗歌'赞美诗处理历史记录创建。</change>
+        <change>在获取诗歌信息时必须检查索引是否超出范围。</change>
+        <change>清理'青年诗歌'歌词文本文件。</change>
+        <change>请参阅数据库升级&lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0080'&gt; User defined media database configuration#数库导入:&lt;/a></change>
+    </release>
+
+    <release version="2.5.0 (11/30/2024)" versioncode="205001">
         <change>增加对青年诗歌的支持，包括创建新数据库。</change>
         <change>增加对青年诗歌的 Notion 链接下载支持。</change>
         <change>使用相同的字体大小来显示旧的和新检索到的英文歌词文本。</change>
         <change>更正'用户定义媒体设置'类别名称和索引中的不匹配。</change>
-        <change>将所有新诗歌相关文件/目录从前缀/名称 csr 更改为 xg；使用一致/通用的双字母前缀；用户需要将所有'唱诗'媒体文件的名称前缀从 csr 更改为 xg。</change>
+        <change>将所有新诗歌相关文件/目录从前缀/名称 csr 更改为 xg；使用一致/通用的双字母前缀。</change>
         <change>将 XG/YB 唱诗下载链接更改为使用 'http://four.soqimp.com'。</change>
         <change>继续播放之前必须检查'统一资源标识符'列表是否为非空，并提供错误信息。</change>
         <change>当 url_import.txt 有任何新更新时，必须更新 'version.properties' 文件中的 versionImport 值。</change>
-        <change>请参阅数据库升级&lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0080'&gt; User defined media database configuration#数库导入:&lt;/a></change>
     </release>
 
     <release version="2.4.3 (10/08/2024)" versioncode="204031">

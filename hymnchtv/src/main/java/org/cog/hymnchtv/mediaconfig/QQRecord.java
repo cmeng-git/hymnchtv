@@ -20,6 +20,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
+import static org.cog.hymnchtv.HymnsApp.showToastMessage;
 
 import android.content.Context;
 import android.os.Handler;
@@ -74,7 +75,8 @@ public class QQRecord extends MediaRecord {
     public static final String QQ_TITLE = "title";
     public static final String QQ_URL = "url";
 
-    private static int mCount = 0;
+    private static int mFound = 0;
+    private static int mSaved = 0;
     private static Context mContext;
 
     // Create a specific MediaRecord for web url fetch
@@ -99,7 +101,7 @@ public class QQRecord extends MediaRecord {
     public static void fetchQQLinks(final MediaConfig mediaConfig) {
         String mTitle = "诗歌（合辑）";
         mContext = mediaConfig;
-        HymnsApp.showToastMessage(R.string.nq_download_starting, QQ);
+        showToastMessage(R.string.nq_download_starting, QQ);
 
         final WebView webView = initWebView();
         getURLSource(webView, mTitle, HYMNCHTV_QQ_MAIN, data -> {
@@ -107,7 +109,8 @@ public class QQRecord extends MediaRecord {
                 JSONArray jsonArray = fetchJsonArray(mTitle, data);
                 if (jsonArray != null && jsonArray.length() != 0) {
                     webView.destroy();
-                    mCount = 0;
+                    mFound = 0;
+                    mSaved = 0;
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                         Timber.d("QQ HymnType (%s): %s", i, jsonObject);
@@ -121,7 +124,7 @@ public class QQRecord extends MediaRecord {
                 }
             } catch (JSONException e) {
                 Timber.e("URL get source exception: %s", e.getMessage());
-                HymnsApp.showToastMessage(R.string.nq_download_failed, mTitle);
+                showToastMessage(R.string.nq_download_failed, mTitle);
             }
         });
     }
@@ -151,7 +154,7 @@ public class QQRecord extends MediaRecord {
         String title = jsonObj.getString(QQ_TITLE).replaceAll("[DBCX]", "");
         String url = jsonObj.getString(QQ_URL);
 
-        HymnsApp.showToastMessage(R.string.nq_download_in_progress, title);
+        showToastMessage(R.string.nq_download_in_progress, title);
         //【新歌颂咏】does not have hymnRange; so proceed to saveQQRecord
         if (title.contains("新歌颂咏")) {
             saveQQRecord(jsonObj);
@@ -210,8 +213,8 @@ public class QQRecord extends MediaRecord {
                         JSONObject jsonObject = (JSONObject) jsonArray.get(i);
                         storeQQJObject(jsonObject);
                     }
-                    Timber.d(HymnsApp.getResString(R.string.nq_download_completed, title, mCount));
-                    HymnsApp.showToastMessage(R.string.nq_download_completed, title, mCount);
+                    Timber.d(HymnsApp.getResString(R.string.nq_download_completed, title, mSaved, mFound));
+                    showToastMessage(R.string.nq_download_completed, title, mSaved, mFound);
                 }
             } catch (JSONException e) {
                 Timber.e("URL get source exception: %s", e.getMessage());
@@ -261,14 +264,15 @@ public class QQRecord extends MediaRecord {
 
                 QQRecord mRecord = new QQRecord(hymnType, hymnNo);
                 mRecord.setMediaUri(jsonRecord.getString(QQRecord.QQ_URL));
+                mFound++;
                 long row = mDB.storeMediaRecord(mRecord);
                 if (row < 0) {
                     Timber.e("### Error in creating QQ record for: %s", title);
                 }
                 else {
-                    if ((mCount % 10) == 0)
-                        Timber.d("QQ Hymn Record saved (%s): %s", mCount, jsonRecord);
-                    mCount++;
+                    if ((mSaved % 10) == 0)
+                        Timber.d("QQ Hymn Record saved (%s): %s", mSaved, jsonRecord);
+                    mSaved++;
                 }
             }
             else {
@@ -343,7 +347,7 @@ public class QQRecord extends MediaRecord {
             }
         } catch (JSONException e) {
             Timber.e("URL JsonArray Exception: %s", e.getMessage());
-            HymnsApp.showToastMessage(R.string.nq_download_failed, title);
+            showToastMessage(R.string.nq_download_failed, title);
         }
         return null;
     }
@@ -394,7 +398,7 @@ public class QQRecord extends MediaRecord {
                                 }
                                 else {
                                     Timber.w("Web scrapping failed: %s", title);
-                                    HymnsApp.showToastMessage(R.string.nq_download_failed, title);
+                                    showToastMessage(R.string.nq_download_failed, title);
                                 }
                             });
                         } catch (RuntimeException e) {

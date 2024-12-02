@@ -1,14 +1,22 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    12/02/2024
+Version:        2.5.1 (205010)
+- Relocate QingNian cross reference table creation to main activity; use in History record and PagerSlider
+- Need to handle history record creation specially for QingNian hymn.
+- Must check for index out of bound in getHymnInfoFromFile().
+- Cleanup QingNian lyrics text files.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    11/30/2024
 Version:        2.5.0 (205001)
 - Add support for 青年诗歌 including new database creation.
 - Add Notion links download support for 青年诗歌.
 - Use the same font size for displaying both the old and newly retrieved english lyrics text.
 - Correct mismatch in mediaConfig Category name and Index.
-- Change all 新诗歌 related files/directory from prefix/name csr to xg; use a consistent/common double letters prefix;
-  User need to change all ChangShi media files name prefix from csr to xg.
+- Change all 新诗歌 related files/directory from prefix/name csr to xg; use a consistent/common double letters prefix.
 - Change ChangShi download links for XG and YB to use "http://four.soqimp.com"
 - Must check for MediaContentHandler#playIfVideo() for non-empty uriList before proceed, show toast message if error.
 - Must update versionImport value in 'version.properties' file when there is any new update to url_import.txt.

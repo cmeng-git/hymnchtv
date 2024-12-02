@@ -27,10 +27,8 @@ import android.util.Range;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.cog.hymnchtv.HymnsApp;
-import org.cog.hymnchtv.MainActivity;
 import org.cog.hymnchtv.R;
 
 import timber.log.Timber;

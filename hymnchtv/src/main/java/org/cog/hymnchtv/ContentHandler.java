@@ -925,7 +925,7 @@ public class ContentHandler extends BaseActivity {
                 break;
 
             case HYMN_YB:
-                String hymnTN = mPagerAdapter.ybXTable.get(mHymnNo);
+                String hymnTN = MainActivity.ybXTable.get(mHymnNo);
                 if (hymnTN != null) {
                     String hymnType = MainActivity.getHymnType(hymnTN);
                     String hymnDir = getHymnDir(hymnTN);

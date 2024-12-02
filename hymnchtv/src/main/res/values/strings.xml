@@ -61,7 +61,7 @@
 
     <!-- Message for Notion / QQ links update -->
     <string name="nq_download">NQ－诗歌链接下载</string>
-    <string name="nq_download_completed">%1$s－诗歌链接：%2$s 首下载完毕！</string>
+    <string name="nq_download_completed">%1$s－诗歌链接：%2$s (%3$s) 首下载完毕！</string>
     <string name="nq_download_failed">%1$s－诗歌链接下载失败！</string>
     <string name="nq_download_in_progress">%1$s－链接下载中…</string>
     <string name="nq_download_proceed">执行 %1$s 诗歌链接下载 (%2$s)？\n过程需要一些时间。进程将在后台进行，您可以继续使用应用程序。</string>

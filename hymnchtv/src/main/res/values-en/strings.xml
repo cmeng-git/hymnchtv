@@ -60,7 +60,7 @@
 
     <!-- Message for Notion / QQ links update -->
     <string name="nq_download">NQ－Hymns link download</string>
-    <string name="nq_download_completed">%1$s－Hymns link: %2$s download completed!</string>
+    <string name="nq_download_completed">%1$s－Hymns link: %2$s (%3$s) download completed!</string>
     <string name="nq_download_failed">%1$s－Hymns link download failed!</string>
     <string name="nq_download_in_progress">%1$s－Link downloading…</string>
     <string name="nq_download_proceed">Proceed %1$s hymn link download (%2$s)?\nThe process takes some time. The process will take place in the background and you can continue using the application.</string>
