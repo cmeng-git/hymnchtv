@@ -10,7 +10,7 @@ android {
         applicationId "org.cog.hymnchtv"
 
         // End digit - change to force update with same version number
-        versionCode 205010
+        versionCode 205011
         versionName "2.5.1"
 
         minSdkVersion rootProject.minSdk

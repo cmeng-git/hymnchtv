@@ -6,11 +6,12 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.5.1 (12/02/2024)" versioncode="205010">
+    <release version="2.5.1 (12/03/2024)" versioncode="205011">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
         <change>将'青年诗歌'交叉引用表创建重新定位到主页；用于历史记录和诗歌词页面滑块。</change>
-        <change>需要专门为'青年诗歌'赞美诗处理历史记录创建。</change>
-        <change>在获取诗歌信息时必须检查索引是否超出范围。</change>
+        <change>需要专门为'青年诗歌'处理历史记录创建。</change>
+        <change>即使使用交叉引用的诗歌，也始终使用'青年诗歌'编号进行历史记录。</change>
+        <change>从文件中获取诗歌信息时必须检查索引是否超出范围。</change>
         <change>清理'青年诗歌'歌词文本文件。</change>
         <change>请参阅数据库升级&lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html#hymnch_0080'&gt; User defined media database configuration#数库导入:&lt;/a></change>
     </release>

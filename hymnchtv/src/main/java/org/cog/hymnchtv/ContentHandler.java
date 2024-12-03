@@ -39,6 +39,7 @@ import static org.cog.hymnchtv.MainActivity.HYMN_XG;
 import static org.cog.hymnchtv.MainActivity.HYMN_YB;
 import static org.cog.hymnchtv.MainActivity.PREF_MENU_SHOW;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
+import static org.cog.hymnchtv.MainActivity.ybXTable;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_BB_DUMMY;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_MAX;
 import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_DB_NO_TMAX;
@@ -903,8 +904,8 @@ public class ContentHandler extends BaseActivity {
      */
     public String getHymnInfo() {
         String fileName = "";
-        String hymnInfo = "";
         String hymnTitle = "";
+        String hymnInfo = "";
         Resources res = getResources();
 
         if (mHymnNo == HYMN_BB_DUMMY) {
@@ -925,12 +926,9 @@ public class ContentHandler extends BaseActivity {
                 break;
 
             case HYMN_YB:
-                String hymnTN = MainActivity.ybXTable.get(mHymnNo);
+                String hymnTN = ybXTable.get(mHymnNo);
                 if (hymnTN != null) {
-                    String hymnType = MainActivity.getHymnType(hymnTN);
-                    String hymnDir = getHymnDir(hymnTN);
-                    fileName = hymnDir + hymnTN + ".txt";
-                    Timber.w("YB Fragment: %s %s", hymnType, hymnDir);
+                    fileName = getHymnDir(hymnTN) + hymnTN + ".txt";
                 }
                 else {
                     fileName = LYRICS_YB_DIR + "yb" + mHymnNo + ".txt";
@@ -955,7 +953,7 @@ public class ContentHandler extends BaseActivity {
             String mResult = EncodingUtils.getString(buffer2, "utf-8");
             String[] mList = mResult.split("\r\n|\n");
 
-            // fetch the hymn title with the category untouched
+            // fetch the hymn title with the category intact
             hymnTitle = mList[1];
 
             // Check the third line for additional info e.g.（诗篇二篇）（英1094）
@@ -964,10 +962,10 @@ public class ContentHandler extends BaseActivity {
                 hymnTitle = hymnTitle + mList[2].substring(idx);
             }
 
-            // Do the best guess to find the phrase for mp3 download @see getPlayHymn()
+            // Do the best guess to find the first phrase from lyrics
             idx = 4;
             String tmp = "";
-            while (tmp.length() < 6) {
+            while (tmp.length() < 6 && idx < mList.length) {
                 tmp = mList[idx++];
             }
 
@@ -978,9 +976,9 @@ public class ContentHandler extends BaseActivity {
                     lyricsPhrase += s;
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             Timber.w("Error getting info for hymn %s: %s", fileName, e.getMessage());
-            hymnTitle = hymnTitle + HymnsApp.getResString(R.string.error_file_not_found, fileName);
+            hymnTitle += getString(R.string.error_file_not_found, fileName);
         }
 
         int resId = -1;

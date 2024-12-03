@@ -78,16 +78,8 @@ public class HistoryRecord {
     }
 
     public HistoryRecord(String hymnType, int hymnNo, boolean isFu, String title, long timeStamp) {
-        if (TextUtils.isEmpty(title)) {
-            if (HYMN_YB.equals(hymnType)) {
-                String hymnTN = ybXTable.get(hymnNo);
-                if (hymnTN != null) {
-                    hymnType = MainActivity.getHymnType(hymnTN);
-                    hymnNo = Integer.parseInt(hymnTN.substring(2));
-                }
-            }
+        if (TextUtils.isEmpty(title))
             title = getHymnInfoFromFile(hymnType, hymnNo);
-        }
 
         if (timeStamp == -1)
             timeStamp = new Date().getTime();
@@ -138,7 +130,16 @@ public class HistoryRecord {
      */
     private String getHymnInfoFromFile(String hymnType, int hymnNo) {
         String fileName = "";
+        String hymnTitle = "";
         String lyricsPhrase = "";
+
+        if (HYMN_YB.equals(hymnType)) {
+            String hymnTN = ybXTable.get(hymnNo);
+            if (hymnTN != null) {
+                hymnType = MainActivity.getHymnType(hymnTN);
+                hymnNo = Integer.parseInt(hymnTN.substring(2));
+            }
+        }
 
         switch (hymnType) {
             case HYMN_ER:
@@ -176,7 +177,7 @@ public class HistoryRecord {
             String[] mList = mResult.split("\r\n|\n");
 
             // fetch the hymn title with the category stripped off (not further use)
-            String hymnTitle = mList[1];
+            hymnTitle = mList[1];
             int idx = hymnTitle.lastIndexOf("－");
             if (idx != -1) {
                 hymnTitle = hymnTitle.substring(idx + 1);
@@ -198,14 +199,15 @@ public class HistoryRecord {
         } catch (IOException e) {
             Timber.w("Content search error: %s \n%s", fileName, e.getMessage());
         }
-        return lyricsPhrase;
+        return lyricsPhrase.length() < 3 ? hymnTitle : lyricsPhrase;
     }
 
     /**
      * Convert the database history record info to user-friendly display List record
-     *
+     * Use by MySwipeListAdapter#getView()
      * @return HistoryRecord in user readable String
      */
+    @Override
     public @NotNull String toString() {
         Resources res = HymnsApp.getAppResources();
         String hymnInfo = "";

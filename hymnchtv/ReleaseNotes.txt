@@ -1,11 +1,12 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    12/02/2024
-Version:        2.5.1 (205010)
+Upload Date:    12/03/2024
+Version:        2.5.1 (205011)
 - Relocate QingNian cross reference table creation to main activity; use in History record and PagerSlider
 - Need to handle history record creation specially for QingNian hymn.
-- Must check for index out of bound in getHymnInfoFromFile().
+- Always use QingNian hymn number even it uses a cross referenced hymn.
+- Must check for index out of bound in getHymnInfo from file.
 - Cleanup QingNian lyrics text files.
 
 =========================================================================
