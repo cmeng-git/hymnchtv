@@ -591,7 +591,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
 
         PackageManager manager = mContentHandler.getPackageManager();
         List<ResolveInfo> info = manager.queryIntentActivities(intent, 0);
-        if (info.size() == 0) {
+        if (info.isEmpty()) {
             intent.setData(mUri);
         }
         try {

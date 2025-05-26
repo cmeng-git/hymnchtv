@@ -1,6 +1,14 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    05/26/2025
+Version:        2.5.2 (205020)
+- Fix WebView does not support html element hidden attribute in English lyrics;
+  Add CSS "article .verse div.chord-container.hidden { display: none; } to support hidden attribute
+- Clean up hymn Lyrics text and score
+
+=========================================================================
+Author:         cmeng
 Upload Date:    12/03/2024
 Version:        2.5.1 (205011)
 - Relocate QingNian cross reference table creation to main activity; use in History record and PagerSlider

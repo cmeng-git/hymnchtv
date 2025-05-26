@@ -101,7 +101,7 @@ public class MediaExoPlayerFragment extends Fragment {
 
     @SuppressLint("CommitPrefEdits")
     @Override
-    public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Get the user defined mediaType for playback

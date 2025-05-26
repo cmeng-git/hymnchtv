@@ -6,8 +6,13 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.5.1 (12/03/2024)" versioncode="205011">
+    <release version="2.5.2 (05/26/2025)" versioncode="205020">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>修复 WebView 不支持英文歌词中的超文本标记语言元素隐藏属性。</change>
+        <change>微小清理诗乐谱和歌词文本文件。</change>
+    </release>
+
+    <release version="2.5.1 (12/03/2024)" versioncode="205011">
         <change>将'青年诗歌'交叉引用表创建重新定位到主页；用于历史记录和诗歌词页面滑块。</change>
         <change>需要专门为'青年诗歌'处理历史记录创建。</change>
         <change>即使使用交叉引用的诗歌，也始终使用'青年诗歌'编号进行历史记录。</change>

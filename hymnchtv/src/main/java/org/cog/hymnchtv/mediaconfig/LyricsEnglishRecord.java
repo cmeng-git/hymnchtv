@@ -77,6 +77,7 @@ public class LyricsEnglishRecord {
             " article .verse div.empty-num { width: 28px; height: 28px; padding: 4px; }\n" +
             " article .verse div.chorus { padding-left: 32px; }\n" +
             " article .verse div.note { width: 320px; text-align: center; color: #e8e6e3; font-style: italic; }\n" +
+            " article .verse div.chord-container.hidden { display: none; }\n" +
             " article .verse div.copyright { width: 320px; padding-top: 10px; text-align: center; color: #e8e6e3; }\n";
 
     public static String HYMNAL_LINK_MAIN = "https://www.hymnal.net/en/hymn/h/";

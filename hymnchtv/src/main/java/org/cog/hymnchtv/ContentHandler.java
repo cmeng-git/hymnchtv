@@ -190,15 +190,17 @@ public class ContentHandler extends BaseActivity {
         isShowPlayerUi = sPreference.getBoolean(PREF_MENU_SHOW, true);
 
         Bundle bundle = getIntent().getExtras();
-        mHymnType = bundle.getString(ATTR_HYMN_TYPE);
-        mHymnNo = bundle.getInt(ATTR_HYMN_NUMBER);
-        mHymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mHymnType, mHymnNo);
+        if (bundle != null) {
+            mHymnType = bundle.getString(ATTR_HYMN_TYPE);
+            mHymnNo = bundle.getInt(ATTR_HYMN_NUMBER);
+            mHymnNoEng = HymnNoCh2EngXRef.hymnNoCh2EngConvert(mHymnType, mHymnNo);
 
-        mAutoPlay = bundle.getBoolean(ATTR_AUTO_PLAY, false);
-        int tmpNo = bundle.getInt(ATTR_ENGLISH_NO, -1);
-        if (tmpNo != -1) {
-            mAutoEnglish = true;
-            mHymnNoEng = tmpNo;
+            mAutoPlay = bundle.getBoolean(ATTR_AUTO_PLAY, false);
+            int tmpNo = bundle.getInt(ATTR_ENGLISH_NO, -1);
+            if (tmpNo != -1) {
+                mAutoEnglish = true;
+                mHymnNoEng = tmpNo;
+            }
         }
 
         switch (mHymnType) {

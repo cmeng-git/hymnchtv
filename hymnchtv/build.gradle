@@ -10,8 +10,8 @@ android {
         applicationId "org.cog.hymnchtv"
 
         // End digit - change to force update with same version number
-        versionCode 205011
-        versionName "2.5.1"
+        versionCode 205020
+        versionName "2.5.2"
 
         minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.compileSdk
@@ -85,10 +85,11 @@ android {
 dependencies {
     implementation project(':android-youtube-player:core')
 
+    // 1.10.0 only compatible with API-35
     implementation 'androidx.activity:activity-ktx:1.9.3'
     implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
-    implementation 'androidx.fragment:fragment-ktx:1.8.5'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.fragment:fragment-ktx:1.8.7'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
@@ -103,7 +104,7 @@ dependencies {
 
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
-    implementation 'com.github.yalantis:ucrop:2.2.8'
+    implementation 'com.github.yalantis:ucrop:2.2.10'
     implementation 'com.github.qichuan:android-opencc:1.2.0'
 
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'

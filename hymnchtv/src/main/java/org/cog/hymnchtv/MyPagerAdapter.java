@@ -64,6 +64,18 @@ public class MyPagerAdapter extends FragmentStateAdapter {
     }
 
     @Override
+    public @NotNull Fragment createFragment(int index) {
+        Bundle bundle = getHymnFragment(index);
+
+        ContentView mContentView = new ContentView();
+        mContentView.setArguments(bundle);
+        // Save a copy of reference content view for local access
+        mFragments.put(index, mContentView);
+
+        return mContentView;
+    }
+
+    @Override
     public int getItemCount() {
         switch (mHymnType) {
             case HYMN_ER:
@@ -88,18 +100,6 @@ public class MyPagerAdapter extends FragmentStateAdapter {
             default:
                 return 1;
         }
-    }
-
-    @Override
-    public @NotNull Fragment createFragment(int index) {
-        Bundle bundle = getHymnFragment(index);
-
-        ContentView mContentView = new ContentView();
-        mContentView.setArguments(bundle);
-        // Save a copy of reference content view for local access
-        mFragments.put(index, mContentView);
-
-        return mContentView;
     }
 
     // get the hymnType and hymnNo from cross reference table for HYMN_YB if any or use the default

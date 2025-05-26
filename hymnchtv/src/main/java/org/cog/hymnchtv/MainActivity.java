@@ -1019,7 +1019,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         btn_english = findViewById(R.id.btn_english);
 
         // Create an ArrayAdapter using the string array and hymnApp default spinner layout
-        ArrayAdapter<String> mAdapter = new ArrayAdapter<>(this, R.layout.simple_spinner_item, hymnTocPage);
+        ArrayAdapter<String> mAdapter = new ArrayAdapter<String>(this, R.layout.simple_spinner_item, hymnTocPage);
         // Specify the layout to use when the list of choices appears
         mAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_radio);
 
