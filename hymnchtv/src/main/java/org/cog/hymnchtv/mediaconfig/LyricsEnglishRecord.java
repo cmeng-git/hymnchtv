@@ -168,6 +168,9 @@ public class LyricsEnglishRecord {
                 mLyricsEnglish = matcherExt.group(1) + matcherExt.group(2);
             }
         }
+        if (!TextUtils.isEmpty(mLyricsEnglish)) {
+            mLyricsEnglish = mLyricsEnglish.replaceAll("<div class=\"chord-container hidden\">.+?<div data-type=\"verse\" class=\"verse \">", "</div><div data-type=\"verse\" class=\"verse \">");
+        }
         return (!TextUtils.isEmpty(mLyricsEnglish));
     }
 

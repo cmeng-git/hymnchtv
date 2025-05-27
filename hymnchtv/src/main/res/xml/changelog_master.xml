@@ -6,9 +6,10 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.5.2 (05/26/2025)" versioncode="205020">
+    <release version="2.5.2 (05/27/2025)" versioncode="205021">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
         <change>修复 WebView 不支持英文歌词中的超文本标记语言元素隐藏属性。</change>
+        <change>从下载的英文歌词中删除不需要的隐藏元素以节省存储空间。</change>
         <change>微小清理诗乐谱和歌词文本文件。</change>
     </release>
 

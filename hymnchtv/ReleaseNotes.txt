@@ -1,10 +1,11 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
-Upload Date:    05/26/2025
-Version:        2.5.2 (205020)
+Upload Date:    05/27/2025
+Version:        2.5.2 (205021)
 - Fix WebView does not support html element hidden attribute in English lyrics;
   Add CSS "article .verse div.chord-container.hidden { display: none; } to support hidden attribute
+- Remove unwanted <div class="chord-container hidden"></div> from the download English lyrics to save storage space.
 - Clean up hymn Lyrics text and score
 
 =========================================================================
