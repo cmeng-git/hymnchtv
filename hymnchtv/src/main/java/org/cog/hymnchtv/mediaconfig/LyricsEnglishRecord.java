@@ -19,6 +19,7 @@ package org.cog.hymnchtv.mediaconfig;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
@@ -200,7 +201,7 @@ public class LyricsEnglishRecord {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 Timber.d("On Page Finished Call: %s: %s", webView.getProgress(), url);
-                new Handler().postDelayed(() -> {
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     try {
                         webView.evaluateJavascript("document.documentElement.outerHTML", data -> {
                             data = cleanUpHtml(data);

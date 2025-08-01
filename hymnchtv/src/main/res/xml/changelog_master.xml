@@ -6,8 +6,17 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.5.2 (05/27/2025)" versioncode="205021">
+    <release version="2.6.0 (08/01/2025)" versioncode="206000">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>升级诗歌本应用程序以支持 Android-16 Baklava (API-36)。</change>
+        <change>设置 JNI 以便本地 openCC 编译 libChineseConverter.so 进行 16 KB ELF 对齐。</change>
+        <change>添加支持以正确处理诗歌本应用程序中的 EdgeToEdge 覆盖内容。</change>
+        <change>重新实现全屏助手并删除所有弃用的功能。</change>
+        <change>删除 AndroidUtils 中所有未使用的对话框函数。</change>
+        <change>迁移已弃用的 onBackKey、intent.getSerializableExtra() 等。</change>
+    </release>
+
+    <release version="2.5.2 (05/27/2025)" versioncode="205021">
         <change>修复 WebView 不支持英文歌词中的超文本标记语言元素隐藏属性。</change>
         <change>从下载的英文歌词中删除不需要的隐藏元素以节省存储空间。</change>
         <change>微小清理诗乐谱和歌词文本文件。</change>

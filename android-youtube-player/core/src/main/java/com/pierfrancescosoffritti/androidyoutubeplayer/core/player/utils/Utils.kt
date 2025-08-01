@@ -16,8 +16,8 @@ internal object Utils {
         (context.let {
             val cm = context.getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val networkCapabilities = cm.activeNetwork ?: return false
-                val actNw = cm.getNetworkCapabilities(networkCapabilities) ?: return false
+                val network = cm.activeNetwork ?: return false
+                val actNw = cm.getNetworkCapabilities(network) ?: return false
                 connected = actNw.hasCapability(NET_CAPABILITY_INTERNET)
             } else {
                 val netInfo = cm.activeNetworkInfo

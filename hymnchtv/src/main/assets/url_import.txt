@@ -235,6 +235,7 @@ hymn_db,130,0,HYMN_CHANGSHI,https://youtu.be/OPoXrW2oSU0,null
 hymn_db,130,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D130-Witness-lee-b75975a7d435460bb322e3a6408f6be5,null
 hymn_db,130,0,HYMN_MEDIA,https://youtu.be/oteVcqBuaVI,null
 hymn_db,131,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D131-489004a73e6745a3a75f27ece40828fb,null
+hymn_db,131,0,HYMN_MEDIA,https://www.youtube.com/watch?v=ec0HhpmfEh4&pp=ygUk5aSn5pysIDEzMTog5Li75b2T5oiR5Lus6aOY5rWB5pe36YeO#bottom-sheet,null
 hymn_db,132,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D132-3513d20d80df4c54b73a726b3f2ab985,null
 hymn_db,133,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D133-2aaca57954134442ab11dd8400eccf8a,null
 hymn_db,133,0,HYMN_MEDIA,https://youtu.be/46SD5_aFELY,null
@@ -339,7 +340,9 @@ hymn_db,196,0,HYMN_MEDIA,https://youtu.be/L9jRLYAoFgY,null
 hymn_db,197,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D197-c9d1b588a1ef469aa569bc91daf2020c,null
 hymn_db,198,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D198-e7ddf85649024226beee598d68a186f9,null
 hymn_db,199,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D199-c817d5d67a6247338a6b9dba258c1f01,null
+hymn_db,199,0,HYMN_MEDIA,https://www.youtube.com/watch?v=hobRtlucAqY&pp=ygU25aSn5pysIDE5OTog6I2j6ICA55qE5Li75L2g5pu-57uP5LuO5aSp6LWQ5LiL5L2g5Zyj54G1,null
 hymn_db,200,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D200-Witness-lee-9d803c844b27464ba01011beaaa1336f,null
+hymn_db,200,0,HYMN_MEDIA,https://www.youtube.com/watch?v=CTmYvqHC29A,null
 hymn_db,201,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D201-A-B-Simpson-a6e005a639854fb6b447e681f5912baa,null
 hymn_db,202,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D202-A-B-Simpson-416a200d6709423fb93d029234b57c03,null
 hymn_db,203,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D203-5dd958c1c4f140f7ad5ef9b4a1de26d2,null
@@ -388,6 +391,7 @@ hymn_db,232,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D232-George-Wade-Robi
 hymn_db,232,0,HYMN_MEDIA,https://youtu.be/EJsarOsNh7c,null
 hymn_db,233,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D233-ba80924db487416f843b3f7fcbec5823,null
 hymn_db,234,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D234-Charles-Wesley-01f5c68a12994a46a59b2b169ee5a737,null
+hymn_db,234,0,HYMN_MEDIA,https://www.youtube.com/watch?v=JCFqnp-QbiY&pp=ygUk5aSn5pysIDIzNDog5pWR5Li75rWB6KGA5omA5oiQ5pWR5oGp0gcJCccJAYcqIYzv,null
 hymn_db,235,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D235-Watchmam-Nee-c7e585c149224a3b8f3b804aa24ec931,null
 hymn_db,236,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D236-bf11fd2ac5344e1ebf08b0dc054ade1a,null
 hymn_db,237,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D237-Nicolaus-L-Zinzendorf-c8040d85f7f748bfa1bc87b3ff078bdf,null
@@ -405,6 +409,7 @@ hymn_db,245,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D245-1048180560df4766
 hymn_db,246,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D246-66ac45e5c27b4e4d871f7002808d4ced,null
 hymn_db,246,0,HYMN_MEDIA,https://youtu.be/PY5xGbqHaTw,null
 hymn_db,247,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D247-John-Newton-e14e77df35464aa990a0b6b008355a91,null
+hymn_db,247,0,HYMN_MEDIA,https://www.youtube.com/watch?v=wiFf0PDnm6Q,null
 hymn_db,248,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D248-Philip-Doddridge-d5aa00786605414486412798157980d5,null
 hymn_db,248,0,HYMN_MEDIA,https://youtu.be/cElojBT3nEU,null
 hymn_db,249,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D249-Fanny-J-Crosby-b98c916b4b97470eb800aef7741226a4,null
@@ -442,6 +447,7 @@ hymn_db,271,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D271-8cb5010185ed415c
 hymn_db,272,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D272-H-E-Barber-03b3461ba380414496d139b5c0300076,null
 hymn_db,273,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D273-Watchmam-Nee-e0ad21c5b3884df7b8ff28fb56d99851,null
 hymn_db,274,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D274-Charles-Wesley-539a5c4e4add4b4b8badcbef32b52b92,null
+hymn_db,274,0,HYMN_MEDIA,https://www.youtube.com/watch?v=-CjlUFBd_Yw,null
 hymn_db,275,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D275-a337b4919bee4c43bba41576fd70fb20,null
 hymn_db,275,0,HYMN_MEDIA,https://youtube.com/watch?v=nvHuYTht1ho&feature=share,null
 hymn_db,276,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D276-0a0cd9e4e7db4dab95145bb0340da20d,null
@@ -890,13 +896,15 @@ hymn_db,528,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D528-Frances-R-Haverg
 hymn_db,529,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D529-Witness-lee-5848c48e3c1848c78dfa850d0430d743,null
 hymn_db,529,0,HYMN_MEDIA,https://youtu.be/4gnB-jhGvHQ,null
 hymn_db,530,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D530-Witness-lee-e68a42dcb62e4d33977e6dc20431319a,null
+hymn_db,530,0,HYMN_MEDIA,https://www.youtube.com/watch?v=7jHs9O4WzNk&pp=ygUk5aSn5pysIDUzMDog56We55qE5b6L5rOV5Zyo5Lq66Lqr5aSW,null
 hymn_db,531,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D531-Witness-lee-4b22b95f370c49dcacfffbece4fb7bda,null
 hymn_db,532,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D532-Witness-lee-624cb26b830946fc9e484a4cf07b8cef,null
+hymn_db,532,0,HYMN_MEDIA,https://www.youtube.com/watch?v=31Y1ympQxqg&pp=ygUk5aSn5pysIDUzMDog56We55qE5b6L5rOV5Zyo5Lq66Lqr5aSWp,null
 hymn_db,533,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D533-Witness-lee-6fae5ea30f32499f8530b99f2b5cbadc,null
 hymn_db,533,0,HYMN_MEDIA,https://youtu.be/A2Gri55DYM0,null
 hymn_db,534,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D534-Witness-lee-4fd35163bc184a0684ca299c08b967b7,null
 hymn_db,535,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D535-Witness-lee-b1e0e0bb93e5482b8f7fcbd6aafc5b0d,null
-hymn_db,535,0,HYMN_MEDIA,https://youtu.be/cFuxV6BQz4o,null
+hymn_db,535,0,HYMN_MEDIA,https://www.youtube.com/watch?v=y_X4n9MCE9A&pp=ygUq5aSn5pysIDUzNTog5Zyo56We5omA6YeN55Sf5Zyj5b6S55qE54G15Lit,null
 hymn_db,536,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D536-Witness-lee-a1f25593778c41dc911099d523c250cb,null
 hymn_db,537,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D537-Witness-lee-24f84cdba3734bc7b3a9c1930c8ea94c,null
 hymn_db,538,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D538-Witness-lee-cce00037b19b4810bba9b8d18c367f4a,null
@@ -1025,6 +1033,7 @@ hymn_db,634,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D634-Watchmam-Nee-18f
 hymn_db,635,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D635-943459ae9908423c904418e10ca5e3ad,null
 hymn_db,636,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D636-A-B-Simpson-99032e58804e4f07b194e2c54bc6566a,null
 hymn_db,637,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D637-Witness-lee-2b054770fee242baa029a9a7fb6222fa,null
+hymn_db,637,0,HYMN_MEDIA,https://www.youtube.com/watch?v=rtofoq3Bxr0,null
 hymn_db,638,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D638-Martin-Luther-b3e66a37e2ac4cc1802a7bd7b37e14a7,null
 hymn_db,639,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D639-Watchmam-Nee-8e8db7072e2040fe947000cc83d5d80f,null
 hymn_db,640,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D640-H-E-Barber-36e894b5e68f405482553096447a1754,null
@@ -1119,6 +1128,7 @@ hymn_db,717,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D717-2-49076bed5bbc4a
 hymn_db,718,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D718-b0efdaa50fae4661b55574833087651b,null
 hymn_db,719,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D719-03d100756c43470a98dbbc3528398ebb,null
 hymn_db,720,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D720-Philip-P-Bliss-07340ab7f32c403d84f9990e75ae59d9,null
+hymn_db,720,0,HYMN_MEDIA,https://www.youtube.com/watch?v=LtkjnlEBkUM,null
 hymn_db,721,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D721-Joseph-Hart-59cb6aa6f525407299a393c90b45e8e9,null
 hymn_db,722,0,HYMN_JIAOCHANG,https://breakopen.notion.site/D722-976ba8e2f6e045e789dac80df773f309,null
 hymn_db,722,0,HYMN_MEDIA,https://youtu.be/4uPBuZx07Xc,null
@@ -1658,6 +1668,7 @@ hymn_bb,710,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B710-b0c866479773499b
 hymn_bb,711,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B711-69b1870f8e4e46ec8dcda8c916c365ef,null
 hymn_bb,711,0,HYMN_MEDIA,https://youtu.be/6K6_f_iFH8I,null
 hymn_bb,712,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B712-c2e3f099ff8a4f2ebf7c51aa0a051fee,null
+hymn_bb,712,0,HYMN_MEDIA,https://www.youtube.com/watch?v=H3E-HOYyyBQ&pp=ygUk6KGl5YWFIDcxMjog5Y-s5Lya55Sf5rS76L6J54WM5LmL6Iez,null
 hymn_bb,713,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B713-1539e503504147d393d84a22a80d20a9,null
 hymn_bb,714,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B714-78e0df4622644bbfbfc9264460db53f9,null
 hymn_bb,715,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B715-af86f49de8c84e9cab093b8e76331e9a,null
@@ -1702,7 +1713,7 @@ hymn_bb,749,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B749-a0fd75fca4e1423f
 hymn_bb,750,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B750-aff24dac9f7c42ef8f0b008a65d52845,null
 hymn_bb,750,0,HYMN_MEDIA,https://youtu.be/2-uTv3MLB3A,null
 hymn_bb,751,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B751-1458274f06c54c89b214ad2e53b3dc88,null
-hymn_bb,751,0,HYMN_MEDIA,https://youtu.be/4ZPSTy84-Ac,null
+hymn_bb,751,0,HYMN_MEDIA,https://youtube.com/watch?v=RNNk6hfdn9s&si=-oXg9RQ2gSjgh7Ew,null
 hymn_bb,752,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B752-08de0940630146ff870fa4e98711a3dc,null
 hymn_bb,752,0,HYMN_MEDIA,https://youtu.be/PXbdCGj_jzc,null
 hymn_bb,753,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B753-04ce358755a643c3a35e9092da75c54c,null
@@ -1851,6 +1862,7 @@ hymn_bb,926,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B926-c9f6c08c3dc54bbc
 hymn_bb,927,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B927-c1f43b8c5e314e43aa7fdbb2144f960d,null
 hymn_bb,927,0,HYMN_MEDIA,https://youtu.be/-k8oCQJxve8,null
 hymn_bb,928,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B928-d961dc8420b444aa81513c03fbbfc9a7,null
+hymn_bb,928,0,HYMN_MEDIA,https://www.youtube.com/watch?v=KnFHG89Ka8g,null
 hymn_bb,929,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B929-38cca77d7d844610a56f97d7f758e9f3,null
 hymn_bb,930,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B930-e24299dbcc424e92965faebd62030657,null
 hymn_bb,930,0,HYMN_MEDIA,https://youtu.be/KPrP8KHU5yY,null
@@ -1900,6 +1912,7 @@ hymn_xb,26,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X026-1-9cf2cdd5d15e4a9
 hymn_xb,27,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X027-1-22f3da773f77462bb29e3f3a1f143fa6,null
 hymn_xb,28,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X028-1-d6e094b46f5149b78381138c4c00eb43,null
 hymn_xb,28,0,HYMN_MEDIA,https://youtube.com/watch?v=_oN9F0KCxPo&si=atkX0RxQKeqUyQQg,null
+hymn_xb,29,0,HYMN_CHANGSHI,https://youtu.be/NxR5QBno0BI,null
 hymn_xb,29,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X029-1-7d9b2a9dc85a4991ac8a5bfdf029ec21,null
 hymn_xb,29,0,HYMN_MEDIA,https://youtu.be/NxR5QBno0BI,null
 hymn_xb,30,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X030-B426-1-d32dc539523940898bb38f88f8206767,null
@@ -2003,6 +2016,7 @@ hymn_xb,117,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X0117-1-addc360242f04
 hymn_xb,118,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X0118-B843-1-13ab688c890840d1abf6ba3441cf9d03,null
 hymn_xb,119,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X0119-B837-1-c3b37e3bd08e4db9a411c72bff0cb521,null
 hymn_xb,120,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X0120-B751-1-ab8e98d697744e18b088aba9d1c1bbd0,null
+hymn_xb,120,0,HYMN_MEDIA,https://youtu.be/4ZPSTy84-Ac,null
 hymn_xb,121,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X0121-Q027-1-c7e1f5176ebc48ce965aaf2f5793a780,null
 hymn_xb,121,0,HYMN_MEDIA,https://youtu.be/KUOIA0VDd8Y,null
 hymn_xb,122,0,HYMN_JIAOCHANG,https://breakopen.notion.site/X0122-Q047-1-e924ff5ce89046c7bc7ffa3f0ae3da7f,null

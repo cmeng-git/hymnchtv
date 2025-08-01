@@ -41,12 +41,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.view.ContextMenu;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -61,12 +61,15 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.IntentCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -253,7 +256,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         // allow 15 seconds for first launch login to complete before showing history log if the activity is still active
         ChangeLog cl = new ChangeLog(this);
         if (cl.isFirstRun()) {
-            runOnUiThread(() -> new Handler().postDelayed(() -> {
+            runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 if (!isFinishing()) {
                     cl.getLogDialog().show();
                 }
@@ -359,6 +362,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         });
 
         handleIntent(getIntent());
+        getOnBackPressedDispatcher().addCallback(backPressedCallback);
     }
 
     /**
@@ -392,11 +396,11 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                 mediaLink = intent.getStringExtra(Intent.EXTRA_TEXT);
             }
             else {
-                mediaLink = getFile(intent.getParcelableExtra(Intent.EXTRA_STREAM));
+                mediaLink = getFile(IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri.class));
             }
         }
         else if (Intent.ACTION_SEND_MULTIPLE.equals(action) && (type != null)) {
-            final ArrayList<Uri> uris = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            final ArrayList<Uri> uris = IntentCompat.getParcelableArrayListExtra(intent, Intent.EXTRA_STREAM, Uri.class);
             if (uris != null)
                 mediaLink = getFile(uris.get(0));
         }
@@ -479,7 +483,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
 
         // First we check the locked state
         KeyguardManager keyguardManager = (KeyguardManager) mInstance.getSystemService(Context.KEYGUARD_SERVICE);
-        boolean inKeyguardRestrictedInputMode = keyguardManager.inKeyguardRestrictedInputMode();
+        boolean inKeyguardRestrictedInputMode = keyguardManager.isKeyguardLocked();
 
         if (inKeyguardRestrictedInputMode) {
             isLocked = true;
@@ -720,31 +724,26 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         }
     }
 
+
+
     /**
-     * KeyEvent handler for KeyEvent.KEYCODE_BACK.
-     * Remove the fragment view if triggers from a fragment else close app
-     *
-     * @param keyCode android keyCode
-     * @param event KeyEvent
-     *
-     * @return handler state from android super
+     * Hde the HistoryList View and return to main, or pop fragment if any; else close app
      */
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+    OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
             if (mHistoryListView.getVisibility() == View.VISIBLE) {
                 mEntry.setHint(R.string.hint_hymn_number_enter);
                 mHistoryListView.setVisibility(View.GONE);
             }
             else if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-                super.onBackPressed();
+                finish();
             }
             else {
                 getSupportFragmentManager().popBackStack();
             }
-            return true;
         }
-        return super.onKeyDown(keyCode, event);
-    }
+    };
 
     /**
      * Initial the option item menu
@@ -753,6 +752,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      *
      * @return true always
      */
+    @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -772,6 +772,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      * @param v view
      * @param menuInfo info
      */
+    @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
     }
@@ -783,6 +784,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      *
      * @return the handle state
      */
+    @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         return onOptionsItemSelected(item);
     }
@@ -794,6 +796,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
      *
      * @return the handle state
      */
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
 
@@ -876,7 +879,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
                 return true;
 
             case R.id.black:
-                setFontColor(getResources().getColor(R.color.grey900), true);
+                setFontColor(ContextCompat.getColor(this, R.color.grey900), true);
                 return true;
 
             // === Set background color ===
@@ -1038,7 +1041,7 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         setWallpaper();
 
         mFontSize = mSharedPref.getInt(PREF_TEXT_SIZE, FONT_SIZE_DEFAULT);
-        mFontColor = mSharedPref.getInt(PREF_TEXT_COLOR, getResources().getColor(R.color.grey900));
+        mFontColor = mSharedPref.getInt(PREF_TEXT_COLOR, ContextCompat.getColor(this, R.color.grey900));
         initTocSpinnerItem();
 
         setFontSize(mFontSize, false);

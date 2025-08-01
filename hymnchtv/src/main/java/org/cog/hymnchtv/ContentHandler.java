@@ -50,6 +50,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -278,7 +279,7 @@ public class ContentHandler extends BaseActivity {
                     getSupportFragmentManager().beginTransaction().replace(R.id.mediaPlayer, mMediaGuiController).commit();
 
                     // Need some delay for Transaction()
-                    runOnUiThread(() -> new Handler().postDelayed(() -> {
+                    runOnUiThread(() -> new Handler(Looper.getMainLooper()).postDelayed(() -> {
                         showPlayerUi(isShowPlayerUi && HymnsApp.isPortrait);
                     }, 100));
                 }

@@ -36,6 +36,7 @@ import org.cog.hymnchtv.service.androidupdate.UpdateServiceImpl;
 import org.cog.hymnchtv.utils.ThemeHelper;
 
 import de.cketti.library.changelog.ChangeLog;
+import timber.log.Timber;
 
 /**
  * About info on hymnchtv
@@ -53,7 +54,7 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
             new String[]{"Apache HttpCore", "https://hc.apache.org/httpcomponents-core-4.4.x/httpcore/dependency-info.html"},
             new String[]{"ckChangeLog", "https://github.com/cketti/ckChangeLog"},
             new String[]{"commons-lang", "https://commons.apache.org/proper/commons-lang/"},
-            new String[]{"ExoPlayer", "https://github.com/google/ExoPlayer"},
+            new String[]{"Media-ExoPlayer", "https://github.com/androidx/media"},
             new String[]{"glide", "https://github.com/bumptech/glide"},
             new String[]{"js-evaluator-for-android", "https://github.com/evgenyneu/js-evaluator-for-android"},
             new String[]{"httpcore", "https://hc.apache.org/httpcomponents-core-ga/"},
@@ -130,7 +131,7 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
             TextView textView = findViewById(R.id.about_appVersion);
             textView.setText(getString(R.string.version, pi.versionName, pi.versionCode));
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            Timber.e("Package Info; %s", e.getMessage());
         }
     }
 

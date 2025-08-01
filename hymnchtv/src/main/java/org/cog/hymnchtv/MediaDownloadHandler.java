@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -289,7 +290,7 @@ public class MediaDownloadHandler extends Fragment {
     private static final int MAX_IDLE_TIME = 60;
 
     private boolean isProgressCheckerRunning = false;
-    private final Handler handler = new Handler();
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     private long previousProgress;
     private int waitTime;

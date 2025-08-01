@@ -16,6 +16,7 @@
  */
 package org.cog.hymnchtv.mediaconfig;
 
+import static org.cog.hymnchtv.BaseActivity.uiHandler;
 import static org.cog.hymnchtv.HymnsApp.showToastMessage;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
@@ -29,7 +30,6 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.HYMN_YB_NO_MAX;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.ValueCallback;
@@ -210,9 +210,8 @@ public class NotionRecord extends MediaRecord {
         long sessionNo = 0;
         webList.clear();
 
-        Handler urlHandler = new Handler();
         for (String hymnType : NotionSites.keySet()) {
-            urlHandler.postDelayed(() -> {
+            uiHandler.postDelayed(() -> {
                 Set<Map.Entry<String, String>> HymnSites = new HashSet<>();
                 switch (hymnType) {
                     case HYMN_DB:
@@ -255,7 +254,7 @@ public class NotionRecord extends MediaRecord {
         }
 
         // Check after 10 minutes to see if it has completed loading.
-        new Handler().postDelayed(() -> {
+        uiHandler.postDelayed(() -> {
             if (!webList.isEmpty()) {
                 Timber.d("Clear the incomplete web sites: %s", webList.size());
                 // Note10 complete all download in 5 min; Huawei 13.2 matePro in 3.5 min. Enough time given for 7.5 min?
@@ -318,7 +317,7 @@ public class NotionRecord extends MediaRecord {
         });
 
         // Check after 10 minutes to see if it has completed loading.
-        new Handler().postDelayed(() -> {
+        uiHandler.postDelayed(() -> {
             if (!webList.isEmpty()) {
                 Timber.d("Restart the incomplete web scraping sites: %s", webList.size());
                 for (Map.Entry<WebView, JSONObject> webSet : webList.entrySet()) {
@@ -573,7 +572,7 @@ public class NotionRecord extends MediaRecord {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                new Handler().postDelayed(() -> {
+                uiHandler.postDelayed(() -> {
                     try {
                         // Must give some time for js to populate the dynamic page content; else not working properly
                         // Timber.w("On Page Finished Call: %s: %s", view.getProgress(), url);

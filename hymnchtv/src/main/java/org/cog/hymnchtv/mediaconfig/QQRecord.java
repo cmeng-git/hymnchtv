@@ -16,14 +16,14 @@
  */
 package org.cog.hymnchtv.mediaconfig;
 
+import static org.cog.hymnchtv.HymnsApp.showToastMessage;
 import static org.cog.hymnchtv.MainActivity.HYMN_BB;
 import static org.cog.hymnchtv.MainActivity.HYMN_DB;
 import static org.cog.hymnchtv.MainActivity.HYMN_ER;
 import static org.cog.hymnchtv.MainActivity.HYMN_XB;
-import static org.cog.hymnchtv.HymnsApp.showToastMessage;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
@@ -37,6 +37,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.cog.hymnchtv.BaseActivity;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.MediaType;
 import org.cog.hymnchtv.R;
@@ -371,6 +372,7 @@ public class QQRecord extends MediaRecord {
                 .replaceAll("http:", "https:");
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private static WebView initWebView() {
         WebView webView = new WebView(mContext);
         webView.getSettings().setJavaScriptEnabled(true);
@@ -389,7 +391,7 @@ public class QQRecord extends MediaRecord {
                 // Timber.w("On Page Finished Call: %s: %s", webView.getProgress(), url);
                 if (webView.getProgress() == 100) {
                     // Must give some time for js to populate the dynamic page content; else not working
-                    new Handler().postDelayed(() -> {
+                    BaseActivity.uiHandler.postDelayed(() -> {
                         try {
                             webView.evaluateJavascript("document.documentElement.outerHTML", data -> {
                                 // webView.evaluateJavascript("document.documentElement.outerHTML", valueCallback);

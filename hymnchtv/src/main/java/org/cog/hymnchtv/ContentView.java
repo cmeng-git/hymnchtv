@@ -105,6 +105,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     public static final String PREF_LYRICS_SCALE_L = "LyricsScaleL";
     public static final String PREF_LYRICS_ENGLISH_SCALE_P = "LyricsScaleEP";
     public static final String PREF_LYRICS_ENGLISH_SCALE_L = "LyricsScaleEL";
+
     public ContentHandler mContext;
     private LyricsEnglishRecord mLyricsEnglishRecord;
     private ConversionType mConversionType = ConversionType.S2T;

@@ -2,6 +2,8 @@ package org.cog.hymnchtv;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,6 +15,11 @@ import org.cog.hymnchtv.utils.ThemeHelper;
  * All app activities must extend BaseActivity inorder to support Theme and locale.
  */
 public class BaseActivity extends AppCompatActivity {
+    /**
+     * UI thread handler used to call all operations that access data model.
+     * This guarantees that it is accessed from the main thread.
+     */
+    public final static Handler uiHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Override AppCompatActivity#onCreate() to support Theme setting

@@ -192,7 +192,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
                 break;
 
             case ACTION_RECORDING:
-                mHandlerRecord = new Handler();
+                mHandlerRecord = new Handler(Looper.getMainLooper());
                 recordAudio();
                 break;
 
@@ -627,7 +627,7 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
             mRecorder.prepare();
             mRecorder.start();
         } catch (IllegalStateException e) {
-            e.printStackTrace();
+            Timber.e("Record audio: %s", e.getMessage());
         } catch (IOException e) {
             Timber.e("io problems while recording [%s]: %s", audioFile.getAbsolutePath(), e.getMessage());
         }

@@ -27,13 +27,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
 import android.text.TextUtils;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.content.IntentCompat;
 
 import java.util.ArrayList;
 
+import org.cog.hymnchtv.BaseActivity;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.FileBackend;
@@ -92,7 +95,7 @@ public class ShareWith {
 
             if (!imageUris.isEmpty()) {
                 // must wait for user first before starting file transfer if any
-                new Handler().postDelayed(() -> {
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     Intent intent = share(activity, imageUris);
                     try {
                         activity.startActivity(Intent.createChooser(intent, activity.getText(R.string.share_file)));
@@ -197,12 +200,13 @@ public class ShareWith {
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP_MR1)
         @Override
         public void onReceive(Context context, Intent intent) {
-            ComponentName clickedComponent = intent.getParcelableExtra(Intent.EXTRA_CHOSEN_COMPONENT);
+            ComponentName clickedComponent
+                    = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_CHOSEN_COMPONENT, ComponentName.class);
             if (mediaIntent == null)
                 return;
 
             // must wait for user to complete text share before starting file share
-            new Handler().postDelayed(() -> {
+            BaseActivity.uiHandler.postDelayed(() -> {
                 try {
                     context.startActivity(mediaIntent);
                     mediaIntent = null;

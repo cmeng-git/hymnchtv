@@ -1,6 +1,23 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    08/01/2025
+Version:        2.6.0 (206000)
+- Upgrade Hymnchtv to support Android-16 Baklava (API-36) with the following changes:
+  * Android Studio Narwhal | 2025.1.1
+  * https://services.gradle.org/distributions/gradle-8.14.2-bin.zip
+  * classpath 'com.android.tools.build:gradle:8.11.1'
+  * classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21'
+- Setup JNI for local openCC compile libChineseConverter.so for 16 KB ELF alignment.
+  * add init_libopencc.sh to download openCC source
+  * must execute task initJniLibs() in build.gradle prior to gradle sync.
+- Add support to properly handle EdgeToEdge overlay content in Hymns App; not compatible with hymnchtv.
+- ReImplement FullScreenHelper and to remove all deprecated functions.
+- Remove all unused dialog functions in Android Utils.
+- Migrate deprecated onBackKey, intent.getSerializableExtra().
+
+=========================================================================
+Author:         cmeng
 Upload Date:    05/27/2025
 Version:        2.5.2 (205021)
 - Fix WebView does not support html element hidden attribute in English lyrics;
@@ -393,9 +410,9 @@ Version:        1.6.0 (106000)
 - HymnConfig playback for local media or youtube link, will always via the hymn content ui for user lyrics confirmation
 - HymnConfig playback click will auto start playing
 - Extend JobIntentService instead of background service for AudioBgService to avoid Android 8.0:
-  java.lang.IllegalStateException: Due to startup background service when aTalk is in background
+  java.lang.IllegalStateException: Due to startup background service when hymnchtv is in background
   Note: extends JobIntentService always call onDestroy everytime -> need to set many variables as static;
-        extends Service onDestroy only get executed once when aTalk exit
+        extends Service onDestroy only get executed once when hymnchtv exit
 
 =========================================================================
 Author:         cmeng
@@ -448,7 +465,7 @@ Version:        1.5.5 (105050)
   rewindButtonTextView.setTextColor(Color.WHITE);
   TextView fastForwardButtonTextView = findViewById(com.google.android.exoplayer2.ui.R.id.exo_ffwd_with_amount);
   fastForwardButtonTextView.setTextColor(Color.WHITE);
-- Clean database and log utilities to remove stray info for aTalk
+- Clean database and log utilities to remove stray info for hymnchtv
 
 =========================================================================
 Author:         cmeng

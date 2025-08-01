@@ -181,6 +181,7 @@ internal class DefaultPlayerUiController(private val youTubePlayerView: LegacyYo
     }
 
     override fun setHideScreenAction(icon: Drawable, clickListener: View.OnClickListener?): PlayerUiController {
+        hideScreenButton.setImageDrawable(icon)
         hideScreenButton.visibility = View.VISIBLE
         hideScreenButton.setOnClickListener(clickListener)
         return this;
@@ -326,7 +327,7 @@ internal class DefaultPlayerUiController(private val youTubePlayerView: LegacyYo
 
     override fun onVideoId(youTubePlayer: YouTubePlayer, videoId: String) {
         youTubeButton.setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + videoId + "#t=" + youtubePlayerSeekBar.seekBar.progress))
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + videoId + "#t=" + youtubePlayerSeekBar.seekBar.progress))
             try {
                 youTubeButton.context.startActivity(intent)
             } catch (e: Exception) {

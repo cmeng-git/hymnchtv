@@ -19,6 +19,7 @@ package org.cog.hymnchtv;
 import static org.cog.hymnchtv.MainActivity.PREF_LOCALE;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.app.DownloadManager;
@@ -32,13 +33,18 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -136,6 +142,7 @@ public class HymnsApp extends Application implements LifecycleEventObserver {
         }
         // Purge all the previously old downloaded apk
         UpdateServiceImpl.getInstance().removeOldDownloads();
+        EdgeToEdgeDisable();
     }
 
     /**
@@ -149,17 +156,62 @@ public class HymnsApp extends Application implements LifecycleEventObserver {
         super.attachBaseContext(mInstance);
     }
 
+    // Must setPadding in onActivityPostCreated after toolbar is created, Or do this in BaseActivity#onCreate;
+    // otherwise customToolBar still overlay the content
+    protected void EdgeToEdgeDisable() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
+                @Override
+                public void onActivityCreated(@NonNull Activity activity, Bundle savedInstanceState) {
+                }
+
+                public void onActivityPostCreated(@NonNull Activity activity, Bundle savedInstanceState) {
+                    // must not use getRootView(), else toolbar overlays content;
+                    View view = activity.getWindow().getDecorView().findViewById(android.R.id.content);
+                    ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+                                Insets barsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                                v.setPadding(
+                                        barsInsets.left,
+                                        barsInsets.top,
+                                        barsInsets.right,
+                                        barsInsets.bottom
+                                );
+                                return WindowInsetsCompat.CONSUMED;
+                            }
+                    );
+                }
+
+                @Override
+                public void onActivityResumed(@NonNull Activity activity) {
+                }
+
+                @Override
+                public void onActivityDestroyed(@NonNull Activity activity) {
+                }
+
+                @Override
+                public void onActivityPaused(@NonNull Activity activity) {
+                }
+
+                @Override
+                public void onActivitySaveInstanceState(@NonNull Activity activity, @NonNull Bundle outState) {
+                }
+
+                @Override
+                public void onActivityStarted(@NonNull Activity activity) {
+                }
+
+                @Override
+                public void onActivityStopped(@NonNull Activity activity) {
+                }
+            });
+        }
+    }
+
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
-        int orientation = newConfig.orientation;
-        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-            isPortrait = true;
-        }
-        else if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            isPortrait = false;
-        }
+        isPortrait = (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT);
     }
 
     /**

@@ -51,7 +51,7 @@
 * [annotations-java5](https://mvnrepository.com/artifact/org.jetbrains/annotations)
 * [Apache HttpCore](https://hc.apache.org/httpcomponents-core-4.4.x/httpcore/dependency-info.html)
 * [ckChangeLog](https://github.com/cketti/ckChangeLog)
-* [ExoPlayer](https://github.com/google/ExoPlayer)
+* [Media-ExoPlayer](https://github.com/androidx/media)
 * [glide](https://github.com/bumptech/glide)
 * [js-evaluator-for-android](https://github.com/evgenyneu/js-evaluator-for-android)
 * [httpcore](http://hc.apache.org/httpcomponents-core-ga/)

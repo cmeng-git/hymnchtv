@@ -3,7 +3,6 @@ package org.cog.hymnchtv.mediaplayer;
 import static org.cog.hymnchtv.MainActivity.PREF_SETTINGS;
 import static org.cog.hymnchtv.MediaGuiController.PREF_PLAYBACK_SPEED;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
@@ -17,8 +16,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,13 +29,14 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.utils.YouTube
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.MenuItem;
 
+import org.cog.hymnchtv.BaseFragment;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.utils.FullScreenHelper;
 import org.jetbrains.annotations.NotNull;
 
 import timber.log.Timber;
 
-public class YoutubePlayerFragment extends Fragment {
+public class YoutubePlayerFragment extends BaseFragment {
     // regression to check for valid youtube link
     public static final String URL_YOUTUBE = "http[s]*://[w.]*youtu[.]*be.*";
 
@@ -75,17 +73,9 @@ public class YoutubePlayerFragment extends Fragment {
     private static final float rateStep = 0.1f;
     private float mSpeed = 1.0f;
 
-    private FragmentActivity mContext;
     private SharedPreferences mSharedPref;
 
     public YoutubePlayerFragment() {
-    }
-
-    @Override
-    public void onAttach(@NonNull @NotNull Context context) {
-        super.onAttach(context);
-        mContext = (FragmentActivity) context;
-        fullScreenHelper = new FullScreenHelper(mContext);
     }
 
     /**
@@ -116,9 +106,10 @@ public class YoutubePlayerFragment extends Fragment {
                 }
             }
         }
+        fullScreenHelper = new FullScreenHelper(mFragmentActivity);
 
         initYouTubePlayerView();
-        mSharedPref = mContext.getSharedPreferences(PREF_SETTINGS, 0);
+        mSharedPref = mFragmentActivity.getSharedPreferences(PREF_SETTINGS, 0);
         return view;
     }
 
@@ -212,9 +203,9 @@ public class YoutubePlayerFragment extends Fragment {
     /**
      * Extract the youtube videoId from the following string formats:
      * a. vCKCkc8llaM
-     * b. https://youtu.be/vCKCkc8llaM
-     * c. https://youtube.com/watch?v=14VrDQSnfzI&feature=share
-     * d. https://www.youtube.com/playlist?list=PL0KROm2A3S8HaMLBxYPF5kuEEtTYvUJox\
+     * b. <a href="https://youtu.be/vCKCkc8llaM">...</a>
+     * c. <a href="https://youtube.com/watch?v=14VrDQSnfzI&feature=share">...</a>
+     * d. <a href="https://www.youtube.com/playlist?list=PL0KROm2A3S8HaMLBxYPF5kuEEtTYvUJox">...</a>\
      *
      * @param url Any of the above url string
      *
@@ -236,11 +227,11 @@ public class YoutubePlayerFragment extends Fragment {
         Drawable rewindActionIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_rewind);
         Drawable forwardActionIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_forward);
         Drawable hideScreenActionIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_hide_screen);
-
         Drawable rateIcon = ContextCompat.getDrawable(mContext, R.drawable.ic_speed);
 
         assert rewindActionIcon != null;
         assert forwardActionIcon != null;
+        assert hideScreenActionIcon != null;
         assert rateIcon != null;
 
         youTubePlayerView.getPlayerUiController().setRewindAction(rewindActionIcon,
@@ -264,9 +255,7 @@ public class YoutubePlayerFragment extends Fragment {
                 });
 
         youTubePlayerView.getPlayerUiController().setHideScreenAction(hideScreenActionIcon,
-                view -> {
-                    youTubePlayerView.setVisibility(View.GONE);
-                }
+                view -> youTubePlayerView.setVisibility(View.GONE)
         );
     }
 
@@ -318,7 +307,7 @@ public class YoutubePlayerFragment extends Fragment {
      */
     private void playVideoUrlExt(String videoUrl) {
         // remove the youtube player fragment
-        mContext.getSupportFragmentManager().beginTransaction().remove(this).commit();
+        mFragmentActivity.getSupportFragmentManager().beginTransaction().remove(this).commit();
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl));
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

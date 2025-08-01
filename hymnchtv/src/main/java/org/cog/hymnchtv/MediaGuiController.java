@@ -53,6 +53,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.IntentCompat;
 import androidx.fragment.app.Fragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -687,7 +688,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         @Override
         public void onReceive(Context context, Intent intent) {
             // proceed only if it is the playback of the current Uri
-            Uri uri = intent.getParcelableExtra(AudioBgService.PLAYBACK_URI);
+            Uri uri = IntentCompat.getParcelableExtra(intent, AudioBgService.PLAYBACK_URI, Uri.class);
             // Timber.d("Audio playback state: %s: %s", intent.getAction(), uri.getPath());
             if (uri == null || !mediaHymns.contains(uri))
                 return;
@@ -704,7 +705,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
 
             }
             else if (AudioBgService.PLAYBACK_STATE.equals(intent.getAction())) {
-                PlaybackState playbackState = (PlaybackState) intent.getSerializableExtra(AudioBgService.PLAYBACK_STATE);
+                final PlaybackState playbackState = IntentCompat.getSerializableExtra(intent, AudioBgService.PLAYBACK_STATE, PlaybackState.class);
                 Timber.d("Audio playback state: %s (%s/%s): %s", playbackState, position, audioDuration, uri.getPath());
 
                 switch (playbackState) {

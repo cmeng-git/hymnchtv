@@ -17,7 +17,6 @@
 package org.cog.hymnchtv.webview;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,8 +36,6 @@ import android.widget.ProgressBar;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,6 +43,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Stack;
 
+import org.cog.hymnchtv.BaseFragment;
 import org.cog.hymnchtv.BuildConfig;
 import org.cog.hymnchtv.ContentHandler;
 import org.cog.hymnchtv.HymnsApp;
@@ -56,12 +54,12 @@ import timber.log.Timber;
 
 /**
  * The class displays the content accessed via given web link
- * https://developer.android.com/guide/webapps/webview
+ * <a href="https://developer.android.com/guide/webapps/webview">...</a>
  *
  * @author Eng Chong Meng
  */
 @SuppressLint("SetJavaScriptEnabled")
-public class WebViewFragment extends Fragment implements OnKeyListener {
+public class WebViewFragment extends BaseFragment implements OnKeyListener {
     private WebView webview;
     private ProgressBar progressbar;
     private static final Stack<String> urlStack = new Stack<>();
@@ -73,15 +71,10 @@ public class WebViewFragment extends Fragment implements OnKeyListener {
     private ValueCallback<Uri[]> mUploadMessageArray;
     private ContentHandler mContentHandler;
 
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        mContentHandler = (ContentHandler) context;
-    }
-
     @SuppressLint("JavascriptInterface")
     @Override
     public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        mContentHandler = (ContentHandler) mContext;
         View contentView = inflater.inflate(R.layout.webview_main, container, false);
         progressbar = contentView.findViewById(R.id.progress);
         progressbar.setIndeterminate(true);
@@ -93,7 +86,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener {
         webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
 
         // https://developer.android.com/guide/webapps/webview#BindingJavaScript
-        webview.addJavascriptInterface(HymnsApp.getGlobalContext(), "Android");
+        webview.addJavascriptInterface(HymnsApp.getInstance(), "Android");
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
@@ -102,6 +95,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener {
 
         ActivityResultLauncher<String> mGetContents = getFileUris();
         webview.setWebChromeClient(new WebChromeClient() {
+            @Override
             public void onProgressChanged(WebView view, int progress) {
                 progressbar.setProgress(progress);
                 if (progress < 100 && progress > 0 && progressbar.getVisibility() == ProgressBar.GONE) {
@@ -127,6 +121,8 @@ public class WebViewFragment extends Fragment implements OnKeyListener {
 
         // https://developer.android.com/guide/webapps/webview#HandlingNavigation
         webview.setWebViewClient(new MyWebViewClient(this));
+
+        // init webUrl with urlStack.pop() if non-empty, else load from default in DB
         if (urlStack.isEmpty()) {
             webUrl = mContentHandler.getWebUrl();
             urlStack.push(webUrl);
@@ -210,7 +206,7 @@ public class WebViewFragment extends Fragment implements OnKeyListener {
             InputStream input = connection.getInputStream();
             return BitmapFactory.decodeStream(input);
         } catch (IOException e) {
-            e.printStackTrace();
+            Timber.w("Exception %s", e.getMessage());
             return null;
         }
     }

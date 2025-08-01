@@ -47,7 +47,6 @@
         android:requestLegacyExternalStorage="true"
         android:theme="@style/AppTheme"
         tools:ignore="DataExtractionRules"
-        tools:replace="android:allowBackup,android:label"
         tools:targetApi="tiramisu">
 
         <activity
@@ -105,7 +104,6 @@
         <activity
             android:name=".mediaconfig.MediaConfig"
             android:label="@string/media_config" />
-        <!-- android:windowSoftInputMode="stateAlwaysHidden" #  do this in mediaConfig-->
 
         <activity android:name=".RichTextEditor" />
 

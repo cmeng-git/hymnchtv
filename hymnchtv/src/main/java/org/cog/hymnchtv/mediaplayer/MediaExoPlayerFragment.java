@@ -22,7 +22,6 @@ import static org.cog.hymnchtv.mediaplayer.YoutubePlayerFragment.rateMax;
 import static org.cog.hymnchtv.mediaplayer.YoutubePlayerFragment.rateMin;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -34,8 +33,6 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
@@ -49,21 +46,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.util.TextUtils;
+import org.cog.hymnchtv.BaseFragment;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.FileBackend;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * The class handles the actual content source address decoding for the user selected hymn
- * see https://developer.android.com/codelabs/exoplayer-intro#0
+ * see <a href="https://developer.android.com/codelabs/exoplayer-intro#0">...</a>
  * <p>
  * This MediaExoPlayerFragment requires its parent FragmentActivity to handle onConfigurationChanged()
  * It does not consider onSaveInstanceState(); it uses the speed in the user configuration setting.
  *
  * @author Eng Chong Meng
  */
-public class MediaExoPlayerFragment extends Fragment {
+public class MediaExoPlayerFragment extends BaseFragment {
     // Tag for the instance state bundle.
     public static final String ATTR_MEDIA_URL = "mediaUrl";
     public static final String ATTR_MEDIA_URLS = "mediaUrls";
@@ -77,7 +74,6 @@ public class MediaExoPlayerFragment extends Fragment {
     // Playback ratio of normal speed.
     private float mSpeed = 1.0f;
 
-    private FragmentActivity mContext;
     private SharedPreferences mSharedPref;
 
     private ExoPlayer mExoPlayer = null;
@@ -93,19 +89,13 @@ public class MediaExoPlayerFragment extends Fragment {
         return exoPlayerFragment;
     }
 
-    @Override
-    public void onAttach(@NonNull @NotNull Context context) {
-        super.onAttach(context);
-        mContext = (FragmentActivity) context;
-    }
-
     @SuppressLint("CommitPrefEdits")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Get the user defined mediaType for playback
-        mSharedPref = mContext.getSharedPreferences(PREF_SETTINGS, 0);
+        mSharedPref = mFragmentActivity.getSharedPreferences(PREF_SETTINGS, 0);
         Bundle args = getArguments();
         if (args != null) {
             mediaUrl = args.getString(ATTR_MEDIA_URL);
@@ -224,7 +214,7 @@ public class MediaExoPlayerFragment extends Fragment {
      */
     private void playVideoUrlExt(String videoUrl) {
         // remove the exoPlayer fragment
-        mContext.getSupportFragmentManager().beginTransaction().remove(this).commit();
+        mFragmentActivity.getSupportFragmentManager().beginTransaction().remove(this).commit();
         Uri uri = Uri.parse(videoUrl);
         String mimeType = FileBackend.getMimeType(mContext, uri);
 
@@ -285,7 +275,7 @@ public class MediaExoPlayerFragment extends Fragment {
         public void onPlaybackStateChanged(int playbackState) {
             switch (playbackState) {
                 case ExoPlayer.STATE_IDLE:
-                    // Attempt to use android player if exoplayer failed to play.
+                    // Attempt to use android player if exoplayer failed to play
                     playVideoUrlExt(mediaUrl);
                     break;
 
