@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string-array name="mp_speed_name">
         <item>1.4x</item>
@@ -25,25 +25,9 @@
         <item>0.6</item>
     </string-array>
 
-    <integer-array name="exo_speed_multiplied_by_100">
-        <item>25</item>
-        <item>50</item>
-        <item>60</item>
-        <item>70</item>
-        <item>80</item>
-        <item>90</item>
-        <item>100</item>
-        <item>110</item>
-        <item>120</item>
-        <item>130</item>
-        <item>140</item>
-        <item>150</item>
-        <item>200</item>
-    </integer-array>
-
-    <string-array translatable="false" name="exo_playback_speeds">
-        <item>0.25x</item>
-        <item>0.5x</item>
+    <!-- Only override the display text selection for ExoPlayer; PLAYBACK_SPEEDS not change.
+         Need to make direct changes to PlayerControlView -->
+    <string-array name="exo_controls_playback_speeds_" tools:override="true">
         <item>0.6x</item>
         <item>0.7x</item>
         <item>0.8x</item>
@@ -53,7 +37,5 @@
         <item>1.2x</item>
         <item>1.3x</item>
         <item>1.4x</item>
-        <item>1.5x</item>
-        <item>2x</item>
     </string-array>
 </resources>

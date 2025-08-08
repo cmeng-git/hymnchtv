@@ -26,6 +26,8 @@ import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
+import androidx.activity.OnBackPressedCallback;
+
 import com.zqc.opencc.android.lib.ConversionType;
 
 import org.cog.hymnchtv.BaseActivity;
@@ -58,6 +60,7 @@ public class ChineseS2TSelection extends BaseActivity implements View.OnClickLis
 
         findViewById(R.id.btnCancel).setOnClickListener(this);
         findViewById(R.id.btnOk).setOnClickListener(this);
+        getOnBackPressedDispatcher().addCallback(backPressedCallback);
     }
 
     @Override
@@ -166,4 +169,14 @@ public class ChineseS2TSelection extends BaseActivity implements View.OnClickLis
             finish();
         }
     }
+
+    /**
+     * Trap BackKey to check for unsaved changes.
+     */
+    OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
+            checkUnsavedChanges();
+        }
+    };
 }

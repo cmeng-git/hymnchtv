@@ -96,7 +96,7 @@ public class YoutubePlayerFragment extends BaseFragment {
         if (args != null) {
             mediaUrl = args.getString(MediaExoPlayerFragment.ATTR_MEDIA_URL);
 
-            // Comment out the following to test loadPlaylist_videoIds()
+            // Comment out the following to test loadPlaylistVideoIds()
             mediaUrls = args.getStringArrayList(MediaExoPlayerFragment.ATTR_MEDIA_URLS);
             if (mediaUrls != null && !mediaUrls.isEmpty()) {
                 mVideoIds.clear();
@@ -193,7 +193,7 @@ public class YoutubePlayerFragment extends BaseFragment {
                 view -> youTubePlayer.nextVideo());
 
         if (videoId.contains(SEPARATOR)) {
-            youTubePlayer.loadPlaylist_videoIds(videoId);
+            youTubePlayer.loadPlaylistVideoIds(videoId);
         }
         else {
             youTubePlayer.loadPlaylist(videoId, 0);

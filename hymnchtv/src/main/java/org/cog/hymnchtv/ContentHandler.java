@@ -17,16 +17,16 @@
 package org.cog.hymnchtv;
 
 import static org.cog.hymnchtv.ContentView.LYRICS_BB_DIR;
-import static org.cog.hymnchtv.ContentView.SCORE_BB_DIR;
 import static org.cog.hymnchtv.ContentView.LYRICS_DB_DIR;
-import static org.cog.hymnchtv.ContentView.SCORE_DB_DIR;
 import static org.cog.hymnchtv.ContentView.LYRICS_ER_DIR;
-import static org.cog.hymnchtv.ContentView.SCORE_ER_DIR;
 import static org.cog.hymnchtv.ContentView.LYRICS_XB_DIR;
-import static org.cog.hymnchtv.ContentView.SCORE_XB_DIR;
 import static org.cog.hymnchtv.ContentView.LYRICS_XG_DIR;
-import static org.cog.hymnchtv.ContentView.SCORE_XG_DIR;
 import static org.cog.hymnchtv.ContentView.LYRICS_YB_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_BB_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_DB_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_ER_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_XB_DIR;
+import static org.cog.hymnchtv.ContentView.SCORE_XG_DIR;
 import static org.cog.hymnchtv.MainActivity.ATTR_AUTO_PLAY;
 import static org.cog.hymnchtv.MainActivity.ATTR_ENGLISH_NO;
 import static org.cog.hymnchtv.MainActivity.ATTR_HYMN_NUMBER;
@@ -57,6 +57,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.PopupWindow;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.viewpager2.widget.ViewPager2;
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
 
@@ -68,6 +69,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.http.util.EncodingUtils;
@@ -111,6 +113,15 @@ public class ContentHandler extends BaseActivity {
     public static final String MIDI_BBC = "bmc";
     public static final String MIDI_DB = "dm";
     public static final String MIDI_DBC = "dmc";
+
+    public static final Map<String, String> HymnTypeMap = Map.of(
+            HYMN_DB, "大本诗歌",
+            HYMN_BB, "补充本",
+            HYMN_ER, "儿童诗歌",
+            HYMN_XB, "新歌颂咏",
+            HYMN_XG, "新诗歌本",
+            HYMN_YB, "青年诗歌"
+    );
 
     public final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
     private MediaContentHandler mMediaContentHandler;
@@ -236,6 +247,7 @@ public class ContentHandler extends BaseActivity {
             mPager.setCurrentItem(mHymnNo, false);
 
         mPager.registerOnPageChangeCallback(initOnPageChangeCallback());
+        getOnBackPressedDispatcher().addCallback(backPressedCallback);
     }
 
     @Override
@@ -253,6 +265,7 @@ public class ContentHandler extends BaseActivity {
         isMediaPlayerUi = true;
     }
 
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_MENU) {
             if (pop != null) {
@@ -262,8 +275,15 @@ public class ContentHandler extends BaseActivity {
             isShowPlayerUi = !isShowPlayerUi;
             return true;
         }
+        return super.onKeyDown(keyCode, event);
+    }
 
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+    /**
+     * Hde the HistoryList View and return to main, or pop fragment if any; else close app
+     */
+    OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
             if (mWebView.isShown()) {
                 mWebView.setVisibility(View.INVISIBLE);
             }
@@ -293,10 +313,8 @@ public class ContentHandler extends BaseActivity {
             else {
                 backToHome();
             }
-            return true;
         }
-        return super.onKeyDown(keyCode, event);
-    }
+    };
 
     // Do this only in PagerView Fragment, otherwise contextMenu is duplicated (display twice)
     // public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)
@@ -475,10 +493,10 @@ public class ContentHandler extends BaseActivity {
                     mHymnNo = tmp;
                     updateMediaPlayerInfo();
 
-                    ContentView contentView = (ContentView) mPagerAdapter.mFragments.get(mPager.getCurrentItem());
-                    if (contentView != null)
-                        contentView.setLyricsTextScale();
-
+                    // Will be handled in ContentView.onCreateView()
+                    // ContentView contentView = (ContentView) mPagerAdapter.mFragments.get(mPager.getCurrentItem());
+                    // if (contentView != null)
+                    //     contentView.setLyricsTextScale();
                 }
             }
         };
@@ -504,13 +522,6 @@ public class ContentHandler extends BaseActivity {
     }
 
     /**
-     * Start to play after the file is downloaded. Call from mediaHandler.
-     */
-    public void startPlay() {
-        mMediaGuiController.startPlay();
-    }
-
-    /**
      * Start playing the user selected hymn upon MediaGuiController init. Call from MediaGuiController.
      * Must reset to prevent multiple autoplay after exited from an external player.
      */
@@ -523,9 +534,17 @@ public class ContentHandler extends BaseActivity {
             return mAutoPlay;
     }
 
+    /**
+     * Start to play after the file is downloaded. Call from mediaHandler.
+     */
+    public void startPlay() {
+        mMediaGuiController.startPlay();
+    }
+
     public void onError(String statusText) {
         mMediaGuiController.playbackPlay.setImageResource(R.drawable.ic_play_stop);
         HymnsApp.showToastMessage(statusText);
+        mMediaGuiController.onContentError();
     }
 
     /**
@@ -775,7 +794,7 @@ public class ContentHandler extends BaseActivity {
         }
 
         if (!TextUtils.isEmpty(fbLink) && !TextUtils.isEmpty(fileName)) {
-            Timber.d("FileName = %s%s; fbLink = %s", dir, fileName, fbLink);
+            Timber.d("Download Info: FileName = %s%s; fbLink = %s", dir, fileName, fbLink);
             mMediaDownloadHandler.initHttpFileDownload(fbLink, dir, fileName);
             return uriList;
         }
@@ -783,7 +802,7 @@ public class ContentHandler extends BaseActivity {
     }
 
     /**
-     * Search local Hymn media directory for wildCard media file for exact match of hymnNo or prefix with #0.
+     * Search local Hymn media directory for wildCard media file for exact match of hymnNo optionally prefix with 0.
      * init the local media file URI path for play back if any else return false
      *
      * @param dir the media local dir
@@ -795,11 +814,15 @@ public class ContentHandler extends BaseActivity {
     public static boolean isFileExist(String dir, int hymnNo, List<Uri> uriList) {
         File hymnDir = FileBackend.getHymnchtvStore(dir, true);
         if (hymnDir != null) {
-            final Pattern pattern = Pattern.compile("[^1-9]" + hymnNo + "[^0-9]");
+            // Exact word boundary number match e.g. ChHymns-0009.mp3
+            final Pattern patternB = Pattern.compile("\\b0*" + hymnNo + "\\b");
+            // Optional prefix character/zero's, with exact number matching e.g. D609建造.mp3
+            final Pattern patternC = Pattern.compile("\\D0*" + hymnNo + "\\D");
+
             File[] fileList = hymnDir.listFiles(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String name) {
-                    return pattern.matcher(name).find();
+                    return patternB.matcher(name).find() || patternC.matcher(name).find();
                 }
             });
 
@@ -807,7 +830,7 @@ public class ContentHandler extends BaseActivity {
                 if (uriList != null) {
                     uriList.add(Uri.fromFile(fileList[0]));
                 }
-                Timber.d("Media file found: %s; %s", fileList.length, fileList[0]);
+                Timber.d("Hymn #%s; Media file found (%s): %s", hymnNo, fileList.length, fileList[0].getPath());
                 return true;
             }
         }
@@ -1093,6 +1116,24 @@ public class ContentHandler extends BaseActivity {
         }
         getSupportFragmentManager().beginTransaction().replace(R.id.webView, mWebFragment).commit();
         mWebView.setVisibility(View.VISIBLE);
+    }
+
+    public MediaRecord getMediaRecord() {
+        boolean isFu = mHymnType.equals(HYMN_DB) && (mHymnNo > HYMN_DB_NO_MAX);
+        return new MediaRecord(mHymnType, mHymnNo, isFu, MediaType.HYMN_MEDIA);
+    }
+
+    public String hymnType2Text() {
+        return HymnTypeMap.get(mHymnType);
+    }
+
+    public boolean scrollNextHymn() {
+        int tmp = HymnIdx2NoConvert.hymnIdx2NoConvert(mHymnType, ++hymnIdx)[0];
+        if (tmp != -1) {
+            mPager.setCurrentItem(hymnIdx);
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -227,7 +227,7 @@ public class MediaDownloadHandler extends Fragment {
                         // mFileSize == 1 if file not found online
                         if ((mFileSize > 200) && (destFile != null) && inFile.renameTo(destFile)) {
                             String uiLabel = fileLabel.getText().toString();
-                            Timber.d("Downloaded file: %s (size: %s); label: %s; uiShown: %s",
+                            Timber.d("Downloaded file: %s (size: %s); label: %s; Playback GUI active: %s",
                                     destFName, mFileSize, uiLabel, fileXferUi.isShown());
 
                             // Start playing only if the same player user still stay put.
@@ -237,9 +237,9 @@ public class MediaDownloadHandler extends Fragment {
                             }
                         }
                         else {
-                            HymnsApp.showToastMessage(R.string.file_download_failed, dnLink);
                             Timber.d("Downloaded file failed: %s (size: %s) <= %s",
                                     inFile.getAbsolutePath(), mFileSize, dnLink);
+                            onError(HymnsApp.getResString(R.string.file_download_failed, dnLink));
                         }
                     }
                 }

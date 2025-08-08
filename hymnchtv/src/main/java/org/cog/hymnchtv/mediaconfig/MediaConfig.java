@@ -52,7 +52,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.URLUtil;
@@ -66,6 +65,7 @@ import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -368,6 +368,7 @@ public class MediaConfig extends BaseActivity
 
         mPlayerView = findViewById(R.id.player_container);
         mPlayerView.setVisibility(View.GONE);
+        getOnBackPressedDispatcher().addCallback(backPressedCallback);
     }
 
     /**
@@ -1314,8 +1315,9 @@ public class MediaConfig extends BaseActivity
         }
     }
 
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+    OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
             if (mPlayerView.getVisibility() == View.VISIBLE) {
                 releasePlayer();
                 mPlayerView.setVisibility(View.GONE);
@@ -1323,10 +1325,8 @@ public class MediaConfig extends BaseActivity
             else {
                 checkExitAction(true);
             }
-            return true;
         }
-        return super.onKeyDown(keyCode, event);
-    }
+    };
 
     private void checkExitAction(boolean ignoreList) {
         if (ignoreList || mListView.getVisibility() == View.GONE) {

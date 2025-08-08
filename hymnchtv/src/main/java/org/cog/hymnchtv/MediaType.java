@@ -48,6 +48,11 @@ public enum MediaType {
         return map.get(hymnType);
     }
 
+    public static String mediaType2Text(MediaType type) {
+        String[] typeStr = {"媒体", "教唱", "唱诗", "伴奏"};
+        return typeStr[type.getValue()];
+    }
+
     public int getValue() {
         return value;
     }

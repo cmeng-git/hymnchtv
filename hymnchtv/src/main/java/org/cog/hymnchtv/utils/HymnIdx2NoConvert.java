@@ -120,7 +120,7 @@ public class HymnIdx2NoConvert {
      * @return Result of the translated hymn lyrics number if valid, else return "{-1,0}"
      */
     public static int[] hymnIdx2NoConvert(String hymnType, int hymnIdx) {
-        /* Result to be returned i.e. {hymnNo, pageCount}; default ot invalid on each call */
+        /* Result to be returned i.e. {hymnNo, pageCount}; default to invalid on each call */
         int[] hymn_No_Page = new int[]{-1, 0};
 
         /* hymnNo always start @ #1 */

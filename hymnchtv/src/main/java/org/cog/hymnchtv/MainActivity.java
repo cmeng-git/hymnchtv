@@ -724,8 +724,6 @@ public class MainActivity extends BaseActivity implements AdapterView.OnItemSele
         }
     }
 
-
-
     /**
      * Hde the HistoryList View and return to main, or pop fragment if any; else close app
      */

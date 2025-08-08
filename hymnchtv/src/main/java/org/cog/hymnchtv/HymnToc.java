@@ -43,9 +43,10 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
 
 import android.os.Bundle;
 import android.util.Range;
-import android.view.KeyEvent;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+
+import androidx.activity.OnBackPressedCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -178,6 +179,7 @@ public class HymnToc extends BaseActivity {
         setContentView(R.layout.hymn_toc);
         expandableListView = findViewById(R.id.hymnToc);
         initHymnTocAdapter(hymnType, tocPage);
+        getOnBackPressedDispatcher().addCallback(backPressedCallback);
     }
 
     /**
@@ -631,20 +633,14 @@ public class HymnToc extends BaseActivity {
     }
 
     /**
-     * Trapped KEYCODE_BACK and return to the search result display screen.
-     *
-     * @param keyCode The keycode
-     * @param event the key event
-     *
-     * @return from its super if it is not KEYCODE_BACK
+     * Trapped KEYCODE_BACK and return to the main Page.
      */
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+    OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
             finish();
-            return true;
         }
-        return super.onKeyDown(keyCode, event);
-    }
+    };
 
     // ===============================
     // Tools to generate toc of various type form toc file

@@ -29,16 +29,19 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
 import androidx.media3.common.VideoSize;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
 
@@ -66,6 +69,9 @@ public class MediaExoPlayerFragment extends BaseFragment {
     public static final String ATTR_MEDIA_URLS = "mediaUrls";
 
     private static final String sampleUrl = "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4";
+
+    private static final float[] PLAYBACK_SPEEDS =
+            new float[]{0.6f, 0.7f, 0.8f, 1f, 1.1f, 1.2f, 1.3f, 1.4f};
 
     // Default playback video url
     private String mediaUrl = sampleUrl;
@@ -108,10 +114,25 @@ public class MediaExoPlayerFragment extends BaseFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View mConvertView = inflater.inflate(R.layout.media_player_exo_ui, container, false);
         mPlayerView = mConvertView.findViewById(R.id.exoplayerView);
+        hideScreenSetup();
 
-        if (container != null)
-            container.setVisibility(View.VISIBLE);
+        if (container != null) {
+            setPlayerVisible(true);
+        }
         return mConvertView;
+    }
+
+    /**
+     * Support hiding of the ExoPlayer view.
+     */
+    @OptIn(markerClass = UnstableApi.class)
+    private void hideScreenSetup() {
+        final ImageButton hideScrnButton = mPlayerView.findViewById(R.id.exo_fullscreen);
+        if (hideScrnButton != null) {
+            hideScrnButton.setVisibility(View.VISIBLE);
+            hideScrnButton.setImageResource(R.drawable.ayp_ic_hide_screen);
+            hideScrnButton.setOnClickListener(v -> setPlayerVisible(false));
+        }
     }
 
     @Override

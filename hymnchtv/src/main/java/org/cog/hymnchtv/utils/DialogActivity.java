@@ -81,9 +81,9 @@ public class DialogActivity extends BaseActivity {
     public static final String EXTRA_CANCELABLE = "cancelable";
 
     /**
-     * Hide all buttons.
+     * Hide all buttons i.e. OK and Cancel.
      */
-    public static final String EXTRA_REMOVE_BUTTONS = "remove_buttons";
+    public static final String EXTRA_HIDE_BUTTONS = "hide_buttons";
 
     /**
      * Static map holds listeners for currently displayed dialogs.
@@ -113,7 +113,7 @@ public class DialogActivity extends BaseActivity {
     private boolean confirmed;
 
     private static final LocalBroadcastManager localBroadcastManager
-            = LocalBroadcastManager.getInstance(HymnsApp.getGlobalContext());
+            = LocalBroadcastManager.getInstance(HymnsApp.getInstance());
 
     /**
      * <code>BroadcastReceiver</code> that listens for close dialog action.
@@ -132,7 +132,7 @@ public class DialogActivity extends BaseActivity {
      */
     public static final String ACTION_FOCUS_DIALOG = "org.cog.hymnchtv.gui.focus_dialog";
 
-    private boolean cancelable;
+    private boolean mCancelable;
     private View mContent;
 
     /**
@@ -159,13 +159,15 @@ public class DialogActivity extends BaseActivity {
                 try {
                     // Instantiate content fragment
                     Class<?> contentClass = Class.forName(contentFragment);
-                    Fragment fragment = (Fragment) contentClass.newInstance();
+                    Fragment fragment = (Fragment) contentClass.getDeclaredConstructor().newInstance();
 
                     // Set fragment arguments
                     fragment.setArguments(intent.getBundleExtra(EXTRA_CONTENT_ARGS));
 
                     // Insert the fragment
-                    getSupportFragmentManager().beginTransaction().replace(R.id.alertContent, fragment).commit();
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.alertContent, fragment)
+                            .commit();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -193,12 +195,12 @@ public class DialogActivity extends BaseActivity {
             mListener = listenersMap.get(mListenerId);
         }
 
-        this.cancelable = intent.getBooleanExtra(EXTRA_CANCELABLE, false);
-        // Prevents from closing the dialog on outside touch
-        setFinishOnTouchOutside(cancelable);
+        // Prevent from closing the dialog on outside touch
+        mCancelable = intent.getBooleanExtra(EXTRA_CANCELABLE, false);
+        setFinishOnTouchOutside(mCancelable);
 
         // Removes the buttons
-        if (intent.getBooleanExtra(EXTRA_REMOVE_BUTTONS, false)) {
+        if (intent.getBooleanExtra(EXTRA_HIDE_BUTTONS, false)) {
             ViewUtil.ensureVisible(mContent, R.id.okButton, false);
             ViewUtil.ensureVisible(mContent, R.id.cancelButton, false);
         }
@@ -230,7 +232,7 @@ public class DialogActivity extends BaseActivity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (!cancelable &&
+        if (!mCancelable &&
                 keyCode == KeyEvent.KEYCODE_BACK) {
             return true;
         }
@@ -462,31 +464,31 @@ public class DialogActivity extends BaseActivity {
     public static long showCustomDialog(Context context, String title, String fragmentClass,
             Bundle fragmentArguments, String confirmTxt,
             DialogListener listener, Map<String, Serializable> extraArguments) {
-        Intent alert = new Intent(context, DialogActivity.class);
+        Intent intent = new Intent(context, DialogActivity.class);
         long dialogId = System.currentTimeMillis();
 
-        alert.putExtra(EXTRA_DIALOG_ID, dialogId);
+        intent.putExtra(EXTRA_DIALOG_ID, dialogId);
 
         if (listener != null) {
             listenersMap.put(dialogId, listener);
-            alert.putExtra(EXTRA_LISTENER_ID, dialogId);
+            intent.putExtra(EXTRA_LISTENER_ID, dialogId);
         }
 
-        alert.putExtra(EXTRA_TITLE, title);
-        alert.putExtra(EXTRA_CONFIRM_TXT, confirmTxt);
+        intent.putExtra(EXTRA_TITLE, title);
+        intent.putExtra(EXTRA_CONFIRM_TXT, confirmTxt);
 
-        alert.putExtra(EXTRA_CONTENT_FRAGMENT, fragmentClass);
-        alert.putExtra(EXTRA_CONTENT_ARGS, fragmentArguments);
+        intent.putExtra(EXTRA_CONTENT_FRAGMENT, fragmentClass);
+        intent.putExtra(EXTRA_CONTENT_ARGS, fragmentArguments);
 
         if (extraArguments != null) {
             for (String key : extraArguments.keySet()) {
-                alert.putExtra(key, extraArguments.get(key));
+                intent.putExtra(key, extraArguments.get(key));
             }
         }
-        alert.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        alert.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
 
-        context.startActivity(alert);
+        context.startActivity(intent);
         return dialogId;
     }
 

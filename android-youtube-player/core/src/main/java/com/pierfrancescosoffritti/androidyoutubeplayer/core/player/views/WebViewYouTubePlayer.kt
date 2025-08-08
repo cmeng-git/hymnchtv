@@ -52,8 +52,8 @@ internal class WebViewYouTubePlayer(context: Context, attrs: AttributeSet? = nul
         mainThreadHandler.post { loadUrl("javascript:loadPlaylist('$playlist', $startIndex)") }
     }
 
-    override fun loadPlaylist_videoIds(videoIds: String) {
-        mainThreadHandler.post { loadUrl("javascript:loadPlaylist_videoIds('$videoIds')") }
+    override fun loadPlaylistVideoIds(videoIds: String) {
+        mainThreadHandler.post { loadUrl("javascript:loadPlaylistVideoIds('$videoIds')") }
     }
 
     override fun play() {

@@ -83,7 +83,10 @@
 
 ## 书拉密女-诗歌本构建说明：
 ### Build Process
-The hymnchtv project is built based on Android Studio (Arctic Fox) running on Ubuntu 20.04.<br/>
+The hymnchtv project is built based on Android Studio Narwhal | 2025.1.1 running on Ubuntu 22.04.<br/>
+Hymnchtv uses OpenCC jni library. The OpenCC source must be downloaded via build.gradle#initJniLibs before android SDK build.
+
+#### PlayStore release only
 The project uses android bundled assets, due to its final apk file size exceed android apk size limit.<br/>
 The final built apps is packaged as multiple "split" APKs.<br/>
 Please refer to [bundletool](https://developer.android.com/studio/command-line/bundletool) for more info on apks bundle and local testing:

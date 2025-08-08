@@ -40,9 +40,10 @@ import static org.cog.hymnchtv.utils.HymnNoValidate.rangeBbLimit;
 import static org.cog.hymnchtv.utils.HymnNoValidate.rangeErLimit;
 
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+
+import androidx.activity.OnBackPressedCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -256,6 +257,7 @@ public class ContentSearch extends BaseActivity {
             }
         }
         showResult(data);
+        getOnBackPressedDispatcher().addCallback(backPressedCallback);
     }
 
     /**
@@ -329,18 +331,13 @@ public class ContentSearch extends BaseActivity {
     }
 
     /**
-     * Trapped KEYCODE_BACK and return to the search result display screen.
-     *
-     * @param keyCode The keycode
-     * @param event the key event
-     *
-     * @return super
+     * Return to the search result display screen on BackKey press.
      */
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+    OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
+        @Override
+        public void handleOnBackPressed() {
             setResult(-1, getIntent());
             finish();
         }
-        return super.onKeyDown(keyCode, event);
-    }
+    };
 }

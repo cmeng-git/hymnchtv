@@ -71,7 +71,6 @@ import timber.log.Timber;
 /**
  * The class displays the hymn lyrics content selected by user;
  * It is a part of the whole Hymn lyrics content UI display
- *
  * Note: The context menu needs to be created here, instead its parent, for it to be visible
  *
  * @author Eng Chong Meng
@@ -207,6 +206,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     public void onResume() {
         super.onResume();
         registerForContextMenu(lyricsView);
+        Timber.w("Content View on Resume");
 
         // get the corresponding English lyrics# or null if none
         mHymnNoEng = mContext.getHymnNoEng();
@@ -330,6 +330,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
 
         // Show Hymn Lyric Text for the selected hymnNo
         if (!TextUtils.isEmpty(resFName)) {
+            setLyricsTextScale();
             showLyricsChText(resFName);
         }
     }
@@ -431,7 +432,6 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
      * @param resFName Lyrics text resource fileName
      */
     private void showLyricsChText(String resFName) {
-        setLyricsTextScale();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().getAssets().open(resFName)));
             StringBuilder lyrics = new StringBuilder();
@@ -454,6 +454,11 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
      * Also being used onConfiguration change
      */
     public void setLyricsTextScale() {
+        if (lyricsEnglish == null || lyricsSimplify == null || lyricsTraditional == null) {
+            Timber.e(new Exception("Lyrics content view is null"));
+            return;
+        }
+
         // English lyrics text size in webSettings
         final WebSettings webSettings = lyricsEnglish.getSettings();
 
@@ -476,7 +481,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
      */
     public void setLyricsTextSize(boolean stepInc) {
         if (lyricsEnglish.getVisibility() == View.VISIBLE) {
-            setLyricsEnglishTS(stepInc);
+            setLyricsEnglishTextScale(stepInc);
         }
         else {
             lyricsSimplify.onTextSizeChange(stepInc);
@@ -485,7 +490,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     }
 
     // Handler for english lyrics textSize changes
-    private void setLyricsEnglishTS(boolean stepInc) {
+    private void setLyricsEnglishTextScale(boolean stepInc) {
         float tmpScale = stepInc ? STEP_SCALE_FACTOR : -STEP_SCALE_FACTOR;
 
         if (HymnsApp.isPortrait) {

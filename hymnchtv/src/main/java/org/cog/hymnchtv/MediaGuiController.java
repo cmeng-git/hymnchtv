@@ -64,6 +64,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.cog.hymnchtv.mediaplayer.AudioBgService;
+import org.cog.hymnchtv.utils.DialogActivity;
 import org.cog.hymnchtv.utils.ViewUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -135,6 +136,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private RadioButton mBtnChangShi;
     private RadioButton mBtnBanZhou;
 
+    private boolean mAutoStream = false; // auto play next media
     private final boolean isMediaAudio = true;
     private boolean isJiaoChangAvailable = false;
     private boolean isSeeking = false;
@@ -241,7 +243,6 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         mBtnChangShi.setOnLongClickListener(this);
 
         mBtnBanZhou = convertView.findViewById(R.id.btn_banzhou);
-
         return convertView;
     }
 
@@ -294,6 +295,13 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         if (mContentHandler.isAutoPlay(true)) {
             startPlay();
         }
+    }
+
+    // Clear auto streaming on exit
+    @Override
+    public void onStop() {
+        super.onStop();
+        mAutoStream = false;
     }
 
     /**
@@ -486,7 +494,13 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     public boolean onLongClick(View v) {
         switch (v.getId()) {
             case R.id.playback_play:
-                stopPlay();
+                if ((playerState == STATE_STOP) && (mMediaType == MediaType.HYMN_CHANGSHI)) {
+                    confirmAutoStream();
+                }
+                else {
+                    mAutoStream = false;
+                    stopPlay();
+                }
                 return true;
 
             case R.id.btn_hymnSearch:
@@ -502,6 +516,38 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Request confirmation from user to start auto streaming.
+     */
+    private void confirmAutoStream() {
+        DialogActivity.showConfirmDialog(mContentHandler,
+                R.string.auto_stream,
+                R.string.auto_stream_start,
+                R.string.auto_stream, new DialogActivity.DialogListener() {
+                    /**
+                     * Fired when user clicks the dialog's confirm button.
+                     *
+                     * @param dialog source <tt>DialogActivity</tt>.
+                     */
+                    public boolean onConfirmClicked(DialogActivity dialog) {
+                        mAutoStream = true;
+                        HymnsApp.showToastMessage(R.string.auto_stream);
+                        startPlay();
+                        return true;
+                    }
+
+                    /**
+                     * Fired when user dismisses the dialog.
+                     *
+                     * @param dialog source <tt>DialogActivity</tt>
+                     */
+                    public void onDialogCancelled(DialogActivity dialog) {
+                        mAutoStream = false;
+                    }
+                }, mContentHandler.hymnType2Text(), MediaType.mediaType2Text(mMediaType)
+        );
     }
 
     /**
@@ -748,12 +794,23 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
 
                         LocalBroadcastManager.getInstance(mContentHandler).unregisterReceiver(mReceiver);
                         mContentHandler.updateMediaPlayerInfo();
+
+                        // Auto next media if enabled via longPress playButton
+                        if (mAutoStream) {
+                            if (mContentHandler.scrollNextHymn()) {
+                                startPlay();
+                            }
+                            else {
+                                mAutoStream = false;
+                            }
+                        }
                         // flow through to reset player state
 
                     case pause:
                         if (playerState != STATE_STOP) {
                             playerState = STATE_PAUSE;
                         }
+
                         playbackPosition.setText(formatTime(position));
                         playbackDuration.setText(formatTime(audioDuration - position));
                         playbackSeekBar.setMax(audioDuration);
@@ -765,6 +822,13 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                         break;
                 }
             }
+        }
+    }
+
+    // Media file not found or file download error
+    public void onContentError() {
+        if (mAutoStream && mContentHandler.scrollNextHymn()) {
+            startPlay();
         }
     }
 

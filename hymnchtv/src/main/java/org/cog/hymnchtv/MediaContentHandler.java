@@ -183,6 +183,7 @@ public class MediaContentHandler {
     /**
      * Playback the given videoUrl in embedded fragment for lyrics coexistence
      * Use Youtube Player if it is an youtube link, else use exoplayer for video play back
+     * Do not addToBackStack(null); else OnBackPressedCallback() will not be called.
      *
      * @param videoUrl an video url for playback
      */
@@ -195,14 +196,14 @@ public class MediaContentHandler {
             mYoutubePlayer = YoutubePlayerFragment.getInstance(bundle);
             mContentHandler.getSupportFragmentManager().beginTransaction()
                     .replace(R.id.mediaPlayer, mYoutubePlayer)
-                    .addToBackStack(null)
+                    // .addToBackStack(null)
                     .commit();
         }
         else {
             mExoPlayer = MediaExoPlayerFragment.getInstance(bundle);
             mContentHandler.getSupportFragmentManager().beginTransaction()
                     .replace(R.id.mediaPlayer, mExoPlayer)
-                    .addToBackStack(null)
+                    // .addToBackStack(null)
                     .commit();
         }
     }

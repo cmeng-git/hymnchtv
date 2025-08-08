@@ -358,7 +358,6 @@ public class AudioBgService extends JobIntentService implements MediaPlayer.OnCo
         if (uri == null)
             return;
 
-        Timber.w("start player for: %s", fileUri.getLastPathSegment());
         mPlayer = uriPlayers.get(uri);
         if (mPlayer == null) {
             if (!playerCreate(uri))

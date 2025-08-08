@@ -6,8 +6,17 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.6.0 (08/01/2025)" versioncode="206000">
+    <release version="2.7.0 (08/08/2025)" versioncode="207000">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>长按播放按钮将启动或停止 '自动连播/在线下载' 下一个 '唱诗' 媒体。</change>
+        <change>使用适当的编号模式匹配算法，确保所选诗歌编号所获取的用于播放的本地媒体文件是唯一的。</change>
+        <change>修复返回键不会将隐藏的 ExoPlayer 和 YouTube Player UI 设置为可见，而是退出。</change>
+        <change>添加隐藏 ExoPlayer 视频 UI 视图的支持，当设备处于横向模式时使用。</change>
+        <change>添加编号 #161 以下青年诗歌所有缺失的歌词单谱。</change>
+        <change>错误修复和改进。</change>
+    </release>
+
+    <release version="2.6.0 (08/01/2025)" versioncode="206000">
         <change>升级诗歌本应用程序以支持 Android-16 Baklava (API-36)。</change>
         <change>设置 JNI 以便本地 openCC 编译 libChineseConverter.so 进行 16 KB ELF 对齐。</change>
         <change>添加支持以正确处理诗歌本应用程序中的 EdgeToEdge 覆盖内容。</change>
