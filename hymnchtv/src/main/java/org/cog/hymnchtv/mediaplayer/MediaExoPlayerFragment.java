@@ -50,6 +50,7 @@ import java.util.List;
 
 import org.apache.http.util.TextUtils;
 import org.cog.hymnchtv.BaseFragment;
+import org.cog.hymnchtv.ContentHandler;
 import org.cog.hymnchtv.HymnsApp;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.persistance.FileBackend;
@@ -82,17 +83,23 @@ public class MediaExoPlayerFragment extends BaseFragment {
 
     private SharedPreferences mSharedPref;
 
+    // Callback may be null;
+    private final ContentHandler mContentHandler;
     private ExoPlayer mExoPlayer = null;
     private PlayerView mPlayerView;
     private PlaybackStateListener playbackStateListener;
 
     /**
-     * Create a new instance of MediaExoPlayerFragment, providing "bundle" as an argument.
+     * Create a new instance of MediaExoPlayerFragment, providing "bundle" and a nullable callback onEnd as argument.
      */
-    public static MediaExoPlayerFragment getInstance(Bundle args) {
-        MediaExoPlayerFragment exoPlayerFragment = new MediaExoPlayerFragment();
+    public static MediaExoPlayerFragment getInstance(Bundle args, @Nullable ContentHandler contentHandler) {
+        MediaExoPlayerFragment exoPlayerFragment = new MediaExoPlayerFragment(contentHandler);
         exoPlayerFragment.setArguments(args);
         return exoPlayerFragment;
+    }
+
+    public MediaExoPlayerFragment(@Nullable ContentHandler contentHandler) {
+        mContentHandler = contentHandler;
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -301,7 +308,8 @@ public class MediaExoPlayerFragment extends BaseFragment {
                     break;
 
                 case ExoPlayer.STATE_ENDED:
-                    HymnsApp.showToastMessage(R.string.playback_completed);
+                    if (mContentHandler != null)
+                        mContentHandler.onEndOrError(getString(R.string.playback_completed));
                     break;
 
                 case ExoPlayer.STATE_READY:

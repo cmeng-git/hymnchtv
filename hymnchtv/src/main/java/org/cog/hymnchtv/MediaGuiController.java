@@ -136,7 +136,6 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private RadioButton mBtnChangShi;
     private RadioButton mBtnBanZhou;
 
-    private boolean mAutoStream = false; // auto play next media
     private final boolean isMediaAudio = true;
     private boolean isJiaoChangAvailable = false;
     private boolean isSeeking = false;
@@ -295,13 +294,6 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         if (mContentHandler.isAutoPlay(true)) {
             startPlay();
         }
-    }
-
-    // Clear auto streaming on exit
-    @Override
-    public void onStop() {
-        super.onStop();
-        mAutoStream = false;
     }
 
     /**
@@ -494,11 +486,17 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     public boolean onLongClick(View v) {
         switch (v.getId()) {
             case R.id.playback_play:
-                if ((playerState == STATE_STOP) && (mMediaType == MediaType.HYMN_CHANGSHI)) {
-                    confirmAutoStream();
+                if (playerState == STATE_STOP) {
+                    if (mMediaType != MediaType.HYMN_JIAOCHANG) {
+                        confirmAutoStream();
+                    }
+                    else {
+                        HymnsApp.showToastMessage(R.string.auto_stream_unsupported,
+                                mContentHandler.hymnType2Text(), MediaType.mediaType2Text(mMediaType));
+                    }
                 }
                 else {
-                    mAutoStream = false;
+                    mContentHandler.setAutoStream(false);
                     stopPlay();
                 }
                 return true;
@@ -532,8 +530,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                      * @param dialog source <tt>DialogActivity</tt>.
                      */
                     public boolean onConfirmClicked(DialogActivity dialog) {
-                        mAutoStream = true;
-                        HymnsApp.showToastMessage(R.string.auto_stream);
+                        mContentHandler.setAutoStream(true);
                         startPlay();
                         return true;
                     }
@@ -544,7 +541,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                      * @param dialog source <tt>DialogActivity</tt>
                      */
                     public void onDialogCancelled(DialogActivity dialog) {
-                        mAutoStream = false;
+                        mContentHandler.setAutoStream(false);
                     }
                 }, mContentHandler.hymnType2Text(), MediaType.mediaType2Text(mMediaType)
         );
@@ -597,7 +594,6 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
     private void playerStop() {
         if (isMediaAudio) {
             if ((playerState == STATE_PAUSE) || (playerState == STATE_PLAY)) {
-
                 Intent intent = new Intent(mContentHandler, AudioBgService.class);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 intent.setData(mUri);
@@ -796,14 +792,7 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                         mContentHandler.updateMediaPlayerInfo();
 
                         // Auto next media if enabled via longPress playButton
-                        if (mAutoStream) {
-                            if (mContentHandler.scrollNextHymn()) {
-                                startPlay();
-                            }
-                            else {
-                                mAutoStream = false;
-                            }
-                        }
+                        mContentHandler.onEndOrError(getString(R.string.playback_completed));
                         // flow through to reset player state
 
                     case pause:
@@ -822,13 +811,6 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
                         break;
                 }
             }
-        }
-    }
-
-    // Media file not found or file download error
-    public void onContentError() {
-        if (mAutoStream && mContentHandler.scrollNextHymn()) {
-            startPlay();
         }
     }
 

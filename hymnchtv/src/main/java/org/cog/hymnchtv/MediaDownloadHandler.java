@@ -261,7 +261,7 @@ public class MediaDownloadHandler extends Fragment {
     private void onError(String statusText) {
         fileStatus.setVisibility(View.GONE);
         fileStatus.setText(statusText);
-        mContentHandler.onError(statusText);
+        mContentHandler.onEndOrError(statusText);
     }
 
     /**

@@ -1,12 +1,21 @@
 Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
+Upload Date:    08/12/2025
+Version:        2.7.1 (207010)
+- Extend auto next media playback feature to all media types, excluding media jiaochang.
+- Move the IFrame Player API JavaScript code loading from Head to Body (asynchronously) section;
+  to resolve API JavaScript loading and onYouTubeIframeAPIReady not called problem, if previous video play failed.
+- The fix also improve Youtube video playback reliability.
+
+=========================================================================
+Author:         cmeng
 Upload Date:    08/08/2025
 Version:        2.7.0 (207000)
 - Support auto next media playback/download for ChangSi when long press on Play button.
 - Ensure local media file fetching for playback is unique for selected hymnNo with proper HymnNo pattern matching algorithm. see ContentHandler#isFileExist().
 - BackKey does not set the hidden Exo and YouTube Player UI to be visible, and just exit instead.
-  Do not set addToBackStack(null) in Exo and YT player fragment creation; else custom OnBackPressedCallback is not called.
+  Do not set addToBackStack(null) in Exo and Youtube player fragment creation; else custom OnBackPressedCallback is not called.
 - Add support to hide ExoPlayer video UI view, use when device is in landscape mode.
 - Add all missing lyrics scores for youth hymn number below 161.
 - Migrate more deprecated onBackKey

@@ -193,17 +193,15 @@ public class MediaContentHandler {
         mContentHandler.showMediaPlayerUi();
 
         if (videoUrl.matches(URL_YOUTUBE)) {
-            mYoutubePlayer = YoutubePlayerFragment.getInstance(bundle);
+            mYoutubePlayer = YoutubePlayerFragment.getInstance(bundle, mContentHandler);
             mContentHandler.getSupportFragmentManager().beginTransaction()
                     .replace(R.id.mediaPlayer, mYoutubePlayer)
-                    // .addToBackStack(null)
                     .commit();
         }
         else {
-            mExoPlayer = MediaExoPlayerFragment.getInstance(bundle);
+            mExoPlayer = MediaExoPlayerFragment.getInstance(bundle, mContentHandler);
             mContentHandler.getSupportFragmentManager().beginTransaction()
                     .replace(R.id.mediaPlayer, mExoPlayer)
-                    // .addToBackStack(null)
                     .commit();
         }
     }

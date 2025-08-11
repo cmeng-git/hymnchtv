@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.ui.menu.MenuItem;
 
 import org.cog.hymnchtv.BaseFragment;
+import org.cog.hymnchtv.ContentHandler;
 import org.cog.hymnchtv.R;
 import org.cog.hymnchtv.utils.FullScreenHelper;
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +42,8 @@ public class YoutubePlayerFragment extends BaseFragment {
     // regression to check for valid youtube link
     public static final String URL_YOUTUBE = "http[s]*://[w.]*youtu[.]*be.*";
 
+    // callback may be null
+    private final ContentHandler mContentHandler;
     private YouTubePlayerView youTubePlayerView;
     private FullScreenHelper fullScreenHelper;
 
@@ -64,7 +68,7 @@ public class YoutubePlayerFragment extends BaseFragment {
     private static final String SEPARATOR = ",";
     private final boolean usePlayList = false;
 
-    // Will attempt to playback the given videoId as playlist if onError first encountered
+    // Will attempt to playback the given videoId as playlist if onEndOrError first encountered
     private boolean onErrorOnce = true;
 
     // Playback ratio of normal speed constants.
@@ -75,16 +79,17 @@ public class YoutubePlayerFragment extends BaseFragment {
 
     private SharedPreferences mSharedPref;
 
-    public YoutubePlayerFragment() {
-    }
-
     /**
-     * Create a new instance of MediaExoPlayerFragment, providing "bundle" as an argument.
+     * Create a new instance of MediaExoPlayerFragment, providing "bundle" and a nullable callback onEnd as argument.
      */
-    public static YoutubePlayerFragment getInstance(Bundle args) {
-        YoutubePlayerFragment youtubePlayer = new YoutubePlayerFragment();
+    public static YoutubePlayerFragment getInstance(Bundle args, @Nullable ContentHandler contentHandler) {
+        YoutubePlayerFragment youtubePlayer = new YoutubePlayerFragment(contentHandler);
         youtubePlayer.setArguments(args);
         return youtubePlayer;
+    }
+
+    public YoutubePlayerFragment(@Nullable ContentHandler contentHandler) {
+        mContentHandler = contentHandler;
     }
 
     @Override
@@ -149,10 +154,11 @@ public class YoutubePlayerFragment extends BaseFragment {
 
             @Override
             public void onError(@NotNull YouTubePlayer youTubePlayer, @NotNull PlayerConstants.PlayerError error) {
-                // Error message will be shown in player view by API
-                Timber.w("Youtube url: %s, playback failed: %s", mediaUrl, error);
+                // Error message will be shown in player view by API; currently this also upset auto stream.
+                if (mContentHandler != null)
+                    mContentHandler.onEndOrError(error.toString());
 
-                // Try to load as playlist if onError
+                // Try to load as playlist if onEndOrError
                 if (onErrorOnce && error.equals(PlayerConstants.PlayerError.VIDEO_CONTENT_RESTRICTION_OR_UNAVAILABLE)) {
                     onErrorOnce = false;
                     startPlaylist(youTubePlayer, mVideoId);
@@ -172,6 +178,14 @@ public class YoutubePlayerFragment extends BaseFragment {
             public void onPlaybackRateChange(@NotNull YouTubePlayer youTubePlayer, @NotNull String rate) {
                 mSpeed = Float.parseFloat(rate);
                 Toast.makeText(mContext, mContext.getString(R.string.playback_rate, rate), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onStateChange(@NonNull YouTubePlayer youTubePlayer, @NonNull PlayerConstants.PlayerState state) {
+                // Timber.w("Youtube state change: %s (%s)", state, mediaUrl);
+                if (state == PlayerConstants.PlayerState.ENDED && mContentHandler != null) {
+                    mContentHandler.onEndOrError(getString(R.string.playback_completed));
+                }
             }
         });
     }

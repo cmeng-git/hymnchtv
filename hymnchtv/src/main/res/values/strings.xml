@@ -60,6 +60,7 @@
     <string name="back">返回</string>
     <string name="auto_stream">自动连播</string>
     <string name="auto_stream_start">是否启动 \"%1$s:%2$s\" 自动连播/在线下载？</string>
+    <string name="auto_stream_unsupported">\“%1$s:%2$s\” 不支持自动连播。</string>
 
     <!-- Message for Notion / QQ links update -->
     <string name="nq_download">NQ－诗歌链接下载</string>

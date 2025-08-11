@@ -1218,13 +1218,9 @@ hymn_bb,2,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B002-2493059c2bff403d85
 hymn_bb,3,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B003-dfc5652110d44025b5e6b34a61af1f96,null
 hymn_bb,3,0,HYMN_MEDIA,https://youtu.be/v8l5kx9PoWo,null
 hymn_bb,4,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B004-070c71e05d59410c8fbd2dd43e4e2170,null
-hymn_bb,4,0,HYMN_MEDIA,https://youtube.com/playlist?list=PL0KROm2A3S8HsL-xHKa-dQL-VGN_Kstbx,null
 hymn_bb,5,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B005-1eadcb4106004cea976a93c3e86d9d02,null
-hymn_bb,5,0,HYMN_MEDIA,https://youtube.com/playlist?list=PL0KROm2A3S8HaMLBxYPF5kuEEtTYvUJox,null
 hymn_bb,6,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B006-a2bf2dd06fbb4643820b77f0f101d379,null
-hymn_bb,6,0,HYMN_MEDIA,https://youtu.be/I3bCTuIDqhI,null
 hymn_bb,7,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B007-77291240ecea4a129e52b5abad8a0c81,null
-hymn_bb,7,0,HYMN_MEDIA,https://youtu.be/GkG78GdygxU,null
 hymn_bb,8,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B008-629ba2040b6049639e5d10e5c49e0e85,null
 hymn_bb,9,0,HYMN_JIAOCHANG,https://breakopen.notion.site/B009-8aa9145fe2e64ac6bf433168252705c2,null
 hymn_bb,9,0,HYMN_MEDIA,https://youtu.be/gL9MSMzwSz0,null

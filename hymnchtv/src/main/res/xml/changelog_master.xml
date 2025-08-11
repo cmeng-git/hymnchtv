@@ -6,13 +6,19 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.7.0 (08/08/2025)" versioncode="207000">
+    <release version="2.7.1 (08/12/2025)" versioncode="207010">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>将自动连播下一个媒体功能扩展到所有媒体类型，不包括 '教唱'。</change>
+        <change>解决如果之前的视频播放失败 API JavaScript 加载并且 onYouTubeIframeAPIReady 未被调用的问题。</change>
+        <change>提高 Youtube 视频播放的可靠性。</change>
+    </release>
+
+    <release version="2.7.0 (08/08/2025)" versioncode="207000">
         <change>长按播放按钮将启动或停止 '自动连播/在线下载' 下一个 '唱诗' 媒体。</change>
         <change>使用适当的编号模式匹配算法，确保所选诗歌编号所获取的用于播放的本地媒体文件是唯一的。</change>
         <change>修复返回键不会将隐藏的 ExoPlayer 和 YouTube Player UI 设置为可见，而是退出。</change>
         <change>添加隐藏 ExoPlayer 视频 UI 视图的支持，当设备处于横向模式时使用。</change>
-        <change>添加编号 #161 以下青年诗歌所有缺失的歌词单谱。</change>
+        <change>添加编号 #161 以下青年诗歌所有缺失的歌词简谱。</change>
         <change>错误修复和改进。</change>
     </release>
 

@@ -131,8 +131,11 @@ public class ContentHandler extends BaseActivity {
     // True if either youtube or exoPlayer is playing
     private boolean isMediaPlayerUi = false;
 
+    // Both flogs are defined here as MediaGuiController can be destroyed when play video
+    private boolean mAutoPlay = false; // start playing on content shown
+    private boolean mAutoStream = false; // Auto play next video
+
     // Hymn Type and number selected by user
-    private boolean mAutoPlay = false;
     public boolean mAutoEnglish = false;
     public String mHymnType;
     private int mHymnNo;
@@ -256,6 +259,13 @@ public class ContentHandler extends BaseActivity {
         showPlayerUi(isShowPlayerUi && HymnsApp.isPortrait);
     }
 
+    // Clear auto streaming on exit
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mAutoStream = false;
+    }
+
     public void showPlayerUi(boolean show) {
         mMediaGuiController.initPlayerUi(show);
     }
@@ -284,9 +294,11 @@ public class ContentHandler extends BaseActivity {
     OnBackPressedCallback backPressedCallback = new OnBackPressedCallback(true) {
         @Override
         public void handleOnBackPressed() {
+            // for web view links
             if (mWebView.isShown()) {
                 mWebView.setVisibility(View.INVISIBLE);
             }
+            // For video player
             else if (isMediaPlayerUi) {
                 if (mMediaContentHandler.isPlayerVisible()) {
 
@@ -307,8 +319,10 @@ public class ContentHandler extends BaseActivity {
                     mMediaContentHandler.setPlayerVisible(true);
                 }
             }
+            // For audio player
             else if (mMediaGuiController.isPlaying()) {
                 mMediaGuiController.stopPlay();
+                mAutoStream = false;
             }
             else {
                 backToHome();
@@ -541,10 +555,31 @@ public class ContentHandler extends BaseActivity {
         mMediaGuiController.startPlay();
     }
 
-    public void onError(String statusText) {
-        mMediaGuiController.playbackPlay.setImageResource(R.drawable.ic_play_stop);
-        HymnsApp.showToastMessage(statusText);
-        mMediaGuiController.onContentError();
+    public void setAutoStream(boolean autoStream) {
+        mAutoStream = autoStream;
+    }
+
+    // Media file playback ended or file download error
+    public void onEndOrError(String statusText) {
+        Timber.w("AutoStream: %s; %s", mAutoStream, statusText);
+        if (mAutoStream && scrollNextHymn()) {
+            if (isMediaPlayerUi) {
+                isMediaPlayerUi = false;
+                mMediaContentHandler.releasePlayer();
+                // Restore the default MediaGuiController UI
+                getSupportFragmentManager().beginTransaction().replace(R.id.mediaPlayer, mMediaGuiController).commit();
+            }
+
+            // Allow some delay for the player and scrolled UI to settle before proceed
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                startPlay();
+            }, 100);
+        }
+        else {
+            HymnsApp.showToastMessage(statusText);
+            mMediaGuiController.playbackPlay.setImageResource(R.drawable.ic_play_stop);
+            mAutoStream = false;
+        }
     }
 
     /**
@@ -602,7 +637,7 @@ public class ContentHandler extends BaseActivity {
                 switch (mediaType) {
                     case HYMN_MEDIA:
                         dir = mHymnType + MEDIA_MEDIA;
-                        if (isFileExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList) || mAutoStream) break;
 
                     case HYMN_JIAOCHANG:
                         dir = mHymnType + MEDIA_JIAOCHANG;
@@ -629,7 +664,7 @@ public class ContentHandler extends BaseActivity {
                 switch (mediaType) {
                     case HYMN_MEDIA:
                         dir = mHymnType + MEDIA_MEDIA;
-                        if (isFileExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList) || mAutoStream) break;
 
                     case HYMN_JIAOCHANG:
                         dir = mHymnType + MEDIA_JIAOCHANG;
@@ -657,7 +692,7 @@ public class ContentHandler extends BaseActivity {
                 switch (mediaType) {
                     case HYMN_MEDIA:
                         dir = mHymnType + MEDIA_MEDIA;
-                        if (isFileExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList) || mAutoStream) break;
 
                     case HYMN_JIAOCHANG:
                         dir = mHymnType + MEDIA_JIAOCHANG;
@@ -685,7 +720,7 @@ public class ContentHandler extends BaseActivity {
                 switch (mediaType) {
                     case HYMN_MEDIA:
                         dir = mHymnType + MEDIA_MEDIA;
-                        if (isFileExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList) || mAutoStream) break;
 
                     case HYMN_JIAOCHANG:
                         dir = mHymnType + MEDIA_JIAOCHANG;
@@ -711,7 +746,7 @@ public class ContentHandler extends BaseActivity {
                 switch (mediaType) {
                     case HYMN_MEDIA:
                         dir = mHymnType + MEDIA_MEDIA;
-                        if (isFileExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList) || mAutoStream) break;
 
                     case HYMN_JIAOCHANG:
                         dir = mHymnType + MEDIA_JIAOCHANG;
@@ -755,7 +790,7 @@ public class ContentHandler extends BaseActivity {
                 switch (mediaType) {
                     case HYMN_MEDIA:
                         dir = mHymnType + MEDIA_MEDIA;
-                        if (isFileExist(dir, mHymnNo, uriList)) break;
+                        if (isFileExist(dir, mHymnNo, uriList) || mAutoStream) break;
 
                     case HYMN_JIAOCHANG:
                         dir = mHymnType + MEDIA_JIAOCHANG;
@@ -798,6 +833,11 @@ public class ContentHandler extends BaseActivity {
             mMediaDownloadHandler.initHttpFileDownload(fbLink, dir, fileName);
             return uriList;
         }
+
+        if (mAutoStream && uriList.isEmpty()) {
+            onEndOrError(getString(R.string.error_playback, ""));
+            return uriList;
+        }
         return mMediaContentHandler.playIfVideo(uriList);
     }
 
@@ -828,9 +868,9 @@ public class ContentHandler extends BaseActivity {
 
             if (fileList != null && fileList.length != 0) {
                 if (uriList != null) {
+                    Timber.d("Hymn #%s; Media file found (%s): %s", hymnNo, fileList.length, fileList[0].getPath());
                     uriList.add(Uri.fromFile(fileList[0]));
                 }
-                Timber.d("Hymn #%s; Media file found (%s): %s", hymnNo, fileList.length, fileList[0].getPath());
                 return true;
             }
         }
@@ -1130,6 +1170,7 @@ public class ContentHandler extends BaseActivity {
     public boolean scrollNextHymn() {
         int tmp = HymnIdx2NoConvert.hymnIdx2NoConvert(mHymnType, ++hymnIdx)[0];
         if (tmp != -1) {
+            Timber.e("Scroll next hymn: %s: (AutoStream: %s)", tmp, mAutoStream);
             mPager.setCurrentItem(hymnIdx);
             return true;
         }

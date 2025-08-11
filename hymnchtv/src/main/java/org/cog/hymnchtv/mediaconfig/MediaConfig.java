@@ -1357,7 +1357,7 @@ public class MediaConfig extends BaseActivity
         bundle.putStringArrayList(ATTR_MEDIA_URLS, videoUrls);
 
         mPlayerView.setVisibility(View.VISIBLE);
-        mExoPlayer = MediaExoPlayerFragment.getInstance(bundle);
+        mExoPlayer = MediaExoPlayerFragment.getInstance(bundle, null);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.player_container, mExoPlayer)
                 .addToBackStack(null)

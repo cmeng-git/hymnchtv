@@ -59,6 +59,7 @@
     <string name="back">Return</string>
     <string name="auto_stream">Auto next media</string>
     <string name="auto_stream_start">Do you want to start auto streaming/online download of \"%1$s:%2$s\"?</string>
+    <string name="auto_stream_unsupported">Auto sream not supported for \"%1$s:%2$s\."</string>
 
     <!-- Message for Notion / QQ links update -->
     <string name="nq_download">NQ－Hymns link download</string>
