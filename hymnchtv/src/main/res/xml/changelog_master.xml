@@ -6,11 +6,22 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.7.1 (08/12/2025)" versioncode="207010">
+    <release version="2.8.0 (11/27/2025)" versioncode="208000">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>改进简体和繁体歌词内容的捏合缩放界面响应。</change>
+        <change>当用户通过主界面选择诗歌且歌词为空时，如果可用，则启动 '教唱' 网站；否则提示用户访问教唱网站。</change>
+        <change>必须将 YT 参数 'origin' 设置为 YouTube 网站以外的地址；否则嵌入式视频播放器会出错。</change>
+        <change>修复 YouTube 视频 ID 提取错误的问题。</change>
+        <change>支持播放 YouTube 播放列表，即 URL 包含 'list=' 或不带 'PL' 前缀的播放列表。</change>
+        <change>本地重新编译 OpenCC 以支持 16 KB 设备，使用 16 KB ELF 对齐方式。</change>
+        <change>一些用户界面改进。</change>
+    </release>
+
+    <release version="2.7.1 (08/13/2025)" versioncode="207011">
         <change>将自动连播下一个媒体功能扩展到所有媒体类型，不包括 '教唱'。</change>
         <change>解决如果之前的视频播放失败 API JavaScript 加载并且 onYouTubeIframeAPIReady 未被调用的问题。</change>
         <change>提高 Youtube 视频播放的可靠性。</change>
+        <change>一些用户界面改进。</change>
     </release>
 
     <release version="2.7.0 (08/08/2025)" versioncode="207000">

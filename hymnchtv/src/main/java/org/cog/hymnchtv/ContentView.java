@@ -169,7 +169,9 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         lyricsView = mConvertView.findViewById(R.id.lyricsView);
         lyricsSimplify = mConvertView.findViewById(R.id.lyrics_simplified);
         lyricsSimplify.registerZoomTextListener(this);
+
         lyricsTraditional = mConvertView.findViewById(R.id.lyrics_traditional);
+        lyricsTraditional.registerZoomTextListener(this);
 
         lyricsEnglish = mConvertView.findViewById(R.id.lyrics_english);
         lyricsEnglish.setBackgroundColor(Color.TRANSPARENT);
@@ -239,35 +241,35 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.button_ts:
-                if (!hasEnglishLyrics) {
-                    isSimplify = !isSimplify;
-                    mEditor.putBoolean(PREF_SIMPLIFY, isSimplify);
-                    mEditor.apply();
-                }
-                else {
-                    hasEnglishLyrics = false;
-                }
-                toggleLyricsView();
-                break;
+        case R.id.button_ts:
+            if (!hasEnglishLyrics) {
+                isSimplify = !isSimplify;
+                mEditor.putBoolean(PREF_SIMPLIFY, isSimplify);
+                mEditor.apply();
+            }
+            else {
+                hasEnglishLyrics = false;
+            }
+            toggleLyricsView();
+            break;
 
-            case R.id.button_english:
-                hasEnglishLyrics = !hasEnglishLyrics;
-                toggleLyricsView();
-                break;
+        case R.id.button_english:
+            hasEnglishLyrics = !hasEnglishLyrics;
+            toggleLyricsView();
+            break;
         }
     }
 
     @Override
     public boolean onLongClick(View v) {
         switch (v.getId()) {
-            case R.id.button_ts:
-                mStartForResult.launch(new Intent(mContext, ChineseS2TSelection.class));
-                return true;
+        case R.id.button_ts:
+            mStartForResult.launch(new Intent(mContext, ChineseS2TSelection.class));
+            return true;
 
-            case R.id.button_english:
-                mContext.initWebView(ContentHandler.UrlType.englishLyrics);
-                return true;
+        case R.id.button_english:
+            mContext.initWebView(ContentHandler.UrlType.englishLyrics);
+            return true;
         }
         return false;
     }
@@ -290,39 +292,39 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         isErGe = HYMN_ER.equals(hymnType);
 
         switch (hymnType) {
-            case HYMN_ER:
-                mResPrefix = SCORE_ER_DIR + lyricsNo;
-                resFName = LYRICS_ER_DIR + "er" + lyricsNo + ".txt";
-                break;
+        case HYMN_ER:
+            mResPrefix = SCORE_ER_DIR + lyricsNo;
+            resFName = LYRICS_ER_DIR + "er" + lyricsNo + ".txt";
+            break;
 
-            case HYMN_XB:
-                mResPrefix = SCORE_XB_DIR + "xb" + lyricsNo;
-                resFName = LYRICS_XB_DIR + "xb" + lyricsNo + ".txt";
-                break;
+        case HYMN_XB:
+            mResPrefix = SCORE_XB_DIR + "xb" + lyricsNo;
+            resFName = LYRICS_XB_DIR + "xb" + lyricsNo + ".txt";
+            break;
 
-            case HYMN_XG:
-                mResPrefix = SCORE_XG_DIR + "xg" + lyricsNo;
-                resFName = LYRICS_XG_DIR + "xg" + lyricsNo + ".txt";
-                break;
+        case HYMN_XG:
+            mResPrefix = SCORE_XG_DIR + "xg" + lyricsNo;
+            resFName = LYRICS_XG_DIR + "xg" + lyricsNo + ".txt";
+            break;
 
-            case HYMN_YB:
-                mResPrefix = SCORE_YB_DIR + "yb" + lyricsNo;
-                resFName = LYRICS_YB_DIR + "yb" + lyricsNo + ".txt";
-                break;
+        case HYMN_YB:
+            mResPrefix = SCORE_YB_DIR + "yb" + lyricsNo;
+            resFName = LYRICS_YB_DIR + "yb" + lyricsNo + ".txt";
+            break;
 
-            case HYMN_BB:
-                mResPrefix = SCORE_BB_DIR + "bb" + lyricsNo;
-                resFName = LYRICS_BB_DIR + "bb" + lyricsNo + ".txt";
-                break;
+        case HYMN_BB:
+            mResPrefix = SCORE_BB_DIR + "bb" + lyricsNo;
+            resFName = LYRICS_BB_DIR + "bb" + lyricsNo + ".txt";
+            break;
 
-            case HYMN_DB:
-                mResPrefix = SCORE_DB_DIR + "db" + lyricsNo;
-                resFName = LYRICS_DB_DIR + "db" + lyricsNo + ".txt";
-                break;
+        case HYMN_DB:
+            mResPrefix = SCORE_DB_DIR + "db" + lyricsNo;
+            resFName = LYRICS_DB_DIR + "db" + lyricsNo + ".txt";
+            break;
 
-            default:
-                Timber.e("Unsupported content type: %s", hymnType);
-                return;
+        default:
+            Timber.e("Unsupported content type: %s", hymnType);
+            return;
         }
 
         // Show Hymn Lyric Scores for the selected hymnNo
@@ -444,8 +446,14 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
             lyricsSimplify.setText(lyrics);
             lyricsTraditional.setText(ChineseConverter.convert(lyrics.toString(), mConversionType, mContext));
 
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             Timber.w("Error reading file: %s", resFName);
+        }
+
+        // Auto launch or hint user to view lyrics text via online JiaoChang if available; er,length > 47
+        if (lyricsSimplify.getText().length() < 40) {
+            mContext.selectJC();
         }
     }
 

@@ -17,7 +17,7 @@ import timber.log.Timber;
 
 /**
  * Text view with pinch-to-zoom and user increment/decrement fixed zoom-in/zoom-out scale factor ability.
- * Ref: https://github.com/lecho/android_samples/blob/master/zoomtextview/src/lecho/sample/zoomtextview/view/ZoomTextView.java
+ * Ref: <a href="https://github.com/lecho/android_samples/blob/master/zoomtextview/src/lecho/sample/zoomtextview/view/ZoomTextView.java">...</a>
  *
  * @author Eng Chong Meng
  */
@@ -27,7 +27,6 @@ public class ZoomTextView extends AppCompatTextView {
     public static final float MAX_SCALE_FACTOR = 5.0f;
 
     public static final float STEP_SCALE_FACTOR = 0.25f;
-    private static final float MIN_CHANGE = 0.05f;
 
     private final ScaleGestureDetector mScaleGestureDetector;
     private ZoomTextListener mListener = null;
@@ -49,14 +48,7 @@ public class ZoomTextView extends AppCompatTextView {
     }
 
     /***
-     * @param listener for update the user selected zoom scale to preference
-     */
-    public void registerZoomTextListener(ZoomTextListener listener) {
-        mListener = listener;
-    }
-
-    /***
-     * @param defaultSize default text size
+     * @param defaultSize ZoomTextView default text size
      * @param scaleFactor text size scale factor
      */
     public void scaleTextSize(int defaultSize, float scaleFactor) {
@@ -66,13 +58,31 @@ public class ZoomTextView extends AppCompatTextView {
     }
 
     /**
-     * Implement onTouchEvent with detection for 2-points double tab to perform fixed scale zoomIn/zoomOut
+     * onTextSize change via menu implementation;
+     * with different STEP_SCALE_FACTOR
+     */
+    public void onTextSizeChange(boolean stepInc) {
+        float tmpScale;
+        if (stepInc)
+            tmpScale = mScaleFactor + STEP_SCALE_FACTOR * 1.5f;
+        else
+            tmpScale = mScaleFactor - STEP_SCALE_FACTOR;
+        setLyricsTextSize(tmpScale);
+    }
+
+    /***
+     * @param listener for update the user selected zoom scale to preference
+     */
+    public void registerZoomTextListener(ZoomTextListener listener) {
+        mListener = listener;
+    }
+
+    /**
+     * Implement onTouchEvent with detection for 2-points double tab to perform scale zoomIn/zoomOut
      */
     @Override
     @SuppressLint("ClickableViewAccessibility")
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        super.onTouchEvent(event);
-        // 2-points touch detected for zoom
         mScaleGestureDetector.onTouchEvent(event);
         return true;
     }
@@ -86,37 +96,25 @@ public class ZoomTextView extends AppCompatTextView {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             float tmpScale = mScaleFactor * detector.getScaleFactor();
-            if (tmpScale < MIN_CHANGE)
-                return false;
-
             setLyricsTextSize(tmpScale);
             return true;
         }
-    }
 
-    /**
-     * onText change handler implementation
-     */
-    public void onTextSizeChange(boolean stepInc) {
-        float tmpScale;
-        if (stepInc)
-            tmpScale = mScaleFactor + STEP_SCALE_FACTOR;
-        else
-            tmpScale = mScaleFactor - STEP_SCALE_FACTOR;
-        setLyricsTextSize(tmpScale);
+        public void onScaleEnd(@NonNull ScaleGestureDetector detector) {
+            Timber.d("Set TextView scale end: %s (%s)", mScaleFactor, mListener);
+            if (mListener != null)
+                mListener.updateTextScale(mScaleFactor);
+        }
     }
 
     private void setLyricsTextSize(float tmpScale) {
-        // Don't let the text get too small or too large (user setting).
+        // Limit the text size change to within range.
         mScaleFactor = Math.max(MIN_SCALE_FACTOR, Math.min(tmpScale, MAX_SCALE_FACTOR));
-
-        Timber.d("Set TextView font size scale to: %.3f (%.3f); defaultSize: %s", mScaleFactor, tmpScale, mDefaultSize);
-        if (mScaleFactor != tmpScale)
+        if (mScaleFactor != tmpScale) {
+            Timber.d("Set TextView scale to: %.3f (%.3f); defaultSize: %s", mScaleFactor, tmpScale, mDefaultSize);
             HymnsApp.showToastMessage(R.string.lyrics_text_size_limits);
-
+        }
         setTextSize(mScaleFactor * mDefaultSize);
-        if (mListener != null)
-            mListener.updateTextScale(mScaleFactor);
     }
 
     /**

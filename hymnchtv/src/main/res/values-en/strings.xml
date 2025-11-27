@@ -156,6 +156,7 @@
 
     <string name="hint_hymn_content_search">Auto TW&#x27A1;CN Hymns Search</string>
     <string name="hint_hymn_history">&#11014; Hymns Log</string>
+    <string name="hint_hymn_lyrics_online">Lyrics is empty. Please use online \'教唱\' content</string>
     <string name="hint_hymn_number_enter">Enter HymnNo&#11015;</string>
     <string name="hint_hymn_ui">Enter category or HymnNo, then click\nDaBen, BuChong, XinShi, XinGe, ErGe or English</string>
 

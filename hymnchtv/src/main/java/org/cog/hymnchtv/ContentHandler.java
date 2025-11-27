@@ -137,6 +137,8 @@ public class ContentHandler extends BaseActivity {
 
     // Hymn Type and number selected by user
     public boolean mAutoEnglish = false;
+    // Allow showing of JiaoChang web site if available, if lyrics text is empty and from main entry only.
+    private boolean mAutoJC = false;
     public String mHymnType;
     private int mHymnNo;
     private int hymnIdx = -1;
@@ -203,6 +205,7 @@ public class ContentHandler extends BaseActivity {
         // Always start with UiPlayer hidden if in landscape mode
         sPreference = getSharedPreferences(PREF_SETTINGS, 0);
         isShowPlayerUi = sPreference.getBoolean(PREF_MENU_SHOW, true);
+        mAutoJC = true;
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
@@ -273,6 +276,22 @@ public class ContentHandler extends BaseActivity {
     public void showMediaPlayerUi() {
         mMediaGuiController.initPlayerUi(false);
         isMediaPlayerUi = true;
+    }
+
+    /**
+     * Show JiaoChang web site if available and user enter from main UI;
+     * Called when lyrics text is empty.
+     */
+    public void selectJC() {
+        if (mMediaGuiController.selectJC()) {
+            if (mAutoJC) {
+                mAutoJC = false;
+                startPlay();
+            }
+            else {
+                HymnsApp.showToastMessage(R.string.hint_hymn_lyrics_online);
+            }
+        }
     }
 
     @Override
@@ -571,9 +590,7 @@ public class ContentHandler extends BaseActivity {
             }
 
             // Allow some delay for the player and scrolled UI to settle before proceed
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                startPlay();
-            }, 100);
+            new Handler(Looper.getMainLooper()).postDelayed(this::startPlay, 100);
         }
         else {
             HymnsApp.showToastMessage(statusText);

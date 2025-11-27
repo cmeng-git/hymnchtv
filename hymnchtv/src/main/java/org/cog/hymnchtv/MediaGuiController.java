@@ -364,6 +364,14 @@ public class MediaGuiController extends Fragment implements AdapterView.OnItemSe
         }
     }
 
+    public boolean selectJC() {
+        if (isJiaoChangAvailable) {
+            mBtnJiaoChang.performClick();
+            return true;
+        }
+        return false;
+    }
+
     /**
      * This is activated by user; or automatic from mediaController when the downloaded uri is completed
      */

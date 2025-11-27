@@ -10,8 +10,8 @@ android {
         applicationId = 'org.cog.hymnchtv'
 
         // End digit - change to force update with same version number
-        versionCode 207010
-        versionName "2.7.1"
+        versionCode 208000
+        versionName "2.8.0"
 
         minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.compileSdk
@@ -23,11 +23,11 @@ android {
             path = 'src/main/jni/Android.mk'
         }
     }
-    ndkVersion = '28.1.13356709'
+    ndkVersion = '28.2.13676358'
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     buildTypes {
@@ -86,10 +86,11 @@ android {
 dependencies {
     implementation project(':android-youtube-player:core')
 
-    implementation 'androidx.activity:activity-ktx:1.10.1'
+    // 1.12.x required minSdk = 23
+    implementation 'androidx.activity:activity-ktx:1.11.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.fragment:fragment-ktx:1.8.8'
+    implementation 'androidx.fragment:fragment-ktx:1.8.9'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
@@ -101,18 +102,18 @@ dependencies {
         transitive = false
     }
 
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
-    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:5.0.5'
+    implementation 'com.github.bumptech.glide:glide:5.0.5'
     implementation 'com.github.yalantis:ucrop:2.2.10'
     // implementation 'com.github.qichuan:android-opencc:1.2.0'
 
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'
     // 1.16.1: Failed to transform commons-codec-1.16.1.jar
-    implementation 'commons-codec:commons-codec:1.19.0'
-    implementation 'commons-io:commons-io:2.20.0'
+    implementation 'commons-codec:commons-codec:1.20.0'
+    implementation 'commons-io:commons-io:2.21.0'
 
     // implementation 'com.google.android.play:core:1.10.3'
-    implementation 'com.squareup.okhttp3:okhttp:5.1.0'
+    implementation 'com.squareup.okhttp3:okhttp:5.3.2'
 
     implementation 'jp.wasabeef:richeditor-android:2.0.0'
     // For toc pinyin generation.
@@ -120,16 +121,24 @@ dependencies {
     implementation 'org.apache.commons:commons-text:1.14.0'
     implementation 'org.apache.httpcomponents:httpcore:4.4.16'
 
-    implementation 'org.jetbrains:annotations:26.0.2'
-    implementation 'org.jsoup:jsoup:1.21.1'
+    implementation 'org.jetbrains:annotations:26.0.2-1'
+    implementation 'org.jsoup:jsoup:1.21.2'
 }
 
-task initJniLibs(type: Exec) {
+/*
+ * This task downloads lib source for OpenCC per the specified version in the scripts.
+ * This task must be executed at least once prior to hymnchtv apk build process.
+ */
+tasks.register('initJniLibs', Exec) {
     workingDir "src/main/jni/"
     executable './init_libopencc.sh'
 }
 
-task updateVersionFile(type: Copy) {
+/*
+ * Generate the version.properties file with the actual build versionName and versionCode.
+ * The version.properties is retrieved during app update check to asses if there is a new update
+ */
+tasks.register('updateVersionFile', Copy) {
     def description = '<!-- Generate version.properties file -->'
 
     // Media url record import version; the value must be increased if there is an update to url_import file,

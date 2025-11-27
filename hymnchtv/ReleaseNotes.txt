@@ -1,12 +1,25 @@
 Project hymnchtv Release Notes
+
+=========================================================================
+Author:         cmeng
+Upload Date:    11/27/2025
+Version:        2.8.0 (208000)
+- Improve Simplified and Traditional lyrics content Pinch-To-Zoom UI response.
+- When user selected hymn via main UI, and lyrics is empty, launch JiaoChang site access if available; else hint user to access JiaoChang online.
+- Must set YT parameter 'origin' to other than YT site i.e.'https://www.youtube.com'; else embed video player has error.
+- Incorrect extraction of youtube video Id e.g. https://youtu.be/qwlnX6YJrt8?si=sgdxTEb7kccLplx-
+- Support YT playback of playlist i.e. url contains 'list=' or playlist without 'PL' prefix
+- Local recompile of OpenCC to support 16 KB devices, using 16 KB ELF alignment
+
 =========================================================================
 Author:         cmeng
 Upload Date:    08/12/2025
-Version:        2.7.1 (207010)
+Version:        2.7.1 (207011)
 - Extend auto next media playback feature to all media types, excluding media jiaochang.
 - Move the IFrame Player API JavaScript code loading from Head to Body (asynchronously) section;
   to resolve API JavaScript loading and onYouTubeIframeAPIReady not called problem, if previous video play failed.
 - The fix also improve Youtube video playback reliability.
+- Some UI improvement.
 
 =========================================================================
 Author:         cmeng
