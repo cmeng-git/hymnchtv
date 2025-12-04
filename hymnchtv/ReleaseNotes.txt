@@ -2,7 +2,7 @@ Project hymnchtv Release Notes
 =========================================================================
 Author:         cmeng
 Upload Date:    12/04/2025
-Version:        2.8.1 (208010)
+Version:        2.8.1 (208011)
 - Lyrics text size scaleFactor changes via context menu not saved to preference.
 - Improve youtube video playlist verification.
 

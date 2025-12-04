@@ -561,7 +561,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         new Handler(Looper.getMainLooper()).post(() -> {
             if (lyrics != null) {
                 mLyricsLoaded = true;
-                lyricsEnglish.loadData(lyrics, "text/html", "utf8");
+                lyricsEnglish.loadDataWithBaseURL(null, lyrics, "text/html", "utf8", null);
             }
             else {
                 lyricsEnglish.loadUrl(LyricsEnglishRecord.HYMNAL_LINK_MAIN + mHymnNoEng);

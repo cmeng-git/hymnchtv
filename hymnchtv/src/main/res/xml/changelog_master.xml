@@ -6,7 +6,7 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.8.1 (12/04/2025)" versioncode="208010">
+    <release version="2.8.1 (12/04/2025)" versioncode="208011">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
         <change>歌词文本大小缩放比例通过上下文菜单更改，但未保存到首选项中。</change>
         <change>错误修复和改进。</change>

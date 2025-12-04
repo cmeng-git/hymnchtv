@@ -108,7 +108,7 @@ public class WebViewLyrics extends WebView {
     }
 
     public void setText(String lyrics) {
-        webview.loadData(toHtml(lyrics), "text/html", "utf-8");
+        webview.loadDataWithBaseURL(null, toHtml(lyrics), "text/html", "utf-8", null);
     }
 
     /**
