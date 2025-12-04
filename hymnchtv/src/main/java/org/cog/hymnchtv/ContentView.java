@@ -492,8 +492,9 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
             setLyricsEnglishTextScale(stepInc);
         }
         else {
-            lyricsSimplify.onTextSizeChange(stepInc);
+            float scaleFactor = lyricsSimplify.onTextSizeChange(stepInc);
             lyricsTraditional.onTextSizeChange(stepInc);
+            updateTextScale(scaleFactor);
         }
     }
 
@@ -560,7 +561,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         new Handler(Looper.getMainLooper()).post(() -> {
             if (lyrics != null) {
                 mLyricsLoaded = true;
-                lyricsEnglish.loadDataWithBaseURL(null, lyrics, "text/html", "utf8", null);
+                lyricsEnglish.loadData(lyrics, "text/html", "utf8");
             }
             else {
                 lyricsEnglish.loadUrl(LyricsEnglishRecord.HYMNAL_LINK_MAIN + mHymnNoEng);

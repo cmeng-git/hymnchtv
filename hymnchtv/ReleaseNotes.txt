@@ -1,4 +1,15 @@
 Project hymnchtv Release Notes
+=========================================================================
+Author:         cmeng
+Upload Date:    12/04/2025
+Version:        2.8.1 (208010)
+- Lyrics text size scaleFactor changes via context menu not saved to preference.
+- Improve youtube video playlist verification.
+
+Observation:
+- Drop webView implementation for lyrics text display:
+  * Use of webView for lyrics text does not improve the pinch to zoom response;
+  * Zoom pivot point always from center, and zoom text to be outside display; pane not working
 
 =========================================================================
 Author:         cmeng

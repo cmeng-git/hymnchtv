@@ -58,23 +58,17 @@ public class ZoomTextView extends AppCompatTextView {
     }
 
     /**
-     * onTextSize change via menu implementation;
-     * with different STEP_SCALE_FACTOR
+     * onTextSize change via menu implementation, with different STEP_SCALE_FACTOR
+     * return the permitted scaleFactor
      */
-    public void onTextSizeChange(boolean stepInc) {
+    public float onTextSizeChange(boolean stepInc) {
         float tmpScale;
         if (stepInc)
             tmpScale = mScaleFactor + STEP_SCALE_FACTOR * 1.5f;
         else
             tmpScale = mScaleFactor - STEP_SCALE_FACTOR;
         setLyricsTextSize(tmpScale);
-    }
-
-    /***
-     * @param listener for update the user selected zoom scale to preference
-     */
-    public void registerZoomTextListener(ZoomTextListener listener) {
-        mListener = listener;
+        return mScaleFactor;
     }
 
     /**
@@ -101,7 +95,7 @@ public class ZoomTextView extends AppCompatTextView {
         }
 
         public void onScaleEnd(@NonNull ScaleGestureDetector detector) {
-            Timber.d("Set TextView scale end: %s (%s)", mScaleFactor, mListener);
+            Timber.d("Set Text scale on end: %s (%s)", mScaleFactor, mListener);
             if (mListener != null)
                 mListener.updateTextScale(mScaleFactor);
         }
@@ -111,10 +105,17 @@ public class ZoomTextView extends AppCompatTextView {
         // Limit the text size change to within range.
         mScaleFactor = Math.max(MIN_SCALE_FACTOR, Math.min(tmpScale, MAX_SCALE_FACTOR));
         if (mScaleFactor != tmpScale) {
-            Timber.d("Set TextView scale to: %.3f (%.3f); defaultSize: %s", mScaleFactor, tmpScale, mDefaultSize);
+            Timber.d("Set Text scale to: %.3f (%.3f); defaultSize: %s", mScaleFactor, tmpScale, mDefaultSize);
             HymnsApp.showToastMessage(R.string.lyrics_text_size_limits);
         }
         setTextSize(mScaleFactor * mDefaultSize);
+    }
+
+    /***
+     * @param listener for update the user selected zoom scale to preference
+     */
+    public void registerZoomTextListener(ZoomTextListener listener) {
+        mListener = listener;
     }
 
     /**

@@ -203,7 +203,7 @@ public class About extends BaseActivity implements View.OnClickListener, View.On
                 .append("<html><head><style type=\"text/css\">")
                 .append(DEFAULT_CSS);
 
-        // Change text and ulr according to app theme
+        // Change text and url according to app theme
         if (ThemeHelper.isAppTheme(ThemeHelper.Theme.DARK)) {
             html.append(bodyTextLight);
         }

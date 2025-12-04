@@ -41,7 +41,6 @@ import timber.log.Timber;
 public class YoutubePlayerFragment extends BaseFragment {
     // regression to check for valid youtube link
     public static final String URL_YOUTUBE = "http[s]*://[w.]*youtu[.]*be.*";
-
     // callback may be null
     private final ContentHandler mContentHandler;
     private YouTubePlayerView youTubePlayerView;
@@ -67,6 +66,9 @@ public class YoutubePlayerFragment extends BaseFragment {
     // Playlist array with different format; for testing only. old playlist may not start with PL
     private static final String[] playLists = {"RDMQTvg5EUgWU", "PLUh4W61bt_K5jmi1qbVACvLAPkudEmLKO"};
 
+    // Standard youtube Vid length is 11.
+    private static final int VID_LENGTH = 11;
+    // Youtube playlist id start with PL...
     private static final String PL = "PL";
     private static final String SEPARATOR = ",";
 
@@ -143,7 +145,7 @@ public class YoutubePlayerFragment extends BaseFragment {
                 // support both single of playlist playback i.e playlist with/without 'PL' prefix
                 else if (mediaUrl != null) {
                     mVideoId = getVideoId(mediaUrl);
-                    if (mVideoId.toUpperCase().startsWith(PL)) {
+                    if (mVideoId.toUpperCase().startsWith(PL) || mVideoId.length() > VID_LENGTH) {
                         startPlaylist(youTubePlayer, mVideoId);
                     }
                     else {
