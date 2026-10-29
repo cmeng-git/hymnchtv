@@ -133,7 +133,7 @@ public class LyricsEnglishRecord {
                 mDB.storeLyricsEng(hymnNoE, mLyricsEnglish);
                 showLyrics(mLyricsEnglish, true);
                 Timber.d("Show English lyrics in webView: %s", hymnNoE);
-                // HymnsApp.showToastMessage("Show English lyrics in webView!");
+                HymnsApp.showToastMessage("Show English lyrics in webView: " + hymnNoE);
             }
             else {
                 Timber.d("No English lyrics found for: %s", webUrl);

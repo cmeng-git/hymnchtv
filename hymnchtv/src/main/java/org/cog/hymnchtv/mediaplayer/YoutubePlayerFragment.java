@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerState;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.YouTubePlayerFullScreenListener;
@@ -39,15 +40,16 @@ import org.jetbrains.annotations.NotNull;
 import timber.log.Timber;
 
 public class YoutubePlayerFragment extends BaseFragment {
-    // regression to check for valid youtube link
+    // regression to check for valid YouTube link
     public static final String URL_YOUTUBE = "http[s]*://[w.]*youtu[.]*be.*";
     // callback may be null
     private final ContentHandler mContentHandler;
     private YouTubePlayerView youTubePlayerView;
     private FullScreenHelper fullScreenHelper;
+    private PlayerState mPlayState = PlayerState.UNKNOWN;
 
     private String mediaUrl = null;
-    // Array may contain the youtube url links or just videoId's
+    // Array may contain the YouTube url links or just videoId's
     private static List<String> mediaUrls = new ArrayList<>();
 
     static {
@@ -58,21 +60,21 @@ public class YoutubePlayerFragment extends BaseFragment {
     }
 
     private String mVideoId = null;
-    // Array contains only the youtube videoId's
+    // Array contains only the YouTube videoId's
     private static final List<String> mVideoIds = new ArrayList<>();
 
-    // Youtube playlist ids for testing; set usePlayList to true
+    // YouTube playlist ids for testing; set usePlayList to true
     private final boolean usePlayList = false;
     // Playlist array with different format; for testing only. old playlist may not start with PL
     private static final String[] playLists = {"RDMQTvg5EUgWU", "PLUh4W61bt_K5jmi1qbVACvLAPkudEmLKO"};
 
-    // Standard youtube Vid length is 11.
+    // Standard YouTube Vid length is 11.
     private static final int VID_LENGTH = 11;
-    // Youtube playlist id start with PL...
+    // YouTube playlist id start with PL...
     private static final String PL = "PL";
     private static final String SEPARATOR = ",";
 
-    // Will attempt to playback the given videoId as playlist if onEndOrError first encountered
+    // Will attempt to play back the given videoId as playlist if onEndOrError first encountered
     private boolean onErrorOnce = true;
 
     // Playback ratio of normal speed constants.
@@ -142,7 +144,7 @@ public class YoutubePlayerFragment extends BaseFragment {
                 else if (mediaUrls != null) {
                     startPlaylist(youTubePlayer, TextUtils.join(SEPARATOR, mVideoIds));
                 }
-                // support both single of playlist playback i.e playlist with/without 'PL' prefix
+                // support both single of playlist playback i.e. playlist with/without 'PL' prefix
                 else if (mediaUrl != null) {
                     mVideoId = getVideoId(mediaUrl);
                     if (mVideoId.toUpperCase().startsWith(PL) || mVideoId.length() > VID_LENGTH) {
@@ -187,8 +189,9 @@ public class YoutubePlayerFragment extends BaseFragment {
             }
 
             @Override
-            public void onStateChange(@NonNull YouTubePlayer youTubePlayer, @NonNull PlayerConstants.PlayerState state) {
-                // Timber.w("Youtube state change: %s (%s)", state, mediaUrl);
+            public void onStateChange(@NonNull YouTubePlayer youTubePlayer, @NonNull PlayerState state) {
+                // Timber.w("YouTube state change: %s (%s)", state, mediaUrl);
+                mPlayState = state;
                 if (state == PlayerConstants.PlayerState.ENDED && mContentHandler != null) {
                     mContentHandler.onEndOrError(getString(R.string.playback_completed));
                 }
@@ -199,7 +202,7 @@ public class YoutubePlayerFragment extends BaseFragment {
     /**
      * Enable the Previous & Next button and start playlist playback
      *
-     * @param youTubePlayer instance of youtube player
+     * @param youTubePlayer instance of YouTube player
      * @param videoId video PL id or ids for playback
      */
     private void startPlaylist(YouTubePlayer youTubePlayer, String videoId) {
@@ -221,7 +224,7 @@ public class YoutubePlayerFragment extends BaseFragment {
     }
 
     /**
-     * Extract the youtube videoId from the following string formats:
+     * Extract the YouTube videoId from the following string formats:
      * The 'vCKCkc8llaM' is the video ID (11 char), which is the unique identifier for the video.
      * Take note that on youtube.com, the video ID is provided as a query parameter, and on youtu.be, it’s just provided as the path of the URL.
      * a. <a href="https://youtu.be/vCKCkc8llaM">...</a>
@@ -234,7 +237,7 @@ public class YoutubePlayerFragment extends BaseFragment {
      *
      * @param url Any of the above url strings
      *
-     * @return the youtube videoId (or playlist)
+     * @return the YouTube videoId (or playlist)
      */
     private String getVideoId(String url) {
         String mVideoId = url.substring(mediaUrl.lastIndexOf('/') + 1);
@@ -245,7 +248,7 @@ public class YoutubePlayerFragment extends BaseFragment {
         String[] videoIds = mVideoId.split("[&|?]");
         if (videoIds.length > 1) {
             mVideoId = videoIds[0]; // first will be video Id
-            for (String videoId: videoIds) {
+            for (String videoId : videoIds) {
                 // Extra playlist if specified.
                 if (videoId.startsWith("list=")) {
                     mVideoId = videoId.substring(5);
@@ -253,7 +256,7 @@ public class YoutubePlayerFragment extends BaseFragment {
                 }
             }
         }
-        Timber.i("Youtube video Id = %s (%s)", mVideoId, url);
+        Timber.i("YouTube video Id = %s (%s)", mVideoId, url);
         return mVideoId;
     }
 
@@ -344,7 +347,7 @@ public class YoutubePlayerFragment extends BaseFragment {
      * @param videoUrl videoUrl not playable by ExoPlayer
      */
     private void playVideoUrlExt(String videoUrl) {
-        // remove the youtube player fragment
+        // remove the YouTube player fragment
         mFragmentActivity.getSupportFragmentManager().beginTransaction().remove(this).commit();
 
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl));
@@ -353,7 +356,7 @@ public class YoutubePlayerFragment extends BaseFragment {
     }
 
     /**
-     * Manually release the youtube player when user pressing backKey
+     * Manually release the YouTube player when user pressing backKey
      */
     public void release() {
         // Audio media player speed is (0.5 > mSpeed < 1.5)
@@ -372,5 +375,9 @@ public class YoutubePlayerFragment extends BaseFragment {
 
     public boolean isPlayerVisible() {
         return youTubePlayerView.getVisibility() == View.VISIBLE;
+    }
+
+    public boolean isPlayerPlaying() {
+        return mPlayState == PlayerState.PLAYING;
     }
 }

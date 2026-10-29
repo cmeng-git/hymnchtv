@@ -22,7 +22,7 @@ interface YouTubePlayer {
 
     /**
      * Loads the video playlist.
-     * @param playlist youtube playlist id
+     * @param playlist YouTube playlist id
      * @param startIndex the first video start playing
      */
     fun loadPlaylist(playlist: String, startIndex: Int)

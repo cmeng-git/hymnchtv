@@ -83,7 +83,7 @@ internal class WebViewYouTubePlayer(context: Context, attrs: AttributeSet? = nul
     }
 
     override fun setVolume(volumePercent: Int) {
-        require(!(volumePercent < 0 || volumePercent > 100)) { "Volume must be between 0 and 100" }
+        require(!(volumePercent !in 0..100)) { "Volume must be between 0 and 100" }
         mainThreadHandler.post { loadUrl("javascript:setVolume($volumePercent)") }
     }
 

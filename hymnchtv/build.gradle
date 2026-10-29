@@ -9,8 +9,8 @@ android {
         applicationId = 'org.cog.hymnchtv'
 
         // End digit - change to force update with same version number
-        versionCode 209020
-        versionName "2.9.2"
+        versionCode 209030
+        versionName "2.9.3"
 
         minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.compileSdk
@@ -109,11 +109,11 @@ dependencies {
 
     implementation 'de.cketti.library.changelog:ckchangelog:1.2.2'
     // 1.16.1: Failed to transform commons-codec-1.16.1.jar
-    implementation 'commons-codec:commons-codec:1.22.1'
+    implementation 'commons-codec:commons-codec:1.23.0'
     implementation 'commons-io:commons-io:2.22.0'
 
     // implementation 'com.google.android.play:core:1.10.3'
-    implementation 'com.squareup.okhttp3:okhttp:5.5.0'
+    implementation 'com.squareup.okhttp3:okhttp:5.5.1'
 
     implementation 'jp.wasabeef:richeditor-android:2.0.0'
     // For toc pinyin generation.

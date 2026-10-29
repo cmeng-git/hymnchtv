@@ -182,7 +182,7 @@ public class MediaContentHandler {
 
     /**
      * Playback the given videoUrl in embedded fragment for lyrics coexistence
-     * Use Youtube Player if it is an youtube link, else use exoplayer for video play back
+     * Use Youtube Player if it is an YouTube link, else use exoplayer for video play back
      * Do not addToBackStack(null); else OnBackPressedCallback() will not be called.
      *
      * @param videoUrl an video url for playback
@@ -207,7 +207,7 @@ public class MediaContentHandler {
     }
 
     /**
-     * Release the exoPlayer or youtube player resource on end
+     * Release the exoPlayer or YouTube player resource on end
      */
     public void releasePlayer() {
         if (mExoPlayer != null) {
@@ -219,6 +219,17 @@ public class MediaContentHandler {
             mYoutubePlayer = null;
         }
     }
+
+    public boolean isPlayerPlaying() {
+        if (mExoPlayer != null) {
+            return mExoPlayer.isPlayerPlaying();
+        }
+        else if (mYoutubePlayer != null) {
+            return mYoutubePlayer.isPlayerPlaying();
+        }
+        return false;
+    }
+
 
     public boolean isPlayerVisible() {
         if (mExoPlayer != null) {

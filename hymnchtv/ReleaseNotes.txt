@@ -1,5 +1,16 @@
 Project hymnchtv Release Notes
 =========================================================================
+Version:        2.9.3 (209030)
+Release Date:   10/29/2026
+Author:         cmeng
+- Fix lyrics content vertical scrolling hang problem when user slide next, then to previous hymn#.
+  Include mPager.setCurrentItem(position, false) to redraw in ContentHandler#OnPageChangeCallback.onPageSelected to fix the problem.
+  Note: Abort scroll to next hymn# mid-way, vertical scrolling wlll hang on current hymn no.
+- Hide MediaPlay UI when device rotate to landscape mode. First BackKey will show player view, second BackKey stop player.
+  Add required isPlayerPlaying functions for both ExoPlayer and YouTube players.
+- Make correction to lyrics bb620.
+
+=========================================================================
 Version:        2.9.2 (209020)
 Release Date:   09/30/2026
 Author:         cmeng
@@ -78,7 +89,7 @@ Version:        2.8.1 (208011)
 Release Date:   12/04/2025
 Author:         cmeng
 - Lyrics text size scaleFactor changes via context menu not saved to preference.
-- Improve youtube video playlist verification.
+- Improve YouTube video playlist verification.
 
 Observation:
 - Drop webView implementation for lyrics text display:
@@ -92,7 +103,7 @@ Author:         cmeng
 - Improve Simplified and Traditional lyrics content Pinch-To-Zoom UI response.
 - When user selected hymn via main UI, and lyrics is empty, launch JiaoChang site access if available; else hint user to access JiaoChang online.
 - Must set YT parameter 'ORIGIN' to other than YT site i.e.'https://www.youtube.com'; else embed video player has error.
-- Incorrect extraction of youtube video Id e.g. https://youtu.be/qwlnX6YJrt8?si=sgdxTEb7kccLplx-
+- Incorrect extraction of YouTube video Id e.g. https://youtu.be/qwlnX6YJrt8?si=sgdxTEb7kccLplx-
 - Support YT playback of playlist i.e. url contains 'list=' or playlist without 'PL' prefix
 - Local recompile of OpenCC to support 16 KB devices, using 16 KB ELF alignment
 
@@ -328,7 +339,7 @@ Version:        2.0.2 (200020)
 Release Date:   11/16/2022
 Author:         cmeng
 - Add support to auto update the local database media records from online new media import links.
-- Use lyrics phrase in search string to improve content matching hit rate during youtube and web search.
+- Use lyrics phrase in search string to improve content matching hit rate during YouTube and web search.
 - History summary text will use lyrics phrase instead for hymn title.
 - Upon a record being updated/deleted, refresh media record list view only if it was visible.
 - Upon MediaRecord save/deletion process, always enable auto file i.e. isAutoFilled = true.
@@ -338,7 +349,7 @@ Author:         cmeng
 Version:        2.0.1 (200010)
 Release Date:   11/05/2022
 Author:         cmeng
-- Fix partial lyrics text being partially obscured when youtube or exo player is active; cannot use FrameLayout, switch to use R.id.mediaPlayer as container
+- Fix partial lyrics text being partially obscured when YouTube or exo player is active; cannot use FrameLayout, switch to use R.id.mediaPlayer as container
 - Copy the user selected media file, if rename of file to destFile failed during mediaConfig new record creation
 - Only perform mediaHymns.clear() if it is not in play state; else user is unable to stop the player.
 - Enhance update service to auto generate the required apk for the BuildConfig.BUILD_TYPE, and check for valid downloadable apk.
@@ -511,10 +522,10 @@ Author:         cmeng
 - Redefine Export button functions to createExportFile (short click), and createExportLink (long click)
   i.e. full record or link only text file for sharing.
 - In media config, user may share single media record, or the export records/links text file with other user.
-- The media config link can now contain either a youtube link for single/playlist playback; video/audio media content link;
+- The media config link can now contain either a YouTube link for single/playlist playback; video/audio media content link;
   or a downloadable audio media link including mp3 and midi format.
-- Youtube player now support single or playlist playback i.e. Fallback to use as playlist if youtube url load failed.
-- Enhance android youtube player to add features:
+- Youtube player now support single or playlist playback i.e. Fallback to use as playlist if YouTube url load failed.
+- Enhance android YouTube player to add features:
   loadPlaylist;  loadPlaylist_videoIds; previousVideo; nextVideo
   getVideoUrl; sendVideoUrl; onVideoUrl
 - Check for file access permission when create new files
@@ -526,8 +537,8 @@ Author:         cmeng
 Version:        1.6.0 (106000)
 Release Date:   06/26/2021
 Author:         cmeng
-- Add android youtube player using IFrame Player API to avoid video link extraction error
-- HymnConfig playback for local media or youtube link, will always via the hymn content ui for user lyrics confirmation
+- Add android YouTube player using IFrame Player API to avoid video link extraction error
+- HymnConfig playback for local media or YouTube link, will always via the hymn content ui for user lyrics confirmation
 - HymnConfig playback click will auto start playing
 - Extend JobIntentService instead of background service for AudioBgService to avoid Android 8.0:
   java.lang.IllegalStateException: Due to startup background service when hymnchtv is in background
@@ -540,7 +551,7 @@ Release Date:   06/14/2021
 Author:         cmeng
 - Main menu can now be placed in landscape mode, use in android tv box
 - Upgrade to 'com.github.HaarigerHarald:android-youtubeExtractor:46579d1'
-  Fix java.io.FileNotFoundException in youtube link extraction.
+  Fix java.io.FileNotFoundException in YouTube link extraction.
 - Standardize backKey behavior to stop current media playing in progress for both video and audio.
 - Allow user to update wallpaper with current display image, i.e. without user needs to go into crop screen.
 - Allow crop of wallpaper image in user selectable aspect ratio.
@@ -619,7 +630,7 @@ Author:         cmeng
 - Migrate FragmentStatePagerAdapter to the latest improved viewpager2.adapter.FragmentStateAdapter:
   stable version and fixes many of the weaknesses.
   see reported problem on FragmentStateAdapter: https://issuetracker.google.com/issues/177051960
-- Resolve youtube link extractor error with build from lastest master release i.e.
+- Resolve YouTube link extractor error with build from lastest master release i.e.
   'com.github.HaarigerHarald:android-youtubeExtractor:69f7045'
 - Migrate all the StartActivityForResult calls to ActivityResultContract#ActivityResultLauncher implementation
 - Remove openFileChooser() support in WebViewFragment
@@ -653,7 +664,7 @@ Author:         cmeng
 - Support android share sheet to add media content or url link from external application as user defined media content
 - Allow export of the user defined media contents saved in predefined directory to share with other devices via import
 - Auto creation of the export file from media contents files stored in the predefined directory; for inclusion in the user defined media for play back
-- Include embedded media player for playing back of the user defined video media and youtube url
+- Include embedded media player for playing back of the user defined video media and YouTube url
 - Support user defined media list viewer, and an embedded text editor to ease the export and import the user defined media
 - Created dbHymnApp.db database to support User Defined Media
 - Make lyrics text and search content selectable for copy via double clicks at desired text location
@@ -696,7 +707,7 @@ Author:         cmeng
 - Implement Play Asset Delivery to meet play store requirements
   https://developer.android.com/guide/app-bundle/asset-delivery
 - Add support for PAD AssetFile object access and InputStream for Glide image loader
-- Add online help contents and youtube hymnchtv demo video
+- Add online help contents and YouTube hymnchtv demo video
 - Remove app update option for play store release
 - For PAD local testing need to build bundle, then use the following for apk conversion and install
   java -jar ../bundletool.jar build-apks --bundle=./hymnchtv/build/outputs/bundle/debug/hymnchtv-debug.aab --output=./hymnchtv/build/outputs/apk/debug/hymnchtv-debug.apks --overwrite --local-testing

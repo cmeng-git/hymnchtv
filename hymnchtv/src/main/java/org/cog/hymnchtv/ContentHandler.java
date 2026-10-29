@@ -287,6 +287,8 @@ public class ContentHandler extends BaseActivity {
 
         // Instantiate a ViewPager2 and a PagerAdapter.
         mPager = findViewById(R.id.viewPager);
+        mPager.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
+
         // FragmentStatePagerAdapter default seems to create only 2, so omit this statement, otherwise 9 items get created
         // FragmentStateAdapter default created 9, setOffscreenPageLimit has no effect
         // mPager.setOffscreenPageLimit(1);
@@ -301,7 +303,7 @@ public class ContentHandler extends BaseActivity {
         else
             mPager.setCurrentItem(mHymnNo, false);
 
-        mPager.registerOnPageChangeCallback(initOnPageChangeCallback());
+        mPager.registerOnPageChangeCallback(onPageChanged());
         getOnBackPressedDispatcher().addCallback(backPressedCallback);
     }
 
@@ -379,7 +381,7 @@ public class ContentHandler extends BaseActivity {
             if (mWebView.isShown()) {
                 mWebView.setVisibility(View.INVISIBLE);
             }
-            // For video player
+            // For video player: First BackKey make player visible; close on second.
             else if (isMediaPlayerUi) {
                 if (mMediaContentHandler.isPlayerVisible()) {
                     mMediaContentHandler.releasePlayer();
@@ -598,7 +600,7 @@ public class ContentHandler extends BaseActivity {
     /**
      * Callback interface for responding to changing state of the selected page.
      */
-    private OnPageChangeCallback initOnPageChangeCallback() {
+    private OnPageChangeCallback onPageChanged() {
         return new OnPageChangeCallback() {
             /**
              * This method will be invoked when a new page becomes selected. Animation is not necessarily complete.
@@ -609,13 +611,12 @@ public class ContentHandler extends BaseActivity {
             public void onPageSelected(int position) {
                 int tmp = HymnIdx2NoConvert.hymnIdx2NoConvert(mHymnType, position)[0];
                 if (tmp != mHymnNo) {
+                    // Force redraw; to fix lyrics content vertical scrolling hang problem when user slide next, then to previous hymn#.
+                    if (tmp < mHymnNo) {
+                        mPager.setCurrentItem(position, false);
+                    }
                     mHymnNo = tmp;
                     updateMediaPlayerInfo();
-
-                    // Will be handled in ContentView.onCreateView()
-                    // ContentView contentView = (ContentView) mPagerAdapter.mFragments.get(mPager.getCurrentItem());
-                    // if (contentView != null)
-                    //     contentView.setLyricsTextScale();
                 }
             }
         };
@@ -1452,9 +1453,13 @@ public class ContentHandler extends BaseActivity {
 
         if (HymnsApp.isPortrait) {
             showPlayerUi(!isMediaPlayerUi && isShowPlayerUi);
+            if (mMediaContentHandler.isPlayerPlaying())
+                mMediaContentHandler.setPlayerVisible(true);
         }
         else {
             showPlayerUi(false);
+            if (mMediaContentHandler.isPlayerPlaying())
+                mMediaContentHandler.setPlayerVisible(false);
         }
     }
 }

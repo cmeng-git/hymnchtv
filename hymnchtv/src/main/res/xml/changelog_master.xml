@@ -6,8 +6,18 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.9.2 (09/30/2026)" versioncode="209020">
+    <release version="2.9.3 (10/29/2026)" versioncode="209030">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>修复了在切换至下一首诗歌后，又返回上一首时，歌词内容垂直滚动卡死的问题。
+            通过在 `ContentHandler#OnPageChangeCallback.onPageSelected` 中调用 `mPager.setCurrentItem(position, false)` 来触发重绘，从而解决该问题。
+            注：若在滚动至下一首诗歌的过程中中途停止，垂直滚动会卡在当前赞美诗页面。</change>
+        <change>当设备旋转至横屏模式时，隐藏媒体播放界面。此时，第一次按下返回键会显示播放器视图，再次按下返回键则会停止播放。
+            为 ExoPlayer 和 YouTubePlayer 播放器添加了必要的 `isPlayerPlaying`（判断是否正在播放）功能。</change>
+        <change>修正了歌词 `bb620` 的内容。</change>
+        <change>错误修复和改进。</change>
+    </release>
+
+    <release version="2.9.2 (09/30/2026)" versioncode="209020">
         <change>必须清除 `MediaGuiController#mediaHymns`（即之前选定的诗歌 URL），以确保获取并显示用户新选定的 URL。</change>
         <change>修复 Android WebView 的内部问题： 在加载新诗歌 URL 内容时可能无法正常渲染显示，或者 `webView.clearHistory()` 未能完全生效导致页面回退至 `about:blank`。
             &lt;br />即：播放用户新选定的诗歌 URL 时，显示的却是上一次浏览的网页，或者是 `about:blank` 页面。
@@ -235,7 +245,7 @@
 
     <release version="2.0.2 (11/16/2022)" versioncode="200020">
         <change>添加支持从在线新媒体导入链接，自动更新本地数据库媒体记录。</change>
-        <change>在搜索字符串中使用歌词短语来提高 youtube 和网络搜索期间的内容匹配命中率。</change>
+        <change>在搜索字符串中使用歌词短语来提高 YouTube 和网络搜索期间的内容匹配命中率。</change>
         <change>历史摘要文本将使用歌词短语代替诗歌标题。</change>
         <change>删除自动剪贴板搜索文本插入，安卓系统 API-33 总是弹出一个令人讨厌的通知。</change>
         <change>更新/删除记录后，仅在已显示状况下，刷新媒体记录列表视图。</change>

@@ -108,7 +108,7 @@ import timber.log.Timber;
 
 /**
  * The class allows user to add own media content, either via:
- * a. a youtube url link etc via android share sheet (handle in MainActivity)
+ * a. an YouTube url link etc via android share sheet (handle in MainActivity)
  * b. video or audio media file
  * and link it to a specific hymnType and hymnNo.
  * <p>
@@ -119,7 +119,7 @@ import timber.log.Timber;
  * b. HymnNo: Hymn number
  * c. isFu: true if the hymnNo if Fu
  * d. HymnMedia: HYMN_MEDIA, HYMN_JIAOCHANG, HYMN_CHANGSHI, and HYMN_BANZOU,
- * e. urlLink: e.g. youtube or https url
+ * e. urlLink: e.g. YouTube or https url
  * f. mediaUri: Local media file uri (priority over urlLink if not null) (not use since v2.2.0)
  *
  * @author Eng Chong Meng

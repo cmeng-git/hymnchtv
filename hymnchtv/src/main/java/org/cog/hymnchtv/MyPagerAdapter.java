@@ -102,7 +102,7 @@ public class MyPagerAdapter extends FragmentStateAdapter {
         }
     }
 
-    // get the hymnType and hymnNo from cross reference table for HYMN_YB if any or use the default
+    // get the hymnType and hymnNo from cross-reference table for HYMN_YB if any or use the default.
     private Bundle getHymnFragment(int index) {
         Bundle bundle = new Bundle();
         String hymnTN = ybXTable.get(index + 1);

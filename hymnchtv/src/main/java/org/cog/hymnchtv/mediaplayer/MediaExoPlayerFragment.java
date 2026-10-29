@@ -267,7 +267,7 @@ public class MediaExoPlayerFragment extends BaseFragment {
 
     /**
      * Build and return the mediaItem or
-     * Proceed to play if it is a youtube link; return null;
+     * Proceed to play if it is a YouTube link; return null;
      *
      * @param mediaUrl for building the mediaItem
      *
@@ -340,6 +340,10 @@ public class MediaExoPlayerFragment extends BaseFragment {
 
     public boolean isPlayerVisible() {
         return mPlayerView.getVisibility() == View.VISIBLE;
+    }
+
+    public boolean isPlayerPlaying() {
+        return mExoPlayer.isPlaying();
     }
 }
 
