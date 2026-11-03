@@ -1,5 +1,12 @@
 Project hymnchtv Release Notes
 =========================================================================
+Version:        2.9.4 (209040)
+Release Date:   11/03/2026
+Author:         cmeng
+- Resolve English lyrics online fetching error; web scrapping failed due to web content changes.
+- When Enligsh lyrics access failed and not shown, long press English button will reinit webView and reaccess English lyrics.
+
+=========================================================================
 Version:        2.9.3 (209030)
 Release Date:   10/29/2026
 Author:         cmeng

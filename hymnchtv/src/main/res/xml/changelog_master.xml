@@ -6,8 +6,14 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.9.3 (10/29/2026)" versioncode="209030">
+    <release version="2.9.4 (11/03/2026)" versioncode="209040">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>修复在线获取英文歌词时出现的错误；因网页内容发生变更，导致网页抓取失败。</change>
+        <change>若英文歌词获取失败且未能显示，长按“英文”按钮即可重新初始化网页视图（webView）并再次尝试获取英文歌词。</change>
+        <change>错误修复和改进。</change>
+    </release>
+
+    <release version="2.9.3 (10/29/2026)" versioncode="209030">
         <change>修复了在切换至下一首诗歌后，又返回上一首时，歌词内容垂直滚动卡死的问题。
             通过在 `ContentHandler#OnPageChangeCallback.onPageSelected` 中调用 `mPager.setCurrentItem(position, false)` 来触发重绘，从而解决该问题。
             注：若在滚动至下一首诗歌的过程中中途停止，垂直滚动会卡在当前赞美诗页面。</change>

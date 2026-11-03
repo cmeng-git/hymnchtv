@@ -165,6 +165,7 @@ public class ContentHandler extends BaseActivity {
         DB_Links.put(751, "D751今天神的国度对我是操练");
         DB_Links.put(763, "D763荣耀盼望是基督我的生命是祂");
         DB_Links.put(769, "D769神的永远心意是与人联合");
+        DB_Links.put(775, "D775哦主耶稣你的赎民");
     }
 
     public final DatabaseBackend mDB = DatabaseBackend.getInstance(HymnsApp.getGlobalContext());
@@ -407,7 +408,7 @@ public class ContentHandler extends BaseActivity {
                 mAutoStream = false;
                 Timber.e("mMediaGuiController.stopPlay()");
             }
-            // Leave Home press handerling to android system.
+            // Leave Home press handlering to android system.
             else if (onUserLeaveHint) {
                 onUserLeaveHint = false;
             }
@@ -514,7 +515,7 @@ public class ContentHandler extends BaseActivity {
     }
 
     /**
-     * Sharing of both the score png and lyrics text files via e.g. whatsapp
+     * Sharing of both the score png and lyrics text files.
      */
     private void lyricsShare() {
         String resPrefix = "";
@@ -838,8 +839,8 @@ public class ContentHandler extends BaseActivity {
                 if (isFileExist(dir, mHymnNo, uriList)) break;
 
                 if (proceedDownLoad) {
-                    fileName = "Q" + fileName + ".mp3";
-                    fbLink = String.format(Locale.US, "https://mana.stmn1.com/sg/yb/mp3/Q%d.mp3", mHymnNo);
+                    // fileName = "Q" + fileName + ".mp3";
+                    // fbLink = String.format(Locale.US, "https://mana.stmn1.com/sg/yb/mp3/Q%d.mp3", mHymnNo);
 
                     // Translate YB to other if specified.
                     String hymnTN = ybXTable.get(mHymnNo);

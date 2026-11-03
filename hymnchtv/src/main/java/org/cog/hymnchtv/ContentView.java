@@ -218,7 +218,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         mHymnNoEng = mContentHandler.getHymnNoEng();
         btn_english.setVisibility((mHymnNoEng != null) ? View.VISIBLE : View.GONE);
         if (mContentHandler.mAutoEnglish) {
-            // autoload Enligh lyrics for first entry only.
+            // autoload English lyrics for first entry only.
             mContentHandler.mAutoEnglish = false;
             hasEnglishLyrics = true;
             toggleLyricsView();
@@ -273,11 +273,11 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
         }
         else if (id == R.id.button_english) {
             if (View.VISIBLE == lyricsEnglish.getVisibility()) {
-                mContentHandler.initWebView(ContentHandler.UrlType.englishLyrics);
+                reinitEnglishLyrics();
             }
             else {
                 HymnsApp.showToastMessage("Reinit English lyrics");
-                reinitEnglishLyrics();
+                mContentHandler.initWebView(ContentHandler.UrlType.englishLyrics);
             }
             return true;
         }
@@ -285,6 +285,7 @@ public class ContentView extends Fragment implements ZoomTextView.ZoomTextListen
     }
 
     private void reinitEnglishLyrics() {
+        mContentHandler.finish();
         MainActivity.showContent(mContentHandler, mContentHandler.mHymnType, mContentHandler.getHymnNo(), false, mHymnNoEng);
     }
 

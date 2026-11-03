@@ -120,13 +120,8 @@ public class LyricsEnglishRecord {
         mLyricsEnglish = StringUtils.trim(mDB.getLyricsEnglish(hymnNoE));
         if (StringUtils.isNotEmpty(mLyricsEnglish)) {
             showLyrics(mLyricsEnglish);
-            // HymnsApp.showToastMessage("Show English lyrics from DB!");
             return;
         }
-
-        // <h1 id="song-title-xs" class="text-center"> Great is Thy faithfulness </h1>
-        // <h1 id="song-title" class="text-center"><a href="/en/hymn/h/18" class="hymn-num-nav-left"><i class="fa fa-chevron-circle-left"></i></a> Great is Thy faithfulness <a href="/en/hymn/h/20" class="hymn-num-nav-right"><i class="fa fa-chevron-circle-right"></i></a></h1>
-       //  Pattern pattern = Pattern.compile("<h1 id=\"song-title.+?>(.+?)</h1>.+?");
 
         getURLSource(webUrl, data -> {
             if (extraEnglishLyrics(data)) {
@@ -174,22 +169,33 @@ public class LyricsEnglishRecord {
             return false;
 
         // Pattern pattern = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<table data-end=\".*\" class=\"js-stanzas\">.+?table>).*?");
-        Pattern pattern = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<article data-end=\".*\" class=\"js-stanzas\">.+?</article>).*?");
-        Pattern patternExt = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"alert.+?(<a href=\".+?</a>).+?");
-        mLyricsEnglish = null;
+        Pattern pattern = Pattern.compile("<div class=\"hn-presenter-data.+?data-title=\"(.+?)\".+?<div class=\"hymn-content\">.+?(<article data-end=\".*\" class=\"js-stanzas\">.+?</article>).*?");
+        Pattern pattern1 = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<article data-end=\".*\" class=\"js-stanzas\">.+?</article>).*?");
+        Pattern pattern2 = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"alert.+?(<a href=\".+?</a>).+?");
 
+        mLyricsEnglish = null;
         Matcher matcher = pattern.matcher(lyricsContent);
         if (matcher.find()) {
-            mLyricsEnglish = matcher.group(1) + matcher.group(2);
+            String songTitle = "<h1 id=\"song-title-xs\" class=\"text-center\"> %s </h1>";
+            mLyricsEnglish = songTitle.replace("%s", matcher.group(1)) + matcher.group(2);
+            mLyricsEnglish = mLyricsEnglish.replaceAll("<div class=\"chord-container hidden\">.+?<div data-type=\"verse\" class=\"verse.+?\">", "</div><div data-type=\"verse\" class=\"verse \">");
+            mLyricsEnglish = mLyricsEnglish.replaceAll("<div class=\"chord-container hidden\">.+?</article>", "</article>");
         }
         else {
-            Matcher matcherExt = patternExt.matcher(lyricsContent);
-            if (matcherExt.find()) {
-                mLyricsEnglish = matcherExt.group(1) + matcherExt.group(2);
+            matcher = pattern1.matcher(lyricsContent);
+            if (matcher.find()) {
+                mLyricsEnglish = matcher.group(1) + matcher.group(2);
             }
-        }
-        if (!TextUtils.isEmpty(mLyricsEnglish)) {
-            mLyricsEnglish = mLyricsEnglish.replaceAll("<div class=\"chord-container hidden\">.+?<div data-type=\"verse\" class=\"verse \">", "</div><div data-type=\"verse\" class=\"verse \">");
+            else {
+                matcher = pattern2.matcher(lyricsContent);
+                if (matcher.find()) {
+                    mLyricsEnglish = matcher.group(1) + matcher.group(2);
+                }
+            }
+            if (!TextUtils.isEmpty(mLyricsEnglish)) {
+                mLyricsEnglish = mLyricsEnglish.replaceAll("<div class=\"chord-container hidden\">.+?<div data-type=\"verse\" class=\"verse.+?\">", "</div><div data-type=\"verse\" class=\"verse \">");
+                mLyricsEnglish = mLyricsEnglish.replaceAll("<div class=\"chord-container hidden\">.+?</article>", "</article>");
+            }
         }
         return (!TextUtils.isEmpty(mLyricsEnglish));
     }
@@ -209,12 +215,24 @@ public class LyricsEnglishRecord {
      * @param valueCallback callback to deliver the result
      */
     private void getURLSource(String urlToLoad, final ValueCallback<String> valueCallback) {
-        Pattern pattern = Pattern.compile("<div class=\"row main-content\">(.+?</div></div></article>).+?");
+        Pattern pattern = Pattern.compile("(<div class=\"hn-presenter-data hidden\".+?</div></div></article>).+?");
+        Pattern pattern2 = Pattern.compile("<div class=\"row main-content\">(.+?</div></div></article>).+?");
 
         Timber.d("Starting web scrapping: %s", urlToLoad);
         // HymnsApp.showToastMessage("Starting web scrapping: " + urlToLoad);
         WebView webView = initWebView(mContext);
-        webView.loadUrl(urlToLoad); // preload url and wait for 0.1 sec before checking onPageFinished().
+
+        // Force a specific Mobile Chrome User-Agent if needed
+        // WebSettings settings = webView.getSettings();
+        // settings.setUserAgentString("Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36");
+
+        // Map<String, String> headers = new HashMap<>();
+        // headers.put("X-Device-Type", "Mobile");
+        // headers.put("X-Requested-With", "AndroidWebView");
+        // webView.loadUrl(urlToLoad, headers);
+
+        // preload url and wait for 0.1 sec before checking onPageFinished().
+        webView.loadUrl(urlToLoad);
 
         // Define the timeout action
         timeoutRunnable = () -> {
@@ -251,9 +269,16 @@ public class LyricsEnglishRecord {
                                 valueCallback.onReceiveValue(matcher.group(1));
                             }
                             else {
-                                Timber.w("Web scrapping failed: %s", urlToLoad);
-                                showLyrics("<h5>" + HymnsApp.getResString(R.string.web_scrap_failed, url) + "</h5>");
-                                valueCallback.onReceiveValue(null);
+                                matcher = pattern2.matcher(data);
+                                if (matcher.find()) {
+                                    valueCallback.onReceiveValue(matcher.group(1));
+                                }
+                                else {
+                                    Timber.w("Web scrapping failed: %s", urlToLoad);
+                                    showLyrics("<h5>" + HymnsApp.getResString(R.string.web_scrap_failed, url) + "</h5>");
+                                    valueCallback.onReceiveValue(null);
+
+                                }
                             }
                         });
                     }
