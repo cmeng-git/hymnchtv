@@ -6,8 +6,13 @@
      They are automatically updated with "ant bump-version".
 -->
 <changelog>
-    <release version="2.9.4 (11/03/2026)" versioncode="209040">
+    <release version="2.9.5 (11/06/2026)" versioncode="209050">
         <change>使用前请检阅 &lt;a href='https://cmeng-git.github.io/hymnchtv/faq.html'&gt;诗歌本新应用程序功能&lt;/a&gt;。</change>
+        <change>修复了在线抓取英文歌词时，在保存至数据库前进行内容清理的过程中，副歌（Chorus）部分被意外移除的问题。</change>
+        <change>在 APK 下载失败时，显示下载管理器给出的错误原因代码。</change>
+    </release>
+
+    <release version="2.9.4 (11/03/2026)" versioncode="209040">
         <change>修复在线获取英文歌词时出现的错误；因网页内容发生变更，导致网页抓取失败。</change>
         <change>若英文歌词获取失败且未能显示，长按“英文”按钮即可重新初始化网页视图（webView）并再次尝试获取英文歌词。</change>
         <change>错误修复和改进。</change>

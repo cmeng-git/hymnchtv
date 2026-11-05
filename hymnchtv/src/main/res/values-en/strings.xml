@@ -131,7 +131,7 @@
     <string name="download">Download</string>
     <string name="download_again">Download</string>
     <string name="download_completed">Download completed</string>
-    <string name="download_failed">Failed to download new version! Please exit the app and try again.</string>
+    <string name="download_failed">Failed to download new version (%s)! Please exit the app and try again.</string>
     <string name="download_in_progress">Downloading update.</string>
 
     <string name="download_remaining_time">Remaining time: %1$s</string>

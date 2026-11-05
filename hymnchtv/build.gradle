@@ -9,8 +9,8 @@ android {
         applicationId = 'org.cog.hymnchtv'
 
         // End digit - change to force update with same version number
-        versionCode 209040
-        versionName "2.9.4"
+        versionCode 209050
+        versionName "2.9.5"
 
         minSdkVersion rootProject.minSdk
         targetSdkVersion rootProject.compileSdk
@@ -122,7 +122,7 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpcore:4.4.16'
 
     implementation 'org.jetbrains:annotations:26.1.0'
-    implementation 'org.jsoup:jsoup:1.23.2'
+    implementation 'org.jsoup:jsoup:1.24.1'
 }
 
 /*

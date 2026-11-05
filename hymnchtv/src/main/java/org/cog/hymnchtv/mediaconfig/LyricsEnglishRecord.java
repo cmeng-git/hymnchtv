@@ -169,33 +169,24 @@ public class LyricsEnglishRecord {
             return false;
 
         // Pattern pattern = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<table data-end=\".*\" class=\"js-stanzas\">.+?table>).*?");
-        Pattern pattern = Pattern.compile("<div class=\"hn-presenter-data.+?data-title=\"(.+?)\".+?<div class=\"hymn-content\">.+?(<article data-end=\".*\" class=\"js-stanzas\">.+?</article>).*?");
-        Pattern pattern1 = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<article data-end=\".*\" class=\"js-stanzas\">.+?</article>).*?");
-        Pattern pattern2 = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"alert.+?(<a href=\".+?</a>).+?");
+        Pattern pattern = Pattern.compile("<div class=\"hn-presenter-data.+?data-title=\"(.+?)\".+?<div class=\"hymn-content\">.+?(<article data-end=\"\" class=\"js-stanzas.*\">.+?</article>).*");
+        Pattern pattern1 = Pattern.compile("(<h1 id=\"song-title.+?</h1>).+?<div class=\"row hymn-content\">.+?(<article data-end=\".*\" class=\"js-stanzas.*?\">.+?</article>).*?");
 
         mLyricsEnglish = null;
         Matcher matcher = pattern.matcher(lyricsContent);
         if (matcher.find()) {
             String songTitle = "<h1 id=\"song-title-xs\" class=\"text-center\"> %s </h1>";
             mLyricsEnglish = songTitle.replace("%s", matcher.group(1)) + matcher.group(2);
-            mLyricsEnglish = mLyricsEnglish.replaceAll("<div class=\"chord-container hidden\">.+?<div data-type=\"verse\" class=\"verse.+?\">", "</div><div data-type=\"verse\" class=\"verse \">");
-            mLyricsEnglish = mLyricsEnglish.replaceAll("<div class=\"chord-container hidden\">.+?</article>", "</article>");
         }
         else {
             matcher = pattern1.matcher(lyricsContent);
             if (matcher.find()) {
                 mLyricsEnglish = matcher.group(1) + matcher.group(2);
             }
-            else {
-                matcher = pattern2.matcher(lyricsContent);
-                if (matcher.find()) {
-                    mLyricsEnglish = matcher.group(1) + matcher.group(2);
-                }
-            }
-            if (!TextUtils.isEmpty(mLyricsEnglish)) {
-                mLyricsEnglish = mLyricsEnglish.replaceAll("<div class=\"chord-container hidden\">.+?<div data-type=\"verse\" class=\"verse.+?\">", "</div><div data-type=\"verse\" class=\"verse \">");
-                mLyricsEnglish = mLyricsEnglish.replaceAll("<div class=\"chord-container hidden\">.+?</article>", "</article>");
-            }
+        }
+        if (mLyricsEnglish != null) {
+            mLyricsEnglish = mLyricsEnglish.replaceAll( "<div class=\"chord-container hidden\">.+?</div></div></div></div>", "</div>");
+            mLyricsEnglish = mLyricsEnglish.replaceAll("(?s)<div class=\"chorus chord-container hidden\" data-label=\"Chorus\">.+?</div></div></div></div>", "</div>");
         }
         return (!TextUtils.isEmpty(mLyricsEnglish));
     }

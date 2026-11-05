@@ -1,5 +1,16 @@
 Project hymnchtv Release Notes
 =========================================================================
+Version:        2.9.5 (209050)
+Release Date:   11/06/2026
+Author:         cmeng
+- Resolve English lyrics online web scrapping accidentally removes Chorus during content cleanup before saving to DB.
+- Show Download Manager failure reason code when apk download failed.
+
+Observation:
+- OnReceive download manager with ACTION_DOWNLOAD_COMPLETE with abrupt failure e.g. insufficient memory,
+  its Ids does not include the last download Id for chcking status/reason.
+
+=========================================================================
 Version:        2.9.4 (209040)
 Release Date:   11/03/2026
 Author:         cmeng

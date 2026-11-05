@@ -143,7 +143,7 @@ public class UpdateServiceImpl {
 
         if ((downloadLink != null)) {
             if (!mIsLatest) {
-                if (checkLastDLFileAction() < DownloadManager.ERROR_UNKNOWN)
+                if (checkLastDLFileForAction() < DownloadManager.ERROR_UNKNOWN)
                     return;
                 // currentVersion = "2.7.1";
 
@@ -205,7 +205,7 @@ public class UpdateServiceImpl {
                             @Override
                             public boolean onConfirmClicked(DialogActivity dialog) {
                                 if (PermissionUtils.checkWriteStoragePermission(MainActivity.getInstance())) {
-                                    if (checkLastDLFileAction() >= DownloadManager.ERROR_UNKNOWN)
+                                    if (checkLastDLFileForAction() >= DownloadManager.ERROR_UNKNOWN)
                                         downloadApk();
                                 }
                                 return true;
@@ -228,15 +228,17 @@ public class UpdateServiceImpl {
      *
      * @return Last DownloadManager status; default to DownloadManager.ERROR_UNKNOWN if status unknown
      */
-    private int checkLastDLFileAction() {
+    private int checkLastDLFileForAction() {
         // Check old or scheduled downloads
         int lastJobStatus = DownloadManager.ERROR_UNKNOWN;
 
         List<Long> previousDownloads = getOldDownloads();
         if (!previousDownloads.isEmpty()) {
             long lastDownload = previousDownloads.get(previousDownloads.size() - 1);
+            int[] status = checkDownloadStatus(lastDownload);
 
-            lastJobStatus = checkDownloadStatus(lastDownload);
+            lastJobStatus = status[0];
+            int reason = status[1];
             if (lastJobStatus == DownloadManager.STATUS_SUCCESSFUL) {
                 DownloadManager downloadManager = HymnsApp.getDownloadManager();
                 Uri fileUri = downloadManager.getUriForDownloadedFile(lastDownload);
@@ -256,7 +258,7 @@ public class UpdateServiceImpl {
                 // Download id return failed status, remove failed id and retry
                 removeOldDownloads();
                 DialogActivity.showDialog(HymnsApp.getGlobalContext(),
-                        R.string.app_update_install, R.string.download_failed);
+                        R.string.app_update_install, R.string.download_failed, reason);
             }
         }
         return lastJobStatus;
@@ -301,16 +303,41 @@ public class UpdateServiceImpl {
      * {@link DownloadManager#STATUS_FAILED} will be returned.
      */
     @SuppressLint("Range")
-    private int checkDownloadStatus(long id) {
+    private int[] checkDownloadStatus(long id) {
         DownloadManager downloadManager = HymnsApp.getDownloadManager();
         DownloadManager.Query query = new DownloadManager.Query();
         query.setFilterById(id);
+        int[] status = new int[2];
 
         try (Cursor cursor = downloadManager.query(query)) {
-            if (!cursor.moveToFirst())
-                return DownloadManager.STATUS_FAILED;
-            else
-                return cursor.getInt(cursor.getColumnIndex(DownloadManager.COLUMN_STATUS));
+            if (!cursor.moveToFirst()) {
+                status[0] = DownloadManager.STATUS_FAILED;
+                status[1] = DownloadManager.ERROR_INSUFFICIENT_SPACE;
+
+                List<Long> downloadIds = new ArrayList<>();
+                try (Cursor cursor1 = downloadManager.query(new DownloadManager.Query())) {
+                    if (cursor1 != null) {
+                        // Find the column index for the unique download ID
+                        int idColumnIndex = cursor1.getColumnIndex(DownloadManager.COLUMN_ID);
+
+                        // Iterate through the results and collect the IDs
+                        while (cursor1.moveToNext()) {
+                            long downloadId = cursor1.getLong(idColumnIndex);
+                            downloadIds.add(downloadId);
+                        }
+                        Timber.e("Failed Id: %s; %s", id, downloadIds);
+                    }
+                } catch (Exception e) {
+                    Timber.e("Check Download Status: %s", e.getMessage());
+                }
+            }
+            else {
+                int statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS);
+                int reasonIndex = cursor.getColumnIndex(DownloadManager.COLUMN_REASON);
+                status[0] = cursor.getInt(statusIndex);
+                status[1] = cursor.getInt(reasonIndex);
+            }
+            return status;
         }
     }
 
@@ -341,7 +368,8 @@ public class UpdateServiceImpl {
     private class DownloadReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (checkLastDLFileAction() < DownloadManager.ERROR_UNKNOWN)
+            // long downloadId = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            if (checkLastDLFileForAction() < DownloadManager.ERROR_UNKNOWN)
                 return;
 
             // unregistered downloadReceiver

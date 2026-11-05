@@ -131,7 +131,7 @@
     <string name="download">下载</string>
     <string name="download_again">重新下载</string>
     <string name="download_completed">下载完毕</string>
-    <string name="download_failed">无法下载新程序版本！请退出应用程序并重试。</string>
+    <string name="download_failed">无法下载新程序版本 (%s)！请退出应用程序并重试。</string>
     <string name="download_in_progress">正在下载更新。</string>
 
     <string name="download_remaining_time">剩余时间: %1$s</string>
